@@ -210,6 +210,7 @@ textarea.fc{resize:vertical;min-height:52px}
     <a onclick="SH('emp')">🏢 Empresas</a>
     <a onclick="SH('aseg')">🏛 Aseg.</a>
     <a onclick="SH('cfg')">⚙️</a>
+    <a onclick="SH('adm')">🛡️ Admin</a>
   </nav>
   <div class="ha" id="ha"><button class="btn bsm" onclick="doLogout()">🚪</button></div>
 </div></div>
@@ -458,6 +459,128 @@ textarea.fc{resize:vertical;min-height:52px}
   </div>
 </div>
 
+<!-- ═══ MÓDULO ADMIN ═══ -->
+<div class="pg" id="pg-adm">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <span style="font-size:22px">🛡️</span>
+    <h2 style="font-size:18px;font-weight:700;color:var(--bl)">Administración</h2>
+  </div>
+  <!-- Tabs -->
+  <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap" id="adm-tabs">
+    <button class="btn bsm bp" id="admt-perfil" onclick="admTab('perfil')">👤 Mi Perfil</button>
+    <button class="btn bsm brd2" id="admt-usuarios" onclick="admTab('usuarios')">👥 Usuarios</button>
+    <button class="btn bsm brd2" id="admt-gmail" onclick="admTab('gmail')">📧 Sync Gmail</button>
+    <button class="btn bsm brd2" id="admt-log" onclick="admTab('log')">📋 Actividad</button>
+  </div>
+
+  <!-- TAB: PERFIL -->
+  <div id="adm-perfil">
+    <div class="card" style="padding:20px;max-width:640px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div id="adm-avatar-wrap" style="width:72px;height:72px;border-radius:50%;overflow:hidden;background:var(--lig);border:2px solid var(--bl);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px" onclick="loadAdmPhoto()">
+          <span id="adm-avatar-init">JA</span>
+          <img id="adm-avatar-img" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:15px;color:var(--bl)" id="adm-name-show">Jely An Castro Pérez</div>
+          <div style="font-size:12px;color:var(--mu)" id="adm-email-show">jelyancorredora@gmail.com</div>
+          <button class="btn bsm brd2" style="margin-top:4px;font-size:11px" onclick="loadAdmPhoto()">📷 Cambiar foto</button>
+          <input type="file" id="adm-photo-inp" accept="image/*" style="display:none" onchange="handleAdmPhoto(this)">
+        </div>
+      </div>
+      <div class="fg" style="gap:12px">
+        <div class="fl ff"><label style="font-size:12px;font-weight:600;color:var(--mu)">Nombre completo</label>
+          <input class="fc" id="adm-nombre" placeholder="Tu nombre completo"></div>
+        <div class="fl"><label style="font-size:12px;font-weight:600;color:var(--mu)">Cargo / Título</label>
+          <input class="fc" id="adm-cargo" placeholder="Ej: Agente de Seguros"></div>
+        <div class="fl"><label style="font-size:12px;font-weight:600;color:var(--mu)">Teléfono</label>
+          <input class="fc" id="adm-tel" placeholder="+507 6XXX-XXXX"></div>
+        <div class="fl"><label style="font-size:12px;font-weight:600;color:var(--mu)">Email</label>
+          <input class="fc" id="adm-email" type="email" placeholder="tu@email.com"></div>
+        <div class="fl ff"><label style="font-size:12px;font-weight:600;color:var(--mu)">Firma / Bio corta</label>
+          <textarea class="fc" id="adm-bio" rows="3" placeholder="Ej: Lic. #6175 · JAC Seguros · Panamá"></textarea></div>
+        <div class="fl ff"><label style="font-size:12px;font-weight:600;color:var(--mu)">Número de licencia</label>
+          <input class="fc" id="adm-lic" placeholder="Ej: 6175"></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="btn bsm bp" onclick="saveAdmPerfil()">💾 Guardar Perfil</button>
+        <button class="btn bsm brd2" onclick="loadAdmPerfil()">↺ Recargar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: USUARIOS -->
+  <div id="adm-usuarios" style="display:none">
+    <div class="card" style="padding:20px;max-width:720px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-weight:700;font-size:14px;color:var(--bl)">👥 Usuarios del sistema</span>
+        <button class="btn bsm bp" onclick="OM('mo-invitar');renderInviteModal()">+ Invitar usuario</button>
+      </div>
+      <div id="adm-users-list" style="font-size:13px;color:var(--mu)">Cargando…</div>
+      <div style="margin-top:16px;padding:12px;background:var(--lig);border-radius:8px;font-size:12px;color:var(--mu)">
+        💡 Para agregar usuarios adicionales, invítalos con su email. Recibirán un enlace de acceso al CRM.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: GMAIL SYNC -->
+  <div id="adm-gmail" style="display:none">
+    <div class="card" style="padding:20px;max-width:720px">
+      <div style="font-weight:700;font-size:14px;color:var(--bl);margin-bottom:4px">📧 Sincronización de correos</div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:16px">Conecta tus cuentas de Gmail para importar automáticamente los correos de tus clientes a su historial en el CRM.</p>
+
+      <!-- Cuenta 1 -->
+      <div style="border:1px solid var(--brd);border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <img src="https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_32dp.png" style="width:22px;height:22px">
+          <span style="font-weight:600;font-size:13px">jelyancorredora@gmail.com</span>
+          <span id="gmail-status-1" style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:12px;background:#fee2e2;color:#991b1b">● No conectado</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn bsm bp" id="gmail-btn-1" onclick="gmailSignIn('jelyancorredora@gmail.com',1)">🔑 Conectar con Google</button>
+          <button class="btn bsm brd2" id="gmail-sync-btn-1" onclick="gmailSyncAll(1)" style="display:none">🔄 Sincronizar ahora</button>
+          <button class="btn bsm brd2" id="gmail-disc-btn-1" onclick="gmailDisconnect(1)" style="display:none">Desconectar</button>
+        </div>
+        <div id="gmail-log-1" style="margin-top:8px;font-size:11px;color:var(--mu)"></div>
+      </div>
+
+      <!-- Cuenta 2 -->
+      <div style="border:1px solid var(--brd);border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <img src="https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_32dp.png" style="width:22px;height:22px">
+          <span style="font-weight:600;font-size:13px">jcastro@jacsegurospa.com</span>
+          <span id="gmail-status-2" style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:12px;background:#fee2e2;color:#991b1b">● No conectado</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn bsm bp" id="gmail-btn-2" onclick="gmailSignIn('jcastro@jacsegurospa.com',2)">🔑 Conectar con Google</button>
+          <button class="btn bsm brd2" id="gmail-sync-btn-2" onclick="gmailSyncAll(2)" style="display:none">🔄 Sincronizar ahora</button>
+          <button class="btn bsm brd2" id="gmail-disc-btn-2" onclick="gmailDisconnect(2)" style="display:none">Desconectar</button>
+        </div>
+        <div id="gmail-log-2" style="margin-top:8px;font-size:11px;color:var(--mu)"></div>
+      </div>
+
+      <!-- Estado de la última sync -->
+      <div id="gmail-last-sync" style="font-size:11px;color:var(--mu);padding:10px;background:var(--lig);border-radius:8px">
+        <b>Última sincronización:</b> <span id="gmail-last-ts">—</span>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:11px;color:#92400e">
+        ⚠️ <b>Importante:</b> Para que la sincronización funcione, debes configurar un proyecto en Google Cloud Console con OAuth 2.0 y habilitar la Gmail API. Contacta al administrador del sistema si necesitas ayuda.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: LOG ACTIVIDAD -->
+  <div id="adm-log" style="display:none">
+    <div class="card" style="padding:20px;max-width:720px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-weight:700;font-size:14px;color:var(--bl)">📋 Registro de actividad</span>
+        <button class="btn bsm brd2" onclick="clearAdmLog()" style="font-size:11px">🗑 Limpiar</button>
+      </div>
+      <div id="adm-log-list" style="max-height:420px;overflow-y:auto;font-size:12px"></div>
+    </div>
+  </div>
+</div>
+
 </main>
 
 <!-- PANEL LATERAL DE DETALLE -->
@@ -487,6 +610,7 @@ textarea.fc{resize:vertical;min-height:52px}
   <a onclick="SH('emp');closeBnMore()"><span style="font-size:16px">🏢</span>Empresas</a>
   <a onclick="SH('aseg');closeBnMore()"><span style="font-size:16px">🏛</span>Aseg.</a>
   <a onclick="SH('cfg');closeBnMore()"><span style="font-size:16px">⚙️</span>Config.</a>
+  <a onclick="SH('adm');closeBnMore()"><span style="font-size:16px">🛡️</span>Admin</a>
   <a onclick="doLogout()"><span style="font-size:16px">🚪</span>Salir</a>
 </div>
 <a href="https://wa.me/50762926010" target="_blank" rel="noopener" class="waf" title="JAC Seguros WhatsApp">💬</a>
@@ -920,6 +1044,8 @@ function loadS(){
       if(!p.comisiones)p.comisiones=JSON.parse(JSON.stringify(D.comisiones));
       if(!p.pagos)p.pagos=[];
       if(!p.vcReglas)p.vcReglas=JSON.parse(JSON.stringify(D.vcReglas));
+      if(!p.perfil)p.perfil={nombre:'Jely An Castro Pérez',cargo:'Agente de Seguros',tel:'+507 6292-6010',email:'jelyancorredora@gmail.com',bio:'Lic. #6175 · JAC Seguros · Panamá',lic:'6175',foto:''};
+      if(!p.admLog)p.admLog=[];
       p.clientes.forEach(c=>{if(!c.historialWA)c.historialWA=[];if(!c.etiquetas)c.etiquetas=[];if(!c.archivos)c.archivos=[];});
       p.prospectos.forEach(pr=>{if(!pr.historial)pr.historial=[];if(!pr.archivos)pr.archivos=[];if(!pr.etiquetas)pr.etiquetas=[];});
       return p;
@@ -927,6 +1053,8 @@ function loadS(){
   }catch(e){console.error('loadS:',e);}
   const n=JSON.parse(JSON.stringify(D));
   n.pagos=[];
+  n.perfil={nombre:'Jely An Castro Pérez',cargo:'Agente de Seguros',tel:'+507 6292-6010',email:'jelyancorredora@gmail.com',bio:'Lic. #6175 · JAC Seguros · Panamá',lic:'6175',foto:''};
+  n.admLog=[];
   return n;
 }
 let S=loadS();
@@ -2840,5 +2968,420 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+
+<!-- ═══ MÓDULO ADMIN · JAC Seguros CRM ═══ -->
+<script>
+// ─────────────────────────────────────────────────────────────
+//  ADMIN MODULE — Perfil, Usuarios, Gmail Sync, Actividad
+// ─────────────────────────────────────────────────────────────
+
+// ── Tab switcher ─────────────────────────────────────────────
+function admTab(tab) {
+  ['perfil','usuarios','gmail','log'].forEach(t => {
+    const el = document.getElementById('adm-' + t);
+    const btn = document.getElementById('admt-' + t);
+    if (el) el.style.display = t === tab ? '' : 'none';
+    if (btn) {
+      btn.className = t === tab ? 'btn bsm bp' : 'btn bsm brd2';
+    }
+  });
+  if (tab === 'perfil')   loadAdmPerfil();
+  if (tab === 'usuarios') loadAdmUsers();
+  if (tab === 'gmail')    refreshGmailStatus();
+  if (tab === 'log')      renderAdmLog();
+}
+
+// ── PERFIL ───────────────────────────────────────────────────
+function loadAdmPerfil() {
+  if (!S.perfil) S.perfil = {};
+  const p = S.perfil;
+  const fields = ['nombre','cargo','tel','email','bio','lic'];
+  fields.forEach(f => {
+    const el = document.getElementById('adm-' + f);
+    if (el) el.value = p[f] || '';
+  });
+  // Nombre y email en header
+  const ns = document.getElementById('adm-name-show');
+  const es = document.getElementById('adm-email-show');
+  if (ns) ns.textContent = p.nombre || 'Jely An Castro Pérez';
+  if (es) es.textContent = p.email || 'jelyancorredora@gmail.com';
+  // Foto de perfil
+  const img = document.getElementById('adm-avatar-img');
+  const init = document.getElementById('adm-avatar-init');
+  if (p.foto && img) {
+    img.src = p.foto;
+    img.style.display = 'block';
+    if (init) init.style.display = 'none';
+  } else {
+    if (img) img.style.display = 'none';
+    if (init) {
+      init.style.display = '';
+      const nombre = p.nombre || 'JA';
+      const parts = nombre.split(' ');
+      init.textContent = (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+    }
+  }
+}
+
+function saveAdmPerfil() {
+  if (!S.perfil) S.perfil = {};
+  const fields = ['nombre','cargo','tel','email','bio','lic'];
+  fields.forEach(f => {
+    const el = document.getElementById('adm-' + f);
+    if (el) S.perfil[f] = el.value.trim();
+  });
+  save(true);
+  logAdm('Perfil actualizado');
+  // Actualizar header
+  const ns = document.getElementById('adm-name-show');
+  const es = document.getElementById('adm-email-show');
+  if (ns) ns.textContent = S.perfil.nombre || '';
+  if (es) es.textContent = S.perfil.email || '';
+  toast('✓ Perfil guardado');
+}
+
+function loadAdmPhoto() {
+  document.getElementById('adm-photo-inp')?.click();
+}
+
+function handleAdmPhoto(inp) {
+  const file = inp.files[0];
+  if (!file) return;
+  if (file.size > 500000) { toast('Foto muy grande (máx 500KB)', 'err'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (!S.perfil) S.perfil = {};
+    S.perfil.foto = e.target.result;
+    save(true);
+    loadAdmPerfil();
+    toast('✓ Foto actualizada');
+    logAdm('Foto de perfil cambiada');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── USUARIOS ──────────────────────────────────────────────────
+function loadAdmUsers() {
+  const el = document.getElementById('adm-users-list');
+  if (!el) return;
+  // Lista estática de usuarios del sistema
+  const users = [
+    { nombre: 'Jely An Castro Pérez', email: 'jelyancorredora@gmail.com', rol: 'Administrador', estado: 'Activo' },
+    { nombre: 'JAC Seguros (Zoho)', email: 'jcastro@jacsegurospa.com', rol: 'Agente', estado: 'Activo' },
+  ];
+  let h = `<table style="width:100%;border-collapse:collapse">
+    <thead><tr style="background:var(--lig)">
+      <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--mu)">NOMBRE</th>
+      <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--mu)">EMAIL</th>
+      <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--mu)">ROL</th>
+      <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--mu)">ESTADO</th>
+    </tr></thead><tbody>`;
+  users.forEach(u => {
+    const parts = u.nombre.split(' ');
+    const init = (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+    const color = u.rol === 'Administrador' ? '#1A3A6B' : '#15803D';
+    h += `<tr style="border-bottom:1px solid var(--brd)">
+      <td style="padding:10px;display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:50%;background:${color}18;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:${color};flex-shrink:0">${init}</div>
+        <span style="font-size:13px;font-weight:600">${u.nombre}</span>
+      </td>
+      <td style="padding:10px;font-size:12px;color:var(--mu)">${u.email}</td>
+      <td style="padding:10px">
+        <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:${color}18;color:${color};font-weight:600">${u.rol}</span>
+      </td>
+      <td style="padding:10px">
+        <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#d1fae5;color:#065f46;font-weight:600">● ${u.estado}</span>
+      </td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  el.innerHTML = h;
+}
+
+// ── LOG DE ACTIVIDAD ──────────────────────────────────────────
+function logAdm(accion, detalle) {
+  if (!S.admLog) S.admLog = [];
+  S.admLog.unshift({
+    ts: new Date().toISOString(),
+    accion,
+    detalle: detalle || '',
+    user: (S.perfil && S.perfil.nombre) || 'Admin'
+  });
+  // Mantener solo los últimos 200 registros
+  if (S.admLog.length > 200) S.admLog = S.admLog.slice(0, 200);
+  save();
+}
+
+function renderAdmLog() {
+  const el = document.getElementById('adm-log-list');
+  if (!el) return;
+  const logs = S.admLog || [];
+  if (!logs.length) {
+    el.innerHTML = '<div style="color:var(--mu);text-align:center;padding:20px">Sin registros de actividad</div>';
+    return;
+  }
+  const tipos = {
+    'Perfil': '👤', 'Gmail': '📧', 'Cliente': '👥', 'Póliza': '📋',
+    'Tag': '🏷', 'Config': '⚙️', 'Login': '🔐', 'Export': '📤'
+  };
+  let h = '';
+  logs.forEach(log => {
+    const dt = new Date(log.ts);
+    const fecha = `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()} ${dt.getHours()}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    const ico = Object.entries(tipos).find(([k]) => log.accion.includes(k))?.[1] || '📝';
+    h += `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-bottom:1px solid var(--brd)">
+      <span style="font-size:16px;flex-shrink:0">${ico}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--tx)">${log.accion}</div>
+        ${log.detalle ? `<div style="font-size:11px;color:var(--mu)">${log.detalle}</div>` : ''}
+      </div>
+      <div style="font-size:10px;color:var(--mu);flex-shrink:0;text-align:right">
+        ${fecha}<br><span style="font-size:9px">${log.user}</span>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = h;
+}
+
+function clearAdmLog() {
+  confirm2('¿Limpiar el registro de actividad?', () => {
+    S.admLog = [];
+    save(true);
+    renderAdmLog();
+    toast('Registro limpiado');
+  });
+}
+
+// ── GMAIL SYNC ────────────────────────────────────────────────
+// Tokens de acceso guardados en sessionStorage (se borran al cerrar el navegador)
+const GMAIL_TOKENS = {};
+
+// CLIENT_ID de Google Cloud Console
+// Para activar: crea un proyecto en console.cloud.google.com,
+// habilita Gmail API y crea credencial OAuth2 tipo "Aplicación Web"
+// con redirect_uri = https://crm.jacsegurospa.com
+const GMAIL_CLIENT_ID = 'TU_GOOGLE_CLIENT_ID_AQUI'; // ← reemplaza en Google Cloud Console
+
+function refreshGmailStatus() {
+  [1, 2].forEach(n => {
+    const token = GMAIL_TOKENS[n] || sessionStorage.getItem('jac_gmail_token_' + n);
+    const status = document.getElementById('gmail-status-' + n);
+    const syncBtn = document.getElementById('gmail-sync-btn-' + n);
+    const discBtn = document.getElementById('gmail-disc-btn-' + n);
+    const connBtn = document.getElementById('gmail-btn-' + n);
+    if (token) {
+      GMAIL_TOKENS[n] = token;
+      if (status) { status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '● Conectado'; }
+      if (syncBtn) syncBtn.style.display = '';
+      if (discBtn) discBtn.style.display = '';
+      if (connBtn) connBtn.style.display = 'none';
+    } else {
+      if (status) { status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = '● No conectado'; }
+      if (syncBtn) syncBtn.style.display = 'none';
+      if (discBtn) discBtn.style.display = 'none';
+      if (connBtn) connBtn.style.display = '';
+    }
+  });
+  // Última sincronización
+  const lastTs = localStorage.getItem('jac_gmail_last_sync');
+  const lsEl = document.getElementById('gmail-last-ts');
+  if (lsEl) lsEl.textContent = lastTs ? new Date(lastTs).toLocaleString('es-PA') : '—';
+}
+
+function gmailSignIn(email, n) {
+  if (GMAIL_CLIENT_ID === 'TU_GOOGLE_CLIENT_ID_AQUI') {
+    toast('⚠️ Configura el Google Client ID en el código', 'err');
+    return;
+  }
+  const scope = 'https://www.googleapis.com/auth/gmail.readonly';
+  const redirectUri = encodeURIComponent(location.origin + location.pathname);
+  const url = `https://accounts.google.com/o/oauth2/v2/auth` +
+    `?client_id=${encodeURIComponent(GMAIL_CLIENT_ID)}` +
+    `&redirect_uri=${redirectUri}` +
+    `&response_type=token` +
+    `&scope=${encodeURIComponent(scope)}` +
+    `&login_hint=${encodeURIComponent(email)}` +
+    `&prompt=consent`;
+
+  const w = window.open(url, 'gmailauth', 'width=500,height=620,left=200,top=100');
+  const log = document.getElementById('gmail-log-' + n);
+  if (log) log.textContent = 'Esperando autorización de Google…';
+
+  const poll = setInterval(() => {
+    try {
+      if (w.closed) {
+        clearInterval(poll);
+        if (log) log.textContent = '';
+        return;
+      }
+      const hash = w.location.hash;
+      if (hash && hash.includes('access_token=')) {
+        const params = new URLSearchParams(hash.slice(1));
+        const token = params.get('access_token');
+        w.close();
+        clearInterval(poll);
+        if (token) {
+          GMAIL_TOKENS[n] = token;
+          sessionStorage.setItem('jac_gmail_token_' + n, token);
+          refreshGmailStatus();
+          toast('✓ Gmail conectado — cuenta ' + n);
+          logAdm('Gmail conectado', email);
+          if (log) log.textContent = '✓ Conectado correctamente';
+          gmailSyncAll(n);
+        }
+      }
+    } catch (e) { /* cross-origin — normal durante el redirect */ }
+  }, 500);
+}
+
+function gmailDisconnect(n) {
+  delete GMAIL_TOKENS[n];
+  sessionStorage.removeItem('jac_gmail_token_' + n);
+  refreshGmailStatus();
+  toast('Gmail desconectado');
+  logAdm('Gmail desconectado', 'Cuenta ' + n);
+}
+
+async function gmailSyncAll(n) {
+  const token = GMAIL_TOKENS[n] || sessionStorage.getItem('jac_gmail_token_' + n);
+  if (!token) { toast('Conecta Gmail primero', 'err'); return; }
+
+  const log = document.getElementById('gmail-log-' + n);
+  if (log) log.textContent = '🔄 Sincronizando correos…';
+
+  let importados = 0;
+  const clientes = S.clientes || [];
+
+  for (const cl of clientes) {
+    if (cl.email) {
+      const count = await gmailSyncClient(token, cl, cl.email);
+      importados += count;
+    }
+    if (cl.email2) {
+      const count = await gmailSyncClient(token, cl, cl.email2);
+      importados += count;
+    }
+  }
+
+  localStorage.setItem('jac_gmail_last_sync', new Date().toISOString());
+  const lsEl = document.getElementById('gmail-last-ts');
+  if (lsEl) lsEl.textContent = new Date().toLocaleString('es-PA');
+
+  if (importados > 0) {
+    save(true);
+    logAdm('Gmail sync', `${importados} correo(s) importados desde cuenta ${n}`);
+    if (log) log.textContent = `✓ ${importados} correo(s) importados`;
+    toast(`✓ ${importados} correo(s) sincronizados`);
+  } else {
+    if (log) log.textContent = '✓ Sin correos nuevos';
+    toast('Sin correos nuevos para importar');
+  }
+}
+
+async function gmailSyncClient(token, cl, email) {
+  try {
+    // Buscar threads donde aparezca el email del cliente
+    const q = encodeURIComponent(`from:${email} OR to:${email}`);
+    const resp = await fetch(
+      `https://gmail.googleapis.com/gmail/v1/users/me/threads?q=${q}&maxResults=20`,
+      { headers: { Authorization: 'Bearer ' + token } }
+    );
+    if (!resp.ok) return 0;
+    const data = await resp.json();
+    if (!data.threads?.length) return 0;
+
+    if (!cl.historialWA) cl.historialWA = [];
+    let imported = 0;
+
+    for (const thread of data.threads.slice(0, 10)) {
+      // Evitar duplicados
+      const exists = cl.historialWA.some(h => h.gmailId === thread.id);
+      if (exists) continue;
+
+      // Obtener primer mensaje del thread
+      const tmResp = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/threads/${thread.id}?format=metadata&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=From`,
+        { headers: { Authorization: 'Bearer ' + token } }
+      );
+      if (!tmResp.ok) continue;
+      const tmData = await tmResp.json();
+      const msg = tmData.messages?.[0];
+      if (!msg) continue;
+
+      const headers = msg.payload?.headers || [];
+      const subject = headers.find(h => h.name === 'Subject')?.value || '(sin asunto)';
+      const dateStr = headers.find(h => h.name === 'Date')?.value || '';
+      const from = headers.find(h => h.name === 'From')?.value || '';
+
+      const fecha = dateStr ? new Date(dateStr).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+      cl.historialWA.push({
+        id: 'GM' + uid(),
+        gmailId: thread.id,
+        fecha,
+        tipo: 'Email',
+        nota: `📧 Gmail: ${subject} | De: ${from}`,
+        fuente: 'gmail'
+      });
+      imported++;
+    }
+    return imported;
+  } catch (e) {
+    console.warn('[Gmail sync]', e);
+    return 0;
+  }
+}
+
+// ── MODAL INVITAR USUARIO ─────────────────────────────────────
+// El modal usa los helpers OM/CM estándar del CRM
+// El formulario de invitación solo muestra instrucciones ya que
+// la gestión real de usuarios la hace Supabase desde el dashboard.
+function renderInviteModal() {
+  const el = document.getElementById('mo-invitar-body');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="padding:16px">
+      <p style="font-size:13px;color:var(--tx);margin-bottom:12px">Para invitar un nuevo usuario al CRM, sigue estos pasos:</p>
+      <ol style="font-size:12px;color:var(--mu);line-height:1.8;padding-left:18px">
+        <li>Inicia sesión en <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--bl)">supabase.com/dashboard</a></li>
+        <li>Entra a tu proyecto → <b>Authentication → Users</b></li>
+        <li>Haz clic en <b>"Invite user"</b> e ingresa el email del nuevo usuario</li>
+        <li>El usuario recibirá un correo con enlace de activación</li>
+        <li>Una vez activado, podrá ingresar al CRM con su contraseña</li>
+      </ol>
+      <div style="margin-top:14px;padding:10px;background:var(--lig);border-radius:8px;font-size:11px;color:var(--mu)">
+        🔐 Solo el administrador (tú) puede agregar usuarios desde el panel de Supabase.
+      </div>
+    </div>`;
+}
+
+// ── Hook en SH() para cargar admin cuando se navega al módulo ──
+const _origSH = window.SH;
+window.SH = function(id, ...args) {
+  if (typeof _origSH === 'function') _origSH(id, ...args);
+  if (id === 'adm') {
+    setTimeout(() => {
+      admTab('perfil');
+    }, 50);
+  }
+};
+
+console.info('[JAC Admin Module] Cargado ✓');
+</script>
+
+<!-- MODAL INVITAR USUARIO -->
+<div class="mo" id="mo-invitar">
+  <div class="md" style="max-width:480px">
+    <div class="mh">
+      <h2>👥 Invitar usuario</h2>
+      <button class="btn bgh" onclick="CM('mo-invitar')">✕</button>
+    </div>
+    <div class="mb" id="mo-invitar-body"></div>
+    <div class="mf">
+      <button class="btn bp" onclick="CM('mo-invitar')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
