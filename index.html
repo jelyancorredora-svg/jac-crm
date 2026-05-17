@@ -882,10 +882,11 @@ function clearData(){if(!confirm('¿BORRAR TODO? Irreversible.'))return;localSto
 function addEtiqueta(){
   const n=V('cfg-tag-n').trim(),c=document.getElementById('cfg-tag-c').value;
   if(!n){toast('Escribe un nombre','err');return;}
-  S.etiquetas.push({id:'ET'+uid(),nombre:n,color:c});save();
+  S.etiquetas.push({id:'ET'+uid(),nombre:n,color:c});
+  save(true); // guardado inmediato para que la etiqueta no se pierda
   SVal('cfg-tag-n','');RCfg();toast('✓ Etiqueta creada');
 }
-function delEtiqueta(id){confirm2('¿Eliminar etiqueta?',()=>{S.etiquetas=S.etiquetas.filter(e=>e.id!==id);save();RCfg();toast('Eliminada');});}
+function delEtiqueta(id){confirm2('¿Eliminar etiqueta?',()=>{S.etiquetas=S.etiquetas.filter(e=>e.id!==id);save(true);RCfg();toast('Eliminada');});}
 
 // ── CONSTANTS ──
 // RAMOS NORMALIZADOS: SALUD/MÉDICOS (unificado), VIDA (unificado), MOTOS (renombrado de OTROS)
@@ -2091,8 +2092,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
       autoRefreshToken: true,
-      persistSession: true,         // sesión persiste entre pestañas/recargas
-      detectSessionInUrl: true,
+      persistSession: true,
+      storage: window.sessionStorage, // ← sesión vive solo mientras la pestaña esté abierta
+      detectSessionInUrl: false,       // ← no restaurar sesión desde URL
     }
   });
 
@@ -2224,6 +2226,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   /** Reemplaza doLogout() — cierra sesión en Supabase */
   window.doLogout = async function () {
+    _currentSession = null;
     await db.auth.signOut();
     sessionStorage.removeItem('jac_s');
     document.getElementById('app').style.display = 'none';
@@ -2264,22 +2267,28 @@ document.addEventListener('DOMContentLoaded',()=>{
   // ── ALMACENAMIENTO ────────────────────────────────────────
 
   let _syncTimer = null;
+  let _currentSession = null; // caché de sesión para evitar llamadas repetidas
 
   /**
    * Reemplaza save() — escribe en localStorage inmediatamente
-   * y sincroniza a Supabase con debounce de 2 segundos.
+   * y sincroniza a Supabase con debounce de 1 segundo.
+   * Pasa force=true para sincronización inmediata (sin debounce).
    */
-  window.save = async function () {
+  window.save = async function (force = false) {
+    // Agregar timestamp para resolver conflictos de sincronización
+    S._ts = Date.now();
+
     // Caché local instantánea (para que la UI sea fluida)
     try { localStorage.setItem('jacv10', JSON.stringify(S)); } catch (e) {
       console.warn('[JAC] localStorage lleno');
     }
 
-    // Sincronización a Supabase con debounce
+    // Sincronización a Supabase
     clearTimeout(_syncTimer);
+    const delay = force ? 0 : 1000;
     _syncTimer = setTimeout(async () => {
       try {
-        const { data: { session } } = await db.auth.getSession();
+        const session = _currentSession || (await db.auth.getSession()).data.session;
         if (!session) return;
 
         const { error } = await db
@@ -2289,11 +2298,15 @@ document.addEventListener('DOMContentLoaded',()=>{
             { onConflict: 'user_id' }
           );
 
-        if (error) console.error('[JAC Supabase save]', error.message);
+        if (error) {
+          console.error('[JAC Supabase save]', error.message);
+          if (typeof toast === 'function') toast('⚠️ Error al guardar: ' + error.message, 'err');
+        }
       } catch (err) {
         console.error('[JAC save error]', err);
+        if (typeof toast === 'function') toast('⚠️ Error de conexión al guardar', 'err');
       }
-    }, 2000);
+    }, delay);
   };
 
   /**
@@ -2319,43 +2332,69 @@ document.addEventListener('DOMContentLoaded',()=>{
   // ── INICIALIZACIÓN POST-LOGIN ─────────────────────────────
 
   async function initAfterLogin(session) {
+    // Guardar sesión en caché para que save() no tenga que llamar getSession() cada vez
+    _currentSession = session;
+
     // 1. Cargar datos desde Supabase
     const sbData = await loadFromSupabase(session);
 
-    if (sbData) {
-      // Supabase es la fuente de verdad: reemplaza S completamente
-      if (typeof S !== 'undefined') {
-        Object.assign(S, sbData);
-      }
-      // Actualizar caché local
-      try { localStorage.setItem('jacv10', JSON.stringify(sbData)); } catch (e) {}
-    } else {
-      // Primera vez o sin datos en Supabase: migrar localStorage si existe
+    // 2. Leer datos locales para comparar
+    let localData = null;
+    try {
       const localRaw = localStorage.getItem('jacv10');
-      if (localRaw) {
-        try {
-          const localData = JSON.parse(localRaw);
-          // Subir datos locales a Supabase (migración automática)
-          await db.from('jac_crm_data').upsert(
-            { user_id: session.user.id, data: localData },
-            { onConflict: 'user_id' }
-          );
-          if (typeof S !== 'undefined') Object.assign(S, localData);
-          console.info('[JAC] Datos migrados de localStorage a Supabase ✓');
-        } catch (e) {
-          console.warn('[JAC] Error migrando datos:', e);
-        }
+      if (localRaw) localData = JSON.parse(localRaw);
+    } catch (e) {}
+
+    if (sbData && localData) {
+      // Ambas fuentes tienen datos — usar la más reciente (por timestamp _ts)
+      const sbTs    = sbData._ts    || 0;
+      const localTs = localData._ts || 0;
+
+      if (localTs > sbTs) {
+        // localStorage es más reciente: usar local y subir a Supabase
+        if (typeof S !== 'undefined') Object.assign(S, localData);
+        console.info('[JAC] Usando datos locales (más recientes). Sincronizando a Supabase…');
+        await db.from('jac_crm_data').upsert(
+          { user_id: session.user.id, data: localData },
+          { onConflict: 'user_id' }
+        ).then(({ error }) => {
+          if (error) console.error('[JAC] Error sincronizando local→Supabase:', error.message);
+          else console.info('[JAC] Datos locales sincronizados a Supabase ✓');
+        });
+      } else {
+        // Supabase es más reciente (o igual): usar Supabase
+        if (typeof S !== 'undefined') Object.assign(S, sbData);
+        try { localStorage.setItem('jacv10', JSON.stringify(sbData)); } catch (e) {}
+        console.info('[JAC] Usando datos de Supabase (más recientes) ✓');
       }
+    } else if (sbData) {
+      // Solo Supabase tiene datos
+      if (typeof S !== 'undefined') Object.assign(S, sbData);
+      try { localStorage.setItem('jacv10', JSON.stringify(sbData)); } catch (e) {}
+      console.info('[JAC] Datos cargados desde Supabase ✓');
+    } else if (localData) {
+      // Solo localStorage tiene datos: migrar a Supabase
+      if (typeof S !== 'undefined') Object.assign(S, localData);
+      console.info('[JAC] Migrando datos locales a Supabase…');
+      const { error } = await db.from('jac_crm_data').upsert(
+        { user_id: session.user.id, data: localData },
+        { onConflict: 'user_id' }
+      );
+      if (error) console.error('[JAC] Error migrando a Supabase:', error.message);
+      else console.info('[JAC] Datos migrados a Supabase ✓');
+    } else {
+      // Sin datos en ningún lado: usar defaults (S ya fue inicializado con D)
+      console.info('[JAC] Sin datos previos — usando configuración inicial');
     }
 
-    // 2. Marcar sesión activa
+    // 3. Marcar sesión activa
     sessionStorage.setItem('jac_s', 'ok');
 
-    // 3. Mostrar la app
+    // 4. Mostrar la app
     document.getElementById('ls').style.display  = 'none';
     document.getElementById('app').style.display = 'block';
 
-    // 4. Renderizar dashboard
+    // 5. Renderizar dashboard
     if (typeof RDash === 'function') RDash();
     if (typeof RC    === 'function') RC();
     if (typeof RP    === 'function') RP();
@@ -2363,13 +2402,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   // ── INICIO: verificar sesión existente al cargar la página ──
+  // Nota: con storage=sessionStorage, la sesión persiste mientras la pestaña esté
+  // abierta (incluyendo refrescos de página), pero se borra al cerrar el navegador.
 
   (async function checkSession() {
     try {
       const { data: { session } } = await db.auth.getSession();
 
       if (session) {
-        // Sesión activa → mostrar app directamente (sin re-login)
+        // Sesión activa en esta pestaña → recargar datos y mostrar app
         await initAfterLogin(session);
       } else {
         // Sin sesión → mostrar pantalla de login
@@ -2384,7 +2425,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     // Escuchar cambios de estado de autenticación
     db.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_IN') {
+        _currentSession = session; // actualizar caché
+      }
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+        _currentSession = null;
         sessionStorage.removeItem('jac_s');
         document.getElementById('app').style.display = 'none';
         document.getElementById('ls').style.display  = 'flex';
