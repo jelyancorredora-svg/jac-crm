@@ -280,6 +280,10 @@ textarea.fc{resize:vertical;min-height:52px}
   <div class="card" id="dash-birthdays" style="margin-bottom:10px;display:none"></div>
   <!-- 30-DAY REMINDER ALERTS -->
   <div class="card" id="dash-reminders" style="margin-bottom:10px;display:none"></div>
+  <!-- DAILY DIGEST ALERTS -->
+  <div class="card" id="dash-digest" style="margin-bottom:10px;display:none;border-left:4px solid #F59E0B"></div>
+  <!-- SINIESTROS ABIERTOS ALERTA -->
+  <div class="card" id="dash-sin-alert" style="margin-bottom:10px;display:none;border-left:4px solid #DC2626"></div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
     <div class="card" id="dren"></div><div class="card" id="dcom"></div>
@@ -430,6 +434,10 @@ textarea.fc{resize:vertical;min-height:52px}
     <div class="tb"><input class="si" id="sveh" placeholder="Buscar placa, cliente..." style="flex:1;min-width:140px" oninput="RV()"><button class="btn bp" onclick="OVeh()">+ Vehículo</button></div>
   </div>
   <div class="sg" id="vehsg"></div>
+  <div class="card" style="margin-bottom:10px;border-left:3px solid #25D366">
+    <div class="ch"><h3>📱 Alertas SOAT / Tecno Masivas</h3><button class="btn bsm bwa" onclick="sendBulkSOAT(30)">📱 Alertar SOAT ≤30d</button><button class="btn bsm" style="background:#0891B2;color:#fff;border-color:#0891B2" onclick="genCarteraReport()">📋 Reporte de Cartera</button></div>
+    <div id="soat-bulk-list" style="padding:8px 14px;font-size:12px;color:var(--mu)">Cargando vehículos…</div>
+  </div>
   <div class="card" style="margin-bottom:10px">
     <div class="ch"><h3>🚗 Vehículos y Documentos</h3></div>
     <div class="tw"><table><thead><tr><th>Cliente</th><th>Doc.</th><th>Placa</th><th>SOAT Vence</th><th>Tecno. Vence</th><th>Impuestos</th><th>WhatsApp SOAT</th><th>Acc.</th></tr></thead><tbody id="tveh"></tbody></table></div>
@@ -1327,6 +1335,13 @@ function RD(){
   const tPend=S.tareas.filter(t=>t.etapaTarea!=='Hecho').length;
   const prosAct=S.prospectos.filter(p=>p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido').length;
   const vcOpps=computeVC().length;
+  // New KPIs
+  const thisMonth=`${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}`;
+  const newCliMonth=(S.clientes||[]).filter(c=>c.fechaCreacion&&c.fechaCreacion.startsWith(thisMonth)).length;
+  const prosGan=(S.prospectos||[]).filter(p=>p.etapaVenta==='Cliente ganado').length;
+  const prosTot=(S.prospectos||[]).length;
+  const convRate=prosTot>0?Math.round((prosGan/prosTot)*100):0;
+  const comCobMonth=(S.comisiones||[]).filter(c=>c.estado==='cobrada'&&c.fechaCobro&&c.fechaCobro.startsWith(thisMonth)).reduce((s,c)=>s+(c.monto||0),0);
   const dsg=document.getElementById('dsg');
   if(dsg)dsg.innerHTML=`
     <div class="st" onclick="SH('cli')" style="cursor:pointer"><em>Clientes</em><div class="n">${S.clientes.length}</div><div class="sv">${S.clientes.filter(c=>c.tipo==='Empresa').length} empresas</div></div>
@@ -1337,7 +1352,10 @@ function RD(){
     <div class="st"><em>Mis Comisiones</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tC)}</div></div>
     <div class="st" onclick="SH('com')" style="cursor:pointer"><em>Por Cobrar</em><div class="n" style="color:#B45309;font-size:14px">${fmtM(tCom)}</div></div>
     <div class="st" onclick="SH('vc')" style="cursor:pointer"><em>Venta Cruzada</em><div class="n" style="color:#EA580C">${vcOpps}</div><div class="sv">oportunidades</div></div>
-    <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div></div>`;
+    <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div></div>
+    <div class="st"><em>Nuevos Clientes (mes)</em><div class="n" style="color:#0891B2">${newCliMonth}</div></div>
+    <div class="st"><em>Tasa Conversión</em><div class="n" style="font-size:16px;color:${convRate>=50?'#15803D':'#B45309'}">${convRate}%</div><div class="sv">${prosGan} ganados / ${prosTot} total</div></div>
+    <div class="st"><em>Cobrado este mes</em><div class="n" style="font-size:13px;color:#15803D">${fmtM(comCobMonth)}</div></div>`;
   let al='';if(p30)al+=b('bwn',`⚠️ ${p30} por vencer`)+' ';if(vv)al+=b('bdg',`🔴 ${vv} vencidas`);
   const ha=document.getElementById('ha');if(ha)ha.innerHTML=al+`<button class="btn bsm" onclick="doLogout()">🚪</button>`;
   const prox=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=60&&p.estado!=='Cancelada';}).sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
@@ -1365,6 +1383,157 @@ function RD(){
   if(!venc.length)vh+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin vencidas ✓</div>';
   else{vh+='<div style="padding:10px;display:flex;flex-wrap:wrap;gap:6px">';venc.forEach(p=>{const cl=GC(p.clienteId);const t=cl.cel||cl.tel||p.celCliente||'';const wu=t?waL(t,waRenMsg(p,cl)):null;vh+=`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 10px;font-size:11px;flex:1;min-width:130px"><div style="font-weight:700">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</div><div style="color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm')+'':''}</div>`;});vh+='</div>';}
   const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;
+  renderDailyDigest();
+  renderSinAlert();
+  renderSOATBulkPanel();
+}
+
+// ── ALERTA DEL DÍA ──
+function renderDailyDigest() {
+  const el=document.getElementById('dash-digest');if(!el)return;
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  let items=[];
+
+  // Cumpleaños HOY
+  (S.clientes||[]).forEach(c=>{
+    if(!c.cumpleanos)return;
+    const md=c.cumpleanos.substring(5);
+    const thisYr=`${t0.getFullYear()}-${md}`;
+    const bd=new Date(thisYr+'T12:00:00');bd.setHours(0,0,0,0);
+    if(bd.getTime()===t0.getTime()){
+      const tel=c.cel||c.tel||'';
+      const msg=encodeURIComponent(`🎂 ¡Feliz cumpleaños ${c.nombre}! 🎉\n\nTe enviamos un saludo especial de parte de JAC Seguros. ¡Que tengas un excelente día!\n\n— Jely An Castro · Corredora Autorizada Lic. #6175`);
+      const waUrl=tel?`https://wa.me/507${tel.replace(/\D/g,'')}?text=${msg}`:'';
+      items.push({u:0,html:`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #FEF3C7"><span style="font-size:18px">🎂</span><div style="flex:1"><b>${esc(c.nombre)}</b> — Cumpleaños hoy 🥳</div>${waUrl?`<a href="${waUrl}" target="_blank" class="btn bwa bsm">💬 Felicitar</a>`:''}</div>`});
+    }
+  });
+
+  // Tareas vencidas (overdue)
+  (S.tareas||[]).forEach(t=>{
+    if(t.etapaTarea==='Hecho')return;
+    const fl=t.fechaLimite||t.fecha;if(!fl)return;
+    const td=new Date(fl+'T12:00:00');td.setHours(0,0,0,0);
+    if(td<t0){
+      const d=Math.round((t0-td)/86400000);
+      items.push({u:1,html:`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #FEE2E2"><span style="font-size:18px">⚠️</span><div style="flex:1"><b>${esc(t.titulo)}</b><div style="font-size:10px;color:#DC2626">Tarea vencida hace ${d} día${d!==1?'s':''}</div></div><button class="btn bsm" onclick="SH('tar')">Ver →</button></div>`});
+    }
+  });
+
+  // Prospectos fríos (sin actividad ≥7 días, activos)
+  const frozenPros=(S.prospectos||[]).filter(p=>{
+    if(p.etapaVenta==='Cliente ganado'||p.etapaVenta==='Perdido')return false;
+    const lu=p.ultimaActualizacion||p.fechaCreacion;if(!lu)return false;
+    return Math.round((t0-new Date(lu))/86400000)>=7;
+  });
+  if(frozenPros.length){
+    items.push({u:2,html:`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #DBEAFE"><span style="font-size:18px">❄️</span><div style="flex:1"><b>${frozenPros.length} prospecto${frozenPros.length!==1?'s':''} sin actividad ≥7 días</b><div style="font-size:10px;color:#1D4ED8">${frozenPros.map(p=>esc(p.nombre)).slice(0,4).join(' · ')}${frozenPros.length>4?` y ${frozenPros.length-4} más`:''}</div></div><button class="btn bsm" onclick="SH('pros')">Ver Pipeline →</button></div>`});
+  }
+
+  // SOAT por vencer ≤15 días
+  const soatAlerts=(S.vehiculos||[]).filter(v=>{
+    if(!v.soat)return false;
+    const d=Math.round((new Date(v.soat+'T12:00:00')-t0)/86400000);
+    return d>=0&&d<=15;
+  });
+  if(soatAlerts.length){
+    items.push({u:0,html:`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #FEF3C7"><span style="font-size:18px">📄</span><div style="flex:1"><b>${soatAlerts.length} SOAT vence en ≤15 días</b><div style="font-size:10px;color:#B45309">${soatAlerts.map(v=>esc(GC(v.clienteId).nombre||v.placa||'?')).slice(0,4).join(' · ')}</div></div><button class="btn bsm bwa" onclick="sendBulkSOAT(15)">📱 Alertar</button></div>`});
+  }
+
+  if(!items.length){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML=`<div class="ch"><h3>⚡ Alertas del Día</h3><span class="b bwn">${items.length} acción${items.length!==1?'es':''} pendiente${items.length!==1?'s':''}</span></div><div style="padding:0 14px">${items.map(i=>i.html).join('')}</div>`;
+}
+
+// ── SINIESTROS ABIERTOS >14 DÍAS ──
+function renderSinAlert(){
+  const el=document.getElementById('dash-sin-alert');if(!el)return;
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  const stale=(S.siniestros||[]).filter(s=>{
+    if(s.estado==='Cerrado'||s.estado==='Pagado')return false;
+    if(!s.fecha)return false;
+    return Math.round((t0-new Date(s.fecha+'T12:00:00'))/86400000)>=14;
+  });
+  if(!stale.length){el.style.display='none';return;}
+  el.style.display='block';
+  let h=`<div class="ch"><h3>🚑 Siniestros Abiertos >14 días (${stale.length})</h3><button class="btn bsm" onclick="SH('sin')">Ver siniestros →</button></div><div style="padding:0 14px">`;
+  stale.forEach(s=>{
+    const cl=GC(s.clienteId);const d=Math.round((t0-new Date(s.fecha+'T12:00:00'))/86400000);
+    h+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #FEE2E2"><span style="font-size:16px">🚨</span><div style="flex:1"><b>${esc(cl.nombre||s.nroCia||'?')}</b> — ${esc(s.tipo||'Siniestro')} · ${esc(s.aseg||'')}<div style="font-size:10px;color:#DC2626">Abierto hace ${d} días · Estado: ${esc(s.estado||'Pendiente')}</div></div></div>`;
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ── SOAT MASIVO ──
+function renderSOATBulkPanel(){
+  const el=document.getElementById('soat-bulk-list');if(!el)return;
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  const vehs=(S.vehiculos||[]).map(v=>{
+    const d=v.soat?Math.round((new Date(v.soat+'T12:00:00')-t0)/86400000):null;
+    const dt=v.tecno?Math.round((new Date(v.tecno+'T12:00:00')-t0)/86400000):null;
+    return{...v,dSOAT:d,dTecno:dt};
+  }).filter(v=>v.dSOAT!==null&&v.dSOAT>=0&&v.dSOAT<=60).sort((a,z)=>a.dSOAT-z.dSOAT);
+  if(!vehs.length){el.textContent='Sin vencimientos de SOAT en los próximos 60 días. ✓';return;}
+  let h=`<div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:6px">Vencimientos próximos (${vehs.length} vehículos):</div><div style="display:flex;flex-wrap:wrap;gap:5px">`;
+  vehs.forEach(v=>{
+    const cl=GC(v.clienteId);const tel=cl.cel||cl.tel||'';
+    const col=v.dSOAT<=7?'#DC2626':v.dSOAT<=15?'#D97706':'#1D4ED8';
+    const msg=encodeURIComponent(`📄 Estimado/a ${cl.nombre||'cliente'},\n\nLe recordamos que su SOAT para el vehículo ${v.placa||''} vence el ${v.soat||''}.\n\nComuníquese con nosotros para renovarlo a tiempo.\n\n✅ JAC Seguros · Jely An Castro · +507 6292-6010`);
+    const waUrl=tel?`https://wa.me/507${tel.replace(/\D/g,'')}?text=${msg}`:'';
+    h+=`<div style="background:${col}10;border:1px solid ${col}33;border-radius:6px;padding:5px 8px;font-size:10px;min-width:120px"><div style="font-weight:700;color:${col}">${v.dSOAT===0?'HOY':v.dSOAT+'d'} · ${esc(v.placa||'—')}</div><div style="color:var(--mu);margin-bottom:3px">${esc((cl.nombre||'?').split(' ').slice(0,2).join(' '))}</div>${waUrl?`<a href="${waUrl}" target="_blank" class="btn bwa bsm" style="width:100%;justify-content:center">💬 WA</a>`:''}</div>`;
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function sendBulkSOAT(days){
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  const targets=(S.vehiculos||[]).filter(v=>{
+    if(!v.soat)return false;
+    const d=Math.round((new Date(v.soat+'T12:00:00')-t0)/86400000);
+    return d>=0&&d<=days;
+  });
+  if(!targets.length){toast('No hay vehículos con SOAT venciendo en ese período','wn');return;}
+  let sent=0;
+  targets.forEach((v,i)=>{
+    const cl=GC(v.clienteId);const tel=cl.cel||cl.tel||'';
+    if(!tel)return;
+    const msg=encodeURIComponent(`📄 Estimado/a ${cl.nombre||'cliente'},\n\nLe recordamos que su SOAT para el vehículo placa ${v.placa||''} vence el ${v.soat||''}.\n\nPor favor contáctenos para renovarlo a tiempo y evitar multas.\n\nJAC Seguros · +507 6292-6010 · Jely An Castro, Lic. #6175 SPRP`);
+    setTimeout(()=>window.open(`https://wa.me/507${tel.replace(/\D/g,'')}?text=${msg}`,'_blank'),i*400);
+    sent++;
+  });
+  toast(`📱 Enviando ${sent} alertas SOAT por WhatsApp…`,'ok');
+}
+
+// ── REPORTE DE CARTERA ──
+function genCarteraReport(){
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  const vig=S.polizas.filter(p=>p.estado!=='Cancelada'&&new Date(p.fechaFin+'T12:00:00')>=t0);
+  const venc=S.polizas.filter(p=>p.estado!=='Cancelada'&&new Date(p.fechaFin+'T12:00:00')<t0);
+  const byRamo={};
+  vig.forEach(p=>{const r=p.ramo||'Otro';byRamo[r]=(byRamo[r]||[]);byRamo[r].push(p);});
+  let txt=`📊 REPORTE DE CARTERA — JAC SEGUROS\n`;
+  txt+=`Corredora: Jely An Castro · Lic. #6175 SPRP\n`;
+  txt+=`Fecha: ${new Date().toLocaleDateString('es-PA',{day:'2-digit',month:'long',year:'numeric'})}\n\n`;
+  txt+=`✅ PÓLIZAS VIGENTES: ${vig.length}\n💰 Prima cartera: $${vig.reduce((s,p)=>s+(p.prima||0),0).toLocaleString('es-PA',{minimumFractionDigits:2})}\n\n`;
+  txt+=`📁 DESGLOSE POR RAMO:\n`;
+  Object.entries(byRamo).sort((a,z)=>z[1].length-a[1].length).forEach(([r,ps])=>{
+    const tot=ps.reduce((s,p)=>s+(p.prima||0),0);
+    txt+=`  • ${r}: ${ps.length} póliza${ps.length!==1?'s':''} · $${tot.toLocaleString('es-PA',{minimumFractionDigits:2})}\n`;
+  });
+  txt+=`\n🔴 PÓLIZAS VENCIDAS: ${venc.length}\n`;
+  txt+=`👥 CLIENTES ACTIVOS: ${S.clientes.length}\n`;
+  txt+=`🎯 PROSPECTOS ACTIVOS: ${(S.prospectos||[]).filter(p=>p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido').length}\n\n`;
+  txt+=`— Generado por CRM JAC Seguros`;
+  // Copy to clipboard
+  navigator.clipboard.writeText(txt).then(()=>{
+    toast('📋 Reporte copiado al portapapeles','ok');
+  }).catch(()=>{
+    // Fallback: show in dialog
+    const w=window.open('','_blank','width=600,height=500');
+    w.document.write(`<pre style="font-family:monospace;padding:20px;white-space:pre-wrap">${txt}</pre>`);
+    w.document.title='Reporte de Cartera';
+  });
 }
 
 // ── CLIENTES ──
@@ -1741,8 +1910,14 @@ function renderProsK(){
     items.forEach(p=>{
       const pc2=pcol(p.prioridad);
       const vcTag=p.esVentaCruzada?'<span class="b bor" style="font-size:9px">VC</span>':'';
-      h+=`<div class="pcard" draggable="true" data-id="${p.id}" style="border-left-color:${pc2}" onclick="showProsDP('${p.id}')">
-<div style="font-weight:700;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.nombre)} ${vcTag}</div>
+      // Cold lead detection: no update in 7+ days
+      const lastUp=p.ultimaActualizacion||p.fechaCreacion;
+      const daysSinceUp=lastUp?Math.round((TODAY-new Date(lastUp))/86400000):999;
+      const isCold=daysSinceUp>=7&&p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido';
+      const coldBorder=isCold?';outline:1px solid #BFDBFE':'';
+      const coldTag=isCold?`<span title="Sin actividad ${daysSinceUp}d" style="font-size:10px">❄️</span>`:'';
+      h+=`<div class="pcard" draggable="true" data-id="${p.id}" style="border-left-color:${pc2}${coldBorder}" onclick="showProsDP('${p.id}')">
+<div style="font-weight:700;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.nombre)} ${vcTag}${coldTag}</div>
 <div style="font-size:10px;color:var(--mu)">${(p.interes||[]).slice(0,2).join(' · ')||'—'}</div>
 ${p.montoEstimado?`<div style="font-size:11px;font-weight:700;color:#15803D">${fmtM(p.montoEstimado)}</div>`:''}
 <div style="height:4px;background:#EEF2F8;border-radius:2px;margin-top:4px;overflow:hidden"><div style="width:${p.probabilidad||0}%;height:100%;background:${pc2}"></div></div>
@@ -1762,8 +1937,12 @@ function renderProsT(){
   let h='<div class="card"><div class="tw"><table><thead><tr><th>Nombre</th><th>Tipo</th><th>Etapa</th><th>Prioridad</th><th>Interés</th><th>Valor</th><th>Prob.</th><th>Seguimiento</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
   S.prospectos.forEach(p=>{
     const vcB=p.esVentaCruzada?b('bor','VC'):'';
-    h+=`<tr onclick="showProsDP('${p.id}')" style="cursor:pointer">
-<td style="font-weight:600">${esc(p.nombre)} ${vcB}</td>
+    const lastUp2=p.ultimaActualizacion||p.fechaCreacion;
+    const daysSince2=lastUp2?Math.round((TODAY-new Date(lastUp2))/86400000):999;
+    const isCold2=daysSince2>=7&&p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido';
+    const coldT2=isCold2?`<span title="Sin actividad ${daysSince2}d">❄️</span>`:'';
+    h+=`<tr onclick="showProsDP('${p.id}')" style="cursor:pointer${isCold2?';background:#EFF6FF':''}">
+<td style="font-weight:600">${esc(p.nombre)} ${vcB}${coldT2}</td>
 <td>${b(p.tipo==='Empresa'?'bbl':'bgr',p.tipo||'Personal')}</td>
 <td>${b(ec2[p.etapaVenta]||'bgr',p.etapaVenta||'—')}</td>
 <td><span style="color:${pcol(p.prioridad)};font-weight:700;font-size:11px">● ${p.prioridad||'—'}</span></td>
@@ -2190,6 +2369,7 @@ function RV(){
   let hp='';autoPols.forEach(p=>{const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);hp+=`<tr><td>${statusB(p)}</td><td style="font-weight:600;cursor:pointer" onclick="showCliDP('${p.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-size:10px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.riesgo||'').substring(0,55))}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td>${fmt(p.fechaFin)}</td><td><div class="ab">${wb}</div></td><td><div class="ab"><button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;});
   if(!hp)hp='<tr><td colspan="10" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas auto/moto</td></tr>';
   const tvp=document.getElementById('tvehpol');if(tvp)tvp.innerHTML=hp;
+  renderSOATBulkPanel();
 }
 function OVeh(id){
   EID=id||null;const veh=id?S.vehiculos.find(v=>v.id===id)||{}:{};
