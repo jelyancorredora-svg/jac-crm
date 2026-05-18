@@ -136,6 +136,15 @@ textarea.fc{resize:vertical;min-height:52px}
 .fitem{background:#F1F5F9;border:1px solid var(--bd);border-radius:5px;padding:3px 7px;font-size:10px;display:flex;align-items:center;gap:4px;max-width:180px}
 .fitem span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .dot8{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.wa-chat{display:flex;flex-direction:column;gap:4px;padding:4px 0}
+.wa-bubble{max-width:85%;padding:7px 10px;border-radius:12px;font-size:11.5px;line-height:1.4;position:relative;word-break:break-word}
+.wa-bubble.sent{background:#DCF8C6;align-self:flex-end;border-bottom-right-radius:3px}
+.wa-bubble.received{background:#fff;align-self:flex-start;border-bottom-left-radius:3px;border:1px solid #e0e0e0}
+.wa-bubble.note{background:#FFF8E1;align-self:flex-start;border-bottom-left-radius:3px;border:1px solid #FFD54F}
+.wa-bubble.email-sent{background:#E3F2FD;align-self:flex-end;border-bottom-right-radius:3px}
+.wa-meta{font-size:9.5px;color:#888;margin-top:2px;text-align:right;display:flex;justify-content:flex-end;gap:4px;align-items:center}
+.wa-tick{color:#4CAF50;font-size:10px}
+.email-hist{background:#E3F2FD;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #1976D2;font-size:11px}
 .wa-hist{background:#E7F8EE;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #25D366;font-size:11px}
 .bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--wh);border-top:1px solid var(--bd);z-index:190;padding:5px 0 env(safe-area-inset-bottom);box-shadow:0 -2px 8px rgba(0,0,0,.08)}
 .bng{display:grid;grid-template-columns:repeat(5,1fr)}
@@ -1379,6 +1388,7 @@ ${c.origenCliente?`<div class="drow"><label>Origen</label><div class="dv">${esc(
   ${wa} ${c.cel?`<a href="tel:${esc(c.cel)}" class="btn bsm bcy">📞 Llamar</a>`:''}
   <button class="btn bsm bp" onclick="OC('${id}')">✏️ Editar</button>
   <button class="btn bsm bam" onclick="OT_open('','cliente','${id}')">+ Tarea</button>
+  ${c.email?`<button class="btn bsm" style="background:#E3F2FD;color:#1565C0;border:1px solid #BBDEFB" onclick="openEmailCompose('${id}')">📧 Email</button>`:''}
 </div>
 <div class="dsec">Pólizas (${ps.length})</div>`;
   ps.forEach(p=>{
@@ -1390,9 +1400,140 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
   });
   if(!ps.length)h+=`<div style="font-size:12px;color:var(--mu);text-align:center;padding:12px">Sin pólizas.<br><button class="btn bsm bp" onclick="OP_forClient('${id}')" style="margin-top:6px">+ Nueva Póliza</button></div>`;
   if((c.archivos||[]).length)h+=`<div class="dsec">Archivos (${c.archivos.length})</div>${renderFL(c.archivos,id,'cliente')}`;
-  if(waHist.length){h+=`<div class="dsec">Historial WhatsApp (${(c.historialWA||[]).length})</div>`;waHist.forEach(w=>{h+=`<div class="wa-hist">💬 <b>${esc(w.msgType||'')}</b> · ${fmt(w.fecha)}</div>`;});}
+  if(waHist.length||true){
+    const allHistory=[...(c.historialWA||[])].sort((a,b)=>a.fecha>b.fecha?1:-1);
+    const gmailItems=(c.historialWA||[]).filter(w=>w.gmailId);
+    const waItems=(c.historialWA||[]).filter(w=>!w.gmailId);
+    h+=`<div class="dsec" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Comunicaciones (${allHistory.length})</span>
+      <div style="display:flex;gap:4px">
+        <button class="btn bsm" style="font-size:10px;padding:2px 7px" onclick="addWANota('${id}')">➕ Nota WA</button>
+        <button class="btn bsm" style="font-size:10px;padding:2px 7px;background:#E3F2FD;color:#1565C0;border:1px solid #BBDEFB" onclick="openEmailCompose('${id}')">📧 Email</button>
+      </div>
+    </div>
+    <div class="wa-chat" style="background:#ECE5DD;border-radius:8px;padding:8px 10px;max-height:280px;overflow-y:auto">`;
+    if(allHistory.length===0){h+=`<div style="text-align:center;color:#888;font-size:11px;padding:12px">Sin comunicaciones registradas</div>`;}
+    allHistory.forEach(w=>{
+      const isGmail=!!w.gmailId;
+      const isNote=w.tipo==='nota';
+      const isEmailSent=w.tipo==='email_sent';
+      let bubbleClass=isGmail?'received':isNote?'note':isEmailSent?'email-sent':'sent';
+      let icon=isGmail?'📩':isNote?'📝':isEmailSent?'📧':'💬';
+      let label=isGmail?`Gmail: ${esc(w.subject||w.msgType||'')}`:(isNote?`Nota: ${esc(w.nota||w.msgType||'')}`:isEmailSent?`Email: ${esc(w.subject||w.msgType||'')}`:esc(w.msgType||''));
+      let dateStr=w.fecha?fmt(w.fecha.substring(0,10)):'';
+      let timeStr=w.fecha&&w.fecha.length>10?w.fecha.substring(11,16):'';
+      h+=`<div style="display:flex;${bubbleClass==='sent'||bubbleClass==='email-sent'?'justify-content:flex-end':'justify-content:flex-start'}">
+        <div class="wa-bubble ${bubbleClass}">
+          <div style="font-size:10px;font-weight:700;color:${isGmail?'#1565C0':isNote?'#F57F17':isEmailSent?'#0D47A1':'#1B5E20'};margin-bottom:2px">${icon} ${isGmail?'Gmail recibido':isNote?'Nota manual':isEmailSent?'Email enviado':'WhatsApp enviado'}</div>
+          <div>${label}</div>
+          ${w.snippet?`<div style="font-size:10px;color:#555;margin-top:3px;border-top:1px solid rgba(0,0,0,.08);padding-top:3px">${esc(w.snippet.substring(0,100))}${w.snippet.length>100?'…':''}</div>`:''}
+          <div class="wa-meta">${dateStr}${timeStr?' '+timeStr:''} ${bubbleClass==='sent'?'<span class="wa-tick">✓✓</span>':bubbleClass==='email-sent'?'<span style="color:#1565C0;font-size:9px">enviado</span>':''}</div>
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;}
   openDP(h,c.nombre);
 }
+
+// ── HISTORIAL WA: agregar nota manual ────────────────────────────────────────
+function addWANota(clientId){
+  const msg=prompt('Escriba la nota de WhatsApp a registrar:','');
+  if(!msg||!msg.trim())return;
+  const i=S.clientes.findIndex(c=>c.id===clientId);
+  if(i<0)return;
+  if(!S.clientes[i].historialWA)S.clientes[i].historialWA=[];
+  S.clientes[i].historialWA.push({
+    id:'WA'+uid(),
+    fecha:new Date().toISOString().substring(0,16),
+    tipo:'nota',
+    msgType:msg.trim(),
+    nota:msg.trim(),
+    nombre:S.clientes[i].nombre||''
+  });
+  save();
+  toast('Nota registrada ✓','ok');
+  showClientDP(clientId);
+}
+
+// ── EMAIL COMPOSE MODULE ──────────────────────────────────────────────────────
+let _emailComposeClientId=null;
+function openEmailCompose(clientId){
+  _emailComposeClientId=clientId;
+  const c=S.clientes.find(x=>x.id===clientId)||{};
+  const modal=document.getElementById('email-compose-modal');
+  if(!modal)return;
+  document.getElementById('ecmp-to').value=c.email||'';
+  document.getElementById('ecmp-subject').value='';
+  document.getElementById('ecmp-body').value='Estimado/a '+((c.nombre||'').split(' ')[0]||'cliente')+':\n\n\n\nCordialmente,\nJely An Castro\nJAC Seguros · Lic. #6175\njcastro@jacsegurospa.com';
+  document.getElementById('ecmp-status').textContent='';
+  modal.style.display='flex';
+  setTimeout(()=>document.getElementById('ecmp-subject').focus(),100);
+}
+function closeEmailCompose(){
+  const modal=document.getElementById('email-compose-modal');
+  if(modal)modal.style.display='none';
+  _emailComposeClientId=null;
+}
+async function sendEmailFromCRM(){
+  const to=document.getElementById('ecmp-to').value.trim();
+  const subject=document.getElementById('ecmp-subject').value.trim();
+  const body=document.getElementById('ecmp-body').value.trim();
+  const from=document.getElementById('ecmp-from').value;
+  const statusEl=document.getElementById('ecmp-status');
+  if(!to){statusEl.textContent='⚠️ Ingrese el destinatario';statusEl.style.color='#e53935';return;}
+  if(!subject){statusEl.textContent='⚠️ Ingrese el asunto';statusEl.style.color='#e53935';return;}
+  if(!body){statusEl.textContent='⚠️ Escriba el mensaje';statusEl.style.color='#e53935';return;}
+  statusEl.textContent='Enviando…';statusEl.style.color='var(--mu)';
+  // Try EmailJS first
+  const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
+  let sent=false;
+  if(cfg['ejs-pub']&&cfg['ejs-svc']&&window.emailjs){
+    try{
+      emailjs.init({publicKey:cfg['ejs-pub']});
+      const tplId=cfg['ejs-tpl-compose']||cfg['ejs-tpl-bday']||'';
+      if(tplId){
+        await emailjs.send(cfg['ejs-svc'],tplId,{
+          to_email:to,from_name:'JAC Seguros',
+          subject:subject,message:body,reply_to:from
+        });
+        sent=true;
+      }
+    }catch(e){console.warn('[JAC email]',e);}
+  }
+  if(!sent){
+    // Fallback: open mailto
+    const mailtoUrl='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    window.open(mailtoUrl,'_blank');
+    sent=true;
+  }
+  if(sent){
+    // Log to client history
+    if(_emailComposeClientId){
+      const ci=S.clientes.findIndex(c=>c.id===_emailComposeClientId);
+      if(ci>=0){
+        if(!S.clientes[ci].historialWA)S.clientes[ci].historialWA=[];
+        S.clientes[ci].historialWA.push({
+          id:'EM'+uid(),
+          fecha:new Date().toISOString().substring(0,16),
+          tipo:'email_sent',
+          msgType:subject,
+          subject:subject,
+          nombre:S.clientes[ci].nombre||''
+        });
+        save();
+      }
+    }
+    statusEl.textContent='✅ Email enviado y registrado en historial';
+    statusEl.style.color='#2E7D32';
+    setTimeout(()=>{
+      closeEmailCompose();
+      if(_emailComposeClientId){const cid=_emailComposeClientId;_emailComposeClientId=null;showClientDP(cid);}
+      toast('Email enviado ✓','ok');
+    },1500);
+  }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEmailCompose();});
+
 function setClientStatus(clientId,status){
   const i=S.clientes.findIndex(c=>c.id===clientId);if(i<0)return;
   S.clientes[i].estadoComercial=status;
@@ -3458,6 +3599,43 @@ function initTarKanbanDrag(){
     <div class="mb" id="mo-invitar-body"></div>
     <div class="mf">
       <button class="btn bp" onclick="CM('mo-invitar')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Email Compose Modal -->
+<div id="email-compose-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--wh);border-radius:12px;width:min(520px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <div style="padding:16px 18px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700;font-size:15px">📧 Nuevo Email</div>
+      <button onclick="closeEmailCompose()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mu)">✕</button>
+    </div>
+    <div style="padding:16px 18px">
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">PARA</label>
+        <input id="ecmp-to" type="email" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box" placeholder="email@ejemplo.com">
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">DE</label>
+        <select id="ecmp-from" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box">
+          <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com</option>
+          <option value="info@jacsegurospa.com">info@jacsegurospa.com</option>
+        </select>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">ASUNTO</label>
+        <input id="ecmp-subject" type="text" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box" placeholder="Asunto del email">
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">MENSAJE</label>
+        <textarea id="ecmp-body" rows="7" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit" placeholder="Escriba su mensaje aquí..."></textarea>
+      </div>
+      <div id="ecmp-status" style="font-size:11px;color:var(--mu);margin-bottom:10px;min-height:16px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="closeEmailCompose()" class="btn">Cancelar</button>
+        <button onclick="sendEmailFromCRM()" class="btn bgn" style="min-width:100px">📨 Enviar</button>
+      </div>
     </div>
   </div>
 </div>
