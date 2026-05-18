@@ -145,6 +145,31 @@ textarea.fc{resize:vertical;min-height:52px}
 .wa-meta{font-size:9.5px;color:#888;margin-top:2px;text-align:right;display:flex;justify-content:flex-end;gap:4px;align-items:center}
 .wa-tick{color:#4CAF50;font-size:10px}
 .email-hist{background:#E3F2FD;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #1976D2;font-size:11px}
+/* ── CALENDAR ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
+.cal-day-hdr{padding:7px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--mu);background:#F8FAFD;border-bottom:1px solid var(--bd)}
+.cal-day{min-height:78px;padding:4px 3px;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);cursor:pointer;transition:.15s;background:var(--wh)}
+.cal-day:nth-child(7n){border-right:none}
+.cal-day:hover{background:#F0F6FF}
+.cal-day.cal-today{background:#EEF4FF}
+.cal-day.cal-selected{background:#DBEAFE;outline:2px solid var(--bl);outline-offset:-1px}
+.cal-day.cal-other{background:#FAFBFD}
+.cal-day.cal-other .cal-day-num{color:#bbb}
+.cal-day-num{font-size:11px;font-weight:700;color:var(--tx);margin-bottom:2px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.cal-day.cal-today .cal-day-num{background:var(--bl);color:#fff}
+.cal-ev-pill{font-size:9.5px;padding:1px 5px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:.1s}
+.cal-ev-pill:hover{opacity:.8}
+.cal-pill-g1{background:#D2E9FF;color:#1565C0}
+.cal-pill-g2{background:#FFE0DE;color:#B71C1C}
+.cal-pill-crm{background:#EDE9FE;color:#5B21B6}
+.cal-pill-bday{background:#FEF9C3;color:#92400E}
+.cal-pill-ren{background:#FEF3C7;color:#B45309}
+.cal-ev-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.cal-ev-item:last-child{border-bottom:none}
+.cal-ev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.cal-upcoming-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #F1F5F9}
+.cal-upcoming-row:last-child{border-bottom:none}
+.cal-upcoming-date{min-width:44px;font-size:10px;font-weight:700;color:var(--mu);text-align:center;background:#F8FAFD;border-radius:5px;padding:3px 5px;line-height:1.3}
 .wa-hist{background:#E7F8EE;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #25D366;font-size:11px}
 .bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--wh);border-top:1px solid var(--bd);z-index:190;padding:5px 0 env(safe-area-inset-bottom);box-shadow:0 -2px 8px rgba(0,0,0,.08)}
 .bng{display:grid;grid-template-columns:repeat(5,1fr)}
@@ -238,6 +263,7 @@ textarea.fc{resize:vertical;min-height:52px}
     <a onclick="SH('aseg')">🏛 Aseg.</a>
     <a onclick="SH('cfg')">⚙️</a>
     <a onclick="SH('adm')">🛡️ Admin</a>
+    <a onclick="SH('cal')">📅 Calendario</a>
   </nav>
   <div class="ha" id="ha"><button class="btn bsm" onclick="doLogout()">🚪</button></div>
 </div></div>
@@ -258,8 +284,12 @@ textarea.fc{resize:vertical;min-height:52px}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
     <div class="card" id="dren"></div><div class="card" id="dcom"></div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
     <div class="card" id="dtar"></div><div class="card" id="dven"></div>
+    <div class="card" id="dash-cal-mini">
+      <div class="ch" style="cursor:pointer" onclick="SH('cal')"><h3>📅 Próximos Eventos</h3><span class="btn bsm bgh">Ver calendario →</span></div>
+      <div id="dash-cal-list" style="padding:8px 12px;font-size:12px;color:var(--mu)">Cargando…</div>
+    </div>
   </div>
 </div>
 
@@ -605,6 +635,58 @@ textarea.fc{resize:vertical;min-height:52px}
       </div>
       <div id="adm-log-list" style="max-height:420px;overflow-y:auto;font-size:12px"></div>
     </div>
+  </div>
+</div>
+
+<!-- ═══ CALENDARIO ═══ -->
+<div class="pg" id="pg-cal">
+  <div class="ph" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <h2>📅 Calendario</h2>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button class="btn bsm bgh" onclick="calPrevMonth()" style="font-size:16px;padding:2px 8px">‹</button>
+        <span id="cal-month-label" style="font-weight:700;font-size:14px;color:var(--bl);min-width:160px;text-align:center"></span>
+        <button class="btn bsm bgh" onclick="calNextMonth()" style="font-size:16px;padding:2px 8px">›</button>
+        <button class="btn bsm bgr" onclick="calGoToday()">Hoy</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div style="display:flex;gap:4px;align-items:center">
+        <span style="font-size:10px;color:var(--mu);font-weight:600">Cuentas:</span>
+        <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer"><input type="checkbox" id="cal-ch1" checked onchange="calRenderAll()"> <span style="width:8px;height:8px;background:#4285F4;border-radius:50%;display:inline-block"></span> jelyancorredora</label>
+        <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer"><input type="checkbox" id="cal-ch2" checked onchange="calRenderAll()"> <span style="width:8px;height:8px;background:#EA4335;border-radius:50%;display:inline-block"></span> jcastro</label>
+        <label style="display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer"><input type="checkbox" id="cal-ch-crm" checked onchange="calRenderAll()"> <span style="width:8px;height:8px;background:#7C3AED;border-radius:50%;display:inline-block"></span> CRM</label>
+      </div>
+      <button class="btn bsm bcy" id="cal-sync-btn" onclick="calSyncGoogle()">🔄 Sync Google</button>
+      <button class="btn bsm bp" onclick="openCalModal()">+ Nuevo Evento</button>
+    </div>
+  </div>
+  <!-- Auth status -->
+  <div id="cal-auth-bar" style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#92400E;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span>📌 Conecta Google Calendar para sincronizar tus eventos automáticamente</span>
+    <button class="btn bsm bam" onclick="calSignIn('jelyancorredora@gmail.com',1)">Conectar jelyancorredora</button>
+    <button class="btn bsm bor" onclick="calSignIn('jcastro@jacsegurospa.com',2)">Conectar jcastro</button>
+    <span id="cal-conn-status" style="font-size:11px;font-weight:700"></span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:12px;align-items:start">
+    <!-- Month Grid -->
+    <div class="card" style="overflow:hidden">
+      <div class="cal-grid" id="cal-grid">
+        <div class="cal-day-hdr">Lun</div><div class="cal-day-hdr">Mar</div><div class="cal-day-hdr">Mié</div>
+        <div class="cal-day-hdr">Jue</div><div class="cal-day-hdr">Vie</div><div class="cal-day-hdr">Sáb</div><div class="cal-day-hdr">Dom</div>
+      </div>
+    </div>
+    <!-- Day Panel -->
+    <div class="card" style="padding:12px" id="cal-day-panel">
+      <div style="font-weight:700;font-size:13px;color:var(--bl);margin-bottom:10px" id="cal-day-title">Selecciona un día</div>
+      <div id="cal-day-events" style="font-size:12px;color:var(--mu)">Haz clic en un día para ver sus eventos.</div>
+      <button class="btn bsm bp" style="margin-top:12px;width:100%" id="cal-day-add-btn" onclick="openCalModal(calST.selectedDay)" style="display:none">+ Evento este día</button>
+    </div>
+  </div>
+  <!-- Upcoming Events -->
+  <div class="card" style="margin-top:12px">
+    <div class="ch"><h3>📋 Próximos 14 días</h3><button class="btn bsm" onclick="calSyncCRM()">↺ Sincronizar CRM</button></div>
+    <div id="cal-upcoming" style="padding:12px;font-size:12px"></div>
   </div>
 </div>
 
@@ -3603,6 +3685,633 @@ function initTarKanbanDrag(){
   </div>
 </div>
 
+
+<!-- ═══ CALENDAR EVENT MODAL ═══ -->
+<div class="mo" id="mo-cal-ev">
+  <div class="md mdsm">
+    <div class="mh"><h2 id="cal-ev-title">Nuevo Evento</h2><button class="btn bgh" onclick="CM('mo-cal-ev')">✕</button></div>
+    <div class="mb">
+      <div class="fg">
+        <div class="fl ff"><label>Título del evento <span>*</span></label><input class="fc" id="cal-ev-ttl" placeholder="Ej: Renovación ASSA — Juan Pérez"></div>
+        <div class="fl"><label>Fecha <span>*</span></label><input class="fc" id="cal-ev-date" type="date"></div>
+        <div class="fl"><label>Todo el día</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer">
+            <input type="checkbox" id="cal-ev-allday" onchange="calToggleAllDay(this)" style="accent-color:var(--bl);width:16px;height:16px"> <span style="font-size:12px">Evento de todo el día</span>
+          </label>
+        </div>
+        <div class="fl" id="cal-ev-time-row"><label>Hora inicio</label><input class="fc" id="cal-ev-start" type="time" value="09:00"></div>
+        <div class="fl" id="cal-ev-time-row2"><label>Hora fin</label><input class="fc" id="cal-ev-end" type="time" value="10:00"></div>
+        <div class="fl ff"><label>Descripción / Notas</label><textarea class="fc" id="cal-ev-desc" rows="2" placeholder="Detalles del evento..."></textarea></div>
+        <div class="fl ff"><label>Lugar / Ubicación</label><input class="fc" id="cal-ev-loc" placeholder="Ej: Oficina JAC Seguros, Zoom..."></div>
+        <div class="fl"><label>Calendario (cuenta)</label>
+          <select class="fc" id="cal-ev-cal">
+            <option value="local">📌 Local CRM (sin Google)</option>
+            <option value="1">🔵 jelyancorredora@gmail.com</option>
+            <option value="2">🔴 jcastro@jacsegurospa.com</option>
+          </select>
+        </div>
+        <div class="fl"><label>Color</label>
+          <select class="fc" id="cal-ev-color">
+            <option value="#4285F4">🔵 Azul</option>
+            <option value="#EA4335">🔴 Rojo</option>
+            <option value="#34A853">🟢 Verde</option>
+            <option value="#FBBC04">🟡 Amarillo</option>
+            <option value="#FF6D00">🟠 Naranja</option>
+            <option value="#9C27B0">🟣 Morado</option>
+          </select>
+        </div>
+      </div>
+      <div id="cal-ev-status" style="font-size:11px;color:var(--mu);margin-top:8px;min-height:16px"></div>
+    </div>
+    <div class="mf">
+      <button class="btn" onclick="CM('mo-cal-ev')">Cancelar</button>
+      <button class="btn brd2" id="cal-ev-del-btn" onclick="calDeleteEvent()" style="display:none">🗑 Eliminar</button>
+      <button class="btn bgn" onclick="calSaveEvent()">💾 Guardar Evento</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// GOOGLE CALENDAR MODULE — JAC CRM
+// ═══════════════════════════════════════════════
+const CAL_TOKENS = {};
+const CAL_EVENTS = []; // live cache
+const CAL_EV_MAP = {}; // id → event object for safe onclick refs
+let calST = {
+  year: new Date().getFullYear(),
+  month: new Date().getMonth(), // 0-based
+  selectedDay: null,
+  editingId: null,
+  editingCalN: null
+};
+
+const CAL_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CAL_ACCOUNT_EMAILS = { 1: 'jelyancorredora@gmail.com', 2: 'jcastro@jacsegurospa.com' };
+
+// ── Auth ──────────────────────────────────────
+function calSignIn(email, n) {
+  const scope = 'https://www.googleapis.com/auth/calendar';
+  const redirectUri = encodeURIComponent(location.origin + location.pathname);
+  const url = `https://accounts.google.com/o/oauth2/v2/auth` +
+    `?client_id=${encodeURIComponent(GMAIL_CLIENT_ID)}` +
+    `&redirect_uri=${redirectUri}` +
+    `&response_type=token` +
+    `&scope=${encodeURIComponent(scope)}` +
+    `&login_hint=${encodeURIComponent(email)}` +
+    `&prompt=consent`;
+  const w = window.open(url, 'calauth_' + n, 'width=500,height=620,left=200,top=100');
+  toast('🔐 Abriendo autorización Google Calendar…');
+  const poll = setInterval(() => {
+    try {
+      if (w.closed) { clearInterval(poll); calUpdateConnStatus(); return; }
+      const hash = w.location.hash;
+      if (hash && hash.includes('access_token=')) {
+        const params = new URLSearchParams(hash.slice(1));
+        const token = params.get('access_token');
+        w.close(); clearInterval(poll);
+        if (token) {
+          CAL_TOKENS[n] = token;
+          sessionStorage.setItem('jac_cal_token_' + n, token);
+          calUpdateConnStatus();
+          toast('✓ Google Calendar conectado — cuenta ' + n);
+          calFetchGoogle(n);
+        }
+      }
+    } catch(e) {}
+  }, 500);
+}
+
+function calLoadTokens() {
+  [1, 2].forEach(n => {
+    const t = CAL_TOKENS[n] || sessionStorage.getItem('jac_cal_token_' + n);
+    if (t) CAL_TOKENS[n] = t;
+  });
+}
+
+function calUpdateConnStatus() {
+  const el = document.getElementById('cal-conn-status');
+  const bar = document.getElementById('cal-auth-bar');
+  const c1 = !!(CAL_TOKENS[1] || sessionStorage.getItem('jac_cal_token_1'));
+  const c2 = !!(CAL_TOKENS[2] || sessionStorage.getItem('jac_cal_token_2'));
+  if (el) {
+    const parts = [];
+    if (c1) parts.push('✅ jelyancorredora');
+    if (c2) parts.push('✅ jcastro');
+    el.textContent = parts.join(' · ');
+  }
+  if (bar) bar.style.display = (c1 && c2) ? 'none' : 'flex';
+}
+
+// ── Fetch events from Google Calendar ────────
+async function calFetchGoogle(n) {
+  const token = CAL_TOKENS[n] || sessionStorage.getItem('jac_cal_token_' + n);
+  if (!token) return;
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+  const end   = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString();
+  try {
+    const r = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(start)}&timeMax=${encodeURIComponent(end)}&maxResults=200&singleEvents=true&orderBy=startTime`,
+      { headers: { Authorization: 'Bearer ' + token } }
+    );
+    if (!r.ok) {
+      if (r.status === 401) {
+        delete CAL_TOKENS[n];
+        sessionStorage.removeItem('jac_cal_token_' + n);
+        calUpdateConnStatus();
+        toast('⚠️ Sesión Google Calendar expirada — reconecta la cuenta ' + n, 'err');
+      }
+      return;
+    }
+    const data = await r.json();
+    // Remove old events from this calendar
+    const toRemove = CAL_EVENTS.filter(e => e.src === 'google' && e.calN === n).map(e => e.id);
+    toRemove.forEach(id => { const i = CAL_EVENTS.findIndex(e => e.id === id); if (i >= 0) CAL_EVENTS.splice(i, 1); });
+    // Add fetched events
+    (data.items || []).forEach(item => {
+      const start = item.start.dateTime || item.start.date;
+      const end   = item.end   ? (item.end.dateTime || item.end.date) : start;
+      CAL_EVENTS.push({
+        id: 'gcal_' + n + '_' + item.id,
+        gcalId: item.id,
+        calN: n,
+        src: 'google',
+        title: item.summary || '(sin título)',
+        start, end,
+        allDay: !!item.start.date,
+        desc: item.description || '',
+        loc: item.location || '',
+        color: n === 1 ? '#4285F4' : '#EA4335'
+      });
+    });
+    calRenderAll();
+    toast(`✓ ${(data.items||[]).length} eventos cargados de cuenta ${n}`);
+  } catch(e) {
+    console.error('calFetchGoogle', e);
+  }
+}
+
+async function calSyncGoogle() {
+  calLoadTokens();
+  const t1 = CAL_TOKENS[1] || sessionStorage.getItem('jac_cal_token_1');
+  const t2 = CAL_TOKENS[2] || sessionStorage.getItem('jac_cal_token_2');
+  if (!t1 && !t2) {
+    toast('Conecta al menos una cuenta Google Calendar', 'err');
+    const bar = document.getElementById('cal-auth-bar');
+    if (bar) bar.style.display = 'flex';
+    return;
+  }
+  if (t1) { CAL_TOKENS[1] = t1; await calFetchGoogle(1); }
+  if (t2) { CAL_TOKENS[2] = t2; await calFetchGoogle(2); }
+  calSyncCRM();
+}
+
+// ── Sync CRM data → Calendar events ──────────
+function calSyncCRM() {
+  // Remove old CRM-derived events
+  for (let i = CAL_EVENTS.length - 1; i >= 0; i--) {
+    if (CAL_EVENTS[i].src === 'crm') CAL_EVENTS.splice(i, 1);
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const future = new Date(today); future.setDate(future.getDate() + 60);
+
+  // Renewals (polizas vencidas próximas)
+  (S.polizas || []).forEach(p => {
+    if (!p.fechaFin || p.estado === 'Cancelada') return;
+    const d = new Date(p.fechaFin + 'T12:00:00');
+    if (d >= today && d <= future) {
+      const cl = GC(p.clienteId);
+      CAL_EVENTS.push({
+        id: 'crm_ren_' + p.id,
+        src: 'crm', calN: 0,
+        title: `🔔 Renovación: ${cl.nombre || p.nombreCliente || '?'} — ${p.ramo || ''} (${p.aseg || ''})`,
+        start: p.fechaFin,
+        end: p.fechaFin,
+        allDay: true,
+        desc: `Póliza ${p.num || ''} · Prima: ${fmtM ? fmtM(p.prima||0) : p.prima||''}`,
+        loc: '', color: '#F59E0B'
+      });
+    }
+  });
+
+  // Tasks with due dates
+  (S.tareas || []).forEach(t => {
+    const tDate = t.fechaLimite || t.fecha;
+    if (!tDate || t.estado === 'completada' || t.etapaTarea === 'Hecho') return;
+    const d = new Date(tDate + 'T12:00:00');
+    if (d >= today && d <= future) {
+      CAL_EVENTS.push({
+        id: 'crm_tar_' + t.id,
+        src: 'crm', calN: 0,
+        title: `✅ Tarea: ${t.titulo || t.descripcion || '?'}`,
+        start: tDate, end: tDate, allDay: true,
+        desc: t.descripcion || '', loc: '', color: '#7C3AED'
+      });
+    }
+  });
+
+  // Birthdays
+  (S.clientes || []).forEach(c => {
+    if (!c.cumpleanos) return;
+    const bday = c.cumpleanos.substring(5); // MM-DD
+    const thisYear = `${today.getFullYear()}-${bday}`;
+    const d = new Date(thisYear + 'T12:00:00');
+    if (d >= today && d <= future) {
+      CAL_EVENTS.push({
+        id: 'crm_bday_' + c.id,
+        src: 'crm', calN: 0,
+        title: `🎂 Cumpleaños: ${c.nombre}`,
+        start: thisYear, end: thisYear, allDay: true,
+        desc: '', loc: '', color: '#F59E0B'
+      });
+    }
+  });
+
+  // Local CRM events (user-created without Google)
+  (S.calEventos || []).forEach(ev => {
+    CAL_EVENTS.push({ ...ev, src: 'local' });
+  });
+
+  calRenderAll();
+  renderDashCalMini();
+}
+
+// ── Render calendar grid ──────────────────────
+function calRenderAll() {
+  renderCalGrid();
+  renderCalUpcoming();
+  renderDashCalMini();
+  if (calST.selectedDay) calShowDay(calST.selectedDay);
+}
+
+function renderCalGrid() {
+  const lbl = document.getElementById('cal-month-label');
+  if (lbl) lbl.textContent = `${CAL_MONTHS[calST.month]} ${calST.year}`;
+
+  const grid = document.getElementById('cal-grid');
+  if (!grid) return;
+
+  // Keep headers (first 7 children)
+  while (grid.children.length > 7) grid.removeChild(grid.lastChild);
+
+  const ch1 = document.getElementById('cal-ch1');
+  const ch2 = document.getElementById('cal-ch2');
+  const chCRM = document.getElementById('cal-ch-crm');
+  const show1 = !ch1 || ch1.checked;
+  const show2 = !ch2 || ch2.checked;
+  const showCRM = !chCRM || chCRM.checked;
+
+  const firstDay = new Date(calST.year, calST.month, 1);
+  const lastDay  = new Date(calST.year, calST.month + 1, 0);
+  // Week starts Monday (0=Mon…6=Sun)
+  let startDow = firstDay.getDay(); // 0=Sun,1=Mon…
+  startDow = startDow === 0 ? 6 : startDow - 1;
+  const totalCells = Math.ceil((startDow + lastDay.getDate()) / 7) * 7;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  for (let i = 0; i < totalCells; i++) {
+    const dayOffset = i - startDow;
+    const date = new Date(calST.year, calST.month, 1 + dayOffset);
+    const dateStr = date.toISOString().slice(0, 10);
+    const isThisMonth = date.getMonth() === calST.month;
+    const isToday = date.getTime() === today.getTime();
+    const isSelected = calST.selectedDay === dateStr;
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' +
+      (!isThisMonth ? ' cal-other' : '') +
+      (isToday ? ' cal-today' : '') +
+      (isSelected ? ' cal-selected' : '');
+    cell.onclick = () => calSelectDay(dateStr);
+
+    const numEl = document.createElement('div');
+    numEl.className = 'cal-day-num';
+    numEl.textContent = date.getDate();
+    cell.appendChild(numEl);
+
+    // Events for this day
+    const dayEvs = CAL_EVENTS.filter(ev => {
+      if (!ev.start) return false;
+      const eDate = ev.start.slice(0, 10);
+      if (eDate !== dateStr) return false;
+      if (ev.calN === 1 && !show1) return false;
+      if (ev.calN === 2 && !show2) return false;
+      if ((ev.calN === 0 || ev.src === 'crm' || ev.src === 'local') && !showCRM) return false;
+      return true;
+    });
+
+    dayEvs.slice(0, 3).forEach(ev => {
+      CAL_EV_MAP[ev.id] = ev;
+      const pill = document.createElement('div');
+      pill.className = 'cal-ev-pill ' + (ev.calN === 1 ? 'cal-pill-g1' : ev.calN === 2 ? 'cal-pill-g2' : 'cal-pill-crm');
+      pill.style.borderLeft = '3px solid ' + (ev.color || '#888');
+      pill.textContent = ev.title.replace(/^[🔔✅🎂📌]\s?/,'');
+      pill.title = ev.title;
+      pill.onclick = e => { e.stopPropagation(); editCalEvent(CAL_EV_MAP[ev.id]); };
+      cell.appendChild(pill);
+    });
+    if (dayEvs.length > 3) {
+      const more = document.createElement('div');
+      more.style.cssText = 'font-size:9px;color:var(--mu);padding:1px 3px';
+      more.textContent = `+${dayEvs.length - 3} más`;
+      cell.appendChild(more);
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function calSelectDay(dateStr) {
+  calST.selectedDay = dateStr;
+  renderCalGrid();
+  calShowDay(dateStr);
+}
+
+function calShowDay(dateStr) {
+  const titleEl = document.getElementById('cal-day-title');
+  const evEl = document.getElementById('cal-day-events');
+  const addBtn = document.getElementById('cal-day-add-btn');
+  if (!titleEl || !evEl) return;
+
+  const d = new Date(dateStr + 'T12:00:00');
+  titleEl.textContent = d.toLocaleDateString('es-PA', { weekday:'long', day:'numeric', month:'long' });
+
+  const dayEvs = CAL_EVENTS.filter(ev => ev.start && ev.start.slice(0,10) === dateStr);
+  if (dayEvs.length === 0) {
+    evEl.innerHTML = '<span style="color:var(--mu)">Sin eventos para este día</span>';
+  } else {
+    evEl.innerHTML = dayEvs.map(ev => {
+      CAL_EV_MAP[ev.id] = ev;
+      const timeStr = ev.allDay ? 'Todo el día' : (ev.start.length > 10 ? ev.start.slice(11,16) : '');
+      const srcLabel = ev.calN === 1 ? '🔵' : ev.calN === 2 ? '🔴' : '🟣';
+      return `<div class="cal-ev-item" onclick="editCalEvent(CAL_EV_MAP['${ev.id}'])" style="cursor:pointer">
+        <div class="cal-ev-dot" style="background:${ev.color||'#888'}"></div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:12px">${srcLabel} ${ev.title}</div>
+          <div style="font-size:10px;color:var(--mu)">${timeStr}${ev.loc?' · '+ev.loc:''}</div>
+          ${ev.desc?`<div style="font-size:10px;color:var(--mu);margin-top:1px">${ev.desc.substring(0,80)}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if (addBtn) addBtn.style.display = '';
+}
+
+function renderCalUpcoming() {
+  const el = document.getElementById('cal-upcoming');
+  if (!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const limit = new Date(today); limit.setDate(limit.getDate() + 14);
+  const evs = CAL_EVENTS
+    .filter(ev => {
+      const d = new Date(ev.start.slice(0,10) + 'T12:00:00');
+      return d >= today && d <= limit;
+    })
+    .sort((a, b) => a.start.localeCompare(b.start));
+  if (evs.length === 0) { el.innerHTML = '<span style="color:var(--mu)">No hay eventos en los próximos 14 días</span>'; return; }
+  el.innerHTML = evs.map(ev => {
+    CAL_EV_MAP[ev.id] = ev;
+    const d = new Date(ev.start.slice(0,10) + 'T12:00:00');
+    const dStr = d.toLocaleDateString('es-PA', { weekday:'short', day:'numeric', month:'short' });
+    const timeStr = ev.allDay ? '' : (ev.start.length > 10 ? ' · ' + ev.start.slice(11,16) : '');
+    return `<div class="cal-upcoming-row">
+      <div class="cal-upcoming-date">${dStr}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${ev.color||'#888'};display:inline-block;flex-shrink:0"></span>
+          <span style="font-weight:600;font-size:12px">${ev.title}</span>
+          <span style="font-size:10px;color:var(--mu)">${timeStr}</span>
+        </div>
+        ${ev.loc?`<div style="font-size:10px;color:var(--mu);margin-top:1px">📍 ${ev.loc}</div>`:''}
+      </div>
+      <button class="btn bsm bgh bic" onclick="editCalEvent(CAL_EV_MAP['${ev.id}'])" title="Editar">✏️</button>
+    </div>`;
+  }).join('');
+}
+
+function renderDashCalMini() {
+  const el = document.getElementById('dash-cal-list');
+  if (!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const limit = new Date(today); limit.setDate(limit.getDate() + 7);
+  const evs = CAL_EVENTS
+    .filter(ev => { const d = new Date(ev.start.slice(0,10) + 'T12:00:00'); return d >= today && d <= limit; })
+    .sort((a, b) => a.start.localeCompare(b.start))
+    .slice(0, 6);
+  if (evs.length === 0) { el.innerHTML = '<span style="color:var(--mu);font-size:11px">Sin eventos esta semana</span>'; return; }
+  el.innerHTML = evs.map(ev => {
+    const d = new Date(ev.start.slice(0,10) + 'T12:00:00');
+    const dStr = d.toLocaleDateString('es-PA', { weekday:'short', day:'numeric', month:'short' });
+    return `<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--bd)">
+      <span style="width:8px;height:8px;border-radius:50%;background:${ev.color||'#888'};display:inline-block;flex-shrink:0"></span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.title.replace(/^[🔔✅🎂📌]\s?/,'')}</div>
+        <div style="font-size:10px;color:var(--mu)">${dStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Navigation ────────────────────────────────
+function calPrevMonth() {
+  calST.month--;
+  if (calST.month < 0) { calST.month = 11; calST.year--; }
+  renderCalGrid();
+  renderCalUpcoming();
+}
+function calNextMonth() {
+  calST.month++;
+  if (calST.month > 11) { calST.month = 0; calST.year++; }
+  renderCalGrid();
+  renderCalUpcoming();
+}
+function calGoToday() {
+  const n = new Date();
+  calST.year = n.getFullYear();
+  calST.month = n.getMonth();
+  calST.selectedDay = n.toISOString().slice(0,10);
+  calRenderAll();
+}
+
+// ── Modal ─────────────────────────────────────
+function openCalModal(date) {
+  calST.editingId = null;
+  calST.editingCalN = null;
+  const d = date || (calST.selectedDay || new Date().toISOString().slice(0,10));
+  document.getElementById('cal-ev-title').textContent = 'Nuevo Evento';
+  document.getElementById('cal-ev-ttl').value = '';
+  document.getElementById('cal-ev-date').value = d;
+  document.getElementById('cal-ev-allday').checked = false;
+  document.getElementById('cal-ev-start').value = '09:00';
+  document.getElementById('cal-ev-end').value = '10:00';
+  document.getElementById('cal-ev-desc').value = '';
+  document.getElementById('cal-ev-loc').value = '';
+  document.getElementById('cal-ev-cal').value = CAL_TOKENS[1] ? '1' : (CAL_TOKENS[2] ? '2' : 'local');
+  document.getElementById('cal-ev-color').value = '#4285F4';
+  document.getElementById('cal-ev-del-btn').style.display = 'none';
+  document.getElementById('cal-ev-status').textContent = '';
+  calToggleAllDay(document.getElementById('cal-ev-allday'));
+  OM('mo-cal-ev');
+}
+
+function editCalEvent(ev) {
+  if (!ev || typeof ev !== 'object') return;
+  calST.editingId = ev.id;
+  calST.editingCalN = ev.calN;
+  document.getElementById('cal-ev-title').textContent = 'Editar Evento';
+  document.getElementById('cal-ev-ttl').value = ev.title || '';
+  document.getElementById('cal-ev-date').value = ev.start ? ev.start.slice(0,10) : '';
+  const allDay = ev.allDay || ev.start.length <= 10;
+  document.getElementById('cal-ev-allday').checked = allDay;
+  document.getElementById('cal-ev-start').value = (!allDay && ev.start.length > 10) ? ev.start.slice(11,16) : '09:00';
+  document.getElementById('cal-ev-end').value = (!allDay && ev.end && ev.end.length > 10) ? ev.end.slice(11,16) : '10:00';
+  document.getElementById('cal-ev-desc').value = ev.desc || '';
+  document.getElementById('cal-ev-loc').value = ev.loc || '';
+  document.getElementById('cal-ev-cal').value = ev.calN > 0 ? String(ev.calN) : (ev.src === 'local' ? 'local' : 'local');
+  document.getElementById('cal-ev-color').value = ev.color || '#4285F4';
+  document.getElementById('cal-ev-del-btn').style.display = (ev.src === 'crm') ? 'none' : '';
+  document.getElementById('cal-ev-status').textContent = ev.src === 'crm' ? '📌 Evento generado desde CRM (solo lectura)' : '';
+  calToggleAllDay(document.getElementById('cal-ev-allday'));
+  OM('mo-cal-ev');
+}
+
+function calToggleAllDay(cb) {
+  const show = !cb.checked;
+  const r1 = document.getElementById('cal-ev-time-row');
+  const r2 = document.getElementById('cal-ev-time-row2');
+  if (r1) r1.style.display = show ? '' : 'none';
+  if (r2) r2.style.display = show ? '' : 'none';
+}
+
+async function calSaveEvent() {
+  const title = document.getElementById('cal-ev-ttl').value.trim();
+  const date  = document.getElementById('cal-ev-date').value;
+  if (!title || !date) { toast('Título y fecha son obligatorios', 'err'); return; }
+
+  const allDay = document.getElementById('cal-ev-allday').checked;
+  const tStart = document.getElementById('cal-ev-start').value || '09:00';
+  const tEnd   = document.getElementById('cal-ev-end').value || '10:00';
+  const desc   = document.getElementById('cal-ev-desc').value.trim();
+  const loc    = document.getElementById('cal-ev-loc').value.trim();
+  const calSel = document.getElementById('cal-ev-cal').value;
+  const color  = document.getElementById('cal-ev-color').value;
+  const statusEl = document.getElementById('cal-ev-status');
+
+  const startStr = allDay ? date : date + 'T' + tStart + ':00';
+  const endStr   = allDay ? date : date + 'T' + tEnd + ':00';
+
+  if (calSel === 'local') {
+    // Save to localStorage
+    if (!S.calEventos) S.calEventos = [];
+    if (calST.editingId && calST.editingId.startsWith('local_')) {
+      const i = S.calEventos.findIndex(e => e.id === calST.editingId);
+      if (i >= 0) { S.calEventos[i] = { ...S.calEventos[i], title, start: startStr, end: endStr, allDay, desc, loc, color, calN: 0, src: 'local' }; }
+    } else {
+      S.calEventos.push({ id: 'local_' + uid(), title, start: startStr, end: endStr, allDay, desc, loc, color, calN: 0, src: 'local' });
+    }
+    save();
+    CM('mo-cal-ev');
+    calSyncCRM();
+    toast('✓ Evento guardado en CRM');
+    return;
+  }
+
+  const n = parseInt(calSel);
+  const token = CAL_TOKENS[n] || sessionStorage.getItem('jac_cal_token_' + n);
+  if (!token) {
+    if (statusEl) statusEl.textContent = '⚠️ Conecta esta cuenta Google Calendar primero';
+    toast('Conecta la cuenta Google Calendar ' + n + ' primero', 'err');
+    return;
+  }
+
+  const body = {
+    summary: title,
+    description: desc || undefined,
+    location: loc || undefined,
+    start: allDay ? { date } : { dateTime: startStr, timeZone: 'America/Panama' },
+    end:   allDay ? { date } : { dateTime: endStr,   timeZone: 'America/Panama' }
+  };
+
+  if (statusEl) statusEl.textContent = '⏳ Guardando en Google Calendar…';
+
+  try {
+    const isEdit = !!(calST.editingId && calST.editingId.startsWith('gcal_'));
+    const gcalId = isEdit ? calST.editingId.replace('gcal_' + n + '_', '') : null;
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events${gcalId ? '/' + encodeURIComponent(gcalId) : ''}`;
+    const method = gcalId ? 'PUT' : 'POST';
+    const r = await fetch(url, {
+      method,
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) {
+      const err = await r.json();
+      if (statusEl) statusEl.textContent = '❌ Error: ' + (err.error?.message || r.status);
+      if (r.status === 401) { delete CAL_TOKENS[n]; sessionStorage.removeItem('jac_cal_token_' + n); calUpdateConnStatus(); }
+      return;
+    }
+    const saved = await r.json();
+    if (statusEl) statusEl.textContent = '✅ Guardado en Google Calendar';
+    toast('✓ Evento guardado en Google Calendar');
+    setTimeout(() => {
+      CM('mo-cal-ev');
+      calFetchGoogle(n);
+    }, 800);
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '❌ Error de red: ' + e.message;
+  }
+}
+
+async function calDeleteEvent() {
+  if (!calST.editingId) return;
+  if (!confirm('¿Eliminar este evento?')) return;
+
+  if (calST.editingId.startsWith('local_')) {
+    if (!S.calEventos) return;
+    S.calEventos = S.calEventos.filter(e => e.id !== calST.editingId);
+    save(); CM('mo-cal-ev'); calSyncCRM();
+    toast('Evento eliminado'); return;
+  }
+
+  const n = calST.editingCalN;
+  const token = CAL_TOKENS[n] || sessionStorage.getItem('jac_cal_token_' + n);
+  if (!token) { toast('Sin acceso al calendario', 'err'); return; }
+  const gcalId = calST.editingId.replace('gcal_' + n + '_', '');
+  const statusEl = document.getElementById('cal-ev-status');
+  if (statusEl) statusEl.textContent = '⏳ Eliminando…';
+  try {
+    await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(gcalId)}`,
+      { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+    toast('Evento eliminado de Google Calendar');
+    CM('mo-cal-ev');
+    await calFetchGoogle(n);
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+// ── Init ──────────────────────────────────────
+function calInit() {
+  calLoadTokens();
+  calUpdateConnStatus();
+  calGoToday();
+  calSyncCRM();
+}
+
+// Initialize on app ready — also patches nav to refresh calendar when clicked
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    calInit();
+    // Patch nav calendar link to refresh on each click
+    document.querySelectorAll('nav a').forEach(a => {
+      if ((a.getAttribute('onclick') || '').includes("'cal'")) {
+        const orig = a.getAttribute('onclick');
+        a.setAttribute('onclick', orig + '; calLoadTokens(); calUpdateConnStatus(); calRenderAll();');
+      }
+    });
+  }, 800);
+});
+</script>
 
 <!-- Email Compose Modal -->
 <div id="email-compose-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
