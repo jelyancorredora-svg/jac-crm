@@ -258,6 +258,7 @@ textarea.fc{resize:vertical;min-height:52px}
     <a onclick="SH('sin')">🚑 Siniestros</a>
     <a onclick="SH('veh')">🚗 Autos/Motos</a>
     <a onclick="SH('com')">💰 Comisiones</a>
+    <a onclick="SH('rep')">📊 Reportes</a>
     <a onclick="SH('tar')">✅ Tareas</a>
     <a onclick="SH('emp')">🏢 Empresas</a>
     <a onclick="SH('aseg')">🏛 Aseg.</a>
@@ -288,12 +289,17 @@ textarea.fc{resize:vertical;min-height:52px}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
     <div class="card" id="dren"></div><div class="card" id="dcom"></div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
     <div class="card" id="dtar"></div><div class="card" id="dven"></div>
     <div class="card" id="dash-cal-mini">
       <div class="ch" style="cursor:pointer" onclick="SH('cal')"><h3>📅 Próximos Eventos</h3><span class="btn bsm bgh">Ver calendario →</span></div>
       <div id="dash-cal-list" style="padding:8px 12px;font-size:12px;color:var(--mu)">Cargando…</div>
     </div>
+  </div>
+  <!-- REPORTES EN VIVO QUICK ACCESS -->
+  <div class="card" id="dash-rep-quick" style="margin-top:10px;border-left:4px solid #7E22CE">
+    <div class="ch"><h3>📊 Reportes en Vivo</h3><button class="btn bsm" style="background:#7E22CE;color:#fff;border-color:#7E22CE" onclick="SH('rep')">Ver módulo completo →</button></div>
+    <div id="dash-rep-summary" style="padding:10px 14px;font-size:12px;color:var(--mu)">Cargando resumen…</div>
   </div>
 </div>
 
@@ -435,7 +441,15 @@ textarea.fc{resize:vertical;min-height:52px}
   </div>
   <div class="sg" id="vehsg"></div>
   <div class="card" style="margin-bottom:10px;border-left:3px solid #25D366">
-    <div class="ch"><h3>📱 Alertas SOAT / Tecno Masivas</h3><button class="btn bsm bwa" onclick="sendBulkSOAT(30)">📱 Alertar SOAT ≤30d</button><button class="btn bsm" style="background:#0891B2;color:#fff;border-color:#0891B2" onclick="genCarteraReport()">📋 Reporte de Cartera</button></div>
+    <div class="ch" style="flex-wrap:wrap;gap:6px">
+      <h3>📱 Alertas Masivas de Renovación</h3>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn bsm bwa" onclick="sendBulkRenewal(30,'SOAT')">📱 SOAT ≤30d</button>
+        <button class="btn bsm" style="background:#7E22CE;color:#fff;border-color:#7E22CE" onclick="sendBulkRenewal(30,'all')">📱 Todos los Ramos ≤30d</button>
+        <button class="btn bsm" style="background:#0891B2;color:#fff;border-color:#0891B2" onclick="sendBulkRenewal(60,'all')">📱 Todos ≤60d</button>
+        <button class="btn bsm bp" onclick="SH('rep')">📊 Ver Reportes →</button>
+      </div>
+    </div>
     <div id="soat-bulk-list" style="padding:8px 14px;font-size:12px;color:var(--mu)">Cargando vehículos…</div>
   </div>
   <div class="card" style="margin-bottom:10px">
@@ -698,6 +712,97 @@ textarea.fc{resize:vertical;min-height:52px}
   </div>
 </div>
 
+<!-- REPORTES EN VIVO -->
+<div class="pg" id="pg-rep">
+  <div class="ph">
+    <div><h2>📊 Módulo de Reportes en Vivo</h2><small>Datos en tiempo real · Actualizado al abrir</small></div>
+    <div class="tb">
+      <button class="btn bp" onclick="renderReports()">↺ Actualizar</button>
+    </div>
+  </div>
+
+  <!-- KPIs del Reporte -->
+  <div class="sg" id="rep-kpis" style="margin-bottom:12px"></div>
+
+  <!-- Alertas Masivas de Renovación -->
+  <div class="card" style="margin-bottom:10px;border-left:4px solid #7E22CE">
+    <div class="ch" style="flex-wrap:wrap;gap:6px">
+      <h3>📱 Alertas Masivas de Renovación</h3>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+        <select id="rep-alert-days" class="si" style="width:100px;font-size:11px">
+          <option value="15">≤ 15 días</option>
+          <option value="30" selected>≤ 30 días</option>
+          <option value="45">≤ 45 días</option>
+          <option value="60">≤ 60 días</option>
+          <option value="90">≤ 90 días</option>
+        </select>
+        <select id="rep-alert-ramo" class="si" style="width:130px;font-size:11px">
+          <option value="all">Todos los Ramos</option>
+          <option value="SOAT">SOAT</option>
+          <option value="AUTO">Auto / Moto</option>
+          <option value="SALUD">Salud</option>
+          <option value="VIDA">Vida</option>
+          <option value="HOGAR">Hogar</option>
+          <option value="ACCIDENTES">Accidentes</option>
+          <option value="FIANZA">Fianza</option>
+          <option value="INCENDIO">Incendio</option>
+          <option value="TRANSPORTE">Transporte</option>
+          <option value="RESPONSABILIDAD">Resp. Civil</option>
+          <option value="EMPRESA">Empresarial</option>
+        </select>
+        <button class="btn bwa" onclick="sendBulkRenewal(+document.getElementById('rep-alert-days').value, document.getElementById('rep-alert-ramo').value)">📱 Enviar WhatsApp Masivo</button>
+      </div>
+    </div>
+    <div id="rep-alert-list" style="padding:8px 14px;font-size:12px;color:var(--mu)">Selecciona el período y ramo, luego haz clic en "Enviar".</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+    <!-- Reporte de Cartera -->
+    <div class="card">
+      <div class="ch"><h3>📋 Reporte de Cartera</h3><button class="btn bsm bp" onclick="genCarteraReport()">📋 Copiar al portapapeles</button></div>
+      <div id="rep-cartera" style="padding:12px 14px;font-size:12px"></div>
+    </div>
+
+    <!-- Reporte de Vencimientos -->
+    <div class="card">
+      <div class="ch"><h3>🔔 Vencimientos Próximos</h3>
+        <select id="rep-ven-days" class="si" style="width:90px;font-size:11px" onchange="renderRepVencimientos()">
+          <option value="30">30 días</option>
+          <option value="60" selected>60 días</option>
+          <option value="90">90 días</option>
+        </select>
+      </div>
+      <div id="rep-vencimientos" style="padding:0;font-size:12px"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+    <!-- Reporte de Comisiones -->
+    <div class="card">
+      <div class="ch"><h3>💰 Comisiones por Cobrar</h3><button class="btn bsm bp" onclick="genComisionesReport()">📋 Copiar Reporte</button></div>
+      <div id="rep-comisiones" style="padding:12px 14px;font-size:12px"></div>
+    </div>
+
+    <!-- Reporte de Prospectos Fríos -->
+    <div class="card">
+      <div class="ch"><h3>❄️ Prospectos sin Seguimiento</h3><button class="btn bsm bwa" onclick="sendBulkColdLeads()">📱 Alertar en WA</button></div>
+      <div id="rep-cold" style="padding:0;font-size:12px"></div>
+    </div>
+  </div>
+
+  <!-- Desglose por Aseguradora -->
+  <div class="card" style="margin-bottom:10px">
+    <div class="ch"><h3>🏛 Desglose por Aseguradora</h3></div>
+    <div id="rep-aseg-breakdown" style="padding:12px 14px;font-size:12px"></div>
+  </div>
+
+  <!-- Desglose por Ramo -->
+  <div class="card">
+    <div class="ch"><h3>📁 Desglose por Ramo</h3></div>
+    <div id="rep-ramo-breakdown" style="padding:12px 14px;font-size:12px"></div>
+  </div>
+</div>
+
 </main>
 
 <!-- PANEL LATERAL DE DETALLE -->
@@ -723,6 +828,7 @@ textarea.fc{resize:vertical;min-height:52px}
   <a onclick="SH('veh');closeBnMore()"><span style="font-size:16px">🚗</span>Autos</a>
   <a onclick="SH('port');closeBnMore()"><span style="font-size:16px">🗂</span>Portafolio</a>
   <a onclick="SH('com');closeBnMore()"><span style="font-size:16px">💰</span>Comisiones</a>
+  <a onclick="SH('rep');closeBnMore()"><span style="font-size:16px">📊</span>Reportes</a>
   <a onclick="SH('tar');closeBnMore()"><span style="font-size:16px">✅</span>Tareas</a>
   <a onclick="SH('emp');closeBnMore()"><span style="font-size:16px">🏢</span>Empresas</a>
   <a onclick="SH('aseg');closeBnMore()"><span style="font-size:16px">🏛</span>Aseg.</a>
@@ -1315,7 +1421,7 @@ function SH(id){
   document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
   document.getElementById('bn-'+id)?.classList.add('on');
   closeDP();
-  ({dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg})[id]?.();
+  ({dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,rep:renderReports,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg})[id]?.();
 }
 function toggleBnMore(){document.getElementById('bmm').classList.toggle('on');}
 function closeBnMore(){document.getElementById('bmm').classList.remove('on');}
@@ -1386,6 +1492,7 @@ function RD(){
   renderDailyDigest();
   renderSinAlert();
   renderSOATBulkPanel();
+  renderDashRepSummary();
 }
 
 // ── ALERTA DEL DÍA ──
@@ -1486,24 +1593,69 @@ function renderSOATBulkPanel(){
   el.innerHTML=h;
 }
 
-function sendBulkSOAT(days){
+// ── ALERTAS MASIVAS DE RENOVACIÓN (todos los ramos) ──
+function sendBulkRenewal(days, ramo='all'){
   const t0=new Date(TODAY);t0.setHours(0,0,0,0);
-  const targets=(S.vehiculos||[]).filter(v=>{
-    if(!v.soat)return false;
-    const d=Math.round((new Date(v.soat+'T12:00:00')-t0)/86400000);
-    return d>=0&&d<=days;
-  });
-  if(!targets.length){toast('No hay vehículos con SOAT venciendo en ese período','wn');return;}
-  let sent=0;
-  targets.forEach((v,i)=>{
-    const cl=GC(v.clienteId);const tel=cl.cel||cl.tel||'';
+  const targets=[];
+
+  // Pólizas de todos los ramos (S.polizas)
+  (S.polizas||[]).forEach(p=>{
+    if(p.estado==='Cancelada')return;
+    if(!p.fechaFin)return;
+    const d=Math.round((new Date(p.fechaFin+'T12:00:00')-t0)/86400000);
+    if(d<0||d>days)return;
+    const r=(p.ramo||'').toUpperCase();
+    if(ramo!=='all'&&ramo!=='SOAT'&&r!==ramo)return; // SOAT from vehicles, skip poliza SOAT
+    if(ramo==='SOAT')return; // SOAT handled from vehiculos below
+    const cl=GC(p.clienteId);const tel=cl.cel||cl.tel||'';
     if(!tel)return;
-    const msg=encodeURIComponent(`📄 Estimado/a ${cl.nombre||'cliente'},\n\nLe recordamos que su SOAT para el vehículo placa ${v.placa||''} vence el ${v.soat||''}.\n\nPor favor contáctenos para renovarlo a tiempo y evitar multas.\n\nJAC Seguros · +507 6292-6010 · Jely An Castro, Lic. #6175 SPRP`);
-    setTimeout(()=>window.open(`https://wa.me/507${tel.replace(/\D/g,'')}?text=${msg}`,'_blank'),i*400);
+    targets.push({
+      tipo:'poliza',ramo:p.ramo||'Póliza',cl,tel,
+      msg:`📄 Estimado/a ${cl.nombre||'cliente'},\n\nSu póliza de ${p.ramo||'seguro'} (N° ${p.numeroPol||''}) con ${p.aseguradora||''} vence el ${p.fechaFin||''}.\n\nContáctenos para renovarla sin interrupciones.\n\nJAC Seguros · +507 6292-6010 · Jely An Castro, Lic. #6175 SPRP`
+    });
+  });
+
+  // Vehículos — SOAT y Tecno (cuando ramo = 'all' o 'SOAT')
+  if(ramo==='all'||ramo==='SOAT'){
+    (S.vehiculos||[]).forEach(v=>{
+      const cl=GC(v.clienteId);const tel=cl.cel||cl.tel||'';
+      if(!tel)return;
+      if(v.soat){
+        const d=Math.round((new Date(v.soat+'T12:00:00')-t0)/86400000);
+        if(d>=0&&d<=days){
+          targets.push({tipo:'soat',ramo:'SOAT',cl,tel,
+            msg:`📄 Estimado/a ${cl.nombre||'cliente'},\n\nSu SOAT para el vehículo placa ${v.placa||''} vence el ${v.soat}.\n\nContáctenos para renovarlo a tiempo y evitar multas.\n\nJAC Seguros · +507 6292-6010 · Jely An Castro, Lic. #6175 SPRP`});
+        }
+      }
+      if(ramo==='all'&&v.tecno){
+        const d=Math.round((new Date(v.tecno+'T12:00:00')-t0)/86400000);
+        if(d>=0&&d<=days){
+          targets.push({tipo:'tecno',ramo:'Tecno-Mecánica',cl,tel,
+            msg:`📄 Estimado/a ${cl.nombre||'cliente'},\n\nSu Revisión Técnico-Mecánica para el vehículo placa ${v.placa||''} vence el ${v.tecno}.\n\nContáctenos para gestionar su renovación.\n\nJAC Seguros · +507 6292-6010 · Jely An Castro, Lic. #6175 SPRP`});
+        }
+      }
+    });
+  }
+
+  if(!targets.length){toast(`No hay pólizas${ramo!=='all'?' de '+ramo:''} venciendo en ${days} días`,'wn');return;}
+
+  let sent=0;
+  targets.forEach((t,i)=>{
+    const msg=encodeURIComponent(t.msg);
+    setTimeout(()=>window.open(`https://wa.me/507${t.tel.replace(/\D/g,'')}?text=${msg}`,'_blank'),i*400);
     sent++;
   });
-  toast(`📱 Enviando ${sent} alertas SOAT por WhatsApp…`,'ok');
+  // Also update the bulk list display
+  const el=document.getElementById('soat-bulk-list')||document.getElementById('rep-alert-list');
+  if(el){
+    const byR={};targets.forEach(t=>{byR[t.ramo]=(byR[t.ramo]||0)+1;});
+    el.innerHTML='<div style="padding:6px 0"><b style="color:#25D366">✅ Enviando '+sent+' alertas por WhatsApp</b><div style="margin-top:4px">'+Object.entries(byR).map(([r,n])=>`<span style="margin-right:8px">• ${r}: ${n}</span>`).join('')+'</div></div>';
+  }
+  toast(`📱 Enviando ${sent} alertas de renovación por WhatsApp…`,'ok');
 }
+
+// Backward compat alias
+function sendBulkSOAT(days){ sendBulkRenewal(days,'SOAT'); }
 
 // ── REPORTE DE CARTERA ──
 function genCarteraReport(){
@@ -1512,28 +1664,233 @@ function genCarteraReport(){
   const venc=S.polizas.filter(p=>p.estado!=='Cancelada'&&new Date(p.fechaFin+'T12:00:00')<t0);
   const byRamo={};
   vig.forEach(p=>{const r=p.ramo||'Otro';byRamo[r]=(byRamo[r]||[]);byRamo[r].push(p);});
+  const fDate=new Date().toLocaleDateString('es-PA',{day:'2-digit',month:'long',year:'numeric'});
   let txt=`📊 REPORTE DE CARTERA — JAC SEGUROS\n`;
   txt+=`Corredora: Jely An Castro · Lic. #6175 SPRP\n`;
-  txt+=`Fecha: ${new Date().toLocaleDateString('es-PA',{day:'2-digit',month:'long',year:'numeric'})}\n\n`;
+  txt+=`Fecha: ${fDate}\n\n`;
   txt+=`✅ PÓLIZAS VIGENTES: ${vig.length}\n💰 Prima cartera: $${vig.reduce((s,p)=>s+(p.prima||0),0).toLocaleString('es-PA',{minimumFractionDigits:2})}\n\n`;
   txt+=`📁 DESGLOSE POR RAMO:\n`;
   Object.entries(byRamo).sort((a,z)=>z[1].length-a[1].length).forEach(([r,ps])=>{
     const tot=ps.reduce((s,p)=>s+(p.prima||0),0);
     txt+=`  • ${r}: ${ps.length} póliza${ps.length!==1?'s':''} · $${tot.toLocaleString('es-PA',{minimumFractionDigits:2})}\n`;
   });
-  txt+=`\n🔴 PÓLIZAS VENCIDAS: ${venc.length}\n`;
+  txt+=`\n🔔 VENCEN EN 30 DÍAS: ${vig.filter(p=>dFrom(p.fechaFin)<=30).length}\n`;
+  txt+=`🔴 PÓLIZAS VENCIDAS: ${venc.length}\n`;
   txt+=`👥 CLIENTES ACTIVOS: ${S.clientes.length}\n`;
   txt+=`🎯 PROSPECTOS ACTIVOS: ${(S.prospectos||[]).filter(p=>p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido').length}\n\n`;
   txt+=`— Generado por CRM JAC Seguros`;
-  // Copy to clipboard
   navigator.clipboard.writeText(txt).then(()=>{
     toast('📋 Reporte copiado al portapapeles','ok');
   }).catch(()=>{
-    // Fallback: show in dialog
     const w=window.open('','_blank','width=600,height=500');
     w.document.write(`<pre style="font-family:monospace;padding:20px;white-space:pre-wrap">${txt}</pre>`);
     w.document.title='Reporte de Cartera';
   });
+  return txt;
+}
+
+// ── REPORTE DE COMISIONES ──
+function genComisionesReport(){
+  const pend=(S.comisiones||[]).filter(c=>c.estado!=='cobrada');
+  const cobr=(S.comisiones||[]).filter(c=>c.estado==='cobrada');
+  const tPend=pend.reduce((s,c)=>s+(c.monto||0),0);
+  const tCobr=cobr.reduce((s,c)=>s+(c.monto||0),0);
+  let txt=`💰 REPORTE DE COMISIONES — JAC SEGUROS\n`;
+  txt+=`Corredora: Jely An Castro · Lic. #6175 SPRP\n`;
+  txt+=`Fecha: ${new Date().toLocaleDateString('es-PA',{day:'2-digit',month:'long',year:'numeric'})}\n\n`;
+  txt+=`⏳ PENDIENTES DE COBRO: ${pend.length} — $${tPend.toLocaleString('es-PA',{minimumFractionDigits:2})}\n`;
+  txt+=`✅ COBRADAS: ${cobr.length} — $${tCobr.toLocaleString('es-PA',{minimumFractionDigits:2})}\n\n`;
+  txt+=`📋 DETALLE PENDIENTES:\n`;
+  pend.sort((a,z)=>(a.mes||'').localeCompare(z.mes||'')).forEach(c=>{
+    txt+=`  • ${c.aseg||'?'} · ${c.mes||'?'} · $${(c.monto||0).toLocaleString('es-PA',{minimumFractionDigits:2})}\n`;
+  });
+  txt+=`\n— Generado por CRM JAC Seguros`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    toast('💰 Reporte de comisiones copiado','ok');
+  }).catch(()=>{
+    const w=window.open('','_blank','width=600,height=500');
+    w.document.write(`<pre style="font-family:monospace;padding:20px;white-space:pre-wrap">${txt}</pre>`);
+  });
+}
+
+// ── ENVIAR WA A PROSPECTOS FRÍOS ──
+function sendBulkColdLeads(){
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  const cold=(S.prospectos||[]).filter(p=>{
+    if(p.etapaVenta==='Cliente ganado'||p.etapaVenta==='Perdido')return false;
+    const lu=p.ultimaActualizacion||p.fechaCreacion;if(!lu)return false;
+    return Math.round((t0-new Date(lu))/86400000)>=7;
+  });
+  if(!cold.length){toast('No hay prospectos sin seguimiento','wn');return;}
+  let sent=0;
+  cold.forEach((p,i)=>{
+    const tel=p.cel||p.tel||'';if(!tel)return;
+    const msg=encodeURIComponent(`¡Hola ${p.nombre||''}! 👋\n\nSoy Jely An Castro de JAC Seguros. Quería retomar contacto y ver cómo puedo ayudarle con su protección en seguros.\n\n¿Tiene un momento para conversar?\n\nJAC Seguros · +507 6292-6010 · Lic. #6175 SPRP`);
+    setTimeout(()=>window.open(`https://wa.me/507${tel.replace(/\D/g,'')}?text=${msg}`,'_blank'),i*400);
+    sent++;
+  });
+  toast(`📱 Enviando ${sent} mensajes a prospectos fríos…`,'ok');
+}
+
+// ── MÓDULO REPORTES — RENDER ──
+function renderRepVencimientos(){
+  const el=document.getElementById('rep-vencimientos');if(!el)return;
+  const days=+(document.getElementById('rep-ven-days')||{value:60}).value||60;
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  const prox=(S.polizas||[]).filter(p=>{
+    if(p.estado==='Cancelada')return false;
+    const d=dFrom(p.fechaFin);return d>=0&&d<=days;
+  }).sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
+  if(!prox.length){el.innerHTML='<div style="padding:18px;text-align:center;color:var(--mu)">Sin vencimientos en este período ✓</div>';return;}
+  let h='<div class="tw"><table><thead><tr><th>Cliente</th><th>Ramo</th><th>Aseg.</th><th>Vence</th><th>Días</th><th>WA</th></tr></thead><tbody>';
+  prox.forEach(p=>{
+    const cl=GC(p.clienteId);const d=dFrom(p.fechaFin);
+    const col=d<=15?'#DC2626':d<=30?'#B45309':'#15803D';
+    const tel=cl.cel||cl.tel||'';
+    const waMsg=encodeURIComponent(`📄 Estimado/a ${cl.nombre||'cliente'},\n\nSu póliza de ${p.ramo||'seguro'} (N° ${p.numeroPol||''}) vence el ${p.fechaFin}.\n\nContáctenos para renovarla.\n\nJAC Seguros · Jely An Castro, Lic. #6175 SPRP`);
+    h+=`<tr><td>${esc(cl.nombre||'?')}</td><td>${esc(p.ramo||'?')}</td><td>${esc(p.aseguradora||'?')}</td><td>${p.fechaFin||'?'}</td><td style="color:${col};font-weight:700">${d}d</td><td>${tel?`<a class="btn bsm bwa" href="https://wa.me/507${tel.replace(/\D/g,'')}?text=${waMsg}" target="_blank">📱</a>`:''}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  el.innerHTML=h;
+}
+
+function renderReports(){
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  // KPIs
+  const vig=(S.polizas||[]).filter(p=>p.estado!=='Cancelada'&&new Date(p.fechaFin+'T12:00:00')>=t0);
+  const venc=(S.polizas||[]).filter(p=>p.estado!=='Cancelada'&&new Date(p.fechaFin+'T12:00:00')<t0);
+  const p30=vig.filter(p=>dFrom(p.fechaFin)<=30).length;
+  const tP=vig.reduce((s,p)=>s+(p.prima||0),0);
+  const tCom=(S.comisiones||[]).filter(c=>c.estado!=='cobrada').reduce((s,c)=>s+(c.monto||0),0);
+  const cold=(S.prospectos||[]).filter(p=>{
+    if(p.etapaVenta==='Cliente ganado'||p.etapaVenta==='Perdido')return false;
+    const lu=p.ultimaActualizacion||p.fechaCreacion;if(!lu)return false;
+    return Math.round((t0-new Date(lu))/86400000)>=7;
+  }).length;
+  const kpis=document.getElementById('rep-kpis');
+  if(kpis)kpis.innerHTML=`
+    <div class="st"><em>Pólizas Vigentes</em><div class="n" style="color:#15803D">${vig.length}</div><div class="sv">prima: ${fmtM(tP)}</div></div>
+    <div class="st"><em>Vencen en 30d</em><div class="n" style="color:#B45309">${p30}</div><div class="sv">requieren atención</div></div>
+    <div class="st"><em>Pólizas Vencidas</em><div class="n" style="color:#DC2626">${venc.length}</div></div>
+    <div class="st"><em>Com. por Cobrar</em><div class="n" style="color:#7E22CE;font-size:15px">${fmtM(tCom)}</div></div>
+    <div class="st"><em>Prospectos Fríos</em><div class="n" style="color:#0891B2">${cold}</div><div class="sv">≥7 días sin contacto</div></div>
+    <div class="st"><em>Clientes</em><div class="n">${(S.clientes||[]).length}</div></div>`;
+
+  // Cartera summary
+  const rcEl=document.getElementById('rep-cartera');
+  if(rcEl){
+    const byRamo={};
+    vig.forEach(p=>{const r=p.ramo||'Otro';byRamo[r]=(byRamo[r]||[]);byRamo[r].push(p);});
+    let h='<table style="width:100%"><thead><tr><th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--mu)">Ramo</th><th style="text-align:right;padding:4px 6px;font-size:10px;color:var(--mu)">Pólizas</th><th style="text-align:right;padding:4px 6px;font-size:10px;color:var(--mu)">Prima</th></tr></thead><tbody>';
+    Object.entries(byRamo).sort((a,z)=>z[1].length-a[1].length).forEach(([r,ps])=>{
+      const tot=ps.reduce((s,p)=>s+(p.prima||0),0);
+      h+=`<tr><td style="padding:4px 6px">${esc(r)}</td><td style="text-align:right;padding:4px 6px">${ps.length}</td><td style="text-align:right;padding:4px 6px;color:#15803D;font-weight:700">${fmtM(tot)}</td></tr>`;
+    });
+    h+=`<tr style="border-top:2px solid #EEF2F8"><td style="padding:6px;font-weight:700">TOTAL</td><td style="text-align:right;padding:6px;font-weight:700">${vig.length}</td><td style="text-align:right;padding:6px;font-weight:700;color:#15803D">${fmtM(tP)}</td></tr>`;
+    h+='</tbody></table>';
+    rcEl.innerHTML=h;
+  }
+
+  // Comisiones
+  const pend=(S.comisiones||[]).filter(c=>c.estado!=='cobrada');
+  const rcCom=document.getElementById('rep-comisiones');
+  if(rcCom){
+    if(!pend.length){rcCom.innerHTML='<div style="padding:18px;text-align:center;color:var(--mu)">Todas cobradas ✓</div>';}
+    else{
+      let h='<table style="width:100%"><thead><tr><th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--mu)">Aseguradora</th><th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--mu)">Mes</th><th style="text-align:right;padding:4px 6px;font-size:10px;color:var(--mu)">Monto</th></tr></thead><tbody>';
+      pend.forEach(c=>{h+=`<tr><td style="padding:4px 6px">${esc(c.aseg||'?')}</td><td style="padding:4px 6px;color:var(--mu)">${esc(c.mes||'?')}</td><td style="text-align:right;padding:4px 6px;font-weight:700;color:#7E22CE">${fmtM(c.monto||0)}</td></tr>`;});
+      h+=`<tr style="border-top:2px solid #EEF2F8"><td colspan="2" style="padding:6px;font-weight:700">TOTAL</td><td style="text-align:right;padding:6px;font-weight:700;color:#7E22CE">${fmtM(tCom)}</td></tr>`;
+      h+='</tbody></table>';
+      rcCom.innerHTML=h;
+    }
+  }
+
+  // Prospectos fríos
+  const coldList=(S.prospectos||[]).filter(p=>{
+    if(p.etapaVenta==='Cliente ganado'||p.etapaVenta==='Perdido')return false;
+    const lu=p.ultimaActualizacion||p.fechaCreacion;if(!lu)return false;
+    return Math.round((t0-new Date(lu))/86400000)>=7;
+  }).sort((a,z)=>{
+    const da=Math.round((t0-new Date(a.ultimaActualizacion||a.fechaCreacion))/86400000);
+    const dz=Math.round((t0-new Date(z.ultimaActualizacion||z.fechaCreacion))/86400000);
+    return dz-da;
+  });
+  const rcCold=document.getElementById('rep-cold');
+  if(rcCold){
+    if(!coldList.length){rcCold.innerHTML='<div style="padding:18px;text-align:center;color:var(--mu)">Sin prospectos fríos ✓</div>';}
+    else{
+      let h='<div class="tw"><table><thead><tr><th>Nombre</th><th>Etapa</th><th>Días sin contacto</th><th>WA</th></tr></thead><tbody>';
+      coldList.forEach(p=>{
+        const lu=p.ultimaActualizacion||p.fechaCreacion;
+        const d=Math.round((t0-new Date(lu))/86400000);
+        const tel=p.cel||p.tel||'';
+        const waMsg=encodeURIComponent(`¡Hola ${p.nombre||''}! 👋\n\nSoy Jely An Castro de JAC Seguros. Quería retomar contacto y ver cómo puedo ayudarle.\n\n¿Tiene un momento?\n\nJAC Seguros · +507 6292-6010 · Lic. #6175 SPRP`);
+        h+=`<tr><td>${esc(p.nombre||'?')}</td><td>${esc(p.etapaVenta||'?')}</td><td style="color:#B45309;font-weight:700">${d} días</td><td>${tel?`<a class="btn bsm bwa" href="https://wa.me/507${tel.replace(/\D/g,'')}?text=${waMsg}" target="_blank">📱</a>`:''}</td></tr>`;
+      });
+      h+='</tbody></table></div>';
+      rcCold.innerHTML=h;
+    }
+  }
+
+  // Desglose por Aseguradora
+  const byAseg={};
+  vig.forEach(p=>{const a=p.aseguradora||'Otra';byAseg[a]=(byAseg[a]||[]);byAseg[a].push(p);});
+  const raEl=document.getElementById('rep-aseg-breakdown');
+  if(raEl){
+    let h='<div style="display:flex;flex-wrap:wrap;gap:8px">';
+    Object.entries(byAseg).sort((a,z)=>z[1].length-a[1].length).forEach(([a,ps])=>{
+      const tot=ps.reduce((s,p)=>s+(p.prima||0),0);
+      h+=`<div style="background:#F8FAFD;border:1px solid var(--bd);border-radius:8px;padding:10px 14px;min-width:140px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">${dot(ac(a))}<b style="font-size:12px">${esc(a)}</b></div><div style="font-size:20px;font-weight:800;color:var(--bl)">${ps.length}</div><div style="font-size:10px;color:var(--mu)">pólizas · ${fmtM(tot)}</div></div>`;
+    });
+    h+='</div>';
+    raEl.innerHTML=h;
+  }
+
+  // Desglose por Ramo
+  const byRamo2={};
+  vig.forEach(p=>{const r=p.ramo||'Otro';byRamo2[r]=(byRamo2[r]||[]);byRamo2[r].push(p);});
+  const rrEl=document.getElementById('rep-ramo-breakdown');
+  if(rrEl){
+    let h='<div style="display:flex;flex-wrap:wrap;gap:8px">';
+    Object.entries(byRamo2).sort((a,z)=>z[1].length-a[1].length).forEach(([r,ps])=>{
+      const tot=ps.reduce((s,p)=>s+(p.prima||0),0);
+      h+=`<div style="background:#F8FAFD;border:1px solid var(--bd);border-radius:8px;padding:10px 14px;min-width:120px"><div style="font-size:11px;font-weight:700;color:var(--bl);margin-bottom:4px">📁 ${esc(r)}</div><div style="font-size:20px;font-weight:800;color:var(--bl)">${ps.length}</div><div style="font-size:10px;color:var(--mu)">${fmtM(tot)}</div></div>`;
+    });
+    h+='</div>';
+    rrEl.innerHTML=h;
+  }
+
+  // Vencimientos
+  renderRepVencimientos();
+
+  // Alert list preview
+  const ralEl=document.getElementById('rep-alert-list');
+  if(ralEl){
+    const d30=(S.polizas||[]).filter(p=>p.estado!=='Cancelada'&&dFrom(p.fechaFin)>=0&&dFrom(p.fechaFin)<=30).length;
+    const d60=(S.polizas||[]).filter(p=>p.estado!=='Cancelada'&&dFrom(p.fechaFin)>=0&&dFrom(p.fechaFin)<=60).length;
+    const soat30=(S.vehiculos||[]).filter(v=>{if(!v.soat)return false;const d=Math.round((new Date(v.soat+'T12:00:00')-t0)/86400000);return d>=0&&d<=30;}).length;
+    ralEl.innerHTML=`<div style="padding:6px 0;color:var(--tx)">Selecciona el período y ramo deseado y haz clic en <b>Enviar WhatsApp Masivo</b>.<br><span style="color:var(--mu)">Disponibles: <b>${d30}</b> pólizas en ≤30d · <b>${d60}</b> en ≤60d · <b>${soat30}</b> SOAT vehículos en ≤30d</span></div>`;
+  }
+}
+
+// ── DASHBOARD REPORTS SUMMARY ──
+function renderDashRepSummary(){
+  const el=document.getElementById('dash-rep-summary');if(!el)return;
+  const t0=new Date(TODAY);t0.setHours(0,0,0,0);
+  const vig=(S.polizas||[]).filter(p=>p.estado!=='Cancelada'&&new Date(p.fechaFin+'T12:00:00')>=t0);
+  const p30=vig.filter(p=>dFrom(p.fechaFin)<=30).length;
+  const p60=vig.filter(p=>dFrom(p.fechaFin)<=60).length;
+  const byRamo={};vig.forEach(p=>{const r=p.ramo||'Otro';byRamo[r]=(byRamo[r]||0)+1;});
+  const top3=Object.entries(byRamo).sort((a,z)=>z[1]-a[1]).slice(0,3);
+  const tCom=(S.comisiones||[]).filter(c=>c.estado!=='cobrada').reduce((s,c)=>s+(c.monto||0),0);
+  const soat30=(S.vehiculos||[]).filter(v=>{if(!v.soat)return false;const d=Math.round((new Date(v.soat+'T12:00:00')-t0)/86400000);return d>=0&&d<=30;}).length;
+  el.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+    <div><div style="font-size:10px;color:var(--mu);font-weight:700;margin-bottom:3px">VENCEN EN 30d</div><div style="font-size:22px;font-weight:800;color:#B45309">${p30}</div><div style="font-size:10px;color:var(--mu)">${p60} en 60 días</div></div>
+    <div><div style="font-size:10px;color:var(--mu);font-weight:700;margin-bottom:3px">SOAT ≤30d</div><div style="font-size:22px;font-weight:800;color:#B45309">${soat30}</div><div style="font-size:10px;color:var(--mu)">vehículos</div></div>
+    <div><div style="font-size:10px;color:var(--mu);font-weight:700;margin-bottom:3px">COM. PENDIENTES</div><div style="font-size:18px;font-weight:800;color:#7E22CE">${fmtM(tCom)}</div></div>
+    <div style="flex:1;min-width:120px"><div style="font-size:10px;color:var(--mu);font-weight:700;margin-bottom:4px">TOP RAMOS</div>${top3.map(([r,n])=>`<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>${esc(r)}</span><b style="color:var(--bl)">${n}</b></div>`).join('')}</div>
+    <button class="btn bsm" style="background:#7E22CE;color:#fff;border-color:#7E22CE;align-self:center" onclick="sendBulkRenewal(30,'all')">📱 Alertar vencimientos 30d</button>
+  </div>`;
 }
 
 // ── CLIENTES ──
