@@ -148,6 +148,14 @@ textarea.fc{resize:vertical;min-height:52px}
 .waf{position:fixed;bottom:18px;right:16px;background:#25D366;color:#fff;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 14px rgba(37,211,102,.45);text-decoration:none;z-index:90}
 @media(max-width:768px){nav{display:none}.bnav{display:block}.dpanel{width:100%;top:auto;bottom:0;height:75vh;border-left:none;border-top:1px solid var(--bd);border-radius:16px 16px 0 0}.md{margin:auto auto 0;border-radius:16px 16px 0 0;max-height:90vh}.fg{grid-template-columns:1fr}.fg3{grid-template-columns:1fr 1fr}.ff{grid-column:1/-1}.sg .st{flex:1 1 calc(50% - 8px)}.waf{bottom:70px;right:12px}}
 @media(min-width:769px){.bnav{display:none!important}}
+
+/* ── KANBAN DRAG & DROP ── */
+.pcard[draggable]{cursor:grab}
+.pcard.dragging{opacity:.4;transform:rotate(2deg);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.pbody.drag-over{background:#EEF6FF;border:2px dashed #1A3A6B;border-radius:8px;transition:.15s}
+.tcard[draggable]{cursor:grab}
+.tcard.dragging{opacity:.4;transform:rotate(2deg)}
+.tbody2.drag-over{background:#EEF6FF;border:2px dashed #1A3A6B;border-radius:8px;transition:.15s}
 </style>
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -163,7 +171,12 @@ textarea.fc{resize:vertical;min-height:52px}
 <div id="ls">
 <div class="lbox">
   <div class="llogo">
-    <svg width="56" height="56" viewBox="0 0 100 100"><path d="M15 60 A35 35 0 0 1 85 60" fill="none" stroke="#C8102E" stroke-width="13" stroke-linecap="round"/><line x1="15" y1="60" x2="85" y2="60" stroke="#C8102E" stroke-width="2.5" opacity=".3"/><text x="50" y="90" text-anchor="middle" fill="#1A3A6B" font-size="18" font-weight="800" font-family="Outfit,sans-serif" letter-spacing="2">JAC</text></svg>
+    <svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+      <rect width="72" height="72" rx="14" fill="#1A3A6B"/>
+      <text x="36" y="44" text-anchor="middle" fill="white" font-size="28" font-weight="900" font-family="Outfit,'Arial Black',sans-serif" letter-spacing="1">JAC</text>
+      <rect x="10" y="48" width="52" height="2.5" fill="#D4AF37" rx="1.2"/>
+      <text x="36" y="62" text-anchor="middle" fill="#D4AF37" font-size="8.5" font-weight="700" font-family="Outfit,Arial,sans-serif" letter-spacing="3">SEGUROS</text>
+    </svg>
     <h1>JAC SEGUROS</h1>
     <p>Sistema CRM · Lic. #6175 · Panamá</p>
   </div>
@@ -190,7 +203,12 @@ textarea.fc{resize:vertical;min-height:52px}
 <div id="app">
 <div id="hdr"><div class="hi">
   <div class="lg2">
-    <svg width="30" height="30" viewBox="0 0 100 100"><path d="M15 60 A35 35 0 0 1 85 60" fill="none" stroke="#C8102E" stroke-width="13" stroke-linecap="round"/><line x1="15" y1="60" x2="85" y2="60" stroke="#C8102E" stroke-width="2.5" opacity=".3"/><text x="50" y="90" text-anchor="middle" fill="#1A3A6B" font-size="18" font-weight="800" font-family="Outfit,sans-serif" letter-spacing="2">JAC</text></svg>
+    <svg width="36" height="36" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+      <rect width="72" height="72" rx="14" fill="#1A3A6B"/>
+      <text x="36" y="44" text-anchor="middle" fill="white" font-size="28" font-weight="900" font-family="Outfit,'Arial Black',sans-serif" letter-spacing="1">JAC</text>
+      <rect x="10" y="48" width="52" height="2.5" fill="#D4AF37" rx="1.2"/>
+      <text x="36" y="62" text-anchor="middle" fill="#D4AF37" font-size="8.5" font-weight="700" font-family="Outfit,Arial,sans-serif" letter-spacing="3">SEGUROS</text>
+    </svg>
     <div class="lt"><b>JAC SEGUROS</b><small>Lic. #6175 · Jely An Castro Pérez</small></div>
   </div>
   <nav>
@@ -1496,11 +1514,11 @@ function renderProsK(){
     const totM=items.reduce((s,p)=>s+(p.montoEstimado||0),0);
     h+=`<div class="pcol"><div class="pch" style="background:${et.color}22;color:${et.color}">${et.label}<span style="background:${et.color}33;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">${items.length}</span></div>`;
     if(totM>0)h+=`<div style="font-size:10px;font-weight:700;color:${et.color};padding:4px 7px;text-align:center;background:#F8FAFC;border-bottom:1px solid var(--bd)">${fmtM(totM)}</div>`;
-    h+=`<div class="pbody">`;
+    h+=`<div class="pbody" data-etapa="${et.id}">`;
     items.forEach(p=>{
       const pc2=pcol(p.prioridad);
       const vcTag=p.esVentaCruzada?'<span class="b bor" style="font-size:9px">VC</span>':'';
-      h+=`<div class="pcard" style="border-left-color:${pc2}" onclick="showProsDP('${p.id}')">
+      h+=`<div class="pcard" draggable="true" data-id="${p.id}" style="border-left-color:${pc2}" onclick="showProsDP('${p.id}')">
 <div style="font-weight:700;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.nombre)} ${vcTag}</div>
 <div style="font-size:10px;color:var(--mu)">${(p.interes||[]).slice(0,2).join(' · ')||'—'}</div>
 ${p.montoEstimado?`<div style="font-size:11px;font-weight:700;color:#15803D">${fmtM(p.montoEstimado)}</div>`:''}
@@ -1514,7 +1532,7 @@ ${waPros(p)}<button class="btn bsm bor bic" onclick="event.stopPropagation();OHi
     h+='</div></div>';
   });
   h+='</div>';
-  const pv=document.getElementById('pros-view');if(pv)pv.innerHTML=h;
+  const pv=document.getElementById('pros-view');if(pv){pv.innerHTML=h;initKanbanDrag();}
 }
 function renderProsT(){
   const ec2={'Contacto inicial':'bin','Prospecto':'bgr','Calificación':'bpu','Cotización':'bcy','Propuesta enviada':'bwn','Negociación':'bor','Cierre':'bgn','Cliente ganado':'bok','Perdido':'bdg'};
@@ -2000,13 +2018,13 @@ function renderTarK(){
   let h='<div class="tboard">';
   ['Por Hacer','En Proceso','Hecho'].forEach(et=>{
     const items=S.tareas.filter(t=>t.etapaTarea===et),col=clr[et];
-    h+=`<div class="tcol"><div class="tch" style="background:${col}18;color:${col}">${esc(et)} <span style="background:${col}30;border-radius:10px;padding:1px 6px;font-size:10px">${items.length}</span></div><div class="tbody2">`;
+    h+=`<div class="tcol"><div class="tch" style="background:${col}18;color:${col}">${esc(et)} <span style="background:${col}30;border-radius:10px;padding:1px 6px;font-size:10px">${items.length}</span></div><div class="tbody2" data-etapa="${et}">`;
     items.forEach(t=>{
       const pc2=pcol(t.prioridad);const atrasada=t.fechaLimite&&dAgo(t.fechaLimite)>0&&et!=='Hecho';
       const relNom=t.tipoRel==='cliente'?(GC(t.relId||'').nombre||''):t.tipoRel==='prospecto'?(GPros(t.relId||'').nombre||''):'';
       const relTel=t.tipoRel==='cliente'?(GC(t.relId||'').cel||''):t.tipoRel==='prospecto'?(GPros(t.relId||'').cel||''):'';
       const wu=relTel?waL(relTel,`Hola ${relNom.split(' ')[0]}, te contacto de JAC Seguros: ${t.titulo}`):null;
-      h+=`<div class="tcard" style="${atrasada?'border-left:3px solid #DC2626':''}">
+      h+=`<div class="tcard" draggable="true" data-id="${t.id}" style="${atrasada?'border-left:3px solid #DC2626':''}">
 <div style="font-size:12px;font-weight:700;margin-bottom:3px">${dot(pc2)} ${esc(t.titulo)}</div>
 <div style="font-size:10px;color:var(--mu)">${esc(t.tipo||'')}${relNom?' · '+esc(relNom.split(' ')[0]):''}</div>
 ${t.fechaLimite?`<div style="font-size:10px;color:${atrasada?'#DC2626':'var(--mu)'};margin-top:2px">${atrasada?'⚠️ ':''}${fmt(t.fechaLimite)}</div>`:''}
@@ -2019,7 +2037,7 @@ ${wu?waBtn(wu,t.tipoRel||'',t.relId||'','Tarea: '+t.titulo,relNom,'💬','bwa bs
     });
     h+='</div></div>';
   });
-  const tv=document.getElementById('tar-view');if(tv)tv.innerHTML=h+'</div>';
+  const tv=document.getElementById('tar-view');if(tv){tv.innerHTML=h+'</div>';initTarKanbanDrag();}
 }
 function renderTarL(){
   const sorted=[...S.tareas].sort((a,z)=>({'Alta':0,'Media':1,'Baja':2}[a.prioridad]||1)-({'Alta':0,'Media':1,'Baja':2}[z.prioridad]||1));
@@ -3367,6 +3385,67 @@ window.SH = function(id, ...args) {
 };
 
 console.info('[JAC Admin Module] Cargado ✓');
+
+// ── KANBAN DRAG & DROP ──────────────────────────────────────────────────────
+function initKanbanDrag(){
+  let dragId=null;
+  document.querySelectorAll('.pcard[draggable]').forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      dragId=card.dataset.id;
+      setTimeout(()=>card.classList.add('dragging'),0);
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend',()=>{
+      card.classList.remove('dragging');
+    });
+  });
+  document.querySelectorAll('.pbody[data-etapa]').forEach(col=>{
+    col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('drag-over');});
+    col.addEventListener('dragleave',e=>{if(!col.contains(e.relatedTarget))col.classList.remove('drag-over');});
+    col.addEventListener('drop',e=>{
+      e.preventDefault();col.classList.remove('drag-over');
+      if(!dragId)return;
+      const newEtapa=col.dataset.etapa;
+      const p=S.prospectos.find(x=>x.id===dragId);
+      if(p&&p.etapaVenta!==newEtapa){
+        p.etapaVenta=newEtapa;
+        if(!p.historial)p.historial=[];
+        p.historial.push({fecha:TODAY.toISOString().split('T')[0],accion:'→ Movido: '+newEtapa,resultado:'',tipo:'etapa'});
+        save();RPros();toast('✓ Movido: '+newEtapa);
+      }
+      dragId=null;
+    });
+  });
+}
+function initTarKanbanDrag(){
+  let dragId=null;
+  document.querySelectorAll('.tcard[draggable]').forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      dragId=card.dataset.id;
+      setTimeout(()=>card.classList.add('dragging'),0);
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend',()=>card.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.tbody2[data-etapa]').forEach(col=>{
+    col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('drag-over');});
+    col.addEventListener('dragleave',e=>{if(!col.contains(e.relatedTarget))col.classList.remove('drag-over');});
+    col.addEventListener('drop',e=>{
+      e.preventDefault();col.classList.remove('drag-over');
+      if(!dragId)return;
+      const newEtapa=col.dataset.etapa;
+      const t=S.tareas.find(x=>x.id===dragId);
+      if(t&&t.etapaTarea!==newEtapa){
+        t.etapaTarea=newEtapa;
+        if(newEtapa==='Hecho')t.estado='completada';
+        else t.estado='pendiente';
+        save();RTar();toast('✓ Tarea: '+newEtapa);
+      }
+      dragId=null;
+    });
+  });
+}
+
 </script>
 
 <!-- MODAL INVITAR USUARIO -->
