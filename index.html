@@ -1304,7 +1304,7 @@ function loadS(){
   n.admLog=[];
   return n;
 }
-let S=loadS();
+let S=loadS(); window._S=S;
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 
 function save(){try{localStorage.setItem('jacv10',JSON.stringify(S));}catch(e){toast('Almacenamiento lleno — exporta datos','err');}}
@@ -1317,7 +1317,7 @@ function dFrom(d){if(!d)return 9999;try{return Math.ceil((new Date(d+'T00:00:00'
 function dAgo(d){if(!d)return-1;try{return Math.floor((TODAY-new Date(d+'T00:00:00'))/864e5);}catch{return-1;}}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function ac(a){return ACOL[a]||'#64748B';}
-function GC(id){return S.clientes.find(c=>c.id===String(id))||{};}
+function GC(id){return (window._S?.clientes || []).find(c=>c.id===String(id))||{};}
 function GP(id){return S.polizas.find(p=>p.id===String(id))||{};}
 function GPros(id){return S.prospectos.find(p=>p.id===id)||{};}
 function polsByC(id){return S.polizas.filter(p=>p.clienteId===String(id));}
@@ -2311,7 +2311,7 @@ function addWANota(clientId){
 let _emailComposeClientId=null;
 function openEmailCompose(clientId){
   _emailComposeClientId=clientId;
-  const c=S.clientes.find(x=>x.id===clientId)||{};
+  const c=(window._S?.clientes || []).find(x=>x.id===clientId)||{};
   const modal=document.getElementById('email-compose-modal');
   if(!modal)return;
   document.getElementById('ecmp-to').value=c.email||'';
@@ -2459,7 +2459,7 @@ function SC(){
   _pf=[];save();CM('mc');RC();
   // Ecosystem sync on status change
   if(EID){
-    const saved=S.clientes.find(c=>c.id===EID);
+    const saved=(window._S?.clientes || []).find(c=>c.id===EID);
     if(saved){
       const newSt=saved.estadoComercial||'activo';
       const ced=saved.cedula||'';
@@ -2959,7 +2959,7 @@ function RV(){
   fil.forEach(v=>{
     const dSo=dFrom(v.soat),dTe=dFrom(v.tecno),dIm=dFrom(v.imp);
     const vB=(d,f)=>!f?'—':d<0?b('bdg','Venc.'):d<=30?b('bwn',d+'d'):fmt(f);
-    const cl=S.clientes.find(c=>c.cedula===v.clienteDoc)||GC(v.clienteId)||{};
+    const cl=(window._S?.clientes || []).find(c=>c.cedula===v.clienteDoc)||GC(v.clienteId)||{};
     const t=cl.cel||cl.tel||'';
     const wu=t&&v.soat?waL(t,`Hola ${(v.clienteNom||'').split(' ')[0]} 👋🏼\n\nEl SOAT de la placa *${v.placa}* vence el *${fmt(v.soat)}*.\n\nComunícate para renovarlo.\n\n_JAC Seguros · 📞 +507 6292-6010_`):null;
     h+=`<tr><td style="font-weight:600">${esc(v.clienteNom)}</td><td style="font-family:monospace;font-size:11px;color:var(--mu)">${esc(v.clienteDoc)}</td><td><span style="font-weight:800;font-size:14px">${esc(v.placa)}</span></td><td>${vB(dSo,v.soat)}</td><td>${vB(dTe,v.tecno)}</td><td>${vB(dIm,v.imp)}</td><td>${wu?waBtn(wu,'cliente',cl.id||'','SOAT '+v.placa,v.clienteNom||'','💬 SOAT','bwa bsm'):'—'}</td><td><div class="ab"><button class="btn bsm bic" onclick="OVeh('${v.id}')">✏️</button><button class="btn bsm bic" onclick="DVeh('${v.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
@@ -3487,6 +3487,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    * Pasa force=true para sincronización inmediata (sin debounce).
    */
   window.save = async function (force = false) {
+    const S = window._S; if (!S) return;
     // Agregar timestamp para resolver conflictos de sincronización
     S._ts = Date.now();
 
@@ -3760,7 +3761,7 @@ async function sendBirthdayEmail(client) {
   if (ok) {
     toast(`🎂 Email de cumpleaños enviado a ${client.nombre}`, 'ok');
     // Log en historial del cliente
-    const cl = S.clientes.find(c => c.id === client.id);
+    const cl = (window._S?.clientes || []).find(c => c.id === client.id);
     if (cl) {
       if (!cl.historial) cl.historial = [];
       cl.historial.push({ fecha: new Date().toISOString().split('T')[0], tipo: 'Email', nota: `🎂 Email de cumpleaños enviado a ${client.email}` });
@@ -3798,7 +3799,7 @@ async function sendRenewalEmail(pol, client) {
   });
   if (ok) {
     toast(`📧 Recordatorio de renovación enviado a ${client.nombre || email}`, 'ok');
-    const cl = S.clientes.find(c => c.id === (client.id || pol.clienteId));
+    const cl = (window._S?.clientes || []).find(c => c.id === (client.id || pol.clienteId));
     if (cl) {
       if (!cl.historial) cl.historial = [];
       cl.historial.push({ fecha: new Date().toISOString().split('T')[0], tipo: 'Email', nota: `📧 Recordatorio renovación póliza ${pol.polNum || pol.ramo} enviado (vence ${fechaFmt})` });
@@ -3973,7 +3974,7 @@ window.RD = function() {
 
 // ── BIRTHDAY CARD GENERATOR (visual HTML card) ─────────────────
 function showBirthdayCard(clientId) {
-  const c = (typeof GC === 'function' ? GC(clientId) : S.clientes.find(x=>x.id===clientId)) || {};
+  const c = (typeof GC === 'function' ? GC(clientId) : (window._S?.clientes || []).find(x=>x.id===clientId)) || {};
   const nombre = c.nombre || 'Cliente';
   const primerNombre = nombre.split(' ')[0];
   const age = c.fNac ? new Date().getFullYear() - new Date(c.fNac).getFullYear() : null;
@@ -5370,4 +5371,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 </body>
-</html>
+  </html>
