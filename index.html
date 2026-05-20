@@ -171,6 +171,8 @@ textarea.fc{resize:vertical;min-height:52px}
 .cal-upcoming-row:last-child{border-bottom:none}
 .cal-upcoming-date{min-width:44px;font-size:10px;font-weight:700;color:var(--mu);text-align:center;background:#F8FAFD;border-radius:5px;padding:3px 5px;line-height:1.3}
 .wa-hist{background:#E7F8EE;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #25D366;font-size:11px}
+.email-hist{background:#E3F2FD;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #1976D2;font-size:11px}
+.email-sent-hist{background:#F3E5F5;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #7B1FA2;font-size:11px}
 .bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--wh);border-top:1px solid var(--bd);z-index:190;padding:5px 0 env(safe-area-inset-bottom);box-shadow:0 -2px 8px rgba(0,0,0,.08)}
 .bng{display:grid;grid-template-columns:repeat(5,1fr)}
 .bni{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;cursor:pointer;color:var(--mu);text-decoration:none}
@@ -630,16 +632,18 @@ textarea.fc{resize:vertical;min-height:52px}
         <div id="gmail-log-1" style="margin-top:8px;font-size:11px;color:var(--mu)"></div>
       </div>
 
-      <!-- Cuenta 2 — Zoho Mail (usa EmailJS, no Google OAuth) -->
+      <!-- Cuenta 2 — Zoho Mail (OAuth 2.0) -->
       <div style="border:1px solid var(--brd);border-radius:10px;padding:14px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
           <span style="font-size:20px">📨</span>
           <span style="font-weight:600;font-size:13px">jcastro@jacsegurospa.com</span>
-          <span id="gmail-status-2" style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:12px;background:#e0f2fe;color:#0369a1">● Zoho Mail</span>
+          <span id="gmail-status-2" style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:12px;background:#fee2e2;color:#991b1b">● No conectado</span>
         </div>
-        <div style="font-size:11px;color:var(--mu);margin-bottom:8px">Esta cuenta usa Zoho Mail. El envío se hace vía EmailJS configurado abajo. No requiere Google OAuth.</div>
+        <div style="font-size:11px;color:var(--mu);margin-bottom:8px">Cuenta Zoho Mail corporativa. Conecta con OAuth 2.0 para enviar emails y sincronizar historial automáticamente.</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn bsm bcy" onclick="admTab('ejs')">⚙️ Configurar EmailJS para envíos</button>
+          <button id="zoho-btn-2" class="btn bsm bgn" onclick="zohoSignIn()">🔗 Conectar con Zoho</button>
+          <button id="zoho-sync-btn-2" class="btn bsm" style="display:none" onclick="zohoSyncAll()">🔄 Sincronizar</button>
+          <button id="zoho-disc-btn-2" class="btn bsm" style="display:none;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5" onclick="zohoDisconnect()">✖ Desconectar</button>
         </div>
         <div id="gmail-log-2" style="margin-top:8px;font-size:11px;color:var(--mu)"></div>
       </div>
@@ -2616,7 +2620,8 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
       <span>Comunicaciones (${allHistory.length})</span>
       <div style="display:flex;gap:4px">
         <button class="btn bsm" style="font-size:10px;padding:2px 7px" onclick="addWANota('${id}')">➕ Nota WA</button>
-        <button class="btn bsm" style="font-size:10px;padding:2px 7px;background:#E3F2FD;color:#1565C0;border:1px solid #BBDEFB" onclick="openEmailCompose('${id}')">📧 Email</button>
+        <button class="btn bsm" style="font-size:10px;padding:2px 7px;background:#E3F2FD;color:#1565C0;border:1px solid #BBDEFB" onclick="openEmailCompose('${id}')">📧 Enviar Email</button>
+        <button class="btn bsm" style="font-size:10px;padding:2px 7px;background:#F3E5F5;color:#7B1FA2;border:1px solid #CE93D8" onclick="logReceivedEmail('${id}')">📥 Registrar Email</button>
       </div>
     </div>
     <div class="wa-chat" style="background:#ECE5DD;border-radius:8px;padding:8px 10px;max-height:280px;overflow-y:auto">`;
@@ -2673,23 +2678,23 @@ function ecmpUpdateSendMode(){
   if(!fromSel||!hint)return;
   const val=fromSel.value;
   const gmailToken=GMAIL_TOKENS&&(GMAIL_TOKENS[1]||sessionStorage.getItem('jac_gmail_token_1'));
-  const ejsCfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
-  const ejsOk=ejsCfg['ejs-pub']&&ejsCfg['ejs-svc'];
+  const zohoToken=ZOHO_TOKEN||sessionStorage.getItem('jac_zoho_token');
   if(val.includes('gmail.com')){
     if(gmailToken){
       hint.textContent='✅ Gmail conectado — se enviará vía Gmail API';hint.style.color='#059669';
       if(badge)badge.textContent='● Gmail conectado';
     }else{
-      hint.textContent='⚠️ Gmail no conectado — ve a Admin → Gmail Sync para conectar';hint.style.color='#d97706';
+      hint.textContent='⚠️ Gmail no conectado — ve a Admin → Gmail/Zoho Sync para conectar';hint.style.color='#d97706';
       if(badge)badge.textContent='';
     }
   }else{
-    if(ejsOk){
-      hint.textContent='✅ EmailJS configurado — se enviará vía Zoho/EmailJS';hint.style.color='#059669';
+    if(zohoToken){
+      hint.textContent='✅ Zoho Mail conectado — se enviará vía Zoho API';hint.style.color='#059669';
+      if(badge)badge.textContent='● Zoho conectado';
     }else{
-      hint.textContent='⚠️ EmailJS no configurado — se abrirá tu cliente de correo como alternativa';hint.style.color='#d97706';
+      hint.textContent='⚠️ Zoho no conectado — ve a Admin → Gmail/Zoho Sync → Conectar con Zoho';hint.style.color='#d97706';
+      if(badge)badge.textContent='';
     }
-    if(badge)badge.textContent='';
   }
 }
 
@@ -2711,6 +2716,25 @@ function closeEmailCompose(){
   if(modal)modal.style.display='none';
   _emailComposeClientId=null;
 }
+
+function logReceivedEmail(clientId){
+  const subject=prompt('Asunto del email recibido:','');
+  if(subject===null)return;
+  const ci=S.clientes.findIndex(c=>c.id===clientId);
+  if(ci<0)return;
+  if(!S.clientes[ci].historialWA)S.clientes[ci].historialWA=[];
+  S.clientes[ci].historialWA.push({
+    id:'EMR'+uid(),
+    fecha:new Date().toISOString().substring(0,16),
+    tipo:'email_received',
+    msgType:subject||'(sin asunto)',
+    subject:subject||'(sin asunto)',
+    nombre:S.clientes[ci].nombre||''
+  });
+  save();
+  showClientDP(clientId);
+  toast('Email recibido registrado ✓','ok');
+}
 async function sendEmailFromCRM(){
   const to=document.getElementById('ecmp-to').value.trim();
   const subject=document.getElementById('ecmp-subject').value.trim();
@@ -2723,15 +2747,42 @@ async function sendEmailFromCRM(){
   statusEl.textContent='Enviando…';statusEl.style.color='var(--mu)';
   let sent=false;
 
-  // 1️⃣ Intentar Gmail API (cuenta jelyancorredora@gmail.com conectada)
-  const gmailToken=GMAIL_TOKENS[1]||sessionStorage.getItem('jac_gmail_token_1');
-  if(gmailToken&&typeof sendViaGmailAPI==='function'){
-    const bodyHtml=body.replace(/\n/g,'<br>');
-    sent=await sendViaGmailAPI(1,to,subject,bodyHtml);
-    if(sent) statusEl.textContent='✅ Enviado vía Gmail API';
+  const bodyHtml=body.replace(/\n/g,'<br>');
+
+  // 1️⃣ Intentar Gmail API (cuenta jelyancorredora@gmail.com)
+  if(!sent && from.includes('gmail.com')){
+    const gmailToken=GMAIL_TOKENS[1]||sessionStorage.getItem('jac_gmail_token_1');
+    if(gmailToken&&typeof sendViaGmailAPI==='function'){
+      sent=await sendViaGmailAPI(1,to,subject,bodyHtml);
+      if(sent) statusEl.textContent='✅ Enviado vía Gmail API';
+    }
   }
 
-  // 2️⃣ Intentar EmailJS (para Zoho o cuando Gmail no está conectado)
+  // 2️⃣ Intentar Zoho Mail API (cuenta jcastro@jacsegurospa.com)
+  if(!sent && from.includes('jacsegurospa')){
+    const zohoTok=ZOHO_TOKEN||sessionStorage.getItem('jac_zoho_token');
+    if(zohoTok&&typeof sendViaZohoAPI==='function'){
+      statusEl.textContent='Enviando vía Zoho Mail…';
+      sent=await sendViaZohoAPI(to,subject,bodyHtml);
+      if(sent) statusEl.textContent='✅ Enviado vía Zoho Mail';
+      else { statusEl.textContent='⚠️ Error Zoho — reconecta en Admin → Gmail/Zoho Sync'; statusEl.style.color='#d97706'; }
+    } else if(!zohoTok){
+      statusEl.textContent='⚠️ Zoho no conectado — ve a Admin → Gmail/Zoho Sync';
+      statusEl.style.color='#d97706';
+      return;
+    }
+  }
+
+  // 3️⃣ Fallback Gmail sin filtro de cuenta (cuando Gmail está conectado y Zoho no está)
+  if(!sent){
+    const gmailToken=GMAIL_TOKENS[1]||sessionStorage.getItem('jac_gmail_token_1');
+    if(gmailToken&&typeof sendViaGmailAPI==='function'){
+      sent=await sendViaGmailAPI(1,to,subject,bodyHtml);
+      if(sent) statusEl.textContent='✅ Enviado vía Gmail API (fallback)';
+    }
+  }
+
+  // 4️⃣ Fallback EmailJS (si está configurado)
   if(!sent){
     const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
     if(cfg['ejs-pub']&&cfg['ejs-svc']&&window.emailjs){
@@ -2750,7 +2801,7 @@ async function sendEmailFromCRM(){
     }
   }
 
-  // 3️⃣ Fallback: abrir cliente de correo local (mailto)
+  // 5️⃣ Fallback: abrir cliente de correo local (mailto)
   if(!sent){
     const mailtoUrl='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
     window.open(mailtoUrl,'_blank');
@@ -2767,6 +2818,8 @@ async function sendEmailFromCRM(){
           id:'EM'+uid(),
           fecha:new Date().toISOString().substring(0,16),
           tipo:'email_sent',
+          from:from,
+          to:to,
           msgType:subject,
           subject:subject,
           nombre:S.clientes[ci].nombre||''
@@ -6109,7 +6162,7 @@ const GMAIL_TOKENS = {};
 const GMAIL_CLIENT_ID = '549439401920-rt8al968rfqar6hvp3cshq9m53meluc4.apps.googleusercontent.com';
 const GMAIL_SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
 const GMAIL_ACCOUNT_EMAILS = { 1: 'jelyancorredora@gmail.com' };
-// Cuenta 2 (jcastro@jacsegurospa.com) es Zoho — no usa Google OAuth, usa EmailJS
+// Cuenta 2 (jcastro@jacsegurospa.com) es Zoho — usa Zoho OAuth 2.0 (client-based implicit flow)
 
 // Mapa de tokenClients GIS por cuenta
 const _gisClients = {};
@@ -6234,6 +6287,153 @@ async function sendViaGmailAPI(n, to, subject, bodyHtml) {
     console.warn('[Gmail Send]', e);
     return false;
   }
+}
+
+// ── ZOHO MAIL OAUTH 2.0 ───────────────────────────────────────────────────────
+// Client-based app (implicit flow): token returned in URL hash after redirect
+const ZOHO_CLIENT_ID = '1000.FIACVEWMY2GMRT80S55V1NUC4R95OK';
+const ZOHO_REDIRECT_URI = 'https://crm.jacsegurospa.com/';
+const ZOHO_SCOPES = 'ZohoMail.messages.CREATE,ZohoMail.accounts.READ,ZohoMail.messages.READ';
+const ZOHO_EMAIL = 'jcastro@jacsegurospa.com';
+let ZOHO_TOKEN = null;
+let ZOHO_ACCOUNT_ID = null;
+
+function zohoSignIn() {
+  const log = document.getElementById('gmail-log-2');
+  if (log) log.textContent = '🔄 Redirigiendo a Zoho para autorizar…';
+  const authUrl = 'https://accounts.zoho.com/oauth/v2/auth' +
+    '?response_type=token' +
+    '&client_id=' + ZOHO_CLIENT_ID +
+    '&scope=' + encodeURIComponent(ZOHO_SCOPES) +
+    '&redirect_uri=' + encodeURIComponent(ZOHO_REDIRECT_URI) +
+    '&access_type=online' +
+    '&prompt=consent';
+  window.location.href = authUrl;
+}
+
+function zohoDisconnect() {
+  ZOHO_TOKEN = null;
+  ZOHO_ACCOUNT_ID = null;
+  sessionStorage.removeItem('jac_zoho_token');
+  sessionStorage.removeItem('jac_zoho_account_id');
+  refreshZohoStatus();
+  toast('Zoho Mail desconectado');
+  logAdm('Zoho Mail desconectado', ZOHO_EMAIL);
+}
+
+function refreshZohoStatus() {
+  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
+  const status = document.getElementById('gmail-status-2');
+  const connBtn = document.getElementById('zoho-btn-2');
+  const syncBtn = document.getElementById('zoho-sync-btn-2');
+  const discBtn = document.getElementById('zoho-disc-btn-2');
+  if (token) {
+    ZOHO_TOKEN = token;
+    if (status) { status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '● Conectado'; }
+    if (connBtn) connBtn.style.display = 'none';
+    if (syncBtn) syncBtn.style.display = '';
+    if (discBtn) discBtn.style.display = '';
+  } else {
+    if (status) { status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = '● No conectado'; }
+    if (connBtn) connBtn.style.display = '';
+    if (syncBtn) syncBtn.style.display = 'none';
+    if (discBtn) discBtn.style.display = 'none';
+  }
+}
+
+async function _zohoGetAccountId() {
+  if (ZOHO_ACCOUNT_ID) return ZOHO_ACCOUNT_ID;
+  const cached = sessionStorage.getItem('jac_zoho_account_id');
+  if (cached) { ZOHO_ACCOUNT_ID = cached; return cached; }
+  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
+  if (!token) return null;
+  try {
+    const res = await fetch('https://mail.zoho.com/api/accounts', {
+      headers: { 'Authorization': 'Zoho-oauthtoken ' + token }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const id = (data.data && data.data[0] && data.data[0].accountId) ? data.data[0].accountId : null;
+    if (id) { ZOHO_ACCOUNT_ID = id; sessionStorage.setItem('jac_zoho_account_id', id); }
+    return id;
+  } catch(e) { console.warn('[Zoho accountId]', e); return null; }
+}
+
+async function sendViaZohoAPI(to, subject, bodyHtml) {
+  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
+  if (!token) return false;
+  const accountId = await _zohoGetAccountId();
+  if (!accountId) { toast('No se pudo obtener la cuenta Zoho', 'err'); return false; }
+  try {
+    const res = await fetch('https://mail.zoho.com/api/accounts/' + accountId + '/messages', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Zoho-oauthtoken ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fromAddress: ZOHO_EMAIL,
+        toAddress: to,
+        subject: subject,
+        content: bodyHtml,
+        mailFormat: 'html'
+      })
+    });
+    if (res.status === 401) {
+      ZOHO_TOKEN = null;
+      sessionStorage.removeItem('jac_zoho_token');
+      sessionStorage.removeItem('jac_zoho_account_id');
+      refreshZohoStatus();
+      toast('Token Zoho expirado — reconecta la cuenta', 'err');
+      return false;
+    }
+    return res.ok;
+  } catch(e) { console.warn('[Zoho Send]', e); return false; }
+}
+
+async function zohoSyncAll() {
+  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
+  if (!token) { toast('Conecta Zoho primero', 'err'); return; }
+  const log = document.getElementById('gmail-log-2');
+  if (log) log.textContent = '🔄 Sincronizando emails Zoho…';
+  const accountId = await _zohoGetAccountId();
+  if (!accountId) { if (log) log.textContent = '❌ No se pudo obtener cuenta Zoho'; return; }
+  let importados = 0;
+  const clientes = S.clientes || [];
+  for (const cl of clientes) {
+    if (cl.email) {
+      try {
+        const res = await fetch(
+          'https://mail.zoho.com/api/accounts/' + accountId + '/messages/search?searchKey=' + encodeURIComponent(cl.email) + '&limit=20',
+          { headers: { 'Authorization': 'Zoho-oauthtoken ' + token } }
+        );
+        if (!res.ok) continue;
+        const data = await res.json();
+        const msgs = data.data || [];
+        if (!cl.historialWA) cl.historialWA = [];
+        for (const m of msgs) {
+          const mid = 'ZO' + (m.messageId || m.mid || '');
+          if (cl.historialWA.find(h => h.id === mid)) continue;
+          const isSent = (m.fromAddress || '').toLowerCase().includes('jacsegurospa');
+          cl.historialWA.push({
+            id: mid,
+            fecha: m.sentDateInGMT ? new Date(parseInt(m.sentDateInGMT)).toISOString().substring(0,16) : new Date().toISOString().substring(0,16),
+            tipo: isSent ? 'email_sent' : 'email_received',
+            subject: m.subject || '',
+            msgType: m.subject || '',
+            nombre: cl.nombre || '',
+            zohoId: m.messageId || m.mid || ''
+          });
+          importados++;
+        }
+      } catch(e) { console.warn('[Zoho Sync]', e); }
+    }
+  }
+  save();
+  localStorage.setItem('jac_zoho_last_sync', new Date().toISOString());
+  if (log) log.textContent = '✅ ' + importados + ' emails Zoho importados';
+  toast('✓ Zoho sincronizado — ' + importados + ' emails', 'ok');
+  logAdm('Zoho sync', importados + ' emails importados');
 }
 
 async function gmailSyncAll(n) {
@@ -7053,9 +7253,39 @@ function calInit() {
   calSyncCRM();
 }
 
+// ── Zoho OAuth token detection — runs immediately on page load ──────────────
+(function detectZohoToken() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.replace(/^#/, ''));
+    const token = params.get('access_token');
+    if (token) {
+      sessionStorage.setItem('jac_zoho_token', token);
+      ZOHO_TOKEN = token;
+      // Clean URL hash so the token isn't visible/bookmarked
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      // Notify user after DOM loads
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          refreshZohoStatus();
+          const log = document.getElementById('gmail-log-2');
+          if (log) log.textContent = '✅ Zoho Mail conectado correctamente';
+          toast('✓ Zoho Mail conectado — ' + ZOHO_EMAIL, 'ok');
+          logAdm('Zoho Mail conectado', ZOHO_EMAIL);
+          zohoSyncAll();
+        }, 1200);
+      });
+    }
+  }
+})();
+
 // Initialize on app ready — also patches nav to refresh calendar when clicked
 document.addEventListener('DOMContentLoaded', () => {
+  // Restore Zoho token from sessionStorage if available
+  const savedZohoToken = sessionStorage.getItem('jac_zoho_token');
+  if (savedZohoToken) { ZOHO_TOKEN = savedZohoToken; }
   setTimeout(() => {
+    refreshZohoStatus();
     calInit();
     // Patch nav calendar link to refresh on each click
     document.querySelectorAll('nav a').forEach(a => {
@@ -7084,7 +7314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">DE <span id="ecmp-gmail-badge" style="font-weight:400;color:#059669"></span></label>
         <select id="ecmp-from" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box" onchange="ecmpUpdateSendMode()">
           <option value="jelyancorredora@gmail.com">jelyancorredora@gmail.com (Gmail)</option>
-          <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com (Zoho / EmailJS)</option>
+          <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com (Zoho OAuth)</option>
         </select>
         <div id="ecmp-send-hint" style="font-size:10px;color:var(--mu);margin-top:3px"></div>
       </div>
