@@ -3457,7 +3457,7 @@ ${wu?waBtn(wu,t.tipoRel||'',t.relId||'','Tarea',relNom,'💬','bwa bsm'):''}
   });
   const tv=document.getElementById('tar-view');if(tv)tv.innerHTML=h+'</tbody></table></div></div>';
 }
-function advTask(id){const t=S.tareas.find(x=>x.id===id);if(!t)return;const stages=['Por Hacer','Agendado','En Proceso','Pospuesto','Hecho'];const ci=stages.indexOf(t.etapaTarea||'Por Hacer');const n=stages[Math.min(ci+1,stages.length-1)];if(n&&n!==t.etapaTarea){t.etapaTarea=n;if(n==='Hecho'){t.estado='completada';t.fechaCompletada=new Date().toISOString().split('T')[0];}window.save(true).catch(e=>console.warn(e));renderTarK();renderTarL();}
+function advTask(id){const t=S.tareas.find(x=>x.id===id);if(!t)return;const stages=['Por Hacer','Agendado','En Proceso','Pospuesto','Hecho'];const ci=stages.indexOf(t.etapaTarea||'Por Hacer');const n=stages[Math.min(ci+1,stages.length-1)];if(n&&n!==t.etapaTarea){t.etapaTarea=n;if(n==='Hecho'){t.estado='completada';t.fechaCompletada=new Date().toISOString().split('T')[0];}window.save(true).catch(e=>console.warn(e));renderTarK();renderTarL();}}
 function toggleTarFechaAgenda(){
   const et=document.getElementById('t-et')?.value;
   const fa=document.getElementById('fl-tagenda');
@@ -3615,8 +3615,6 @@ function editEtiqueta(id){
   if(col!==null&&/^#[0-9a-fA-F]{6}$/.test(col.trim()))e.color=col.trim();
   save();RCfg();RC();RPros();
   toast('✓ Etiqueta actualizada');
-}
-
 }
 // ── INIT ──
 document.addEventListener('DOMContentLoaded',()=>{
