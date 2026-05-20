@@ -194,6 +194,8 @@ textarea.fc{resize:vertical;min-height:52px}
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <!-- Google Identity Services — reemplaza el flujo OAuth implícito obsoleto -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 </head>
 <body>
@@ -628,17 +630,16 @@ textarea.fc{resize:vertical;min-height:52px}
         <div id="gmail-log-1" style="margin-top:8px;font-size:11px;color:var(--mu)"></div>
       </div>
 
-      <!-- Cuenta 2 -->
+      <!-- Cuenta 2 — Zoho Mail (usa EmailJS, no Google OAuth) -->
       <div style="border:1px solid var(--brd);border-radius:10px;padding:14px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <img src="https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_32dp.png" style="width:22px;height:22px">
+          <span style="font-size:20px">📨</span>
           <span style="font-weight:600;font-size:13px">jcastro@jacsegurospa.com</span>
-          <span id="gmail-status-2" style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:12px;background:#fee2e2;color:#991b1b">● No conectado</span>
+          <span id="gmail-status-2" style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:12px;background:#e0f2fe;color:#0369a1">● Zoho Mail</span>
         </div>
+        <div style="font-size:11px;color:var(--mu);margin-bottom:8px">Esta cuenta usa Zoho Mail. El envío se hace vía EmailJS configurado abajo. No requiere Google OAuth.</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn bsm bp" id="gmail-btn-2" onclick="gmailSignIn('jcastro@jacsegurospa.com',2)">🔑 Conectar con Google</button>
-          <button class="btn bsm brd2" id="gmail-sync-btn-2" onclick="gmailSyncAll(2)" style="display:none">🔄 Sincronizar ahora</button>
-          <button class="btn bsm brd2" id="gmail-disc-btn-2" onclick="gmailDisconnect(2)" style="display:none">Desconectar</button>
+          <button class="btn bsm bcy" onclick="admTab('ejs')">⚙️ Configurar EmailJS para envíos</button>
         </div>
         <div id="gmail-log-2" style="margin-top:8px;font-size:11px;color:var(--mu)"></div>
       </div>
@@ -647,8 +648,13 @@ textarea.fc{resize:vertical;min-height:52px}
       <div id="gmail-last-sync" style="font-size:11px;color:var(--mu);padding:10px;background:var(--lig);border-radius:8px">
         <b>Última sincronización:</b> <span id="gmail-last-ts">—</span>
       </div>
-      <div style="margin-top:12px;padding:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:11px;color:#92400e">
-        ⚠️ <b>Importante:</b> Para que la sincronización funcione, debes configurar un proyecto en Google Cloud Console con OAuth 2.0 y habilitar la Gmail API. Contacta al administrador del sistema si necesitas ayuda.
+      <div style="margin-top:12px;padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:11px;color:#92400e">
+        ⚠️ <b>Si ves "acceso bloqueado" al conectar Gmail:</b><br>
+        Ve a <a href="https://console.cloud.google.com" target="_blank" style="color:#1D4ED8">console.cloud.google.com</a> → tu proyecto →<br>
+        1. <b>APIs → OAuth consent screen → Test users</b> → agrega <code>jelyancorredora@gmail.com</code><br>
+        2. <b>Credentials → OAuth 2.0 Client ID</b> → Authorized JavaScript origins → agrega <code>https://crm.jacsegurospa.com</code><br>
+        3. Authorized redirect URIs → agrega <code>https://crm.jacsegurospa.com/</code><br>
+        Luego vuelve aquí y haz clic en "Conectar con Google".
       </div>
     </div>
   </div>
@@ -2659,6 +2665,34 @@ function addWANota(clientId){
 
 // ── EMAIL COMPOSE MODULE ──────────────────────────────────────────────────────
 let _emailComposeClientId=null;
+
+function ecmpUpdateSendMode(){
+  const fromSel=document.getElementById('ecmp-from');
+  const hint=document.getElementById('ecmp-send-hint');
+  const badge=document.getElementById('ecmp-gmail-badge');
+  if(!fromSel||!hint)return;
+  const val=fromSel.value;
+  const gmailToken=GMAIL_TOKENS&&(GMAIL_TOKENS[1]||sessionStorage.getItem('jac_gmail_token_1'));
+  const ejsCfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
+  const ejsOk=ejsCfg['ejs-pub']&&ejsCfg['ejs-svc'];
+  if(val.includes('gmail.com')){
+    if(gmailToken){
+      hint.textContent='✅ Gmail conectado — se enviará vía Gmail API';hint.style.color='#059669';
+      if(badge)badge.textContent='● Gmail conectado';
+    }else{
+      hint.textContent='⚠️ Gmail no conectado — ve a Admin → Gmail Sync para conectar';hint.style.color='#d97706';
+      if(badge)badge.textContent='';
+    }
+  }else{
+    if(ejsOk){
+      hint.textContent='✅ EmailJS configurado — se enviará vía Zoho/EmailJS';hint.style.color='#059669';
+    }else{
+      hint.textContent='⚠️ EmailJS no configurado — se abrirá tu cliente de correo como alternativa';hint.style.color='#d97706';
+    }
+    if(badge)badge.textContent='';
+  }
+}
+
 function openEmailCompose(clientId){
   _emailComposeClientId=clientId;
   const c=S.clientes.find(x=>x.id===clientId)||{};
@@ -2666,9 +2700,10 @@ function openEmailCompose(clientId){
   if(!modal)return;
   document.getElementById('ecmp-to').value=c.email||'';
   document.getElementById('ecmp-subject').value='';
-  document.getElementById('ecmp-body').value='Estimado/a '+((c.nombre||'').split(' ')[0]||'cliente')+':\n\n\n\nCordialmente,\nJely An Castro\nJAC Seguros · Lic. #6175\njcastro@jacsegurospa.com';
+  document.getElementById('ecmp-body').value='Estimado/a '+((c.nombre||'').split(' ')[0]||'cliente')+':\n\n\n\nCordialmente,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\njelyancorredora@gmail.com | jcastro@jacsegurospa.com';
   document.getElementById('ecmp-status').textContent='';
   modal.style.display='flex';
+  ecmpUpdateSendMode();
   setTimeout(()=>document.getElementById('ecmp-subject').focus(),100);
 }
 function closeEmailCompose(){
@@ -2686,27 +2721,41 @@ async function sendEmailFromCRM(){
   if(!subject){statusEl.textContent='⚠️ Ingrese el asunto';statusEl.style.color='#e53935';return;}
   if(!body){statusEl.textContent='⚠️ Escriba el mensaje';statusEl.style.color='#e53935';return;}
   statusEl.textContent='Enviando…';statusEl.style.color='var(--mu)';
-  // Try EmailJS first
-  const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
   let sent=false;
-  if(cfg['ejs-pub']&&cfg['ejs-svc']&&window.emailjs){
-    try{
-      emailjs.init({publicKey:cfg['ejs-pub']});
-      const tplId=cfg['ejs-tpl-compose']||cfg['ejs-tpl-bday']||'';
-      if(tplId){
-        await emailjs.send(cfg['ejs-svc'],tplId,{
-          to_email:to,from_name:'JAC Seguros',
-          subject:subject,message:body,reply_to:from
-        });
-        sent=true;
-      }
-    }catch(e){console.warn('[JAC email]',e);}
+
+  // 1️⃣ Intentar Gmail API (cuenta jelyancorredora@gmail.com conectada)
+  const gmailToken=GMAIL_TOKENS[1]||sessionStorage.getItem('jac_gmail_token_1');
+  if(gmailToken&&typeof sendViaGmailAPI==='function'){
+    const bodyHtml=body.replace(/\n/g,'<br>');
+    sent=await sendViaGmailAPI(1,to,subject,bodyHtml);
+    if(sent) statusEl.textContent='✅ Enviado vía Gmail API';
   }
+
+  // 2️⃣ Intentar EmailJS (para Zoho o cuando Gmail no está conectado)
   if(!sent){
-    // Fallback: open mailto
+    const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
+    if(cfg['ejs-pub']&&cfg['ejs-svc']&&window.emailjs){
+      try{
+        emailjs.init({publicKey:cfg['ejs-pub']});
+        const tplId=cfg['ejs-tpl-compose']||cfg['ejs-tpl-bday']||'';
+        if(tplId){
+          await emailjs.send(cfg['ejs-svc'],tplId,{
+            to_email:to,from_name:'JAC Seguros',
+            subject:subject,message:body,reply_to:from
+          });
+          sent=true;
+          statusEl.textContent='✅ Enviado vía EmailJS';
+        }
+      }catch(e){console.warn('[JAC EmailJS]',e);}
+    }
+  }
+
+  // 3️⃣ Fallback: abrir cliente de correo local (mailto)
+  if(!sent){
     const mailtoUrl='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
     window.open(mailtoUrl,'_blank');
     sent=true;
+    statusEl.textContent='📬 Se abrió tu cliente de correo';
   }
   if(sent){
     // Log to client history
@@ -6053,14 +6102,53 @@ function clearAdmLog() {
 // Tokens de acceso guardados en sessionStorage (se borran al cerrar el navegador)
 const GMAIL_TOKENS = {};
 
-// CLIENT_ID de Google Cloud Console
-// Para activar: crea un proyecto en console.cloud.google.com,
-// habilita Gmail API y crea credencial OAuth2 tipo "Aplicación Web"
-// con redirect_uri = https://crm.jacsegurospa.com
+// CLIENT_ID de Google Cloud Console — Gmail API habilitada, scope: gmail.readonly + gmail.send
+// Requisitos en Google Cloud Console:
+//   1. OAuth Consent Screen → Test users → agregar jelyancorredora@gmail.com
+//   2. Credentials → OAuth 2.0 Client → Authorized JavaScript origins → https://crm.jacsegurospa.com
 const GMAIL_CLIENT_ID = '549439401920-rt8al968rfqar6hvp3cshq9m53meluc4.apps.googleusercontent.com';
+const GMAIL_SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
+const GMAIL_ACCOUNT_EMAILS = { 1: 'jelyancorredora@gmail.com' };
+// Cuenta 2 (jcastro@jacsegurospa.com) es Zoho — no usa Google OAuth, usa EmailJS
+
+// Mapa de tokenClients GIS por cuenta
+const _gisClients = {};
+
+function _getGISClient(n, callback) {
+  if (_gisClients[n]) { callback(_gisClients[n]); return; }
+  const waitGIS = setInterval(() => {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+      clearInterval(waitGIS);
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: GMAIL_CLIENT_ID,
+        scope: GMAIL_SCOPES,
+        hint: GMAIL_ACCOUNT_EMAILS[n] || '',
+        callback: (resp) => {
+          if (resp.error) {
+            const log = document.getElementById('gmail-log-' + n);
+            if (log) log.textContent = '❌ Error: ' + resp.error;
+            toast('Error de autenticación: ' + resp.error, 'err');
+            return;
+          }
+          GMAIL_TOKENS[n] = resp.access_token;
+          sessionStorage.setItem('jac_gmail_token_' + n, resp.access_token);
+          refreshGmailStatus();
+          toast('✓ Gmail conectado — ' + (GMAIL_ACCOUNT_EMAILS[n] || 'cuenta ' + n));
+          logAdm('Gmail conectado', GMAIL_ACCOUNT_EMAILS[n] || 'Cuenta ' + n);
+          const log = document.getElementById('gmail-log-' + n);
+          if (log) log.textContent = '✓ Conectado correctamente';
+          gmailSyncAll(n);
+        }
+      });
+      _gisClients[n] = client;
+      callback(client);
+    }
+  }, 200);
+  setTimeout(() => clearInterval(waitGIS), 8000);
+}
 
 function refreshGmailStatus() {
-  [1, 2].forEach(n => {
+  [1].forEach(n => {  // Solo cuenta 1 (Gmail) — cuenta 2 es Zoho
     const token = GMAIL_TOKENS[n] || sessionStorage.getItem('jac_gmail_token_' + n);
     const status = document.getElementById('gmail-status-' + n);
     const syncBtn = document.getElementById('gmail-sync-btn-' + n);
@@ -6079,64 +6167,73 @@ function refreshGmailStatus() {
       if (connBtn) connBtn.style.display = '';
     }
   });
-  // Última sincronización
   const lastTs = localStorage.getItem('jac_gmail_last_sync');
   const lsEl = document.getElementById('gmail-last-ts');
   if (lsEl) lsEl.textContent = lastTs ? new Date(lastTs).toLocaleString('es-PA') : '—';
 }
 
 function gmailSignIn(email, n) {
-  if (GMAIL_CLIENT_ID === 'TU_GOOGLE_CLIENT_ID_AQUI') {
-    toast('⚠️ Configura el Google Client ID en el código', 'err');
-    return;
-  }
-  const scope = 'https://www.googleapis.com/auth/gmail.readonly';
-  const redirectUri = encodeURIComponent(location.origin + location.pathname);
-  const url = `https://accounts.google.com/o/oauth2/v2/auth` +
-    `?client_id=${encodeURIComponent(GMAIL_CLIENT_ID)}` +
-    `&redirect_uri=${redirectUri}` +
-    `&response_type=token` +
-    `&scope=${encodeURIComponent(scope)}` +
-    `&login_hint=${encodeURIComponent(email)}` +
-    `&prompt=consent`;
-
-  const w = window.open(url, 'gmailauth', 'width=500,height=620,left=200,top=100');
   const log = document.getElementById('gmail-log-' + n);
-  if (log) log.textContent = 'Esperando autorización de Google…';
-
-  const poll = setInterval(() => {
+  if (log) log.textContent = '🔄 Conectando con Google…';
+  _getGISClient(n, (client) => {
     try {
-      if (w.closed) {
-        clearInterval(poll);
-        if (log) log.textContent = '';
-        return;
-      }
-      const hash = w.location.hash;
-      if (hash && hash.includes('access_token=')) {
-        const params = new URLSearchParams(hash.slice(1));
-        const token = params.get('access_token');
-        w.close();
-        clearInterval(poll);
-        if (token) {
-          GMAIL_TOKENS[n] = token;
-          sessionStorage.setItem('jac_gmail_token_' + n, token);
-          refreshGmailStatus();
-          toast('✓ Gmail conectado — cuenta ' + n);
-          logAdm('Gmail conectado', email);
-          if (log) log.textContent = '✓ Conectado correctamente';
-          gmailSyncAll(n);
-        }
-      }
-    } catch (e) { /* cross-origin — normal durante el redirect */ }
-  }, 500);
+      client.requestAccessToken({ prompt: 'consent', login_hint: email });
+    } catch(e) {
+      if (log) log.textContent = '❌ ' + e.message;
+      toast('Error al iniciar OAuth: ' + e.message, 'err');
+    }
+  });
 }
 
 function gmailDisconnect(n) {
+  const token = GMAIL_TOKENS[n];
+  if (token && window.google && window.google.accounts && window.google.accounts.oauth2) {
+    google.accounts.oauth2.revoke(token, () => {});
+  }
   delete GMAIL_TOKENS[n];
+  delete _gisClients[n];
   sessionStorage.removeItem('jac_gmail_token_' + n);
   refreshGmailStatus();
   toast('Gmail desconectado');
   logAdm('Gmail desconectado', 'Cuenta ' + n);
+}
+
+// ── Enviar correo vía Gmail API ────────────────────────────────
+async function sendViaGmailAPI(n, to, subject, bodyHtml) {
+  const token = GMAIL_TOKENS[n] || sessionStorage.getItem('jac_gmail_token_' + n);
+  if (!token) return false;
+  const fromEmail = GMAIL_ACCOUNT_EMAILS[n] || 'jelyancorredora@gmail.com';
+  const subjectB64 = '=?UTF-8?B?' + btoa(unescape(encodeURIComponent(subject))) + '?=';
+  const msgRaw = [
+    'From: JAC Seguros <' + fromEmail + '>',
+    'To: ' + to,
+    'Subject: ' + subjectB64,
+    'MIME-Version: 1.0',
+    'Content-Type: text/html; charset=UTF-8',
+    '',
+    bodyHtml
+  ].join('\r\n');
+  const encoded = btoa(unescape(encodeURIComponent(msgRaw)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  try {
+    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw: encoded })
+    });
+    if (res.status === 401) {
+      // Token expirado — limpiar y pedir reconexión
+      delete GMAIL_TOKENS[n];
+      sessionStorage.removeItem('jac_gmail_token_' + n);
+      refreshGmailStatus();
+      toast('Token Gmail expirado — reconecta la cuenta', 'err');
+      return false;
+    }
+    return res.ok;
+  } catch(e) {
+    console.warn('[Gmail Send]', e);
+    return false;
+  }
 }
 
 async function gmailSyncAll(n) {
@@ -6405,38 +6502,33 @@ let calST = {
 const CAL_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const CAL_ACCOUNT_EMAILS = { 1: 'jelyancorredora@gmail.com', 2: 'jcastro@jacsegurospa.com' };
 
-// ── Auth ──────────────────────────────────────
+// ── Auth (GIS — Google Identity Services) ────
+const _calGisClients = {};
 function calSignIn(email, n) {
-  const scope = 'https://www.googleapis.com/auth/calendar';
-  const redirectUri = encodeURIComponent(location.origin + location.pathname);
-  const url = `https://accounts.google.com/o/oauth2/v2/auth` +
-    `?client_id=${encodeURIComponent(GMAIL_CLIENT_ID)}` +
-    `&redirect_uri=${redirectUri}` +
-    `&response_type=token` +
-    `&scope=${encodeURIComponent(scope)}` +
-    `&login_hint=${encodeURIComponent(email)}` +
-    `&prompt=consent`;
-  const w = window.open(url, 'calauth_' + n, 'width=500,height=620,left=200,top=100');
-  toast('🔐 Abriendo autorización Google Calendar…');
-  const poll = setInterval(() => {
-    try {
-      if (w.closed) { clearInterval(poll); calUpdateConnStatus(); return; }
-      const hash = w.location.hash;
-      if (hash && hash.includes('access_token=')) {
-        const params = new URLSearchParams(hash.slice(1));
-        const token = params.get('access_token');
-        w.close(); clearInterval(poll);
-        if (token) {
-          CAL_TOKENS[n] = token;
-          sessionStorage.setItem('jac_cal_token_' + n, token);
-          try { localStorage.setItem('jac_cal_token_' + n, token); } catch(e) {}
-          calUpdateConnStatus();
-          toast('✓ Google Calendar conectado — cuenta ' + n);
-          calFetchGoogle(n);
-        }
+  toast('🔐 Conectando Google Calendar…');
+  const waitGIS = setInterval(() => {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+      clearInterval(waitGIS);
+      if (!_calGisClients[n]) {
+        _calGisClients[n] = google.accounts.oauth2.initTokenClient({
+          client_id: GMAIL_CLIENT_ID,
+          scope: 'https://www.googleapis.com/auth/calendar',
+          hint: email,
+          callback: (resp) => {
+            if (resp.error) { toast('Error Google Calendar: ' + resp.error, 'err'); return; }
+            CAL_TOKENS[n] = resp.access_token;
+            sessionStorage.setItem('jac_cal_token_' + n, resp.access_token);
+            try { localStorage.setItem('jac_cal_token_' + n, resp.access_token); } catch(e) {}
+            calUpdateConnStatus();
+            toast('✓ Google Calendar conectado — ' + email);
+            calFetchGoogle(n);
+          }
+        });
       }
-    } catch(e) {}
-  }, 500);
+      _calGisClients[n].requestAccessToken({ prompt: 'consent', login_hint: email });
+    }
+  }, 200);
+  setTimeout(() => clearInterval(waitGIS), 8000);
 }
 
 function calLoadTokens() {
@@ -6989,11 +7081,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <input id="ecmp-to" type="email" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box" placeholder="email@ejemplo.com">
       </div>
       <div style="margin-bottom:10px">
-        <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">DE</label>
-        <select id="ecmp-from" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box">
-          <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com</option>
-          <option value="info@jacsegurospa.com">info@jacsegurospa.com</option>
+        <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">DE <span id="ecmp-gmail-badge" style="font-weight:400;color:#059669"></span></label>
+        <select id="ecmp-from" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box" onchange="ecmpUpdateSendMode()">
+          <option value="jelyancorredora@gmail.com">jelyancorredora@gmail.com (Gmail)</option>
+          <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com (Zoho / EmailJS)</option>
         </select>
+        <div id="ecmp-send-hint" style="font-size:10px;color:var(--mu);margin-top:3px"></div>
       </div>
       <div style="margin-bottom:10px">
         <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">ASUNTO</label>
