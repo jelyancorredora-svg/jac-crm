@@ -145,6 +145,20 @@ textarea.fc{resize:vertical;min-height:52px}
 .wa-meta{font-size:9.5px;color:#888;margin-top:2px;text-align:right;display:flex;justify-content:flex-end;gap:4px;align-items:center}
 .wa-tick{color:#4CAF50;font-size:10px}
 .email-hist{background:#E3F2FD;border-radius:6px;padding:6px 10px;margin-bottom:4px;border-left:3px solid #1976D2;font-size:11px}
+/* WhatsApp & Email follow-up styles */
+.wa-bubble.email-received{background:#FFF3E0;align-self:flex-start;border-bottom-left-radius:3px;border:1px solid #FFB74D}
+.comm-status-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px}
+.csb-enviado{background:#DCF8C6;color:#1B5E20}
+.csb-respondido{background:#E8F5E9;color:#1B5E20}
+.csb-pendiente{background:#FFF8E1;color:#E65100}
+.csb-visto{background:#E3F2FD;color:#0D47A1}
+.comm-actions-bar{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.comm-action-btn{font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid var(--bd);background:var(--wh);cursor:pointer;font-family:inherit;white-space:nowrap}
+.comm-action-btn:hover{background:#F0F4FF}
+.followup-alert{background:#FFFDE7;border:1px solid #FFD54F;border-radius:4px;padding:2px 6px;font-size:9px;color:#F57F17;display:inline-flex;align-items:center;gap:2px}
+#wa-tpl-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center}
+@keyframes pulse-green{0%,100%{opacity:1}50%{opacity:.6}}
+.followup-pulse{animation:pulse-green 2s infinite}
 /* ── CALENDAR ── */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
 .cal-day-hdr{padding:7px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--mu);background:#F8FAFD;border-bottom:1px solid var(--bd)}
@@ -303,6 +317,10 @@ textarea.fc{resize:vertical;min-height:52px}
       <div class="ch" style="cursor:pointer" onclick="SH('cal')"><h3>📅 Próximos Eventos</h3><span class="btn bsm bgh">Ver calendario →</span></div>
       <div id="dash-cal-list" style="padding:8px 12px;font-size:12px;color:var(--mu)">Cargando…</div>
     </div>
+  </div>
+  <!-- SEGUIMIENTOS PENDIENTES WA + EMAIL -->
+  <div class="card" id="dash-seguimientos" style="margin-top:10px;border-left:4px solid #25D366">
+    <div id="dash-seg-content"><div style="padding:14px;text-align:center;color:var(--mu);font-size:12px">Cargando seguimientos…</div></div>
   </div>
   <!-- REPORTES EN VIVO QUICK ACCESS -->
   <div class="card" id="dash-rep-quick" style="margin-top:10px;border-left:4px solid #7E22CE">
@@ -1780,7 +1798,146 @@ function waBtnC(c){
   const t=c.cel||c.tel||'';if(!t)return'';
   const msg=`Hola ${c.nombre.split(' ')[0]} 👋🏼, te contacto de *JAC Seguros* (Lic. #6175). ¿En qué te puedo ayudar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
   const url=waL(t,msg);if(!url)return'';
-  return waBtn(url,'cliente',c.id,'Contacto general',c.nombre,'💬 WhatsApp','bwa');
+  return waBtn(url,'cliente',c.id,'Contacto general',c.nombre,'💬 WhatsApp','bwa')+
+    `<button onclick="event.stopPropagation();showWAMenu('${c.id}')" class="btn bsm" style="background:#128C7E;color:#fff;border-color:#128C7E;padding:3px 7px" title="Plantillas WhatsApp">📋</button>`;
+}
+
+// ── WHATSAPP TEMPLATE MENU ──────────────────────────────────────────────────
+const WA_TEMPLATES={
+  saludo:'Hola {nombre} 👋🏼\n\nTe contacto de *JAC Seguros* (Lic. #6175).\n¿En qué te puedo ayudar hoy?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_',
+  seguimiento:'Hola {nombre} 👋🏼\n\nTe escribo para dar seguimiento a nuestra conversación. ¿Pudiste revisar la propuesta?\n\nQuedo a tu disposición 😊\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  renovacion:'Hola {nombre} 👋🏼\n\nTe contacto de *JAC Seguros* para informarte que tu póliza está próxima a vencer.\n\n¿Te ayudo con la renovación para que no pierdas tu cobertura?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_',
+  pago:'Hola {nombre} 👋🏼\n\nTe recordamos el pago de tu póliza. Puedes realizarlo a través de los medios habituales.\n\n¿Necesitas alguna información adicional?\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  cotizacion:'Hola {nombre} 👋🏼\n\nTe envío la cotización que solicitaste. Por favor, revísala y cuéntame si tienes preguntas.\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  documentos:'Hola {nombre} 👋🏼\n\nPara completar tu trámite necesitamos:\n• Cédula vigente\n• Fotos del bien asegurado\n• Formulario firmado\n\n¿Puedes enviármelos?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_',
+  cumpleanos:'¡Feliz cumpleaños {nombre}! 🎉🎂\n\nTe deseamos un excelente día lleno de alegrías.\n\n*¡De parte de todo el equipo de JAC Seguros!*\n\n_Jely An Castro Pérez · Lic. #6175_',
+  bienvenida:'Bienvenido/a {nombre} a *JAC Seguros* 🌟\n\nEs un placer tenerte como cliente. Estaré siempre disponible para cualquier consulta sobre tu cobertura.\n\n_Jely An Castro Pérez · Lic. #6175 · 📞 +507 6292-6010_',
+  siniestro:'Hola {nombre} 👋🏼\n\nLamento escuchar sobre el incidente. Estoy aquí para ayudarte con el proceso de reclamo.\n\nPor favor envíame:\n1. Reporte policial (si aplica)\n2. Fotos del daño\n3. Datos de los involucrados\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_'
+};
+
+let _waTplClientId=null;
+
+function showWAMenu(clientId){
+  _waTplClientId=clientId;
+  const c=S.clientes.find(x=>x.id===clientId)||{};
+  const modal=document.getElementById('wa-tpl-modal');
+  if(!modal)return;
+  document.getElementById('wa-tpl-client-name').textContent=c.nombre||'';
+  modal.style.display='flex';
+}
+
+function closeWAMenu(){
+  const m=document.getElementById('wa-tpl-modal');
+  if(m)m.style.display='none';
+  _waTplClientId=null;
+}
+
+function sendWATemplate(tplKey){
+  if(!_waTplClientId)return;
+  const c=S.clientes.find(x=>x.id===_waTplClientId)||{};
+  const fn=c.nombre?(c.nombre.split(' ')[0]):'Cliente';
+  const tpl=WA_TEMPLATES[tplKey]||WA_TEMPLATES.saludo;
+  const msg=tpl.replace(/{nombre}/g,fn);
+  const tel=c.cel||c.tel||'';
+  if(!tel){toast('Este cliente no tiene teléfono registrado','err');closeWAMenu();return;}
+  const url=waL(tel,msg);
+  if(!url){toast('Número inválido','err');closeWAMenu();return;}
+  const ci=S.clientes.findIndex(x=>x.id===_waTplClientId);
+  if(ci>=0){
+    if(!S.clientes[ci].historialWA)S.clientes[ci].historialWA=[];
+    S.clientes[ci].historialWA.push({
+      id:'WA'+uid(),
+      fecha:new Date().toISOString().substring(0,16),
+      tipo:'whatsapp',
+      msgType:tplKey,
+      template:tplKey,
+      estado:'enviado',
+      nombre:c.nombre||'',
+      mensajeTexto:msg.substring(0,120)
+    });
+    save();
+  }
+  closeWAMenu();
+  window.open(url,'_blank','noopener,noreferrer');
+  toast('📱 WhatsApp abierto y registrado ✓','ok');
+  // Refresh panel if client detail is open
+  if(document.getElementById('dpanel').classList.contains('on'))showCliDP(_waTplClientId||c.id);
+}
+
+// ── COMM STATUS / FOLLOW-UP ─────────────────────────────────────────────────
+function markCommStatus(clientId,entryId,newStatus){
+  const ci=S.clientes.findIndex(c=>c.id===clientId);if(ci<0)return;
+  if(!S.clientes[ci].historialWA)return;
+  const hi=S.clientes[ci].historialWA.findIndex(h=>h.id===entryId);if(hi<0)return;
+  S.clientes[ci].historialWA[hi].estado=newStatus;
+  if(newStatus==='respondido'||newStatus==='completado'){
+    S.clientes[ci].historialWA[hi].fechaRespuesta=new Date().toISOString().substring(0,16);
+  }
+  save();
+  toast('Estado actualizado ✓','ok');
+  if(document.getElementById('dpanel').classList.contains('on'))showCliDP(clientId);
+  if(document.querySelector('#pg-dash.on'))renderSeguimientosPanel();
+}
+
+function scheduleCommFollowUp(clientId,entryId){
+  const date=prompt('Fecha de seguimiento (YYYY-MM-DD):',TODAY.toISOString().split('T')[0]);
+  if(!date)return;
+  const ci=S.clientes.findIndex(c=>c.id===clientId);if(ci<0)return;
+  if(!S.clientes[ci].historialWA)return;
+  const hi=S.clientes[ci].historialWA.findIndex(h=>h.id===entryId);if(hi<0)return;
+  S.clientes[ci].historialWA[hi].followUpDate=date;
+  S.clientes[ci].historialWA[hi].estado='pendiente_seguimiento';
+  save();
+  toast('Seguimiento programado: '+fmt(date),'ok');
+  if(document.getElementById('dpanel').classList.contains('on'))showCliDP(clientId);
+}
+
+// ── SEGUIMIENTOS DASHBOARD PANEL ────────────────────────────────────────────
+function renderSeguimientosPanel(){
+  const todayStr=TODAY.toISOString().split('T')[0];
+  const items=[];
+  (S.clientes||[]).forEach(c=>{
+    (c.historialWA||[]).forEach(h=>{
+      // WA enviado sin respuesta por 2+ días
+      if((h.tipo==='whatsapp')&&(h.estado==='enviado')&&h.fecha){
+        const sentDay=h.fecha.substring(0,10);
+        const daysSince=Math.round((TODAY-new Date(sentDay))/86400000);
+        if(daysSince>=2) items.push({cliente:c,entry:h,daysSince,tipo:'wa_sin_resp',label:`WA sin respuesta hace ${daysSince}d`});
+      }
+      // Email con follow-up programado y vencido
+      if((h.tipo==='email_sent')&&h.followUpDate&&h.followUpDate<=todayStr&&h.estado!=='respondido'&&h.estado!=='completado'){
+        items.push({cliente:c,entry:h,tipo:'email_followup',label:`Email pendiente · Seguimiento: ${fmt(h.followUpDate)}`});
+      }
+      // Seguimiento manual programado
+      if(h.estado==='pendiente_seguimiento'&&h.followUpDate&&h.followUpDate<=todayStr){
+        items.push({cliente:c,entry:h,tipo:'seguimiento',label:`Seguimiento programado · ${fmt(h.followUpDate)}`});
+      }
+    });
+  });
+  const el=document.getElementById('dash-seg-content');
+  if(!el)return;
+  if(!items.length){
+    el.innerHTML=`<div class="ch"><h3>📱 Seguimientos Pendientes</h3></div><div style="padding:14px;text-align:center;color:#15803D;font-size:12px">✓ Sin seguimientos pendientes — todo al día 🎉</div>`;
+    return;
+  }
+  let h=`<div class="ch"><h3>📱 Seguimientos Pendientes <span class="b bwn">${items.length}</span></h3></div><div>`;
+  items.forEach(({cliente:c,entry:hx,label,tipo})=>{
+    const color=tipo==='wa_sin_resp'?'#25D366':tipo==='email_followup'?'#1565C0':'#F59E0B';
+    const icon=tipo==='wa_sin_resp'?'💬':tipo==='email_followup'?'📧':'🔔';
+    const tel=c.cel||c.tel||'';
+    const waUrl=tel&&tipo==='wa_sin_resp'?waL(tel,`Hola ${(c.nombre||'').split(' ')[0]}, ¿cómo estás? Te escribo de JAC Seguros. _Jely An Castro Pérez_`):null;
+    h+=`<div style="padding:9px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px;cursor:pointer" onclick="SH('cli');setTimeout(()=>showCliDP('${c.id}'),300)">
+      ${dot(color)}
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:12px">${icon} ${esc(c.nombre)}</div>
+        <div style="font-size:10px;color:var(--mu)">${label} · <em>${esc(hx.msgType||hx.subject||'')}</em></div>
+      </div>
+      ${waUrl?`<a href="${waUrl}" target="_blank" class="btn bsm bwa" onclick="event.stopPropagation()" title="Enviar WA de seguimiento">💬</a>`:''}
+      <button class="btn bsm bgn" onclick="event.stopPropagation();markCommStatus('${c.id}','${hx.id}','respondido')" title="Marcar respondido">✅</button>
+    </div>`;
+  });
+  h+='</div>';
+  el.innerHTML=h;
 }
 function waBtnsP(p,cl){
   const t=cl.cel||cl.tel||p.celCliente||'';if(!t)return'';
@@ -1905,6 +2062,7 @@ function RD(){
   renderSinAlert();
   renderSOATBulkPanel();
   renderDashRepSummary();
+  renderSeguimientosPanel();
   // Auto-tareas en cada login
   setTimeout(()=>{ const n=runAutoTasks(); if(n>0){toast('📋 '+n+' tarea'+( n!==1?'s':'')+' automáticas generadas','ok');RTar&&RTar();} }, 2000);
 }
@@ -2597,7 +2755,8 @@ ${c.origenCliente?`<div class="drow"><label>Origen</label><div class="dv">${esc(
 </div>
 <div class="dsec">Acciones</div>
 <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">
-  ${wa} ${c.cel?`<a href="tel:${esc(c.cel)}" class="btn bsm bcy">📞 Llamar</a>`:''}
+  ${wa} ${c.cel?`<button onclick="showWAMenu('${id}')" class="btn bsm bwa2" title="Plantillas WhatsApp">📋 WA Plantillas</button>`:''}
+  ${c.cel?`<a href="tel:${esc(c.cel)}" class="btn bsm bcy">📞 Llamar</a>`:''}
   <button class="btn bsm bp" onclick="OC('${id}')">✏️ Editar</button>
   <button class="btn bsm bam" onclick="OT_open('','cliente','${id}')">+ Tarea</button>
   ${c.email?`<button class="btn bsm" style="background:#E3F2FD;color:#1565C0;border:1px solid #BBDEFB" onclick="openEmailCompose('${id}')">📧 Email</button>`:''}
@@ -2630,16 +2789,39 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
       const isGmail=!!w.gmailId;
       const isNote=w.tipo==='nota';
       const isEmailSent=w.tipo==='email_sent';
-      let bubbleClass=isGmail?'received':isNote?'note':isEmailSent?'email-sent':'sent';
-      let icon=isGmail?'📩':isNote?'📝':isEmailSent?'📧':'💬';
-      let label=isGmail?`Gmail: ${esc(w.subject||w.msgType||'')}`:(isNote?`Nota: ${esc(w.nota||w.msgType||'')}`:isEmailSent?`Email: ${esc(w.subject||w.msgType||'')}`:esc(w.msgType||''));
+      const isEmailRec=w.tipo==='email_received';
+      let bubbleClass=isGmail?'received':isNote?'note':isEmailSent?'email-sent':isEmailRec?'email-received':'sent';
+      let icon=isGmail?'📩':isNote?'📝':isEmailSent?'📧':isEmailRec?'📥':'💬';
+      let labelMain=isGmail?`Gmail: ${esc(w.subject||w.msgType||'')}`:(isNote?`Nota: ${esc(w.nota||w.msgType||'')}`:isEmailSent?`Email: ${esc(w.subject||w.msgType||'')}`:isEmailRec?`Recibido: ${esc(w.subject||w.msgType||'')}`:esc(w.msgType||''));
+      let typeLabel=isGmail?'Gmail recibido':isNote?'Nota manual':isEmailSent?'Email enviado':isEmailRec?'Email recibido':'WhatsApp enviado';
       let dateStr=w.fecha?fmt(w.fecha.substring(0,10)):'';
       let timeStr=w.fecha&&w.fecha.length>10?w.fecha.substring(11,16):'';
+      // Status badge
+      const estado=w.estado||'';
+      const statusBadge=estado==='respondido'?'<span class="comm-status-badge csb-respondido">✅ Respondido</span>':
+        estado==='pendiente_seguimiento'?`<span class="comm-status-badge csb-pendiente">🔔 Seguimiento: ${w.followUpDate?fmt(w.followUpDate):''}</span>`:
+        estado==='enviado'&&w.tipo==='whatsapp'?'<span class="comm-status-badge csb-enviado">📤 Enviado</span>':
+        estado==='enviado'&&w.tipo==='email_sent'?'<span class="comm-status-badge csb-enviado">📤 Enviado</span>':'';
+      // Mensaje preview
+      const msgPreview=w.mensajeTexto?`<div style="font-size:10px;color:#555;margin-top:2px;font-style:italic">"${esc(w.mensajeTexto.substring(0,80))}${w.mensajeTexto.length>80?'…':''}"</div>`:'';
+      // Action buttons (only for outgoing messages not yet responded)
+      let actionBtns='';
+      if((w.tipo==='whatsapp'||w.tipo==='email_sent')&&estado!=='respondido'&&estado!=='completado'){
+        actionBtns=`<div class="comm-actions-bar">
+          <button class="comm-action-btn" onclick="event.stopPropagation();markCommStatus('${id}','${w.id}','respondido')" title="Marcar como respondido">✅ Respondido</button>
+          <button class="comm-action-btn" onclick="event.stopPropagation();scheduleCommFollowUp('${id}','${w.id}')" title="Programar seguimiento">📅 Seguimiento</button>
+        </div>`;
+      }
+      // Follow-up date badge
+      const fpBadge=w.followUpDate&&estado!=='respondido'?`<span class="followup-alert">🔔 Seg: ${fmt(w.followUpDate)}</span>`:'';
       h+=`<div style="display:flex;${bubbleClass==='sent'||bubbleClass==='email-sent'?'justify-content:flex-end':'justify-content:flex-start'}">
-        <div class="wa-bubble ${bubbleClass}">
-          <div style="font-size:10px;font-weight:700;color:${isGmail?'#1565C0':isNote?'#F57F17':isEmailSent?'#0D47A1':'#1B5E20'};margin-bottom:2px">${icon} ${isGmail?'Gmail recibido':isNote?'Nota manual':isEmailSent?'Email enviado':'WhatsApp enviado'}</div>
-          <div>${label}</div>
+        <div class="wa-bubble ${bubbleClass}" style="max-width:90%">
+          <div style="font-size:10px;font-weight:700;color:${isGmail?'#1565C0':isNote?'#F57F17':isEmailSent?'#0D47A1':isEmailRec?'#E65100':'#1B5E20'};margin-bottom:2px">${icon} ${typeLabel} ${statusBadge}</div>
+          <div>${labelMain}</div>
+          ${msgPreview}
           ${w.snippet?`<div style="font-size:10px;color:#555;margin-top:3px;border-top:1px solid rgba(0,0,0,.08);padding-top:3px">${esc(w.snippet.substring(0,100))}${w.snippet.length>100?'…':''}</div>`:''}
+          ${fpBadge}
+          ${actionBtns}
           <div class="wa-meta">${dateStr}${timeStr?' '+timeStr:''} ${bubbleClass==='sent'?'<span class="wa-tick">✓✓</span>':bubbleClass==='email-sent'?'<span style="color:#1565C0;font-size:9px">enviado</span>':''}</div>
         </div>
       </div>`;
@@ -2665,7 +2847,7 @@ function addWANota(clientId){
   });
   save();
   toast('Nota registrada ✓','ok');
-  showClientDP(clientId);
+  showCliDP(clientId);
 }
 
 // ── EMAIL COMPOSE MODULE ──────────────────────────────────────────────────────
@@ -2732,7 +2914,7 @@ function logReceivedEmail(clientId){
     nombre:S.clientes[ci].nombre||''
   });
   save();
-  showClientDP(clientId);
+  showCliDP(clientId);
   toast('Email recibido registrado ✓','ok');
 }
 async function sendEmailFromCRM(){
@@ -2740,6 +2922,7 @@ async function sendEmailFromCRM(){
   const subject=document.getElementById('ecmp-subject').value.trim();
   const body=document.getElementById('ecmp-body').value.trim();
   const from=document.getElementById('ecmp-from').value;
+  const followUpDate=document.getElementById('ecmp-followup')?.value||'';
   const statusEl=document.getElementById('ecmp-status');
   if(!to){statusEl.textContent='⚠️ Ingrese el destinatario';statusEl.style.color='#e53935';return;}
   if(!subject){statusEl.textContent='⚠️ Ingrese el asunto';statusEl.style.color='#e53935';return;}
@@ -2814,7 +2997,7 @@ async function sendEmailFromCRM(){
       const ci=S.clientes.findIndex(c=>c.id===_emailComposeClientId);
       if(ci>=0){
         if(!S.clientes[ci].historialWA)S.clientes[ci].historialWA=[];
-        S.clientes[ci].historialWA.push({
+        const emailEntry={
           id:'EM'+uid(),
           fecha:new Date().toISOString().substring(0,16),
           tipo:'email_sent',
@@ -2822,8 +3005,11 @@ async function sendEmailFromCRM(){
           to:to,
           msgType:subject,
           subject:subject,
-          nombre:S.clientes[ci].nombre||''
-        });
+          nombre:S.clientes[ci].nombre||'',
+          estado:'enviado'
+        };
+        if(followUpDate)emailEntry.followUpDate=followUpDate;
+        S.clientes[ci].historialWA.push(emailEntry);
         save();
       }
     }
@@ -2831,7 +3017,7 @@ async function sendEmailFromCRM(){
     statusEl.style.color='#2E7D32';
     setTimeout(()=>{
       closeEmailCompose();
-      if(_emailComposeClientId){const cid=_emailComposeClientId;_emailComposeClientId=null;showClientDP(cid);}
+      if(_emailComposeClientId){const cid=_emailComposeClientId;_emailComposeClientId=null;showCliDP(cid);}
       toast('Email enviado ✓','ok');
     },1500);
   }
@@ -6185,6 +6371,8 @@ function _getGISClient(n, callback) {
           }
           GMAIL_TOKENS[n] = resp.access_token;
           sessionStorage.setItem('jac_gmail_token_' + n, resp.access_token);
+          localStorage.setItem('jac_gmail_token_' + n, resp.access_token);
+          localStorage.setItem('jac_gmail_token_ts_' + n, Date.now().toString());
           refreshGmailStatus();
           toast('✓ Gmail conectado — ' + (GMAIL_ACCOUNT_EMAILS[n] || 'cuenta ' + n));
           logAdm('Gmail conectado', GMAIL_ACCOUNT_EMAILS[n] || 'Cuenta ' + n);
@@ -6202,19 +6390,32 @@ function _getGISClient(n, callback) {
 
 function refreshGmailStatus() {
   [1].forEach(n => {  // Solo cuenta 1 (Gmail) — cuenta 2 es Zoho
-    const token = GMAIL_TOKENS[n] || sessionStorage.getItem('jac_gmail_token_' + n);
-    const status = document.getElementById('gmail-status-' + n);
+    let token = GMAIL_TOKENS[n] || sessionStorage.getItem('jac_gmail_token_' + n);
+    // Si no está en session, intentar desde localStorage con expiración 1h
+    if (!token) {
+      const lsTok = localStorage.getItem('jac_gmail_token_' + n);
+      const lsTs  = parseInt(localStorage.getItem('jac_gmail_token_ts_' + n) || '0');
+      if (lsTok && (Date.now() - lsTs) < 3600000) {
+        token = lsTok;
+        GMAIL_TOKENS[n] = token;
+        sessionStorage.setItem('jac_gmail_token_' + n, token);
+      } else if (lsTok) {
+        localStorage.removeItem('jac_gmail_token_' + n);
+        localStorage.removeItem('jac_gmail_token_ts_' + n);
+      }
+    }
+    const status  = document.getElementById('gmail-status-' + n);
     const syncBtn = document.getElementById('gmail-sync-btn-' + n);
     const discBtn = document.getElementById('gmail-disc-btn-' + n);
     const connBtn = document.getElementById('gmail-btn-' + n);
     if (token) {
       GMAIL_TOKENS[n] = token;
-      if (status) { status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '● Conectado'; }
+      if (status)  { status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '● Conectado'; }
       if (syncBtn) syncBtn.style.display = '';
       if (discBtn) discBtn.style.display = '';
       if (connBtn) connBtn.style.display = 'none';
     } else {
-      if (status) { status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = '● No conectado'; }
+      if (status)  { status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = '● No conectado'; }
       if (syncBtn) syncBtn.style.display = 'none';
       if (discBtn) discBtn.style.display = 'none';
       if (connBtn) connBtn.style.display = '';
@@ -6246,6 +6447,8 @@ function gmailDisconnect(n) {
   delete GMAIL_TOKENS[n];
   delete _gisClients[n];
   sessionStorage.removeItem('jac_gmail_token_' + n);
+  localStorage.removeItem('jac_gmail_token_' + n);
+  localStorage.removeItem('jac_gmail_token_ts_' + n);
   refreshGmailStatus();
   toast('Gmail desconectado');
   logAdm('Gmail desconectado', 'Cuenta ' + n);
@@ -6300,7 +6503,7 @@ let ZOHO_ACCOUNT_ID = null;
 
 function zohoSignIn() {
   const log = document.getElementById('gmail-log-2');
-  if (log) log.textContent = '🔄 Redirigiendo a Zoho para autorizar…';
+  if (log) log.textContent = '🔄 Abriendo ventana de autorización Zoho…';
   const authUrl = 'https://accounts.zoho.com/oauth/v2/auth' +
     '?response_type=token' +
     '&client_id=' + ZOHO_CLIENT_ID +
@@ -6308,7 +6511,41 @@ function zohoSignIn() {
     '&redirect_uri=' + encodeURIComponent(ZOHO_REDIRECT_URI) +
     '&access_type=online' +
     '&prompt=consent';
-  window.location.href = authUrl;
+
+  // Abrir en popup para no perder la sesión del CRM
+  const popup = window.open(authUrl, 'zoho_auth_popup',
+    'width=520,height=680,scrollbars=yes,resizable=yes,toolbar=no,menubar=no');
+
+  if (!popup || popup.closed) {
+    // Fallback: redirect si el popup fue bloqueado
+    if (log) log.textContent = '⚠️ Popup bloqueado — redirigiendo…';
+    window.location.href = authUrl;
+    return;
+  }
+
+  // Escuchar el token que envía el popup via postMessage
+  const handleZohoMsg = (e) => {
+    if (e.origin !== window.location.origin) return;
+    if (e.data && e.data.type === 'zoho_token' && e.data.token) {
+      window.removeEventListener('message', handleZohoMsg);
+      ZOHO_TOKEN = e.data.token;
+      sessionStorage.setItem('jac_zoho_token', e.data.token);
+      localStorage.setItem('jac_zoho_token', e.data.token);
+      localStorage.setItem('jac_zoho_token_ts', Date.now().toString());
+      refreshZohoStatus();
+      const log2 = document.getElementById('gmail-log-2');
+      if (log2) log2.textContent = '✅ Zoho Mail conectado correctamente';
+      toast('✓ Zoho Mail conectado — ' + ZOHO_EMAIL, 'ok');
+      logAdm('Zoho Mail conectado', ZOHO_EMAIL);
+      zohoSyncAll();
+    }
+  };
+  window.addEventListener('message', handleZohoMsg);
+
+  // Limpiar listener si el popup se cierra sin completar
+  const chk = setInterval(() => {
+    if (popup.closed) { clearInterval(chk); window.removeEventListener('message', handleZohoMsg); }
+  }, 800);
 }
 
 function zohoDisconnect() {
@@ -6316,25 +6553,41 @@ function zohoDisconnect() {
   ZOHO_ACCOUNT_ID = null;
   sessionStorage.removeItem('jac_zoho_token');
   sessionStorage.removeItem('jac_zoho_account_id');
+  localStorage.removeItem('jac_zoho_token');
+  localStorage.removeItem('jac_zoho_token_ts');
+  localStorage.removeItem('jac_zoho_account_id');
   refreshZohoStatus();
   toast('Zoho Mail desconectado');
   logAdm('Zoho Mail desconectado', ZOHO_EMAIL);
 }
 
 function refreshZohoStatus() {
-  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
-  const status = document.getElementById('gmail-status-2');
+  // 1. Buscar token en memoria → sessionStorage → localStorage (con expiración 1h)
+  let token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
+  if (!token) {
+    const lsTok = localStorage.getItem('jac_zoho_token');
+    const lsTs  = parseInt(localStorage.getItem('jac_zoho_token_ts') || '0');
+    if (lsTok && (Date.now() - lsTs) < 3600000) {
+      token = lsTok;
+      ZOHO_TOKEN = token;
+      sessionStorage.setItem('jac_zoho_token', token);
+    } else if (lsTok) {
+      localStorage.removeItem('jac_zoho_token');
+      localStorage.removeItem('jac_zoho_token_ts');
+    }
+  }
+  const status  = document.getElementById('gmail-status-2');
   const connBtn = document.getElementById('zoho-btn-2');
   const syncBtn = document.getElementById('zoho-sync-btn-2');
   const discBtn = document.getElementById('zoho-disc-btn-2');
   if (token) {
     ZOHO_TOKEN = token;
-    if (status) { status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '● Conectado'; }
+    if (status)  { status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '● Conectado'; }
     if (connBtn) connBtn.style.display = 'none';
     if (syncBtn) syncBtn.style.display = '';
     if (discBtn) discBtn.style.display = '';
   } else {
-    if (status) { status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = '● No conectado'; }
+    if (status)  { status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = '● No conectado'; }
     if (connBtn) connBtn.style.display = '';
     if (syncBtn) syncBtn.style.display = 'none';
     if (discBtn) discBtn.style.display = 'none';
@@ -6343,29 +6596,42 @@ function refreshZohoStatus() {
 
 async function _zohoGetAccountId() {
   if (ZOHO_ACCOUNT_ID) return ZOHO_ACCOUNT_ID;
-  const cached = sessionStorage.getItem('jac_zoho_account_id');
+  // Verificar caché en session y localStorage
+  const cached = sessionStorage.getItem('jac_zoho_account_id') || localStorage.getItem('jac_zoho_account_id');
   if (cached) { ZOHO_ACCOUNT_ID = cached; return cached; }
-  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
+  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token') || localStorage.getItem('jac_zoho_token');
   if (!token) return null;
-  try {
-    const res = await fetch('https://mail.zoho.com/api/accounts', {
-      headers: { 'Authorization': 'Zoho-oauthtoken ' + token }
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const id = (data.data && data.data[0] && data.data[0].accountId) ? data.data[0].accountId : null;
-    if (id) { ZOHO_ACCOUNT_ID = id; sessionStorage.setItem('jac_zoho_account_id', id); }
-    return id;
-  } catch(e) { console.warn('[Zoho accountId]', e); return null; }
+  // Intentar con distintos dominios Zoho (US/EU/IN)
+  const domains = ['https://mail.zoho.com', 'https://mail.zoho.eu', 'https://mail.zoho.in'];
+  for (const dom of domains) {
+    try {
+      const res = await fetch(dom + '/api/accounts', {
+        headers: { 'Authorization': 'Zoho-oauthtoken ' + token }
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const id = (data.data && data.data[0] && data.data[0].accountId) ? String(data.data[0].accountId) : null;
+      if (id) {
+        ZOHO_ACCOUNT_ID = id;
+        sessionStorage.setItem('jac_zoho_account_id', id);
+        localStorage.setItem('jac_zoho_account_id', id);
+        localStorage.setItem('jac_zoho_domain', dom);
+        return id;
+      }
+    } catch(e) { console.warn('[Zoho accountId ' + dom + ']', e.message); }
+  }
+  return null;
 }
 
 async function sendViaZohoAPI(to, subject, bodyHtml) {
-  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token');
+  const token = ZOHO_TOKEN || sessionStorage.getItem('jac_zoho_token') || localStorage.getItem('jac_zoho_token');
   if (!token) return false;
   const accountId = await _zohoGetAccountId();
   if (!accountId) { toast('No se pudo obtener la cuenta Zoho', 'err'); return false; }
+  // Determinar el dominio correcto (guardado durante _zohoGetAccountId)
+  const zohoDomain = localStorage.getItem('jac_zoho_domain') || 'https://mail.zoho.com';
   try {
-    const res = await fetch('https://mail.zoho.com/api/accounts/' + accountId + '/messages', {
+    const res = await fetch(zohoDomain + '/api/accounts/' + accountId + '/messages', {
       method: 'POST',
       headers: {
         'Authorization': 'Zoho-oauthtoken ' + token,
@@ -6383,6 +6649,8 @@ async function sendViaZohoAPI(to, subject, bodyHtml) {
       ZOHO_TOKEN = null;
       sessionStorage.removeItem('jac_zoho_token');
       sessionStorage.removeItem('jac_zoho_account_id');
+      localStorage.removeItem('jac_zoho_token');
+      localStorage.removeItem('jac_zoho_account_id');
       refreshZohoStatus();
       toast('Token Zoho expirado — reconecta la cuenta', 'err');
       return false;
@@ -7260,11 +7528,22 @@ function calInit() {
     const params = new URLSearchParams(hash.replace(/^#/, ''));
     const token = params.get('access_token');
     if (token) {
+      // Si es un popup (abierto por zohoSignIn), notificar al padre y cerrar
+      if (window.opener && window.opener !== window) {
+        try {
+          history.replaceState(null, '', window.location.pathname);
+          window.opener.postMessage({ type: 'zoho_token', token: token }, window.location.origin);
+          // Dar tiempo al postMessage antes de cerrar
+          setTimeout(() => window.close(), 300);
+          return;
+        } catch(e) { /* si falla, continuar con flujo normal */ }
+      }
+      // Flujo redirect (ventana principal): guardar token y continuar
       sessionStorage.setItem('jac_zoho_token', token);
+      localStorage.setItem('jac_zoho_token', token);
+      localStorage.setItem('jac_zoho_token_ts', Date.now().toString());
       ZOHO_TOKEN = token;
-      // Clean URL hash so the token isn't visible/bookmarked
       history.replaceState(null, '', window.location.pathname + window.location.search);
-      // Notify user after DOM loads
       window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           refreshZohoStatus();
@@ -7281,11 +7560,24 @@ function calInit() {
 
 // Initialize on app ready — also patches nav to refresh calendar when clicked
 document.addEventListener('DOMContentLoaded', () => {
-  // Restore Zoho token from sessionStorage if available
-  const savedZohoToken = sessionStorage.getItem('jac_zoho_token');
+  // Restaurar tokens Zoho y Gmail desde sessionStorage o localStorage (1h de gracia)
+  const _restoreToken = (ssKey, lsKey, lsTsKey) => {
+    const ss = sessionStorage.getItem(ssKey);
+    if (ss) return ss;
+    const ls = localStorage.getItem(lsKey);
+    const ts = parseInt(localStorage.getItem(lsTsKey) || '0');
+    if (ls && (Date.now() - ts) < 3600000) { sessionStorage.setItem(ssKey, ls); return ls; }
+    return null;
+  };
+  const savedZohoToken = _restoreToken('jac_zoho_token', 'jac_zoho_token', 'jac_zoho_token_ts');
   if (savedZohoToken) { ZOHO_TOKEN = savedZohoToken; }
+  [1].forEach(n => {
+    const gmailTok = _restoreToken('jac_gmail_token_' + n, 'jac_gmail_token_' + n, 'jac_gmail_token_ts_' + n);
+    if (gmailTok) GMAIL_TOKENS[n] = gmailTok;
+  });
   setTimeout(() => {
     refreshZohoStatus();
+    refreshGmailStatus();
     calInit();
     // Patch nav calendar link to refresh on each click
     document.querySelectorAll('nav a').forEach(a => {
@@ -7326,10 +7618,68 @@ document.addEventListener('DOMContentLoaded', () => {
         <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">MENSAJE</label>
         <textarea id="ecmp-body" rows="7" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit" placeholder="Escriba su mensaje aquí..."></textarea>
       </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:600;color:var(--mu);display:block;margin-bottom:3px">📅 FECHA DE SEGUIMIENTO <span style="font-weight:400;color:#9CA3AF">(opcional — si no responden, recordar en esta fecha)</span></label>
+        <input id="ecmp-followup" type="date" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:13px;box-sizing:border-box;background:var(--wh);color:var(--bl)">
+      </div>
       <div id="ecmp-status" style="font-size:11px;color:var(--mu);margin-bottom:10px;min-height:16px"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button onclick="closeEmailCompose()" class="btn">Cancelar</button>
         <button onclick="sendEmailFromCRM()" class="btn bgn" style="min-width:100px">📨 Enviar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WA Template Modal -->
+<div id="wa-tpl-modal" onclick="if(event.target===this)closeWAMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--wh);border-radius:12px;width:min(480px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <div style="padding:13px 16px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;background:#25D366;border-radius:12px 12px 0 0">
+      <div style="font-weight:700;font-size:14px;color:#fff">💬 Enviar por WhatsApp</div>
+      <button onclick="closeWAMenu()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#fff;line-height:1">✕</button>
+    </div>
+    <div style="padding:12px 16px">
+      <div id="wa-tpl-client-name" style="font-weight:700;font-size:13px;color:var(--bl);margin-bottom:12px;padding:8px;background:#f0fdf4;border-radius:6px;border-left:3px solid #25D366"></div>
+      <div style="display:grid;gap:8px">
+        <button class="btn" onclick="sendWATemplate('saludo')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #DCF8C6;background:#f0fdf4">
+          <div style="font-weight:600;font-size:12px;color:#15803D">👋 Saludo inicial</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Hola + presentación de JAC Seguros</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('seguimiento')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #BFDBFE;background:#EFF6FF">
+          <div style="font-weight:600;font-size:12px;color:#1D4ED8">🔄 Seguimiento</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Dar seguimiento a conversación anterior</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('renovacion')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #FDE68A;background:#FFFBEB">
+          <div style="font-weight:600;font-size:12px;color:#B45309">🔄 Renovación de póliza</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Aviso de póliza próxima a vencer</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('pago')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #FECACA;background:#FEF2F2">
+          <div style="font-weight:600;font-size:12px;color:#B91C1C">💳 Recordatorio de pago</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Recordar pago de prima pendiente</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('cotizacion')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #D1FAE5;background:#ECFDF5">
+          <div style="font-weight:600;font-size:12px;color:#065F46">📊 Cotización</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Enviar cotización de seguro</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('documentos')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #E9D5FF;background:#FAF5FF">
+          <div style="font-weight:600;font-size:12px;color:#6D28D9">📋 Solicitud de documentos</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Cédula, fotos, formulario firmado</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('cumpleanos')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #FBCFE8;background:#FDF2F8">
+          <div style="font-weight:600;font-size:12px;color:#9D174D">🎂 Felicitación de cumpleaños</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Mensaje especial de cumpleaños</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('bienvenida')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #A7F3D0;background:#F0FDFA">
+          <div style="font-weight:600;font-size:12px;color:#065F46">🌟 Bienvenida</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Bienvenida a nuevo cliente de JAC Seguros</div>
+        </button>
+        <button class="btn" onclick="sendWATemplate('siniestro')" style="text-align:left;padding:10px 12px;border-radius:8px;border:1px solid #FED7AA;background:#FFF7ED">
+          <div style="font-weight:600;font-size:12px;color:#C2410C">🚨 Siniestro / Apoyo</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:2px">Asistencia ante un incidente</div>
+        </button>
+      </div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bd);text-align:center">
+        <button onclick="closeWAMenu()" class="btn" style="font-size:11px;color:var(--mu)">Cerrar</button>
       </div>
     </div>
   </div>
