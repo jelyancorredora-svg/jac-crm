@@ -1796,7 +1796,7 @@ function waRenMsg(p,cl){const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];
 function waCobMsg(p,cl){const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];return`Hola ${fn} 👋🏼\n\nTe recordamos el pago de tu póliza de *${p.ramo}* con *${p.aseg}* (N° ${p.num}) por *${fmtM(p.prima)}*.\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`;}
 function waBtnC(c){
   const t=c.cel||c.tel||'';if(!t)return'';
-  const msg=`Hola ${c.nombre.split(' ')[0]} 👋🏼, te contacto de *JAC Seguros* (Lic. #6175). ¿En qué te puedo ayudar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+  const msg=`Hola ${c.nombre.split(' ')[0]} 👋🏼, te saluda *Jely An Castro* de *JAC Seguros* (Lic. #6175). ¿En qué te puedo ayudar hoy?\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`;
   const url=waL(t,msg);if(!url)return'';
   return waBtn(url,'cliente',c.id,'Contacto general',c.nombre,'💬 WhatsApp','bwa')+
     `<button onclick="event.stopPropagation();showWAMenu('${c.id}')" class="btn bsm" style="background:#128C7E;color:#fff;border-color:#128C7E;padding:3px 7px" title="Plantillas WhatsApp">📋</button>`;
@@ -1804,15 +1804,15 @@ function waBtnC(c){
 
 // ── WHATSAPP TEMPLATE MENU ──────────────────────────────────────────────────
 const WA_TEMPLATES={
-  saludo:'Hola {nombre} 👋🏼\n\nTe contacto de *JAC Seguros* (Lic. #6175).\n¿En qué te puedo ayudar hoy?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_',
-  seguimiento:'Hola {nombre} 👋🏼\n\nTe escribo para dar seguimiento a nuestra conversación. ¿Pudiste revisar la propuesta?\n\nQuedo a tu disposición 😊\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
-  renovacion:'Hola {nombre} 👋🏼\n\nTe contacto de *JAC Seguros* para informarte que tu póliza está próxima a vencer.\n\n¿Te ayudo con la renovación para que no pierdas tu cobertura?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_',
-  pago:'Hola {nombre} 👋🏼\n\nTe recordamos el pago de tu póliza. Puedes realizarlo a través de los medios habituales.\n\n¿Necesitas alguna información adicional?\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
-  cotizacion:'Hola {nombre} 👋🏼\n\nTe envío la cotización que solicitaste. Por favor, revísala y cuéntame si tienes preguntas.\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
-  documentos:'Hola {nombre} 👋🏼\n\nPara completar tu trámite necesitamos:\n• Cédula vigente\n• Fotos del bien asegurado\n• Formulario firmado\n\n¿Puedes enviármelos?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_',
-  cumpleanos:'¡Feliz cumpleaños {nombre}! 🎉🎂\n\nTe deseamos un excelente día lleno de alegrías.\n\n*¡De parte de todo el equipo de JAC Seguros!*\n\n_Jely An Castro Pérez · Lic. #6175_',
-  bienvenida:'Bienvenido/a {nombre} a *JAC Seguros* 🌟\n\nEs un placer tenerte como cliente. Estaré siempre disponible para cualquier consulta sobre tu cobertura.\n\n_Jely An Castro Pérez · Lic. #6175 · 📞 +507 6292-6010_',
-  siniestro:'Hola {nombre} 👋🏼\n\nLamento escuchar sobre el incidente. Estoy aquí para ayudarte con el proceso de reclamo.\n\nPor favor envíame:\n1. Reporte policial (si aplica)\n2. Fotos del daño\n3. Datos de los involucrados\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_'
+  saludo:'Hola {nombre} 👋🏼\n\nTe contacto de *JAC Seguros / Jely An Castro*, corredora de seguros autorizada (Lic. #6175).\n\n¿En qué te puedo ayudar hoy?\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  seguimiento:'Hola {nombre} 👋🏼\n\nSoy *Jely An Castro* de *JAC Seguros* y te escribo para dar seguimiento a nuestra conversación anterior. ¿Pudiste revisar la información que te compartí?\n\nQuedo a tu disposición 😊\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  renovacion:'Hola {nombre} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros* (Lic. #6175).\n\nTe informamos que tu póliza está próxima a vencer. ¿Te ayudo con la renovación para que no pierdas tu cobertura?\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  pago:'Hola {nombre} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros*.\n\nTe recordamos el pago de tu póliza. Puedes realizarlo a través de los medios habituales.\n\n¿Necesitas alguna información adicional? Con gusto te ayudo 😊\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  cotizacion:'Hola {nombre} 👋🏼\n\nSoy *Jely An Castro* de *JAC Seguros* (Lic. #6175).\n\nTe envío la cotización que solicitaste. Por favor, revísala y cuéntame si tienes alguna pregunta, con mucho gusto te explico cada detalle.\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  documentos:'Hola {nombre} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros*.\n\nPara completar tu trámite necesitamos los siguientes documentos:\n• Cédula vigente\n• Fotos del bien asegurado\n• Formulario firmado\n\n¿Puedes enviármelos? 🙏\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  cumpleanos:'¡Feliz cumpleaños {nombre}! 🎉🎂🥳\n\nEn este día especial, *JAC Seguros / Jely An Castro* te envía un abrazo muy grande y los mejores deseos. ¡Que tengas un día extraordinario lleno de alegrías y bendiciones!\n\n*¡Felicidades de parte de todo el equipo de JAC Seguros!* 🎊\n\n_Jely An Castro Pérez · Corredora Autorizada Lic. #6175 · 📞 +507 6292-6010_',
+  bienvenida:'¡Bienvenido/a {nombre} a *JAC Seguros*! 🌟\n\nSoy *Jely An Castro*, tu corredora de seguros autorizada (Lic. #6175). Es un placer tenerte como cliente.\n\nEstoy aquí para asesorarte y estaré siempre disponible para cualquier consulta sobre tu cobertura. ¡Cuento con vos! 😊\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_',
+  siniestro:'Hola {nombre} 👋🏼\n\nTe contacta *Jely An Castro* de *JAC Seguros* (Lic. #6175).\n\nLamento mucho lo ocurrido. Estoy aquí para acompañarte en el proceso de reclamo.\n\nPor favor envíame:\n1. Reporte policial (si aplica)\n2. Fotos del daño\n3. Datos de los involucrados\n\nCuéntame todo para ayudarte lo más pronto posible 🙏\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_'
 };
 
 let _waTplClientId=null;
@@ -1925,7 +1925,7 @@ function renderSeguimientosPanel(){
     const color=tipo==='wa_sin_resp'?'#25D366':tipo==='email_followup'?'#1565C0':'#F59E0B';
     const icon=tipo==='wa_sin_resp'?'💬':tipo==='email_followup'?'📧':'🔔';
     const tel=c.cel||c.tel||'';
-    const waUrl=tel&&tipo==='wa_sin_resp'?waL(tel,`Hola ${(c.nombre||'').split(' ')[0]}, ¿cómo estás? Te escribo de JAC Seguros. _Jely An Castro Pérez_`):null;
+    const waUrl=tel&&tipo==='wa_sin_resp'?waL(tel,`Hola ${(c.nombre||'').split(' ')[0]} 👋🏼, ¿cómo estás? Te escribe *Jely An Castro* de *JAC Seguros*. ¿Todo bien por allá? 😊 _Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`):null;
     h+=`<div style="padding:9px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px;cursor:pointer" onclick="SH('cli');setTimeout(()=>showCliDP('${c.id}'),300)">
       ${dot(color)}
       <div style="flex:1;min-width:0">
@@ -1948,7 +1948,7 @@ function waBtnsP(p,cl){
 }
 function waPros(pr){
   const t=pr.cel||pr.tel||'';if(!t)return'';
-  const msg=`Hola ${pr.nombre.split(' ')[0]} 👋🏼\n\nTe contacto de *JAC Seguros* (Lic. #6175) por el seguro de *${(pr.interes||[]).join(', ')||'seguros'}* que te interesa.\n\n¿Podemos coordinar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+  const msg=`Hola ${pr.nombre.split(' ')[0]} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros*, corredora de seguros autorizada (Lic. #6175).\n\nTe contacto por el seguro de *${(pr.interes||[]).join(', ')||'seguros'}* que te interesa. ¿Podemos coordinar una llamada o reunión?\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`;
   const url=waL(t,msg);if(!url)return'';
   return waBtn(url,'prospecto',pr.id,'Seguimiento',pr.nombre,'💬 WhatsApp','bwa');
 }
@@ -2081,7 +2081,7 @@ function renderDailyDigest() {
     const bd=new Date(thisYr+'T12:00:00');bd.setHours(0,0,0,0);
     if(bd.getTime()===t0.getTime()){
       const tel=c.cel||c.tel||'';
-      const msg=encodeURIComponent(`🎂 ¡Feliz cumpleaños ${c.nombre}! 🎉\n\nTe enviamos un saludo especial de parte de JAC Seguros. ¡Que tengas un excelente día!\n\n— Jely An Castro · Corredora Autorizada Lic. #6175`);
+      const msg=encodeURIComponent(`¡Feliz cumpleaños ${c.nombre}! 🎉🎂🥳\n\nEn este día especial, *JAC Seguros / Jely An Castro* te envía un abrazo muy grande y los mejores deseos. ¡Que tengas un día extraordinario lleno de alegrías y bendiciones!\n\n*¡Felicidades de parte de todo el equipo de JAC Seguros!* 🎊\n\n_Jely An Castro Pérez · Corredora Autorizada Lic. #6175 · 📞 +507 6292-6010_`);
       const waUrl=tel?`https://wa.me/507${tel.replace(/\D/g,'')}?text=${msg}`:'';
       items.push({u:0,html:`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #FEF3C7"><span style="font-size:18px">🎂</span><div style="flex:1"><b>${esc(c.nombre)}</b> — Cumpleaños hoy 🥳</div>${waUrl?`<a href="${waUrl}" target="_blank" class="btn bwa bsm">💬 Felicitar</a>`:''}</div>`});
     }
@@ -3325,7 +3325,7 @@ function RVC(){
   opps.slice(0,30).forEach(o=>{
     const cl=GC(o.clienteId),t=cl.cel||cl.tel||'';
     const score=Math.round(o.score),scCol=score>=70?'#15803D':score>=40?'#D97706':'#64748B';
-    const msg=`Hola ${cl.nombre.split(' ')[0]} 👋🏼\n\nTe contacto de *JAC Seguros* (Lic. #6175).\n\nBasado en tu perfil te recomiendo agregar *${o.ramo}* para complementar tu protección.\n\n¿Podemos hablar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+    const msg=`Hola ${cl.nombre.split(' ')[0]} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros* (Lic. #6175).\n\nBasado en tu perfil, te recomiendo agregar *${o.ramo}* para complementar tu protección actual. ¡Es una excelente opción para ti!\n\n¿Podemos hablar? 😊\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`;
     const waUrl=t?waL(t,msg):null;
     h+=`<div style="background:linear-gradient(135deg,#EEF4FF,#F0F9FF);border:1px solid #C7D7FF;border-radius:var(--r6);padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px">
 <div style="width:36px;height:36px;border-radius:50%;background:${scCol}18;color:${scCol};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${score}</div>
@@ -3563,7 +3563,7 @@ function RSin(){
   let h='';
   S.siniestros.forEach(s=>{
     const cl=s.clienteId?GC(s.clienteId):{};const t=s.cel||cl.cel||cl.tel||'';
-    const wu=t?waL(t,`Hola ${(cl.nombre||s.cliente||'').split(' ')[0]} 👋🏼\n\nActualización siniestro *${s.numCia||s.numSin||'—'}*.\n${s.seguimiento||s.desc||''}\n\n_JAC Seguros · 📞 +507 6292-6010_`):null;
+    const wu=t?waL(t,`Hola ${(cl.nombre||s.cliente||'').split(' ')[0]} 👋🏼\n\nTe escribe *Jely An Castro* de *JAC Seguros*.\n\nActualización de tu siniestro *${s.numCia||s.numSin||'—'}*:\n${s.seguimiento||s.desc||''}\n\nCualquier duda, estoy a tu disposición 🙏\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`):null;
     h+=`<tr><td>${b(ec2[s.estado]||'bgr',s.estado)}</td><td style="font-weight:700;font-family:monospace">${esc(s.numCia||s.numSin||'—')}</td><td style="font-size:11px">${esc(s.nombre)}</td><td style="font-weight:600">${esc((cl.nombre||s.cliente||s.asegurado||'—').split(' ').slice(0,3).join(' '))}</td><td><span style="color:${ac(s.aseg)};font-weight:700;font-size:11px">${esc(s.aseg)}</span></td><td style="font-family:monospace;font-size:11px">${esc(s.poliza||'—')}</td><td>${fmt(s.fechaSin)}</td><td style="font-weight:700;color:#DC2626">${s.montoReclamo?fmtM(s.montoReclamo):'—'}</td><td style="font-weight:700;color:#15803D">${s.valInd?fmtM(s.valInd):'—'}</td><td>${wu?waBtn(wu,'cliente',cl.id||'','Siniestro',cl.nombre||'','💬','bwa bsm'):'—'}</td><td><div class="ab"><button class="btn bsm bic" onclick="OS('${s.id}')">✏️</button><button class="btn bsm bic" onclick="DSin('${s.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
   });
   if(!h)h='<tr><td colspan="11" style="padding:24px;text-align:center;color:var(--mu)">Sin siniestros</td></tr>';
@@ -4391,9 +4391,9 @@ async function sendBirthdayEmail(client) {
     from_name: 'Jely An Castro — JAC Seguros',
     from_email: 'jcastro@jacsegurospa.com',
     subject: `🎂 ¡Feliz Cumpleaños, ${nombre}!`,
-    message: `En este día tan especial, todo el equipo de JAC Seguros te deseamos un maravilloso cumpleaños lleno de salud, felicidad y bendiciones. Gracias por confiar en nosotros para proteger lo que más valoras. ¡Que cumplas muchos más! 🎉`,
-    company: 'JAC Seguros · Lic. #6175',
-    phone: '+507 6175-XXXX'
+    message: `En este día tan especial, *JAC Seguros / Jely An Castro* te envía un abrazo muy grande y los mejores deseos. ¡Que tengas un día extraordinario lleno de alegrías y bendiciones!\n\nGracias por confiar en nosotros para proteger lo que más valoras. ¡Que cumplas muchos más! 🎉🎂\n\n— Jely An Castro Pérez · Corredora Autorizada Lic. #6175`,
+    company: 'JAC Seguros / Jely An Castro · Lic. #6175',
+    phone: '+507 6292-6010'
   });
   if (ok) {
     toast(`🎂 Email de cumpleaños enviado a ${client.nombre}`, 'ok');
