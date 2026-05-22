@@ -322,11 +322,6 @@ textarea.fc{resize:vertical;min-height:52px}
   <div class="card" id="dash-seguimientos" style="margin-top:10px;border-left:4px solid #25D366">
     <div id="dash-seg-content"><div style="padding:14px;text-align:center;color:var(--mu);font-size:12px">Cargando seguimientos…</div></div>
   </div>
-  <!-- REPORTES EN VIVO QUICK ACCESS -->
-  <div class="card" id="dash-rep-quick" style="margin-top:10px;border-left:4px solid #7E22CE">
-    <div class="ch"><h3>📊 Reportes en Vivo</h3><button class="btn bsm" style="background:#7E22CE;color:#fff;border-color:#7E22CE" onclick="SH('rep')">Ver módulo completo →</button></div>
-    <div id="dash-rep-summary" style="padding:10px 14px;font-size:12px;color:var(--mu)">Cargando resumen…</div>
-  </div>
 </div>
 
 <!-- CLIENTES -->
@@ -442,7 +437,7 @@ textarea.fc{resize:vertical;min-height:52px}
   <div class="sg" id="pgsg"></div>
   <div class="card" style="margin-bottom:10px">
     <div class="ch"><h3>📋 Cuotas Pendientes</h3><small>✅ Marcar al recibir pago</small></div>
-    <div class="tw"><table><thead><tr><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Período</th><th>Vence</th><th>WhatsApp</th><th>✅ Pago</th></tr></thead><tbody id="tpp"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Ramo</th><th>Prima Anual</th><th>Prima/Cuota</th><th>Período</th><th>Vence</th><th>WhatsApp</th><th>✅ Pago</th></tr></thead><tbody id="tpp"></tbody></table></div>
   </div>
   <div class="card">
     <div class="ch"><h3>💰 Pagos Registrados</h3></div>
@@ -2061,7 +2056,6 @@ function RD(){
   renderDailyDigest();
   renderSinAlert();
   renderSOATBulkPanel();
-  renderDashRepSummary();
   renderSeguimientosPanel();
   // Auto-tareas en cada login
   setTimeout(()=>{ const n=runAutoTasks(); if(n>0){toast('📋 '+n+' tarea'+( n!==1?'s':'')+' automáticas generadas','ok');RTar&&RTar();} }, 2000);
@@ -3437,7 +3431,8 @@ ${p.riesgo?`<div class="drow"><label>Riesgo</label><div class="dv" style="font-s
 ${p.cobertura?`<div class="drow"><label>Cobertura</label><div class="dv" style="font-size:11px">${esc(p.cobertura)}</div></div>`:''}
 ${p.formaPago?`<div class="drow"><label>Pago</label><div class="dv">${esc(p.formaPago)} · ${esc(p.periodo||'')}</div></div>`:''}
 <div class="dsec">Financiero</div>
-<div class="drow"><label>Prima Neta</label><div class="dv" style="font-weight:700">${fmtM(p.prima)}</div></div>
+<div class="drow"><label>Prima Neta (anual)</label><div class="dv" style="font-weight:700">${fmtM(p.prima)}</div></div>
+${(p.periodo&&p.periodo!=='Anual'&&p.prima)?`<div class="drow"><label>Prima/Cuota (${esc(p.periodo)})</label><div class="dv" style="font-weight:700;color:#1D4ED8">${fmtM(p.periodo==='Mensual'?p.prima/12:p.periodo==='Trimestral'?p.prima/4:p.prima/2)}</div></div>`:''}
 <div class="drow"><label>Total</label><div class="dv" style="font-weight:700">${fmtM(p.total)}</div></div>
 <div class="drow"><label>Mi Comisión (${p.comPct||0}% · ${p.participacion||100}%)</label><div class="dv" style="font-weight:700;color:#15803D">${fmtM(p.comision)}</div></div>
 ${p.coCor?`<div class="drow"><label>Co-Corretaje</label><div class="dv">${b('bbl',p.coCor)} ${p.coCorPart||0}% · ${fmtM(p.coCorCom)}</div></div>`:''}
@@ -3527,9 +3522,10 @@ function RPag(){
   const ba=document.getElementById('barch');if(ba)ba.textContent=SA_?'📋 Recientes':`🗂 Archivados (${arc.length})`;
   const tR=rec.reduce((s,p)=>s+(p.monto||0),0);
   const pgsg=document.getElementById('pgsg');if(pgsg)pgsg.innerHTML=`<div class="st"><em>Pagos (30d)</em><div class="n">${rec.length}</div></div><div class="st"><em>Total</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tR)}</div></div><div class="st"><em>Archivados</em><div class="n" style="color:var(--mu)">${arc.length}</div></div>`;
+  const calcCuota=(prima,periodo)=>{if(!prima)return null;const p=(periodo||'').trim();if(p==='Mensual')return prima/12;if(p==='Trimestral')return prima/4;if(p==='Semestral')return prima/2;return null;};
   const act=S.polizas.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada').sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
-  let h2='';act.forEach(p=>{const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',d=dFrom(p.fechaFin),wb=waBtnsP(p,cl);h2+=`<tr><td style="font-weight:600">${esc(nom.split(' ').slice(0,3).join(' '))}</td><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td style="font-size:11px;color:var(--mu)">${esc(p.periodo||'—')}</td><td><span style="color:${d<=30?'#D97706':'inherit'}">${fmt(p.fechaFin)}</span></td><td><div class="ab">${wb}</div></td><td><button class="btn bsm bgn" onclick="markPagoQ('${p.id}')">✅ Pagado</button></td></tr>`;});
-  if(!h2)h2='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas activas</td></tr>';
+  let h2='';act.forEach(p=>{const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',d=dFrom(p.fechaFin),wb=waBtnsP(p,cl);const cuota=calcCuota(p.prima,p.periodo);const cuotaHtml=cuota?`<span style="font-weight:700;color:#1D4ED8">${fmtM(cuota)}</span><div style="font-size:9px;color:var(--mu)">${p.periodo||''}</div>`:`<span style="color:var(--mu);font-size:11px">${p.periodo==='Anual'?fmtM(p.prima):'—'}</span>`;h2+=`<tr><td style="font-weight:600">${esc(nom.split(' ').slice(0,3).join(' '))}</td><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td>${cuotaHtml}</td><td style="font-size:11px;color:var(--mu)">${esc(p.periodo||'—')}</td><td><span style="color:${d<=30?'#D97706':'inherit'}">${fmt(p.fechaFin)}</span></td><td><div class="ab">${wb}</div></td><td><button class="btn bsm bgn" onclick="markPagoQ('${p.id}')">✅ Pagado</button></td></tr>`;});
+  if(!h2)h2='<tr><td colspan="10" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas activas</td></tr>';
   const tpp=document.getElementById('tpp');if(tpp)tpp.innerHTML=h2;
   let h='';shown.sort((a,z)=>new Date(z.fecha)-new Date(a.fecha)).forEach(pg=>{const pol=GP(pg.polizaId),cl=pol.clienteId?GC(pol.clienteId):{};h+=`<tr><td style="font-weight:600;color:var(--bl)">${fmt(pg.fecha)}</td><td style="font-weight:600">${esc((cl.nombre||pg.cliente||'—').split(' ').slice(0,3).join(' '))}</td><td><span style="color:${ac(pg.aseg||pol.aseg||'')};font-weight:700;font-size:11px">${esc(pg.aseg||pol.aseg||'—')}</span></td><td style="font-size:11px">${esc(pg.ramo||pol.ramo||'—')}</td><td style="font-family:monospace;font-size:11px">${esc(pol.num||'—')}</td><td>${b('bin',pg.cuota||'—')}</td><td style="font-weight:800;color:#15803D">${fmtM(pg.monto)}</td><td style="font-size:11px;color:var(--mu)">${esc(pg.notas||'')}</td><td><button class="btn bsm bic" onclick="DPag('${pg.id}')" style="color:var(--rd)">🗑</button></td></tr>`;});
   if(!h)h=`<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">${SA_?'Sin archivados':'Sin pagos en 30 días'}</td></tr>`;
