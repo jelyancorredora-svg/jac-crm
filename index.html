@@ -304,9 +304,7 @@ textarea.fc{resize:vertical;min-height:52px}
   <!-- SINIESTROS ABIERTOS ALERTA -->
   <div class="card" id="dash-sin-alert" style="margin-bottom:10px;display:none;border-left:4px solid #DC2626"></div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-    <div class="card" id="dren"></div><div class="card" id="dcom"></div>
-  </div>
+  <div class="card" id="dren" style="margin-bottom:10px"></div>
   <!-- Panel 30 días -->
   <div class="card" style="border-left:4px solid #D97706;margin-bottom:10px">
     <div id="dash-p30-panel"></div>
@@ -2012,11 +2010,6 @@ function RD(){
     rh+=`<div class="renew-row">${dot(col)}<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom)}</div><div style="font-size:10px;color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div></div><span class="b" style="background:${col}18;color:${col}">${d===0?'HOY':d+'d'}</span>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm'):''}`;
     rh+='</div>';});rh+='</div>';}
   const dren=document.getElementById('dren');if(dren)dren.innerHTML=rh;
-  let ch=`<div class="ch"><h3>💰 Com. Pendientes</h3><button class="btn bsm" onclick="SH('com')">Ver →</button></div>`;
-  if(!cp.length)ch+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Todas cobradas ✓</div>';
-  else{ch+='<div>';cp.forEach(c=>{ch+=`<div style="padding:9px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(ac(c.aseg))}<div style="flex:1"><div style="font-weight:600;font-size:12px">${esc(c.aseg)}</div><div style="font-size:10px;color:var(--mu)">${esc(c.mes)}</div></div><span style="font-weight:700;color:#B45309">${fmtM(c.monto)}</span><button class="btn bsm" onclick="markCob('${c.id}')">✓</button></div>`;});
-  ch+=`<div style="padding:8px 13px;background:#FAFBFD;display:flex;justify-content:space-between"><span style="font-weight:700;font-size:11px;color:var(--mu)">TOTAL</span><span style="font-weight:800;color:#B45309">${fmtM(tCom)}</span></div></div>`;}
-  const dcom=document.getElementById('dcom');if(dcom)dcom.innerHTML=ch;
   const pTar=S.tareas.filter(t=>t.etapaTarea!=='Hecho');
   let th=`<div class="ch"><h3>✅ Tareas</h3><button class="btn bsm" onclick="SH('tar')">Ver →</button></div>`;
   if(!pTar.length)th+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin tareas pendientes ✓</div>';
@@ -2451,16 +2444,37 @@ function renderReports(){
     rcEl.innerHTML=h;
   }
 
-  // Comisiones
+  // Comisiones — panel interactivo completo
   const pend=(S.comisiones||[]).filter(c=>c.estado!=='cobrada');
+  const cobradas=(S.comisiones||[]).filter(c=>c.estado==='cobrada');
   const rcCom=document.getElementById('rep-comisiones');
   if(rcCom){
-    if(!pend.length){rcCom.innerHTML='<div style="padding:18px;text-align:center;color:var(--mu)">Todas cobradas ✓</div>';}
+    if(!pend.length){rcCom.innerHTML='<div style="padding:18px;text-align:center;color:var(--mu)">✓ Todas las comisiones cobradas</div>';}
     else{
-      let h='<table style="width:100%"><thead><tr><th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--mu)">Aseguradora</th><th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--mu)">Mes</th><th style="text-align:right;padding:4px 6px;font-size:10px;color:var(--mu)">Monto</th></tr></thead><tbody>';
-      pend.forEach(c=>{h+=`<tr><td style="padding:4px 6px">${esc(c.aseg||'?')}</td><td style="padding:4px 6px;color:var(--mu)">${esc(c.mes||'?')}</td><td style="text-align:right;padding:4px 6px;font-weight:700;color:#7E22CE">${fmtM(c.monto||0)}</td></tr>`;});
-      h+=`<tr style="border-top:2px solid #EEF2F8"><td colspan="2" style="padding:6px;font-weight:700">TOTAL</td><td style="text-align:right;padding:6px;font-weight:700;color:#7E22CE">${fmtM(tCom)}</td></tr>`;
-      h+='</tbody></table>';
+      let h='<div>';
+      pend.forEach(c=>{
+        h+=`<div style="padding:9px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:8px">
+          ${dot(ac(c.aseg))}
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:12px">${esc(c.aseg||'?')}</div>
+            <div style="font-size:10px;color:var(--mu)">${esc(c.mes||'')}</div>
+          </div>
+          <span style="font-weight:700;color:#7E22CE">${fmtM(c.monto||0)}</span>
+          <button class="btn bsm" style="color:#15803D;border-color:#15803D" onclick="markCob('${c.id}')">✓ Cobrar</button>
+        </div>`;
+      });
+      h+=`<div style="padding:8px 13px;background:#FAFBFD;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700;font-size:11px;color:var(--mu)">PENDIENTE TOTAL</span>
+        <span style="font-weight:800;color:#7E22CE">${fmtM(tCom)}</span>
+      </div>`;
+      if(cobradas.length){
+        const tCob=cobradas.reduce((s,c)=>s+(c.monto||0),0);
+        h+=`<div style="padding:6px 13px;background:#F0FDF4;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #D1FAE5">
+          <span style="font-size:11px;color:#15803D">✓ Ya cobrado (${cobradas.length})</span>
+          <span style="font-weight:700;color:#15803D">${fmtM(tCob)}</span>
+        </div>`;
+      }
+      h+='</div>';
       rcCom.innerHTML=h;
     }
   }
@@ -2761,7 +2775,10 @@ ${c.origenCliente?`<div class="drow"><label>Origen</label><div class="dv">${esc(
 <div style="font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center"><span><span style="color:${ac(p.aseg)}">${esc(p.aseg)}</span> · ${esc(p.ramo)}</span>${statusB(p)}</div>
 <div style="font-size:11px;font-family:monospace;color:var(--mu)">${esc(p.num)}</div>
 ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.riesgo.substring(0,55))}</div>`:''}
-<div style="display:flex;gap:4px;margin-top:5px;flex-wrap:wrap"><span class="b bgr">${fmtM(p.prima)}</span>${waBtnsP(p,c)}<button class="btn bsm bgn" onclick="event.stopPropagation();openRen('${p.id}')">🔄</button></div></div>`;
+<div style="display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;align-items:center">
+<span class="b bgr" title="Prima anual">${fmtM(p.prima)}<span style="font-size:9px;opacity:.65;margin-left:2px">anual</span></span>
+${(p.periodo&&p.periodo!=='Anual'&&p.prima)?`<span class="b bbl" title="Prima por cuota (${p.periodo})">${fmtM(p.periodo==='Mensual'?p.prima/12:p.periodo==='Trimestral'?p.prima/4:p.prima/2)}<span style="font-size:9px;opacity:.65;margin-left:2px">${p.periodo==='Mensual'?'mes':p.periodo==='Trimestral'?'trim':'sem'}</span></span>`:''}
+${waBtnsP(p,c)}<button class="btn bsm bgn" onclick="event.stopPropagation();openRen('${p.id}')">🔄</button></div></div>`;
   });
   if(!ps.length)h+=`<div style="font-size:12px;color:var(--mu);text-align:center;padding:12px">Sin pólizas.<br><button class="btn bsm bp" onclick="OP_forClient('${id}')" style="margin-top:6px">+ Nueva Póliza</button></div>`;
   if((c.archivos||[]).length)h+=`<div class="dsec">Archivos (${c.archivos.length})</div>${renderFL(c.archivos,id,'cliente')}`;
@@ -3368,7 +3385,10 @@ function RPort(){
   h+='<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Sub-ramo</th><th>Riesgo</th><th>Prima</th><th>Com.</th><th>Vence</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
   fil.forEach(p=>{
     const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
-    h+=`<tr><td>${statusB(p)}</td><td style="font-weight:600;cursor:pointer" onclick="showCliDP('${p.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.subramo||'—')}</td><td style="font-size:10px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.riesgo||'').substring(0,50))}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td>${fmt(p.fechaFin)}</td><td><div class="ab">${wb}</div></td><td><div class="ab"><button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;
+    const _cuotaRP=p.periodo==='Mensual'?p.prima/12:p.periodo==='Trimestral'?p.prima/4:p.periodo==='Semestral'?p.prima/2:null;
+    const _cuotaLblRP=p.periodo==='Mensual'?'mes':p.periodo==='Trimestral'?'trim':p.periodo==='Semestral'?'sem':'';
+    const _primaSubRP='<div style="font-size:9px;color:var(--mu);font-weight:400">anual'+(_cuotaRP?' · '+fmtM(_cuotaRP)+'/'+_cuotaLblRP:'')+'</div>';
+    h+=`<tr><td>${statusB(p)}</td><td style="font-weight:600;cursor:pointer" onclick="showCliDP('${p.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.subramo||'—')}</td><td style="font-size:10px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.riesgo||'').substring(0,50))}</td><td style="font-weight:700">${fmtM(p.prima)}${_primaSubRP}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td>${fmt(p.fechaFin)}</td><td><div class="ab">${wb}</div></td><td><div class="ab"><button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;
   });
   const pv=document.getElementById('port-view');if(pv)pv.innerHTML=h+'</tbody></table></div></div>';
 }
@@ -3396,7 +3416,10 @@ function renderPT(fil){
   let h='';
   fil.forEach(p=>{
     const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
-    h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num)}</td><td style="cursor:pointer" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px">${fmt(p.fechaFin)}</td><td onclick="event.stopPropagation()"><div class="ab">${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+    const _cuotaPT=p.periodo==='Mensual'?p.prima/12:p.periodo==='Trimestral'?p.prima/4:p.periodo==='Semestral'?p.prima/2:null;
+    const _cuotaLblPT=p.periodo==='Mensual'?'mes':p.periodo==='Trimestral'?'trim':p.periodo==='Semestral'?'sem':'';
+    const _primaSubPT='<div style="font-size:9px;color:var(--mu);font-weight:400">anual'+(_cuotaPT?' · '+fmtM(_cuotaPT)+'/'+_cuotaLblPT:'')+'</div>';
+    h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num)}</td><td style="cursor:pointer" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}${_primaSubPT}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px">${fmt(p.fechaFin)}</td><td onclick="event.stopPropagation()"><div class="ab">${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
   });
   if(!h)h='<tr><td colspan="9" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
   const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=`<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Comisión</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${h}</tbody></table></div></div>`;
@@ -3638,7 +3661,7 @@ function RCom(){
   if(!S.polizas.length)hd='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
   const tcd=document.getElementById('tcomd');if(tcd)tcd.innerHTML=hd;
 }
-function markCob(id){const i=S.comisiones.findIndex(c=>c.id===id);if(i>=0)S.comisiones[i].estado='cobrada';save();RCom();RD();toast('✓ Cobrada');}
+function markCob(id){const i=S.comisiones.findIndex(c=>c.id===id);if(i>=0)S.comisiones[i].estado='cobrada';save();RCom();RD();renderReports();toast('✓ Cobrada');}
 function OCom(){const asel=document.getElementById('cm-as');if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','VUMI','Generali','Chubb','La Regional'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}SVal('cm-me','');SVal('cm-mo','');SVal('cm-es','pendiente');OM('mcom');}
 function SCom(){const aseg=V('cm-as'),monto=GF('cm-mo');if(!aseg||!monto){toast('Aseguradora y monto obligatorios','err');return;}S.comisiones.push({id:'COM'+uid(),aseg,mes:V('cm-me').trim(),monto,estado:V('cm-es')});save();CM('mcom');RCom();toast('✓ Registrada');}
 function DCom(id){confirm2('¿Eliminar?',()=>{S.comisiones=S.comisiones.filter(c=>c.id!==id);save();RCom();toast('Eliminada');});}
