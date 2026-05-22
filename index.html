@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JAC CRM">
+<meta name="theme-color" content="#1A3A6B">
 <meta name="theme-color" content="#1A3A6B">
 <title>JAC Seguros CRM · Lic. #6175</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -276,6 +280,7 @@ textarea.fc{resize:vertical;min-height:52px}
     <a onclick="SH('sin')">🚑 Siniestros</a>
     <a onclick="SH('veh')">🚗 Autos/Motos</a>
     <a onclick="SH('com')">💰 Comisiones</a>
+    <a onclick="SH('cot')">📝 Cotizaciones</a>
     <a onclick="SH('rep')">📊 Reportes</a>
     <a onclick="SH('tar')">✅ Tareas</a>
     <a onclick="SH('emp')">🏢 Empresas</a>
@@ -696,7 +701,7 @@ textarea.fc{resize:vertical;min-height:52px}
         <span style="font-weight:700;font-size:14px;color:var(--bl)">📋 Registro de actividad</span>
         <button class="btn bsm brd2" onclick="clearAdmLog()" style="font-size:11px">🗑 Limpiar</button>
       </div>
-      <div id="adm-log-list" style="max-height:420px;overflow-y:auto;font-size:12px"></div>
+      <div id="adm-actlog" style="max-height:420px;overflow-y:auto;font-size:12px"></div>
     </div>
   </div>
 </div>
@@ -837,6 +842,43 @@ textarea.fc{resize:vertical;min-height:52px}
     <div class="ch"><h3>📁 Desglose por Ramo</h3></div>
     <div id="rep-ramo-breakdown" style="padding:12px 14px;font-size:12px"></div>
   </div>
+
+  <!-- Dashboard Financiero de Comisiones -->
+  <div class="card" style="margin-bottom:10px;border-left:4px solid #1A3A6B">
+    <div class="ch"><h3>📈 Dashboard Financiero de Comisiones</h3>
+      <span style="font-size:11px;color:var(--mu)">Últimos 6 meses</span>
+    </div>
+    <div id="rep-com-chart" style="padding:12px 14px;font-size:12px"></div>
+  </div>
+
+  <!-- Exportar Reportes -->
+  <div class="card" style="margin-bottom:10px">
+    <div class="ch"><h3>📥 Exportar Datos</h3></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px">
+      <button class="btn bp" onclick="exportPolizasCSV()">📋 Pólizas CSV</button>
+      <button class="btn bam" onclick="exportClientesCSV()">👥 Clientes CSV</button>
+      <button class="btn bgn" onclick="exportComisionesCSV()">💰 Comisiones CSV</button>
+      <button class="btn" style="background:#7E22CE;color:#fff;border-color:#7E22CE" onclick="exportPolizasPDF()">📄 Reporte PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- COTIZACIONES -->
+<div class="pg" id="pg-cot">
+  <div class="ph"><div><h2>📝 Cotizaciones</h2><small id="cotcnt"></small></div>
+    <div class="tb">
+      <input class="si" id="scot" placeholder="Buscar cliente, ramo..." style="flex:1;min-width:160px" oninput="RCot()">
+      <select class="fc si" style="width:115px" id="fcotes" onchange="RCot()"><option value="">Todo estado</option><option>Borrador</option><option>Enviada</option><option>Aprobada</option><option>Rechazada</option><option>Convertida</option></select>
+      <button class="btn bp" onclick="OCot()">+ Cotización</button>
+    </div>
+  </div>
+  <div class="sg" id="cotsg"></div>
+  <div class="card">
+    <div class="tw"><table>
+      <thead><tr><th>Estado</th><th>Cliente</th><th>Ramo</th><th>Aseg.</th><th>Prima Est.</th><th>Válida hasta</th><th>Notas</th><th>Acciones</th></tr></thead>
+      <tbody id="tcot"></tbody>
+    </table></div>
+  </div>
 </div>
 
 </main>
@@ -864,6 +906,7 @@ textarea.fc{resize:vertical;min-height:52px}
   <a onclick="SH('veh');closeBnMore()"><span style="font-size:16px">🚗</span>Autos</a>
   <a onclick="SH('port');closeBnMore()"><span style="font-size:16px">🗂</span>Portafolio</a>
   <a onclick="SH('com');closeBnMore()"><span style="font-size:16px">💰</span>Comisiones</a>
+  <a onclick="SH('cot');closeBnMore()"><span style="font-size:16px">📝</span>Cotizaciones</a>
   <a onclick="SH('rep');closeBnMore()"><span style="font-size:16px">📊</span>Reportes</a>
   <a onclick="SH('tar');closeBnMore()"><span style="font-size:16px">✅</span>Tareas</a>
   <a onclick="SH('emp');closeBnMore()"><span style="font-size:16px">🏢</span>Empresas</a>
@@ -1661,6 +1704,9 @@ function loadS(){
       if(!p.tareas)p.tareas=JSON.parse(JSON.stringify(D.tareas));
       if(!p.comisiones)p.comisiones=JSON.parse(JSON.stringify(D.comisiones));
       if(!p.pagos)p.pagos=[];
+      if(!p.cotizaciones)p.cotizaciones=[];
+      if(!p.notifLog)p.notifLog=[];
+      if(!p.actLog)p.actLog=[];
       if(!p.vcReglas)p.vcReglas=JSON.parse(JSON.stringify(D.vcReglas));
       if(!p.perfil)p.perfil={nombre:'Jely An Castro Pérez',cargo:'Agente de Seguros',tel:'+507 6292-6010',email:'jelyancorredora@gmail.com',bio:'Lic. #6175 · JAC Seguros · Panamá',lic:'6175',foto:''};
       if(!p.admLog)p.admLog=[];
@@ -1671,6 +1717,9 @@ function loadS(){
   }catch(e){console.error('loadS:',e);}
   const n=JSON.parse(JSON.stringify(D));
   n.pagos=[];
+  n.cotizaciones=[];
+  n.notifLog=[];
+  n.actLog=[];
   n.perfil={nombre:'Jely An Castro Pérez',cargo:'Agente de Seguros',tel:'+507 6292-6010',email:'jelyancorredora@gmail.com',bio:'Lic. #6175 · JAC Seguros · Panamá',lic:'6175',foto:''};
   n.admLog=[];
   return n;
@@ -1955,7 +2004,7 @@ function SH(id){
   document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
   document.getElementById('bn-'+id)?.classList.add('on');
   closeDP();
-  const _shFns = {dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,rep:renderReports,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg};
+  const _shFns = {dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,rep:renderReports,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,cot:RCot};
   if(id==='cal'){calLoadTokens();calUpdateConnStatus();if(CAL_EVENTS.length===0)calSyncGoogle();}
   _shFns[id]?.();
 }
@@ -1997,7 +2046,8 @@ function RD(){
     <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div></div>
     <div class="st"><em>Nuevos Clientes (mes)</em><div class="n" style="color:#0891B2">${newCliMonth}</div></div>
     <div class="st"><em>Tasa Conversión</em><div class="n" style="font-size:16px;color:${convRate>=50?'#15803D':'#B45309'}">${convRate}%</div><div class="sv">${prosGan} ganados / ${prosTot} total</div></div>
-    <div class="st"><em>Cobrado este mes</em><div class="n" style="font-size:13px;color:#15803D">${fmtM(comCobMonth)}</div></div>`;
+    <div class="st"><em>Cobrado este mes</em><div class="n" style="font-size:13px;color:#15803D">${fmtM(comCobMonth)}</div></div>
+    <div class="st" onclick="SH('cot')" style="cursor:pointer"><em>Cotizaciones</em><div class="n" style="color:#0891B2">${(S.cotizaciones||[]).filter(q=>q.estado!=='Convertida'&&q.estado!=='Rechazada').length}</div><div class="sv">activas</div></div>`;
   let al='';if(p30)al+=b('bwn',`⚠️ ${p30} por vencer`)+' ';if(vv)al+=b('bdg',`🔴 ${vv} vencidas`);
   const ha=document.getElementById('ha');if(ha)ha.innerHTML=al+`<button class="btn bsm" onclick="doLogout()">🚪</button>`;
   const prox=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=60&&p.estado!=='Cancelada';}).sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
@@ -2768,6 +2818,8 @@ ${c.origenCliente?`<div class="drow"><label>Origen</label><div class="dv">${esc(
   <button class="btn bsm bp" onclick="OC('${id}')">✏️ Editar</button>
   <button class="btn bsm bam" onclick="OT_open('','cliente','${id}')">+ Tarea</button>
   ${c.email?`<button class="btn bsm" style="background:#E3F2FD;color:#1565C0;border:1px solid #BBDEFB" onclick="openEmailCompose('${id}')">📧 Email</button>`:''}
+  <button class="btn bsm" style="background:#059669;color:#fff;border-color:#059669" onclick="openClientPortal('${id}')">🌐 Portal</button>
+  <button class="btn bsm" style="background:#7C3AED;color:#fff;border-color:#7C3AED" onclick="openSigPad('${id}','cliente','Firma Cliente')">✍️ Firma</button>
 </div>
 <div class="dsec">Pólizas (${ps.length})</div>`;
   ps.forEach(p=>{
@@ -3462,11 +3514,14 @@ ${p.coCor?`<div class="drow"><label>Co-Corretaje</label><div class="dv">${b('bbl
 ${p.beneficiario?`<div class="drow"><label>Beneficiario</label><div class="dv">${esc(p.beneficiario)}</div></div>`:''}
 ${p.obs?`<div class="drow"><label>Obs.</label><div class="dv" style="font-size:11px">${esc(p.obs)}</div></div>`:''}
 ${(p.archivos||[]).length?`<div class="drow"><label>Archivos</label><div class="dv">${renderFL(p.archivos,p.id,'poliza')}</div></div>`:''}
+${(()=>{const prevs=S.polizas.filter(x=>x.renovacionDe===p.id);const hasPrev=!!p.renovacionDe;return (hasPrev||prevs.length)?'<div class="dsec">Historial Renovaciones</div>'+(hasPrev?'<div class="drow"><label>Renovación de</label><div class="dv"><span onclick="showPolDP(\''+p.renovacionDe+'\')">← Ver póliza anterior ↗</span></div></div>':'')+(prevs.length?'<div class="drow"><label>Renovada en</label><div class="dv">'+prevs.map(x=>'<span onclick="showPolDP(\''+x.id+'\')">→ Nueva hasta '+fmt(x.fechaFin)+'</span>').join('<br>')+'</div></div>':''):'';})()}
 <div class="dsec">Acciones</div>
 <div style="display:flex;flex-wrap:wrap;gap:5px">
 ${wb}<button class="btn bsm bgn" onclick="closeDP();openRen('${p.id}')">🔄 Renovar</button>
 <button class="btn bsm" onclick="markPagoQ('${p.id}')">✅ Pagado</button>
 <button class="btn bsm bp" onclick="OP('${p.id}')">✏️ Editar</button>
+<button class="btn bsm" style="background:#7E22CE;color:#fff;border-color:#7E22CE" onclick="exportPolPDF('${p.id}')">📄 PDF</button>
+<button class="btn bsm" style="background:#7C3AED;color:#fff;border-color:#7C3AED" onclick="openSigPad('${p.id}','poliza','Firma Póliza')">✍️ Firma</button>
 </div>`;
   openDP(h,p.num);
 }
@@ -3519,9 +3574,24 @@ function openRen(polId){
 }
 function SRen(){
   const ff=V('rn-ff');if(!ff){toast('Fecha de vencimiento obligatoria','err');return;}
-  const i=S.polizas.findIndex(p=>p.id===renPolId);
-  if(i>=0){const p=S.polizas[i],oldFin=p.fechaFin;S.polizas[i]={...p,fechaInicio:V('rn-fi'),fechaFin:ff,prima:GF('rn-pr')||p.prima,estado:'Vigente',etapa:'Renovada',nueva:'Renovada',obs:((p.obs||'').trim()+`\n[${new Date().toLocaleDateString('es-PA')}] Renovada. Ant: ${oldFin}. ${V('rn-no')}`).trim()};
-  S.tareas.push({id:'T'+uid(),titulo:'✓ Renovada: '+p.num,desc:'Renovada hasta '+fmt(ff),tipoRel:'poliza',relId:renPolId,clienteId:p.clienteId,tipo:'Renovación',prioridad:'Media',etapaTarea:'Hecho',fechaLimite:ff,estado:'completada'});save();CM('mren');RRen();RP();toast('✓ Póliza renovada');}
+  const i=S.polizas.findIndex(p=>p.id===renPolId);if(i<0)return;
+  const oldPol=S.polizas[i],oldFin=oldPol.fechaFin;
+  // Marcar póliza anterior como Renovada (conservar historial)
+  S.polizas[i]={...oldPol,estado:'Renovada',etapa:'Renovada',fechaRenovada:TODAY.toISOString().split('T')[0]};
+  // Crear NUEVA póliza (clon con nuevas fechas)
+  const newId='P'+uid();
+  const newPrim=GF('rn-pr')||oldPol.prima;
+  const newPol={...oldPol,id:newId,fechaInicio:V('rn-fi'),fechaFin:ff,prima:newPrim,
+    total:+(newPrim*(1+(oldPol.itbmsPct||0)/100)+(oldPol.gastosExp||0)).toFixed(2),
+    comision:+(newPrim*(oldPol.comPct||0)/100*(oldPol.participacion||100)/100).toFixed(2),
+    estado:'Vigente',etapa:'Vigente',nueva:'Renovada',
+    renovacionDe:renPolId,archivos:[],
+    obs:((oldPol.obs||'').trim()+'\n['+new Date().toLocaleDateString('es-PA')+'] Renovada. Anterior: '+oldFin+'. '+(V('rn-no')||'')).trim(),
+    fechaCreacion:TODAY.toISOString().split('T')[0]};
+  S.polizas.push(newPol);
+  S.tareas.push({id:'T'+uid(),titulo:'✓ Renovada: '+oldPol.num,desc:'Nueva póliza hasta '+fmt(ff),tipoRel:'poliza',relId:newId,clienteId:oldPol.clienteId,tipo:'Renovación',prioridad:'Media',etapaTarea:'Hecho',fechaLimite:ff,estado:'completada'});
+  logActivity('Renovación','Póliza '+oldPol.num+' renovada → nueva hasta '+fmt(ff));
+  save();CM('mren');RRen();RP();toast('✓ Póliza renovada · nueva creada');
 }
 function RRen(){
   const gs=[{l:'🚨 Urgentes ≤7d',f:p=>dFrom(p.fechaFin)>=0&&dFrom(p.fechaFin)<=7&&p.estado!=='Cancelada',hc:'#FEE2E2',tc:'#991B1B'},{l:'⚠️ Próximas 8-30d',f:p=>dFrom(p.fechaFin)>=8&&dFrom(p.fechaFin)<=30&&p.estado!=='Cancelada',hc:'#FEF3C7',tc:'#92400E'},{l:'📅 31-60 días',f:p=>dFrom(p.fechaFin)>=31&&dFrom(p.fechaFin)<=60&&p.estado!=='Cancelada',hc:'#DBEAFE',tc:'#1E40AF'},{l:'🔴 Vencidas',f:p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada',hc:'#F1F5F9',tc:'#475569'}];
@@ -7703,6 +7773,469 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </div>
+
+<!-- ═══ MODAL COTIZACIÓN ═══ -->
+<div class="mo" id="mcot"><div class="md">
+  <div class="mh"><h2 id="mcott">Nueva Cotización</h2><button class="btn bgh" onclick="CM('mcot')">✕</button></div>
+  <div class="mb">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fl"><label>Cliente</label>
+        <select class="fc" id="ct-cl"></select></div>
+      <div class="fl"><label>Ramo</label>
+        <select class="fc" id="ct-ra"></select></div>
+      <div class="fl"><label>Aseguradora</label>
+        <select class="fc" id="ct-as"></select></div>
+      <div class="fl"><label>Prima Estimada ($)</label>
+        <input class="fc" id="ct-pr" type="number" step="0.01" placeholder="0.00"></div>
+      <div class="fl"><label>Válida hasta</label>
+        <input class="fc" id="ct-fv" type="date"></div>
+      <div class="fl"><label>Estado</label>
+        <select class="fc" id="ct-es"><option>Borrador</option><option>Enviada</option><option>Aprobada</option><option>Rechazada</option><option>Convertida</option></select></div>
+    </div>
+    <div class="fl" style="margin-top:6px"><label>Cobertura / Detalles</label>
+      <textarea class="fc" id="ct-cob" rows="2" placeholder="Suma asegurada, coberturas, condiciones..."></textarea></div>
+    <div class="fl"><label>Notas internas</label>
+      <input class="fc" id="ct-no" placeholder="Notas para uso interno..."></div>
+  </div>
+  <div class="mf"><button class="btn bp" onclick="SCot()">💾 Guardar</button><button class="btn bgh" onclick="CM('mcot')">Cancelar</button></div>
+</div></div>
+
+<!-- ═══ MODAL FIRMA DIGITAL ═══ -->
+<div class="mo" id="mfirma"><div class="md mdsm">
+  <div class="mh"><h2>✍️ Firma Digital</h2><button class="btn bgh" onclick="CM('mfirma')">✕</button></div>
+  <div class="mb">
+    <p style="font-size:12px;color:var(--mu);margin-bottom:8px">Firme abajo con el dedo o el mouse:</p>
+    <canvas id="sig-canvas" width="460" height="160" style="border:2px solid var(--bd);border-radius:8px;background:#fff;touch-action:none;display:block;max-width:100%"></canvas>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn bgh" onclick="sigClear()">🗑 Borrar</button>
+      <span id="sig-ref-label" style="font-size:11px;color:var(--mu);line-height:32px"></span>
+    </div>
+  </div>
+  <div class="mf"><button class="btn bp" onclick="sigSave()">💾 Guardar Firma</button><button class="btn bgh" onclick="CM('mfirma')">Cancelar</button></div>
+</div></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// MÓDULO COTIZACIONES
+// ═══════════════════════════════════════════════
+function RCot(){
+  const q=(document.getElementById('scot')?.value||'').toLowerCase();
+  const es=document.getElementById('fcotes')?.value||'';
+  const cots=(S.cotizaciones||[]);
+  const fil=cots.filter(ct=>{
+    const cl=GC(ct.clienteId),nom=(cl.nombre||ct.nombreCliente||'').toLowerCase();
+    const matchQ=!q||nom.includes(q)||(ct.ramo||'').toLowerCase().includes(q)||(ct.aseg||'').toLowerCase().includes(q);
+    const matchE=!es||ct.estado===es;
+    return matchQ&&matchE;
+  }).sort((a,z)=>new Date(z.fechaCreacion||0)-new Date(a.fechaCreacion||0));
+
+  const cnt=document.getElementById('cotcnt');
+  if(cnt)cnt.textContent=fil.length+' cotizaciones';
+
+  const sg=document.getElementById('cotsg');
+  if(sg){
+    const tot=cots.length;
+    const env=cots.filter(x=>x.estado==='Enviada').length;
+    const apr=cots.filter(x=>x.estado==='Aprobada').length;
+    const conv=cots.filter(x=>x.estado==='Convertida').length;
+    const tPrima=cots.filter(x=>x.estado!=='Rechazada').reduce((s,x)=>s+(x.prima||0),0);
+    sg.innerHTML=`<div class="st"><em>Total</em><div class="n">${tot}</div></div><div class="st"><em>Enviadas</em><div class="n" style="color:#0891B2">${env}</div></div><div class="st"><em>Aprobadas</em><div class="n" style="color:#15803D">${apr}</div></div><div class="st"><em>Convertidas</em><div class="n" style="color:#7E22CE">${conv}</div></div><div class="st"><em>Prima Estimada</em><div class="n" style="font-size:14px;color:#15803D">${fmtM(tPrima)}</div></div>`;
+  }
+
+  const COL_ES={'Borrador':'#64748B','Enviada':'#0891B2','Aprobada':'#15803D','Rechazada':'#DC2626','Convertida':'#7E22CE'};
+  let h='';
+  fil.forEach(ct=>{
+    const cl=GC(ct.clienteId),nom=cl.nombre||ct.nombreCliente||'—';
+    const col=COL_ES[ct.estado]||'#64748B';
+    const btnConv=ct.estado==='Aprobada'?`<button class="btn bsm" style="background:#7E22CE;color:#fff" onclick="convertCotToPol('${ct.id}')">→ Póliza</button>`:'';
+    const waMsg=`Estimado/a ${nom.split(' ')[0]}, adjunto encontrará la cotización de JAC Seguros para *${ct.ramo||''}* con ${ct.aseg||''}.\nPrima estimada: *${fmtM(ct.prima||0)}*\nVálida hasta: ${fmt(ct.fechaValidez||'')}\n\nQuedo a su disposición.\n_Jely An Castro · JAC Seguros · Lic. #6175_`;
+    const tel=cl.cel||cl.tel||'';
+    const waBtn2=tel?`<a class="btn bwa bsm" href="${waL(tel,waMsg)}" target="_blank">📱</a>`:'';
+    h+=`<tr>
+      <td><span class="b" style="background:${col}18;color:${col}">${ct.estado}</span></td>
+      <td style="font-weight:600;cursor:pointer" onclick="showCliDP('${ct.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td>
+      <td style="font-size:11px">${esc(ct.ramo||'—')}</td>
+      <td><span style="color:${ac(ct.aseg)};font-weight:700;font-size:11px">${esc(ct.aseg||'—')}</span></td>
+      <td style="font-weight:700;color:#15803D">${fmtM(ct.prima||0)}</td>
+      <td style="font-size:11px">${fmt(ct.fechaValidez||'')}</td>
+      <td style="font-size:11px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ct.notas||'')}</td>
+      <td><div class="ab">${btnConv}${waBtn2}<button class="btn bsm bic" onclick="OCot('${ct.id}')">✏️</button><button class="btn bsm bic" onclick="DCot('${ct.id}')" style="color:var(--rd)">🗑</button></div></td>
+    </tr>`;
+  });
+  if(!h)h='<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--mu)">Sin cotizaciones</td></tr>';
+  const tb=document.getElementById('tcot');if(tb)tb.innerHTML=h;
+}
+
+function OCot(id){
+  const ct=id?(S.cotizaciones||[]).find(x=>x.id===id)||{}:{};
+  const t=document.getElementById('mcott');if(t)t.textContent=id?'Editar Cotización':'Nueva Cotización';
+  window._cotEID=id||null;
+
+  const csel=document.getElementById('ct-cl');csel.innerHTML='<option value="">— Cliente —</option>';
+  S.clientes.sort((a,z)=>a.nombre.localeCompare(z.nombre)).forEach(cl=>{const o=document.createElement('option');o.value=cl.id;o.textContent=cl.nombre;if(ct.clienteId===cl.id)o.selected=true;csel.add(o);});
+
+  const rsel=document.getElementById('ct-ra');rsel.innerHTML='';
+  RAMOS_ALL.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;if(ct.ramo===r)o.selected=true;rsel.add(o);});
+
+  const asel=document.getElementById('ct-as');asel.innerHTML='';
+  ['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','Acerta','WW Medical','VUMI','Generali','Chubb','La Regional','General'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(ct.aseg===a)o.selected=true;asel.add(o);});
+
+  SVal('ct-pr',ct.prima||'');SVal('ct-fv',ct.fechaValidez||'');SVal('ct-es',ct.estado||'Borrador');SVal('ct-cob',ct.cobertura||'');SVal('ct-no',ct.notas||'');
+  OM('mcot');
+}
+
+function SCot(){
+  const cId=document.getElementById('ct-cl').value;
+  const cl=GC(cId);
+  const prima=parseFloat(document.getElementById('ct-pr')?.value||0)||0;
+  const d={
+    clienteId:cId,nombreCliente:cl.nombre||'',
+    ramo:document.getElementById('ct-ra')?.value||'',
+    aseg:document.getElementById('ct-as')?.value||'',
+    prima,
+    fechaValidez:document.getElementById('ct-fv')?.value||'',
+    estado:document.getElementById('ct-es')?.value||'Borrador',
+    cobertura:document.getElementById('ct-cob')?.value?.trim()||'',
+    notas:document.getElementById('ct-no')?.value?.trim()||''
+  };
+  if(!cId){toast('Selecciona un cliente','err');return;}
+  if(!d.ramo){toast('Selecciona el ramo','err');return;}
+
+  if(window._cotEID){
+    const i=(S.cotizaciones||[]).findIndex(x=>x.id===window._cotEID);
+    if(i>=0)S.cotizaciones[i]={...S.cotizaciones[i],...d};
+    toast('✓ Cotización actualizada');
+  } else {
+    if(!S.cotizaciones)S.cotizaciones=[];
+    S.cotizaciones.push({id:'COT'+uid(),...d,fechaCreacion:TODAY.toISOString().split('T')[0]});
+    logActivity('Nueva cotización',d.ramo+' para '+d.nombreCliente);
+    toast('✓ Cotización creada');
+  }
+  save();CM('mcot');RCot();
+}
+
+function DCot(id){
+  confirm2('¿Eliminar cotización?',()=>{S.cotizaciones=(S.cotizaciones||[]).filter(x=>x.id!==id);save();RCot();toast('Eliminada');});
+}
+
+function convertCotToPol(cotId){
+  const ct=(S.cotizaciones||[]).find(x=>x.id===cotId);if(!ct)return;
+  // Pre-fill new policy form with cotización data
+  OP();
+  setTimeout(()=>{
+    SVal('p-as',ct.aseg||'');
+    const rsel=document.getElementById('p-ra');if(rsel){rsel.value=ct.ramo||'';onRC();}
+    SVal('p-pr',ct.prima||'');
+    SVal('p-ob','Generada desde cotización '+cotId);
+    const csel=document.getElementById('p-cl');if(csel)csel.value=ct.clienteId||'';
+    // Mark cotización as Convertida
+    const i=(S.cotizaciones||[]).findIndex(x=>x.id===cotId);
+    if(i>=0)S.cotizaciones[i].estado='Convertida';
+    save();
+    toast('✓ Cotización convertida · completa los datos de la póliza');
+  },200);
+  CM('mcot');
+}
+
+// ═══════════════════════════════════════════════
+// NOTIFICACIONES AUTOMÁTICAS (Browser Push)
+// ═══════════════════════════════════════════════
+function requestNotifPerms(){
+  if('Notification' in window && Notification.permission==='default'){
+    Notification.requestPermission().then(p=>{if(p==='granted')toast('🔔 Notificaciones activadas');});
+  }
+}
+
+function checkAutoNotifs(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  if(!S.notifLog)S.notifLog=[];
+  const today=TODAY.toISOString().split('T')[0];
+  S.polizas.forEach(p=>{
+    if(p.estado==='Cancelada')return;
+    const d=dFrom(p.fechaFin);
+    const levels=[7,15,30];
+    levels.forEach(days=>{
+      if(d>=0&&d<=days){
+        const key=p.id+'_'+days+'d_'+today.slice(0,7);
+        if(!S.notifLog.includes(key)){
+          S.notifLog.push(key);
+          const cl=GC(p.clienteId);
+          new Notification('⚠️ Póliza por vencer — JAC Seguros',{
+            body:(cl.nombre||p.nombreCliente||'?')+' · '+p.ramo+' · '+p.aseg+' vence en '+d+' días ('+fmt(p.fechaFin)+')',
+            icon:'https://crm.jacsegurospa.com/icon-192.png',
+            tag:key
+          });
+        }
+      }
+    });
+  });
+  // Cleanup old log entries (keep last 500)
+  if(S.notifLog.length>500)S.notifLog=S.notifLog.slice(-500);
+  save();
+}
+
+// ═══════════════════════════════════════════════
+// ACTIVITY AUDIT LOG
+// ═══════════════════════════════════════════════
+function logActivity(accion,detalle){
+  if(!S.actLog)S.actLog=[];
+  S.actLog.unshift({id:'LOG'+uid(),fecha:TODAY.toISOString().split('T')[0],hora:new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'}),accion,detalle,usuario:'Jely An Castro'});
+  if(S.actLog.length>200)S.actLog=S.actLog.slice(0,200);
+}
+
+function renderActLog(){
+  const log=(S.actLog||[]).slice(0,50);
+  const el=document.getElementById('adm-actlog');if(!el)return;
+  if(!log.length){el.innerHTML='<div style="padding:18px;text-align:center;color:var(--mu)">Sin actividad registrada</div>';return;}
+  let h='<table style="width:100%;font-size:11px"><thead><tr><th style="text-align:left;padding:4px 6px">Fecha</th><th style="text-align:left;padding:4px 6px">Acción</th><th style="text-align:left;padding:4px 6px">Detalle</th><th style="text-align:left;padding:4px 6px">Usuario</th></tr></thead><tbody>';
+  log.forEach(l=>{h+=`<tr style="border-bottom:1px solid #EEF2F8"><td style="padding:4px 6px;color:var(--mu)">${esc(l.fecha||'')} ${esc(l.hora||'')}</td><td style="padding:4px 6px;font-weight:600">${esc(l.accion||'')}</td><td style="padding:4px 6px">${esc(l.detalle||'')}</td><td style="padding:4px 6px">${esc(l.usuario||'')}</td></tr>`;});
+  h+='</tbody></table>';
+  el.innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD FINANCIERO COMISIONES (Gráfico mensual)
+// ═══════════════════════════════════════════════
+function renderComisionesChart(){
+  const el=document.getElementById('rep-com-chart');if(!el)return;
+  const months=[];
+  for(let i=5;i>=0;i--){const d=new Date(TODAY);d.setMonth(d.getMonth()-i);months.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));}
+  const cobs=(S.comisiones||[]).filter(c=>c.estado==='cobrada'&&c.fechaCobro);
+  const byMonth={};months.forEach(m=>{byMonth[m]=0;});
+  cobs.forEach(c=>{const m=(c.fechaCobro||'').slice(0,7);if(byMonth[m]!==undefined)byMonth[m]+=(c.monto||0);});
+  const maxVal=Math.max(...Object.values(byMonth),1);
+  const MON_L=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let h='<div style="display:flex;align-items:flex-end;gap:6px;height:120px;padding:10px 14px 0">';
+  months.forEach(m=>{
+    const val=byMonth[m]||0;
+    const pct=Math.max(val/maxVal*100,2);
+    const label=MON_L[parseInt(m.split('-')[1])-1];
+    h+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+      <div style="font-size:9px;color:#15803D;font-weight:700">${val>0?fmtM(val):''}</div>
+      <div style="width:100%;background:#15803D;border-radius:3px 3px 0 0;height:${pct}%;min-height:3px" title="${fmtM(val)}"></div>
+      <div style="font-size:9px;color:var(--mu)">${label}</div>
+    </div>`;
+  });
+  h+='</div>';
+
+  // By aseguradora table
+  const byAseg={};
+  (S.comisiones||[]).forEach(c=>{if(!byAseg[c.aseg||'?'])byAseg[c.aseg||'?']={pend:0,cob:0};if(c.estado==='cobrada')byAseg[c.aseg||'?'].cob+=c.monto||0;else byAseg[c.aseg||'?'].pend+=c.monto||0;});
+  h+='<div style="margin:10px 14px 0"><table style="width:100%;font-size:11px"><thead><tr><th style="text-align:left;padding:3px 5px;color:var(--mu)">Aseguradora</th><th style="text-align:right;padding:3px 5px;color:var(--mu)">Cobrado</th><th style="text-align:right;padding:3px 5px;color:var(--mu)">Pendiente</th></tr></thead><tbody>';
+  Object.entries(byAseg).sort((a,z)=>(z[1].pend+z[1].cob)-(a[1].pend+a[1].cob)).slice(0,8).forEach(([aseg,v])=>{
+    h+=`<tr><td style="padding:3px 5px"><span style="color:${ac(aseg)};font-weight:700">${esc(aseg)}</span></td><td style="text-align:right;padding:3px 5px;color:#15803D;font-weight:700">${fmtM(v.cob)}</td><td style="text-align:right;padding:3px 5px;color:#B45309;font-weight:700">${v.pend>0?fmtM(v.pend):'—'}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  el.innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════
+// EXPORTAR PÓLIZA A PDF (print-to-PDF)
+// ═══════════════════════════════════════════════
+function exportPolPDF(polId){
+  const p=GP(polId);if(!p.id)return;
+  const cl=GC(p.clienteId);
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Póliza ${esc(p.num)}</title>
+<style>body{font-family:Arial,sans-serif;margin:30px;color:#1A3A6B;font-size:13px}
+h1{font-size:22px;border-bottom:3px solid #D4AF37;padding-bottom:8px}
+h2{font-size:14px;color:#D4AF37;margin-top:20px;margin-bottom:6px}
+.row{display:flex;border-bottom:1px solid #EEF2F8;padding:5px 0}
+.lbl{width:180px;color:#64748B;font-weight:600}.val{font-weight:400}
+.head{display:flex;justify-content:space-between;margin-bottom:20px}
+.badge{background:#EFF6FF;color:#1D4ED8;padding:3px 10px;border-radius:20px;font-weight:700}
+@media print{button{display:none}}</style></head><body>
+<div class="head"><div><h1>JAC SEGUROS · Póliza</h1><div style="font-size:11px;color:#64748B">Lic. #6175 · Jely An Castro Pérez · +507 6292-6010</div></div>
+<span class="badge" style="font-size:16px;align-self:center">${esc(p.num)}</span></div>
+<h2>DATOS DE LA PÓLIZA</h2>
+<div class="row"><div class="lbl">Número</div><div class="val"><strong>${esc(p.num)}</strong></div></div>
+<div class="row"><div class="lbl">Aseguradora</div><div class="val"><strong>${esc(p.aseg)}</strong></div></div>
+<div class="row"><div class="lbl">Ramo</div><div class="val">${esc(p.ramo)}</div></div>
+<div class="row"><div class="lbl">Vigencia</div><div class="val">${fmt(p.fechaInicio)} → ${fmt(p.fechaFin)}</div></div>
+<div class="row"><div class="lbl">Estado</div><div class="val">${esc(p.estado)}</div></div>
+${p.riesgo?`<div class="row"><div class="lbl">Riesgo asegurado</div><div class="val">${esc(p.riesgo)}</div></div>`:''}
+${p.cobertura?`<div class="row"><div class="lbl">Cobertura</div><div class="val">${esc(p.cobertura)}</div></div>`:''}
+<h2>ASEGURADO / TOMADOR</h2>
+<div class="row"><div class="lbl">Cliente</div><div class="val"><strong>${esc(cl.nombre||p.nombreCliente||'—')}</strong></div></div>
+${cl.cedula?`<div class="row"><div class="lbl">Cédula/Doc.</div><div class="val">${esc(cl.cedula)}</div></div>`:''}
+${(cl.cel||cl.tel)?`<div class="row"><div class="lbl">Teléfono</div><div class="val">${esc(cl.cel||cl.tel)}</div></div>`:''}
+${cl.email?`<div class="row"><div class="lbl">Email</div><div class="val">${esc(cl.email)}</div></div>`:''}
+<h2>FINANCIERO</h2>
+<div class="row"><div class="lbl">Prima Neta (Anual)</div><div class="val"><strong>${fmtM(p.prima)}</strong></div></div>
+${p.periodo&&p.periodo!=='Anual'?`<div class="row"><div class="lbl">Prima/Cuota (${esc(p.periodo)})</div><div class="val"><strong style="color:#1D4ED8">${fmtM(p.periodo==='Mensual'?p.prima/12:p.periodo==='Trimestral'?p.prima/4:p.prima/2)}</strong></div></div>`:''}
+<div class="row"><div class="lbl">Total con Impuestos</div><div class="val"><strong>${fmtM(p.total)}</strong></div></div>
+<div class="row"><div class="lbl">Forma de Pago</div><div class="val">${esc(p.formaPago||'')} ${p.periodo?'· '+p.periodo:''}</div></div>
+${p.obs?`<h2>OBSERVACIONES</h2><div style="padding:8px;background:#F8FAFC;border-radius:6px;font-size:12px;white-space:pre-wrap">${esc(p.obs)}</div>`:''}
+<div style="margin-top:30px;border-top:2px solid #EEF2F8;padding-top:14px;font-size:11px;color:#64748B;text-align:center">
+  Documento generado por JAC Seguros CRM · ${new Date().toLocaleDateString('es-PA')} · Lic. #6175
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body></html>`;
+  const w=window.open('','_blank');if(w){w.document.write(html);w.document.close();}
+}
+
+// ═══════════════════════════════════════════════
+// EXPORTAR REPORTES A CSV / EXCEL
+// ═══════════════════════════════════════════════
+function exportToCSV(rows,filename){
+  const csv=rows.map(r=>r.map(v=>{const s=String(v||'').replace(/"/g,'""');return s.includes(',')||s.includes('"')||s.includes('\n')?'"'+s+'"':s;}).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
+  toast('✓ CSV descargado');
+}
+
+function exportPolizasPDF(){
+  const rows=S.polizas.filter(p=>p.estado==='Vigente');
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte Pólizas</title><style>body{font-family:Arial,sans-serif;font-size:11px;padding:20px}h1{color:#1A3A6B;font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th{background:#1A3A6B;color:#fff;padding:5px 8px;text-align:left;font-size:10px}td{padding:4px 8px;border-bottom:1px solid #eee}tr:nth-child(even){background:#f8f9fa}.total{margin-top:10px;font-weight:700;color:#1A3A6B}</style></head><body><h1>JAC Seguros — Reporte de Pólizas Vigentes</h1><p style="color:#666;font-size:10px">Generado: '+new Date().toLocaleDateString('es-PA')+'</p><table><thead><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Vence</th><th>Estado</th></tr></thead><tbody>'+rows.map(p=>'<tr><td>'+esc(p.num)+'</td><td>'+esc(getClienteNombre(p.clienteId))+'</td><td>'+esc(p.aseg)+'</td><td>'+esc(p.ramo)+'</td><td>$'+nf(p.prima)+'</td><td>'+fmt(p.fechaFin)+'</td><td>'+esc(p.estado)+'</td></tr>').join('')+'</tbody></table><p class="total">Total pólizas vigentes: '+rows.length+' · Prima total: $'+nf(rows.reduce((s,p)=>s+(+p.prima||0),0))+'</p></body></html>';
+  const w=window.open('','_blank');if(w){w.document.write(html);w.document.close();w.onload=()=>w.print();}
+}
+function exportPolizasCSV(){
+  const headers=['Póliza','Estado','Cliente','Aseg.','Ramo','Prima','Comisión','Inicio','Vence','Período','Forma Pago'];
+  const rows=[headers,...S.polizas.map(p=>{const cl=GC(p.clienteId);return[p.num,p.estado,cl.nombre||p.nombreCliente||'',p.aseg,p.ramo,p.prima,p.comision,p.fechaInicio,p.fechaFin,p.periodo||'',p.formaPago||''];})];
+  exportToCSV(rows,'polizas_jac_'+TODAY.toISOString().split('T')[0]+'.csv');
+}
+
+function exportClientesCSV(){
+  const headers=['Nombre','Estado','Tipo','Cédula','Celular','Email','Ciudad','Pólizas'];
+  const rows=[headers,...S.clientes.map(c=>{const np=S.polizas.filter(p=>p.clienteId===c.id).length;return[c.nombre,c.estadoCliente||'',c.tipo,c.cedula||'',c.cel||c.tel||'',c.email||'',c.ciudad||'',np];})];
+  exportToCSV(rows,'clientes_jac_'+TODAY.toISOString().split('T')[0]+'.csv');
+}
+
+function exportComisionesCSV(){
+  const headers=['Aseguradora','Mes','Monto','Estado','Fecha Cobro'];
+  const rows=[headers,...(S.comisiones||[]).map(c=>[c.aseg,c.mes,c.monto,c.estado,c.fechaCobro||''])];
+  exportToCSV(rows,'comisiones_jac_'+TODAY.toISOString().split('T')[0]+'.csv');
+}
+
+// ═══════════════════════════════════════════════
+// FIRMA DIGITAL (Canvas Signature Pad)
+// ═══════════════════════════════════════════════
+let _sigCtx=null,_sigDrawing=false,_sigRefId=null,_sigRefType=null;
+
+function openSigPad(refId,refType,labelText){
+  _sigRefId=refId;_sigRefType=refType;
+  const lbl=document.getElementById('sig-ref-label');if(lbl)lbl.textContent=labelText||'';
+  OM('mfirma');
+  setTimeout(()=>{
+    const canvas=document.getElementById('sig-canvas');if(!canvas)return;
+    _sigCtx=canvas.getContext('2d');
+    _sigCtx.strokeStyle='#1A3A6B';_sigCtx.lineWidth=2.5;_sigCtx.lineCap='round';
+    sigClear();
+    const getPos=(e)=>{const r=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:(src.clientX-r.left)*(canvas.width/r.width),y:(src.clientY-r.top)*(canvas.height/r.height)};};
+    canvas.onmousedown=canvas.ontouchstart=(e)=>{e.preventDefault();_sigDrawing=true;const p=getPos(e);_sigCtx.beginPath();_sigCtx.moveTo(p.x,p.y);};
+    canvas.onmousemove=canvas.ontouchmove=(e)=>{e.preventDefault();if(!_sigDrawing)return;const p=getPos(e);_sigCtx.lineTo(p.x,p.y);_sigCtx.stroke();};
+    canvas.onmouseup=canvas.ontouchend=()=>{_sigDrawing=false;};
+  },100);
+}
+
+function sigClear(){const c=document.getElementById('sig-canvas');if(c&&_sigCtx){_sigCtx.clearRect(0,0,c.width,c.height);_sigCtx.fillStyle='#fff';_sigCtx.fillRect(0,0,c.width,c.height);}}
+
+function sigSave(){
+  const canvas=document.getElementById('sig-canvas');if(!canvas||!_sigRefId)return;
+  const imgB64=canvas.toDataURL('image/png');
+  // Store as a file attachment on the referenced object
+  const maps={cliente:S.clientes,poliza:S.polizas,siniestro:S.siniestros};
+  const arr=maps[_sigRefType];
+  if(arr){const obj=arr.find(x=>x.id===_sigRefId);if(obj){if(!obj.archivos)obj.archivos=[];obj.archivos.push({id:'F'+uid(),name:'firma_'+new Date().toLocaleDateString('es-PA').replace(/\//g,'-')+'.png',type:'image/png',size:imgB64.length,b64:imgB64,fecha:TODAY.toISOString().split('T')[0]});}}
+  save();CM('mfirma');toast('✓ Firma guardada');
+}
+
+// ═══════════════════════════════════════════════
+// PORTAL CLIENTE (link público de solo lectura)
+// ═══════════════════════════════════════════════
+function openClientPortal(clienteId){
+  const cl=GC(clienteId);
+  const pols=S.polizas.filter(p=>p.clienteId===clienteId&&p.estado!=='Cancelada');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mis Pólizas · JAC Seguros</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#F1F5F9;color:#1A3A6B}
+.hdr{background:#1A3A6B;color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.logo{font-weight:900;font-size:22px;letter-spacing:1px}.sub{font-size:11px;color:#D4AF37;margin-top:2px}
+.card{background:#fff;border-radius:10px;padding:16px;margin:12px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+h2{font-size:16px;margin-bottom:10px;color:#1A3A6B}.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F1F5F9;font-size:13px}
+.lbl{color:#64748B}.val{font-weight:600}.footer{text-align:center;padding:20px;font-size:11px;color:#94A3B8}
+a.wa{display:inline-block;background:#25D366;color:#fff;padding:8px 16px;border-radius:20px;text-decoration:none;font-weight:600;margin-top:10px;font-size:13px}</style></head>
+<body>
+<div class="hdr"><div><div class="logo">JAC SEGUROS</div><div class="sub">Lic. #6175 · Jely An Castro Pérez</div></div></div>
+<div class="card"><h2>👤 Mis Datos</h2>
+<div class="row"><span class="lbl">Nombre</span><span class="val">${esc(cl.nombre||'')}</span></div>
+${cl.cedula?`<div class="row"><span class="lbl">Cédula</span><span class="val">${esc(cl.cedula)}</span></div>`:''}
+${cl.cel?`<div class="row"><span class="lbl">Celular</span><span class="val">${esc(cl.cel)}</span></div>`:''}
+</div>
+<div class="card"><h2>📋 Mis Pólizas Activas (${pols.length})</h2>
+${pols.length?pols.map(p=>{const d=Math.round((new Date(p.fechaFin+'T12:00:00')-new Date())/86400000);const col=d<0?'#DC2626':d<=30?'#D97706':'#15803D';const label=d<0?'Vencida':d===0?'Hoy':d+'d';return`<div style="border:1px solid #E2E8F0;border-radius:8px;padding:12px;margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<strong>${esc(p.aseg)}</strong>
+<span class="badge" style="background:${col}18;color:${col}">${label}</span></div>
+<div class="row"><span class="lbl">Ramo</span><span class="val">${esc(p.ramo)}</span></div>
+<div class="row"><span class="lbl">Póliza</span><span class="val" style="font-family:monospace">${esc(p.num)}</span></div>
+<div class="row"><span class="lbl">Vence</span><span class="val" style="color:${col}">${p.fechaFin||'—'}</span></div>
+<div class="row"><span class="lbl">Prima Anual</span><span class="val">${p.prima?'$'+p.prima.toFixed(2):'—'}</span></div>
+</div>`;}).join(''):'<p style="color:#94A3B8;text-align:center;padding:20px">Sin pólizas activas</p>'}
+</div>
+<div class="card" style="text-align:center">
+<p style="font-size:13px;margin-bottom:10px">¿Necesitas ayuda o renovar alguna póliza?</p>
+<a class="wa" href="https://wa.me/50762926010?text=Hola%20Jely%2C%20quiero%20información%20sobre%20mis%20pólizas" target="_blank">💬 Contactar a JAC Seguros</a>
+</div>
+<div class="footer">Portal generado por JAC Seguros · ${new Date().toLocaleDateString('es-PA')}<br>Lic. #6175 · crm.jacsegurospa.com</div>
+</body></html>`;
+  const w=window.open('','_blank');if(w){w.document.write(html);w.document.close();}
+}
+
+// ═══════════════════════════════════════════════
+// HOOK IMPROVEMENTS: startSession + RD updates
+// ═══════════════════════════════════════════════
+const _origStartSession=typeof startSession==='function'?startSession:null;
+if(_origStartSession){
+  // Patch startSession to request notif permissions
+  window._jacStartSession=startSession;
+  startSession=function(){
+    _jacStartSession();
+    setTimeout(()=>requestNotifPerms(),2000);
+  };
+}
+
+// Patch RD to also check notifications + update comisiones chart
+const _origRD=typeof RD==='function'?RD:null;
+if(_origRD){
+  window._jacRD=RD;
+  RD=function(){
+    _jacRD();
+    setTimeout(()=>{checkAutoNotifs();renderComisionesChart();},100);
+  };
+}
+
+// Patch renderReports to include comisiones chart
+const _origRR=typeof renderReports==='function'?renderReports:null;
+if(_origRR){
+  window._jacRR=renderReports;
+  renderReports=function(){
+    _jacRR();
+    renderComisionesChart();
+    renderActLog();
+  };
+}
+
+// ═══════════════════════════════════════════════
+// PWA: Service Worker Registration
+// ═══════════════════════════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    // Inline service worker as blob URL
+    const swCode=`
+const CACHE='jac-crm-v1';
+const URLS=['./', './index.html'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(URLS).catch(()=>{}))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{if(resp.status===200){const c=resp.clone();caches.open(CACHE).then(cache=>cache.put(e.request,c));}return resp;})));});
+`;
+    const blob=new Blob([swCode],{type:'application/javascript'});
+    const swURL=URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swURL,{scope:'./'}).catch(()=>{});
+  });
+}
+
+console.log('🚀 JAC CRM — Módulos avanzados cargados: Cotizaciones, Notificaciones, PWA, Firma, Portal, Exportar, Comisiones Chart');
+</script>
 
 </body>
 </html>
