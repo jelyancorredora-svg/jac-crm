@@ -522,6 +522,45 @@ textarea.fc{resize:vertical;min-height:52px}
   </div>
 </div></div>
 
+<!-- MODAL WHATSAPP COMPOSE -->
+<div class="mo" id="mwap"><div class="md mdsm" style="max-width:520px">
+  <div class="mh" style="background:#25D366;color:#fff"><h2 style="color:#fff">💬 Enviar WhatsApp</h2><button class="btn bgh" onclick="CM('mwap')" style="color:#fff;border-color:#1EB85A">✕</button></div>
+  <div class="mb">
+    <div class="fg" style="gap:9px">
+      <div class="fl ff" style="flex-direction:row;align-items:center;gap:8px">
+        <div style="flex:1"><label style="font-size:10px;color:var(--mu)">Contacto</label><div id="wap-nombre" style="font-weight:700;font-size:13px;padding:4px 0"></div></div>
+        <div><label style="font-size:10px;color:var(--mu)">Teléfono</label><div id="wap-tel" style="font-weight:600;font-size:12px;color:#25D366;padding:4px 0"></div></div>
+      </div>
+      <div class="fl ff">
+        <label>Plantillas rápidas</label>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">
+          <button class="btn bsm" style="background:#E7F8EE;color:#128C7E;border-color:#B2DFC9" onclick="setWATemplate('bienvenida')">👋 Bienvenida</button>
+          <button class="btn bsm" style="background:#E7F8EE;color:#128C7E;border-color:#B2DFC9" onclick="setWATemplate('seguimiento')">🔄 Seguimiento</button>
+          <button class="btn bsm" style="background:#E7F8EE;color:#128C7E;border-color:#B2DFC9" onclick="setWATemplate('cotizacion')">💰 Cotización</button>
+          <button class="btn bsm" style="background:#E7F8EE;color:#128C7E;border-color:#B2DFC9" onclick="setWATemplate('recordatorio')">⏰ Recordatorio</button>
+          <button class="btn bsm" style="background:#E7F8EE;color:#128C7E;border-color:#B2DFC9" onclick="setWATemplate('poliza')">📋 Póliza lista</button>
+        </div>
+      </div>
+      <div class="fl ff">
+        <label>Mensaje <span style="color:var(--rd)">*</span></label>
+        <textarea class="fc" id="wap-msg" rows="7" placeholder="Escribe tu mensaje de WhatsApp..." style="font-family:inherit;line-height:1.5"></textarea>
+        <div style="font-size:10px;color:var(--mu);margin-top:2px">💡 Usa *texto* para negrita y _texto_ para cursiva en WhatsApp.</div>
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:11px;color:var(--mu);margin-bottom:5px;display:flex;align-items:center;gap:6px">
+          📋 Historial reciente
+          <span id="wap-hist-cnt" style="background:#E7F8EE;color:#128C7E;border-radius:10px;padding:1px 7px;font-size:10px"></span>
+        </div>
+        <div id="wap-hist" style="max-height:120px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mf">
+    <button class="btn" onclick="CM('mwap')">Cancelar</button>
+    <button class="btn" style="background:#25D366;color:#fff;border-color:#25D366;font-weight:700" onclick="sendWAMsg()">💬 Abrir WhatsApp</button>
+  </div>
+</div></div>
+
 <!-- MODAL CLIENTE (formulario completo) -->
 <div class="mo" id="mc"><div class="md mdl"><div class="mh"><h2 id="mct">Nuevo Cliente</h2><button class="btn bgh" onclick="CM('mc')">✕</button></div>
 <div class="mb"><div class="fg">
@@ -965,6 +1004,7 @@ function loadS(){
 }
 let S=loadS();
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
+let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
 
 function save(){try{localStorage.setItem('jacv10',JSON.stringify(S));}catch(e){toast('Almacenamiento lleno — exporta datos','err');}}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5).toUpperCase();}
@@ -1113,10 +1153,9 @@ function waRenMsg(p,cl){const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];
 function waCobMsg(p,cl){const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];return`Hola ${fn} 👋🏼\n\nTe recordamos el pago de tu póliza de *${p.ramo}* con *${p.aseg}* (N° ${p.num}) por *${fmtM(p.prima)}*.\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`;}
 function waBtnC(c){
   const t=c.cel||c.tel||'';if(!t)return'';
-  const msg=`Hola ${c.nombre.split(' ')[0]} 👋🏼, te contacto de *JAC Seguros* (Lic. #6175). ¿En qué te puedo ayudar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
-  const url=waL(t,msg);if(!url)return'';
-  return waBtn(url,'cliente',c.id,'Contacto general',c.nombre,'💬 WhatsApp','bwa');
+  return`<button onclick="openWAForCli('${c.id}')" class="btn bsm bwa">💬 WhatsApp</button>`;
 }
+
 function waBtnsP(p,cl){
   const t=cl.cel||cl.tel||p.celCliente||'';if(!t)return'';
   const u1=waL(t,waRenMsg(p,cl)),u2=waL(t,waCobMsg(p,cl));
@@ -1126,30 +1165,115 @@ function waBtnsP(p,cl){
 }
 function waPros(pr){
   const t=pr.cel||pr.tel||'';if(!t)return'';
-  const msg=`Hola ${pr.nombre.split(' ')[0]} 👋🏼\n\nTe contacto de *JAC Seguros* (Lic. #6175) por el seguro de *${(pr.interes||[]).join(', ')||'seguros'}* que te interesa.\n\n¿Podemos coordinar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
-  const url=waL(t,msg);if(!url)return'';
-  return waBtn(url,'prospecto',pr.id,'Seguimiento',pr.nombre,'💬 WhatsApp','bwa');
+  return`<button onclick="event.stopPropagation();openWAForPros('${pr.id}')" class="btn bsm bwa">💬 WA</button>`;
 }
 
-// ── EMAIL COMPOSE ──
-function openComposeEmail(toEmail,toName,subject,body){
+function openWAForPros(pid){
+  const p=GPros(pid);if(!p.id)return;
+  const t=p.cel||p.tel||'';if(!t){toast('Este prospecto no tiene teléfono registrado','err');return;}
+  waComposePid=pid;waComposeCid=null;
+  const nombre=(p.nombre||'').split(' ')[0];
+  const interes=(p.interes||[]).join(', ')||'seguros';
+  const defMsg=`Hola ${nombre} 👋🏼\n\nTe contacto de *JAC Seguros* (Lic. #6175) por el seguro de *${interes}* que te interesa.\n\n¿Podemos coordinar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+  const el=document.getElementById('wap-nombre');if(el)el.textContent=p.nombre||'';
+  const el2=document.getElementById('wap-tel');if(el2)el2.textContent=formatTel(t);
+  SVal('wap-msg',defMsg);
+  const hist=(p.historial||[]).filter(h=>h.tipo==='whatsapp'||h.tipo==='email');
+  const hDiv=document.getElementById('wap-hist');
+  const hCnt=document.getElementById('wap-hist-cnt');
+  if(hCnt)hCnt.textContent=hist.length?hist.length+' mensajes':'';
+  if(hDiv){
+    if(!hist.length){hDiv.innerHTML='<div style="font-size:11px;color:var(--mu);text-align:center;padding:8px">Sin mensajes previos</div>';}
+    else{hDiv.innerHTML=hist.slice().reverse().slice(0,6).map(e=>`<div style="background:${e.tipo==='whatsapp'?'#E7F8EE':'#EEF4FF'};border-radius:6px;padding:5px 10px;margin-bottom:3px;font-size:11px"><span style="font-weight:700;color:${e.tipo==='whatsapp'?'#128C7E':'#1D4ED8'}">${e.tipo==='whatsapp'?'💬':'📧'}</span> ${e.fecha||''} · ${esc(e.accion||e.msgType||'')}</div>`).join('');}
+  }
+  OM('mwap');
+}
+function openWAForCli(cid){
+  const c=GC(cid);if(!c.id)return;
+  const t=c.cel||c.tel||'';if(!t){toast('Este cliente no tiene teléfono registrado','err');return;}
+  waComposeCid=cid;waComposePid=null;
+  const nombre=(c.nombre||'').split(' ')[0];
+  const defMsg=`Hola ${nombre} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros* (Lic. #6175).\n\n¿En qué podemos ayudarte hoy?\n\n_📞 +507 6292-6010_`;
+  const el=document.getElementById('wap-nombre');if(el)el.textContent=c.nombre||'';
+  const el2=document.getElementById('wap-tel');if(el2)el2.textContent=formatTel(t);
+  SVal('wap-msg',defMsg);
+  const hist=(c.historialWA||[]);
+  const hDiv=document.getElementById('wap-hist');
+  const hCnt=document.getElementById('wap-hist-cnt');
+  if(hCnt)hCnt.textContent=hist.length?hist.length+' mensajes':'';
+  if(hDiv){
+    if(!hist.length){hDiv.innerHTML='<div style="font-size:11px;color:var(--mu);text-align:center;padding:8px">Sin mensajes previos</div>';}
+    else{hDiv.innerHTML=hist.slice().reverse().slice(0,6).map(e=>`<div style="background:#E7F8EE;border-radius:6px;padding:5px 10px;margin-bottom:3px;font-size:11px"><span style="font-weight:700;color:#128C7E">💬</span> ${e.fecha||''} · ${esc(e.msgType||e.accion||'Mensaje')}</div>`).join('');}
+  }
+  OM('mwap');
+}
+function setWATemplate(tipo){
+  const nombre=document.getElementById('wap-nombre')?document.getElementById('wap-nombre').textContent:'';
+  const fn=(nombre||'').split(' ')[0]||'';
+  let msg='';
+  if(tipo==='bienvenida'){
+    msg=`Hola ${fn} 👋🏼\n\nMucho gusto, soy *Jely An Castro* de *JAC Seguros* (Lic. #6175).\n\nGracias por tu interés en nuestros servicios. Con mucho gusto te asesoro.\n\n¿Cuándo tienes disponibilidad para conversar?\n\n_📞 +507 6292-6010_`;
+  }else if(tipo==='seguimiento'){
+    msg=`Hola ${fn} 👋🏼\n\nTe escribe *Jely An Castro* de *JAC Seguros* (Lic. #6175).\n\nQuería hacer seguimiento a nuestra última conversación. ¿Tienes alguna pregunta o necesitas más información?\n\n_📞 +507 6292-6010_`;
+  }else if(tipo==='cotizacion'){
+    msg=`Hola ${fn} 👋🏼\n\nTe comparto la *cotización de seguro* que preparé para ti desde *JAC Seguros* (Lic. #6175).\n\nCualquier consulta, con gusto la atiendo.\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+  }else if(tipo==='recordatorio'){
+    msg=`Hola ${fn} 👋🏼\n\nTe escribe *JAC Seguros* (Lic. #6175).\n\nTe recordamos que tu póliza está próxima a vencer. ¡No te quedes sin cobertura!\n\nComúnícate con nosotros para renovarla.\n\n_Jely An Castro · 📞 +507 6292-6010_`;
+  }else if(tipo==='poliza'){
+    msg=`Hola ${fn} 👋🏼\n\n*¡Tu póliza está lista!* 🎉 desde *JAC Seguros* (Lic. #6175).\n\nPuedes escribirme para coordinar la entrega de tu documentación.\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+  }
+  SVal('wap-msg',msg);
+}
+function sendWAMsg(){
+  const msg=V('wap-msg');
+  if(!msg){toast('Escribe un mensaje primero','err');return;}
+  let entityType='',entityId='',nombre='',tel='';
+  if(waComposePid){const p=GPros(waComposePid);entityType='prospecto';entityId=waComposePid;nombre=p.nombre;tel=p.cel||p.tel||'';}
+  else if(waComposeCid){const c=GC(waComposeCid);entityType='cliente';entityId=waComposeCid;nombre=c.nombre;tel=c.cel||c.tel||'';}
+  if(!tel){toast('Sin teléfono registrado','err');return;}
+  const url=waL(tel,msg);
+  if(!url){toast('Número inválido','err');return;}
+  waClick(url,entityType,entityId,'Manual',nombre);
+  CM('mwap');
+}
+
+function openComposeEmail(toEmail,toName,subject,body,entityType,entityId){
   SVal('cem-to',toEmail||'');SVal('cem-cc','');SVal('cem-sub',subject||'');SVal('cem-body',body||'');
+  cemEntityType=entityType||null; cemEntityId=entityId||null;
   OM('mcem');
+}
+function logEmailSent(){
+  if(!cemEntityType||!cemEntityId)return;
+  const sub=V('cem-sub')||'Correo';
+  const to=V('cem-to')||'';
+  const entry={fecha:TODAY.toISOString().split('T')[0],accion:`📧 Email enviado: ${sub}`,resultado:to,tipo:'email'};
+  if(cemEntityType==='prospecto'){
+    const i=S.prospectos.findIndex(p=>p.id===cemEntityId);
+    if(i>=0){if(!S.prospectos[i].historial)S.prospectos[i].historial=[];S.prospectos[i].historial.push(entry);}
+  }else if(cemEntityType==='cliente'){
+    const i=S.clientes.findIndex(c=>c.id===cemEntityId);
+    if(i>=0){if(!S.clientes[i].historialEmail)S.clientes[i].historialEmail=[];S.clientes[i].historialEmail.push(entry);}
+  }
+  save();
+  if(cemEntityType==='prospecto'&&document.getElementById('dpanel').classList.contains('on'))
+    setTimeout(()=>showProsDP(cemEntityId),200);
+  if(cemEntityType==='cliente'&&document.getElementById('dpanel').classList.contains('on'))
+    setTimeout(()=>showCliDP(cemEntityId),200);
 }
 function openEmailForClient(cid){
   const c=GC(cid);if(!c.email){toast('Cliente sin email registrado','err');return;}
   const fn=(c.nombre||'').split(' ')[0];
   const sub=`JAC Seguros — Hola ${fn}`;
-  const body=`Estimado/a ${c.nombre},\n\nEspero que se encuentre muy bien.\n\nMe pongo en contacto desde JAC Seguros (Lic. #6175).\n\n\n\nQuedo atenta para cualquier consulta.\n\nCordialmente,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\n📞 +507 6292-6010`;
-  openComposeEmail(c.email,c.nombre,sub,body);
+  const body=`Estimado/a ${c.nombre},\n\nEspero que se encuentre muy bien.\n\nMe pongo en contacto desde JAC Seguros (Lic. #6175).\n\n\n\nQuedo atenta a su respuesta.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\n📞 +507 6292-6010`;
+  openComposeEmail(c.email,c.nombre,sub,body,'cliente',cid);
 }
 function openEmailForPros(pid){
   const p=GPros(pid);if(!p.email){toast('Prospecto sin email registrado','err');return;}
   const fn=(p.nombre||'').split(' ')[0];
   const interes=(p.interes||[]).join(', ')||'seguros';
   const sub=`JAC Seguros — Cotización ${interes}`;
-  const body=`Hola ${fn} 👋\n\nGracias por tu interés en los seguros de ${interes}.\n\nAdjunto / a continuación te comparto la información de la cotización que preparé para ti:\n\n\n\nQuedo disponible para aclarar cualquier duda.\n\nSaludos,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\n📞 +507 6292-6010`;
-  openComposeEmail(p.email,p.nombre,sub,body);
+  const body=`Hola ${fn} 👋\n\nGracias por tu interés en los seguros de ${interes}.\n\nAdjunto / a continuación te comparto la información de la cotización preparada especialmente para ti.\n\nCualquier pregunta, ¡con gusto te atiendo!\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\n📞 +507 6292-6010`;
+  openComposeEmail(p.email,p.nombre,sub,body,'prospecto',pid);
 }
 function openEmailForPol(pid){
   const p=GP(pid);const cl=GC(p.clienteId);
@@ -1166,6 +1290,7 @@ function sendEmailViaMailto(){
   let ml=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
   if(cc)ml+=`&cc=${encodeURIComponent(cc)}`;
   window.open(ml);
+  logEmailSent();
   CM('mcem');toast('📨 Abriendo app de correo...');
 }
 async function sendEmailViaEJS(){
@@ -1176,7 +1301,7 @@ async function sendEmailViaEJS(){
   const tpl=cfg['ejs-tpl-general']||cfg['ejs-tpl-ren']||cfg['ejs-tpl-bday'];
   if(!tpl){toast('No hay template EmailJS configurado. Usa "Abrir app de correo"','err');return;}
   const ok=await sendEmailJS(tpl,{to_name:'',to_email:to,subject:sub,message:body,from_name:'Jely An Castro — JAC Seguros',from_email:'jcastro@jacsegurospa.com',company:'JAC Seguros · Lic. #6175',phone:'+507 6292-6010'});
-  if(ok){CM('mcem');toast('✅ Correo enviado por EmailJS','ok');}
+  if(ok){logEmailSent();CM('mcem');toast('✅ Correo enviado por EmailJS','ok');}
   else toast('Error enviando. Usa "Abrir app de correo"','err');
 }
 
