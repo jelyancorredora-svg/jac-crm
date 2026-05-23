@@ -209,6 +209,7 @@ textarea.fc{resize:vertical;min-height:52px}
     <a onclick="SH('tar')">✅ Tareas</a>
     <a onclick="SH('emp')">🏢 Empresas</a>
     <a onclick="SH('aseg')">🏛 Aseg.</a>
+    <a onclick="SH('not')">📝 Notas</a>
     <a onclick="SH('cfg')">⚙️</a>
   </nav>
   <div class="ha" id="ha"><button class="btn bsm" onclick="doLogout()">🚪</button></div>
@@ -390,13 +391,55 @@ textarea.fc{resize:vertical;min-height:52px}
 
 <!-- COMISIONES -->
 <div class="pg" id="pg-com">
-  <div class="ph"><div><h2>💰 Comisiones</h2></div><button class="btn bp" onclick="OCom()">+ Registrar</button></div>
+  <div class="ph">
+    <div><h2>💰 Comisiones</h2></div>
+    <div style="display:flex;gap:6px">
+      <button class="btn" onclick="exportComXLSX()" style="background:#217346;color:#fff;border-color:#1a5c38">📥 Excel</button>
+      <button class="btn" onclick="exportComPDF()" style="background:#C8102E;color:#fff;border-color:#a00d25">📄 PDF</button>
+      <button class="btn bp" onclick="OCom()">+ Registrar</button>
+    </div>
+  </div>
   <div class="sg" id="comsg"></div>
+  <!-- Dashboard charts -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px">
+    <div class="card" style="text-align:center;padding:16px">
+      <div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Total Comisiones (pólizas)</div>
+      <div id="com-total-pol" style="font-size:26px;font-weight:900;color:#1D4ED8;margin:6px 0">$0</div>
+      <div style="font-size:10px;color:var(--mu)">de todas las pólizas</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px">
+      <div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Por Cobrar</div>
+      <div id="com-total-pend" style="font-size:26px;font-weight:900;color:#D97706;margin:6px 0">$0</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px">
+      <div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Cobradas</div>
+      <div id="com-total-cob" style="font-size:26px;font-weight:900;color:#15803D;margin:6px 0">$0</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px">
+      <div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Este mes</div>
+      <div id="com-mes-act" style="font-size:26px;font-weight:900;color:#7C3AED;margin:6px 0">$0</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <div class="card">
+      <div class="ch"><h3>📊 Por Ramo</h3></div>
+      <div id="com-chart-ramo" style="padding:10px"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><h3>🏛 Por Aseguradora</h3></div>
+      <div id="com-chart-aseg" style="padding:10px"></div>
+    </div>
+  </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
     <div class="card"><div class="ch"><h3>⏳ Por Cobrar</h3></div><div id="compend"></div></div>
     <div class="card"><div class="ch"><h3>✅ Cobradas</h3></div><div id="comcob"></div></div>
   </div>
-  <div class="card"><div class="ch"><h3>📊 Desglose por Póliza</h3></div>
+  <div class="card"><div class="ch"><h3>📊 Desglose por Póliza</h3>
+    <div style="display:flex;gap:6px">
+      <button class="btn" onclick="exportComXLSX()" style="background:#217346;color:#fff;font-size:11px;padding:4px 10px">📥 Excel</button>
+      <button class="btn" onclick="exportComPDF()" style="background:#C8102E;color:#fff;font-size:11px;padding:4px 10px">📄 PDF</button>
+    </div>
+  </div>
     <div class="tw"><table><thead><tr><th>Cliente</th><th>Ramo</th><th>Aseg.</th><th>Prima</th><th>%Com.</th><th>Part.%</th><th>Mi Comisión</th><th>Co-Corredor</th><th>Com.CoCor</th></tr></thead><tbody id="tcomd"></tbody></table></div>
   </div>
 </div>
@@ -427,6 +470,40 @@ textarea.fc{resize:vertical;min-height:52px}
 <div class="pg" id="pg-aseg">
   <div class="ph"><div><h2>🏛 Aseguradoras</h2><small id="asegcnt"></small></div><button class="btn bp" onclick="OAseg()">+ Aseguradora</button></div>
   <div id="gaseg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px"></div>
+</div>
+
+<!-- NOTAS CON RECORDATORIO -->
+<div class="pg" id="pg-not">
+  <div class="ph">
+    <div><h2>📝 Notas & Recordatorios</h2><small id="not-cnt"></small></div>
+    <button class="btn bp" onclick="openAddNota()">+ Nueva Nota</button>
+  </div>
+  <div class="sg" id="not-stats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <div class="card" id="not-alert-card">
+      <div class="ch" style="background:linear-gradient(90deg,#FEF3C7,#FFF7ED)">
+        <h3>🔔 Vencidas / Hoy</h3><span id="not-alert-cnt" style="font-size:11px;color:#D97706"></span>
+      </div>
+      <div id="not-alert-list"></div>
+    </div>
+    <div class="card">
+      <div class="ch" style="background:linear-gradient(90deg,#EEF4FF,#F0F7FF)">
+        <h3>📅 Próximos 7 días</h3><span id="not-soon-cnt" style="font-size:11px;color:#2563EB"></span>
+      </div>
+      <div id="not-soon-list"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><h3>📋 Todas las Notas</h3>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="not-search" class="fc" placeholder="Buscar..." style="width:160px;font-size:12px;padding:4px 8px" oninput="RNot()">
+        <select id="not-filter" class="fc" style="font-size:11px;padding:4px" onchange="RNot()">
+          <option value="">Todas</option><option value="alert">Con recordatorio</option><option value="noalert">Sin recordatorio</option>
+        </select>
+      </div>
+    </div>
+    <div id="not-list"></div>
+  </div>
 </div>
 
 <!-- CONFIG -->
@@ -512,6 +589,7 @@ textarea.fc{resize:vertical;min-height:52px}
   <a onclick="SH('veh');closeBnMore()"><span style="font-size:16px">🚗</span>Autos</a>
   <a onclick="SH('port');closeBnMore()"><span style="font-size:16px">🗂</span>Portafolio</a>
   <a onclick="SH('com');closeBnMore()"><span style="font-size:16px">💰</span>Comisiones</a>
+  <a onclick="SH('not');closeBnMore()"><span style="font-size:16px">📝</span>Notas</a>
   <a onclick="SH('tar');closeBnMore()"><span style="font-size:16px">✅</span>Tareas</a>
   <a onclick="SH('emp');closeBnMore()"><span style="font-size:16px">🏢</span>Empresas</a>
   <a onclick="SH('aseg');closeBnMore()"><span style="font-size:16px">🏛</span>Aseg.</a>
@@ -1418,7 +1496,7 @@ async function sendEmailViaEJS(){
     attachStr='\n\n📎 Archivos adjuntos:\n'+b64arr.join('\n');
     toast('⚠️ EmailJS no soporta adjuntos binarios. Los archivos se enviarán como referencia en el cuerpo.','warn');
   }
-  const ok=await sendEmailJS(tpl,{to_name:'',to_email:to,subject:sub,message:body+attachStr,from_name:'Jely An Castro — JAC Seguros',from_email:'jcastro@jacsegurospa.com',company:'JAC Seguros · Lic. #6175',phone:'+507 6292-6010',attachments:files.map(f=>f.name).join(', ')});
+  const ok=await sendEmailJS(tpl,{to_name:'',to_email:to,subject:sub,message:body+attachStr,from_name:'Desde JAC Seguros | Jely An Castro',from_email:'jcastro@jacsegurospa.com',company:'JAC Seguros · Lic. #6175',phone:'+507 6292-6010',attachments:files.map(f=>f.name).join(', ')});
   if(ok){logEmailSent();if(attachInput)attachInput.value='';CM('mcem');toast('✅ Correo enviado por EmailJS','ok');}
   else toast('Error enviando. Usa "Abrir app de correo"','err');
 }
@@ -3039,7 +3117,7 @@ async function sendBirthdayEmail(client) {
     to_name: client.nombre || 'Cliente',
     to_email: client.email,
     client_name: nombre,
-    from_name: 'Jely An Castro — JAC Seguros',
+    from_name: 'Desde JAC Seguros | Jely An Castro',
     from_email: 'jcastro@jacsegurospa.com',
     subject: `🎂 ¡Feliz Cumpleaños, ${nombre}!`,
     message: `En este día tan especial, todo el equipo de JAC Seguros te deseamos un maravilloso cumpleaños lleno de salud, felicidad y bendiciones. Gracias por confiar en nosotros para proteger lo que más valoras. ¡Que cumplas muchos más! 🎉`,
@@ -3073,7 +3151,7 @@ async function sendRenewalEmail(pol, client) {
     to_name: client.nombre || 'Cliente',
     to_email: email,
     client_name: nombre,
-    from_name: 'Jely An Castro — JAC Seguros',
+    from_name: 'Desde JAC Seguros | Jely An Castro',
     from_email: 'jcastro@jacsegurospa.com',
     subject: `⚠️ Tu póliza vence en ${diasRestantes} días — JAC Seguros`,
     policy_number: pol.polNum || pol.id,
@@ -3140,7 +3218,13 @@ function get30DayRenewals() {
 function renderBirthdayCard(c, daysUntil) {
   const age = c.fNac ? (new Date().getFullYear() - new Date(c.fNac).getFullYear()) : null;
   const tel = c.cel || c.tel || '';
-  const waMsg = `🎂 ¡Feliz Cumpleaños, ${(c.nombre||'').split(' ')[0]}! 🎉 Todo el equipo de JAC Seguros te desea un maravilloso día lleno de salud y bendiciones. ¡Que cumplas muchos más!`;
+  const waMsg = `🎂 ¡Feliz Cumpleaños, ${(c.nombre||'').split(' ')[0]}! 🎉
+
+Desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟
+
+_Con cariño,
+Jely An Castro Pérez
+JAC Seguros · jcastro@jacsegurospa.com_`;
   const waUrl = tel ? `https://wa.me/507${tel.replace(/\D/g,'')}?text=${encodeURIComponent(waMsg)}` : null;
   return `
     <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #EEF2F8">
@@ -3195,7 +3279,9 @@ function renderDashReminders() {
     const nombre = (cl.nombre || p.nombreCliente || '—').split(' ').slice(0,3).join(' ');
     const tel = cl.cel || cl.tel || p.celCliente || '';
     const hasEmail = !!(cl.email || p.emailCliente);
-    const waMsg = `⚠️ Estimado/a ${(cl.nombre||p.nombreCliente||'Cliente').split(' ')[0]}, te recordamos que tu póliza de *${p.ramo}* con *${p.aseg}* vence el *${typeof fmt==='function'?fmt(p.fechaFin):p.fechaFin}*. Para renovarla y continuar protegido/a, contáctame lo antes posible. — JAC Seguros Lic. #6175`;
+    const waMsg = `⚠️ Hola ${(cl.nombre||p.nombreCliente||'Cliente').split(' ')[0]} 👋🏼
+
+Te recordamos desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) que tu póliza de *${p.ramo}* con *${p.aseg}* vence el *${typeof fmt==='function'?fmt(p.fechaFin):p.fechaFin}*. Para renovarla y continuar protegido/a, contáctame lo antes posible. — JAC Seguros Lic. #6175`;
     const waUrl = tel ? `https://wa.me/507${tel.replace(/\D/g,'')}?text=${encodeURIComponent(waMsg)}` : null;
     const col = dias === 0 ? '#DC2626' : dias <= 7 ? '#DC2626' : dias <= 15 ? '#D97706' : '#2563EB';
     h += `<div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #EEF2F8">
@@ -3278,7 +3364,9 @@ function showBirthdayCard(clientId) {
       </div>
       <div style="font-size:11px;opacity:.7">www.jacsegurospa.com</div>
     </div>`;
-  const waMsg = `🎂 ¡Feliz Cumpleaños, ${primerNombre}! 🎉 Todo el equipo de JAC Seguros te desea un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! — Jely An Castro, JAC Seguros Lic. #6175 · jacsegurospa.com`;
+  const waMsg = `🎂 ¡Feliz Cumpleaños, ${primerNombre}! 🎉
+
+Desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) te deseamos un día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! — Jely An Castro, JAC Seguros Lic. #6175 · jacsegurospa.com`;
   const tel = c.cel || c.tel || '';
   const waUrl = tel ? `https://wa.me/507${tel.replace(/\D/g,'')}?text=${encodeURIComponent(waMsg)}` : null;
   const dp = document.getElementById('dpanel');
@@ -3338,6 +3426,471 @@ document.addEventListener('DOMContentLoaded', () => {
     initEmailJS();
     loadEmailJSConfig();
   }, 1000);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CRM v13 — NUEVAS FUNCIONALIDADES
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── XLSX / PDF Export helpers ──────────────────────────────────────────────
+function loadXLSX(cb){
+  if(window.XLSX){cb();return;}
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=cb;document.head.appendChild(s);
+}
+function loadJsPDF(cb){
+  if(window.jspdf&&window.jspdf.jsPDF){cb();return;}
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  s.onload=()=>{
+    const s2=document.createElement('script');
+    s2.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
+    s2.onload=cb;document.head.appendChild(s2);
+  };document.head.appendChild(s);
+}
+
+// ── Export Commissions → Excel ─────────────────────────────────────────────
+function exportComXLSX(){
+  loadXLSX(()=>{
+    const rows=[['Cliente','Ramo','Aseguradora','Prima ($)','% Com.','% Part.','Mi Comisión ($)','Co-Corredor ($)','Estado']];
+    let totPrima=0,totMiCom=0,totCoCor=0;
+    S.polizas.forEach(p=>{
+      const cl=GC(p.clienteId);
+      const prima=p.prima||0,pct=(p.comPct||0)/100,part=(p.partPct||0)/100;
+      const miCom=prima*pct*part,coCor=prima*pct*(1-part);
+      totPrima+=prima;totMiCom+=miCom;totCoCor+=coCor;
+      rows.push([cl.nombre||p.nombreCliente||'—',p.ramo||'',p.aseg||'',prima,(p.comPct||0),(p.partPct||0),+miCom.toFixed(2),+coCor.toFixed(2),p.estado||'']);
+    });
+    rows.push(['','','','TOTAL',,,+totMiCom.toFixed(2),+totCoCor.toFixed(2),'']);
+    // Registered commissions sheet
+    const rows2=[['Aseguradora','Monto ($)','Fecha','Estado']];
+    S.comisiones.forEach(c=>rows2.push([c.aseg||'',c.monto||0,c.fecha||'',c.estado||'']));
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'Desglose Pólizas');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows2),'Comisiones Registradas');
+    XLSX.writeFile(wb,'JAC_Comisiones_'+new Date().toISOString().split('T')[0]+'.xlsx');
+    toast('✅ Excel descargado','ok');
+  });
+}
+
+// ── Export Commissions → PDF ───────────────────────────────────────────────
+function exportComPDF(){
+  loadJsPDF(()=>{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape'});
+    doc.setFontSize(16);doc.setTextColor(29,78,216);
+    doc.text('JAC Seguros · Reporte de Comisiones',14,16);
+    doc.setFontSize(10);doc.setTextColor(100);
+    doc.text('Jely An Castro Pérez  ·  jcastro@jacsegurospa.com  ·  Lic. #6175',14,23);
+    doc.text('Generado: '+new Date().toLocaleDateString('es-PA'),14,29);
+    const body=[];
+    let totMiCom=0;
+    S.polizas.forEach(p=>{
+      const cl=GC(p.clienteId);
+      const prima=p.prima||0,pct=(p.comPct||0)/100,part=(p.partPct||0)/100;
+      const miCom=prima*pct*part;
+      totMiCom+=miCom;
+      body.push([cl.nombre||p.nombreCliente||'—',p.ramo||'',p.aseg||'','$'+prima.toLocaleString('es-PA'),(p.comPct||0)+'%',(p.partPct||0)+'%','$'+miCom.toFixed(2),p.estado||'']);
+    });
+    body.push(['','','','','','','TOTAL: $'+totMiCom.toFixed(2),'']);
+    doc.autoTable({
+      startY:34,
+      head:[['Cliente','Ramo','Aseg.','Prima','%Com','%Part','Mi Comisión','Estado']],
+      body,
+      styles:{fontSize:8},
+      headStyles:{fillColor:[29,78,216],textColor:255},
+      alternateRowStyles:{fillColor:[238,244,255]},
+      footStyles:{fillColor:[248,250,252]}
+    });
+    doc.save('JAC_Comisiones_'+new Date().toISOString().split('T')[0]+'.pdf');
+    toast('✅ PDF descargado','ok');
+  });
+}
+
+// ── Export Portfolio → Excel ───────────────────────────────────────────────
+function exportPortXLSX(){
+  loadXLSX(()=>{
+    const rows=[['N° Póliza','Cliente','Ramo','Aseguradora','Prima ($)','Inicio','Vencimiento','Estado','Días al vencer']];
+    const today=new Date();
+    S.polizas.forEach(p=>{
+      const cl=GC(p.clienteId);
+      const dias=p.fechaFin?Math.ceil((new Date(p.fechaFin)-today)/(864e5)):'';
+      rows.push([p.polNum||p.id,cl.nombre||p.nombreCliente||'—',p.ramo||'',p.aseg||'',p.prima||0,p.fechaIni||'',p.fechaFin||'',p.estado||'',dias]);
+    });
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'Portafolio');
+    XLSX.writeFile(wb,'JAC_Portafolio_'+new Date().toISOString().split('T')[0]+'.xlsx');
+    toast('✅ Excel portafolio descargado','ok');
+  });
+}
+
+// ── Export Portfolio → PDF ─────────────────────────────────────────────────
+function exportPortPDF(){
+  loadJsPDF(()=>{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape'});
+    doc.setFontSize(16);doc.setTextColor(29,78,216);
+    doc.text('JAC Seguros · Portafolio de Pólizas',14,16);
+    doc.setFontSize(10);doc.setTextColor(100);
+    doc.text('Jely An Castro  ·  jcastro@jacsegurospa.com',14,23);
+    doc.text('Generado: '+new Date().toLocaleDateString('es-PA'),14,29);
+    const body=[];const today=new Date();
+    S.polizas.forEach(p=>{
+      const cl=GC(p.clienteId);
+      const dias=p.fechaFin?Math.ceil((new Date(p.fechaFin)-today)/(864e5)):'';
+      body.push([p.polNum||p.id||'',cl.nombre||p.nombreCliente||'—',p.ramo||'',p.aseg||'','$'+(p.prima||0),p.fechaFin||'',p.estado||'',dias]);
+    });
+    doc.autoTable({
+      startY:34,
+      head:[['N° Póliza','Cliente','Ramo','Aseg.','Prima','Vence','Estado','Días']],
+      body,
+      styles:{fontSize:8},
+      headStyles:{fillColor:[29,78,216],textColor:255},
+      alternateRowStyles:{fillColor:[238,244,255]}
+    });
+    doc.save('JAC_Portafolio_'+new Date().toISOString().split('T')[0]+'.pdf');
+    toast('✅ PDF portafolio descargado','ok');
+  });
+}
+
+// ── NOTAS CON RECORDATORIO ─────────────────────────────────────────────────
+if(!S.notas)S.notas=[];
+
+function RNot(){
+  const search=(document.getElementById('not-search')?.value||'').toLowerCase();
+  const filter=document.getElementById('not-filter')?.value||'';
+  const today=new Date().toISOString().split('T')[0];
+  const overdue=S.notas.filter(n=>n.fecha&&n.fecha<=today&&!n.done);
+  const soon=S.notas.filter(n=>n.fecha&&n.fecha>today&&n.fecha<=addDays(today,7)&&!n.done);
+  
+  document.getElementById('not-cnt').textContent=`${S.notas.length} notas`;
+  document.getElementById('not-alert-cnt').textContent=`${overdue.length} pendiente${overdue.length!==1?'s':''}`;
+  document.getElementById('not-soon-cnt').textContent=`${soon.length} próxima${soon.length!==1?'s':''}`;
+  
+  const renderNota=(n,compact)=>{
+    const isOverdue=n.fecha&&n.fecha<=today&&!n.done;
+    const isSoon=n.fecha&&n.fecha>today&&n.fecha<=addDays(today,7)&&!n.done;
+    const cl=n.clienteId?GC(n.clienteId):null;
+    const bg=n.done?'#F9FAFB':isOverdue?'#FEF2F2':isSoon?'#FFFBEB':'#F8FAFF';
+    const bc=n.done?'#D1D5DB':isOverdue?'#DC2626':isSoon?'#D97706':'#2563EB';
+    return`<div style="background:${bg};border-left:3px solid ${bc};border-radius:6px;padding:10px 12px;margin-bottom:7px;${n.done?'opacity:.6':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px${n.done?';text-decoration:line-through':''}">${esc(n.titulo)}</div>
+          ${n.cuerpo?`<div style="font-size:11px;color:var(--mu);margin-top:3px;white-space:pre-wrap">${esc(n.cuerpo)}</div>`:''}
+          <div style="font-size:10px;margin-top:5px;display:flex;gap:8px;flex-wrap:wrap">
+            ${n.fecha?`<span style="color:${isOverdue?'#DC2626':isSoon?'#D97706':'#2563EB'};font-weight:600">📅 ${fmt(n.fecha)}${isOverdue?' ⚠️ VENCIDA':isSoon?' (pronto)':''}</span>`:''}
+            ${cl?`<span style="color:var(--mu)">👤 ${esc((cl.nombre||'').split(' ').slice(0,2).join(' '))}</span>`:''}
+            ${n.color?`<span style="background:${n.color};border-radius:3px;padding:1px 6px;font-size:9px;color:#fff">${esc(n.etiqueta||'')}</span>`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          ${!n.done?`<button class="btn bsm bgn" title="Marcar hecha" onclick="doneNota('${n.id}')">✓</button>`:''}
+          <button class="btn bsm bic" title="Editar" onclick="openAddNota('${n.id}')">✏️</button>
+          <button class="btn bsm bic" title="Eliminar" style="color:var(--rd)" onclick="deleteNota('${n.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  };
+  
+  // Alert list
+  const al=document.getElementById('not-alert-list');
+  if(al)al.innerHTML=overdue.length?overdue.map(n=>renderNota(n)):'<div style="padding:16px;text-align:center;font-size:12px;color:var(--mu)">Sin alertas pendientes ✓</div>';
+  const sl=document.getElementById('not-soon-list');
+  if(sl)sl.innerHTML=soon.length?soon.map(n=>renderNota(n)):'<div style="padding:16px;text-align:center;font-size:12px;color:var(--mu)">Sin recordatorios próximos</div>';
+  
+  // Full list with filter
+  let notas=[...S.notas].sort((a,b)=>new Date(b.cre||'2000')-new Date(a.cre||'2000'));
+  if(search)notas=notas.filter(n=>(n.titulo+n.cuerpo+n.etiqueta).toLowerCase().includes(search));
+  if(filter==='alert')notas=notas.filter(n=>n.fecha);
+  if(filter==='noalert')notas=notas.filter(n=>!n.fecha);
+  const ll=document.getElementById('not-list');
+  if(ll)ll.innerHTML=notas.length?`<div style="padding:10px">${notas.map(n=>renderNota(n)).join('')}</div>`:'<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">Sin notas. Crea tu primera nota con el botón +</div>';
+  
+  // Badge on nav
+  const badge=overdue.length+soon.length;
+  document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'not'"))a.textContent=badge?`📝 Notas (${badge})`:'📝 Notas';});
+}
+
+function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];}
+
+function openAddNota(id){
+  const n=id?S.notas.find(x=>x.id===id):null;
+  const clOpts=S.clientes.map(c=>`<option value="${c.id}"${n&&n.clienteId===c.id?' selected':''}>${esc(c.nombre)}</option>`).join('');
+  const html=`
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label style="font-size:12px;font-weight:600">Título <span style="color:red">*</span></label>
+        <input id="nota-tit" class="fc" placeholder="Ej: Llamar a cliente, Revisar póliza..." value="${esc(n?.titulo||'')}"></div>
+      <div><label style="font-size:12px;font-weight:600">Descripción</label>
+        <textarea id="nota-cuerpo" class="fc" rows="3" placeholder="Detalles adicionales...">${esc(n?.cuerpo||'')}</textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label style="font-size:12px;font-weight:600">📅 Fecha recordatorio</label>
+          <input id="nota-fecha" class="fc" type="date" value="${n?.fecha||''}"></div>
+        <div><label style="font-size:12px;font-weight:600">Cliente (opcional)</label>
+          <select id="nota-cli" class="fc"><option value="">— Sin cliente —</option>${clOpts}</select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label style="font-size:12px;font-weight:600">Etiqueta</label>
+          <input id="nota-etiq" class="fc" placeholder="Ej: Urgente, Pendiente..." value="${esc(n?.etiqueta||'')}"></div>
+        <div><label style="font-size:12px;font-weight:600">Color</label>
+          <select id="nota-color" class="fc">
+            <option value="#2563EB"${(!n?.color||n?.color==='#2563EB')?' selected':''}>🔵 Azul</option>
+            <option value="#15803D"${n?.color==='#15803D'?' selected':''}>🟢 Verde</option>
+            <option value="#D97706"${n?.color==='#D97706'?' selected':''}>🟡 Amarillo</option>
+            <option value="#DC2626"${n?.color==='#DC2626'?' selected':''}>🔴 Rojo</option>
+            <option value="#7C3AED"${n?.color==='#7C3AED'?' selected':''}>🟣 Morado</option>
+          </select></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+        <button class="btn" onclick="CM('mnota')">Cancelar</button>
+        <button class="btn bp" onclick="saveNota('${id||''}')">💾 Guardar</button>
+      </div>
+    </div>`;
+  OM('mnota','📝 '+(id?'Editar':'Nueva')+' Nota',html);
+}
+
+function saveNota(id){
+  const tit=V('nota-tit').trim();
+  if(!tit){toast('El título es obligatorio','err');return;}
+  if(id){
+    const i=S.notas.findIndex(n=>n.id===id);
+    if(i>=0){S.notas[i]={...S.notas[i],titulo:tit,cuerpo:V('nota-cuerpo').trim(),fecha:V('nota-fecha'),clienteId:V('nota-cli'),etiqueta:V('nota-etiq').trim(),color:V('nota-color')};}
+  }else{
+    S.notas.push({id:'NOT'+uid(),titulo:tit,cuerpo:V('nota-cuerpo').trim(),fecha:V('nota-fecha'),clienteId:V('nota-cli'),etiqueta:V('nota-etiq').trim(),color:V('nota-color'),done:false,cre:new Date().toISOString().split('T')[0]});
+  }
+  save();CM('mnota');RNot();renderDashNotasAlert();toast('✅ Nota guardada','ok');
+}
+
+function doneNota(id){const i=S.notas.findIndex(n=>n.id===id);if(i>=0){S.notas[i].done=true;save();RNot();renderDashNotasAlert();toast('✓ Nota marcada como hecha');}}
+function deleteNota(id){confirm2('¿Eliminar esta nota?',()=>{S.notas=S.notas.filter(n=>n.id!==id);save();RNot();renderDashNotasAlert();toast('Nota eliminada');});}
+
+function renderDashNotasAlert(){
+  const el=document.getElementById('dash-notas-alert');
+  if(!el)return;
+  const today=new Date().toISOString().split('T')[0];
+  const urgent=(S.notas||[]).filter(n=>n.fecha&&n.fecha<=today&&!n.done);
+  if(!urgent.length){el.style.display='none';return;}
+  el.style.display='block';
+  let h=`<div class="ch" style="background:linear-gradient(90deg,#FEF2F2,#FFF5F5)"><h3>📝 Notas Pendientes</h3><span style="font-size:11px;color:#DC2626">${urgent.length} vencida${urgent.length!==1?'s':''}</span></div>`;
+  urgent.slice(0,5).forEach(n=>{
+    const cl=n.clienteId?GC(n.clienteId):null;
+    h+=`<div style="padding:9px 14px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:8px">
+      <div style="font-size:16px">📝</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:12px">${esc(n.titulo)}</div>
+      <div style="font-size:10px;color:#DC2626">📅 ${fmt(n.fecha)}${cl?' · '+esc((cl.nombre||'').split(' ')[0]):''}</div></div>
+      <button class="btn bsm bgn" onclick="doneNota('${n.id}')">✓</button>
+      <button class="btn bsm" onclick="SH('not')">Ver</button>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+// ── COMMISSION DASHBOARD CHARTS ────────────────────────────────────────────
+function RCom_v13_charts(){
+  // KPI cards
+  const pend=S.comisiones.filter(c=>c.estado==='pendiente');
+  const cob=S.comisiones.filter(c=>c.estado==='cobrada');
+  const tP=pend.reduce((s,c)=>s+(c.monto||0),0);
+  const tC=cob.reduce((s,c)=>s+(c.monto||0),0);
+  const tPol=S.polizas.reduce((s,p)=>{const prima=p.prima||0,pct=(p.comPct||0)/100,part=(p.partPct||0)/100;return s+prima*pct*part;},0);
+  const thisMon=new Date().toISOString().slice(0,7);
+  const tMes=S.comisiones.filter(c=>c.fecha&&c.fecha.startsWith(thisMon)).reduce((s,c)=>s+(c.monto||0),0);
+  document.getElementById('com-total-pol')&&(document.getElementById('com-total-pol').textContent='$'+tPol.toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2}));
+  document.getElementById('com-total-pend')&&(document.getElementById('com-total-pend').textContent='$'+tP.toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2}));
+  document.getElementById('com-total-cob')&&(document.getElementById('com-total-cob').textContent='$'+tC.toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2}));
+  document.getElementById('com-mes-act')&&(document.getElementById('com-mes-act').textContent='$'+tMes.toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2}));
+
+  // By Ramo chart (bar)
+  const byRamo={};
+  S.polizas.forEach(p=>{const k=p.ramo||'Otro';const miCom=(p.prima||0)*((p.comPct||0)/100)*((p.partPct||0)/100);byRamo[k]=(byRamo[k]||0)+miCom;});
+  const sortedRamo=Object.entries(byRamo).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxR=sortedRamo[0]?sortedRamo[0][1]:1;
+  const ramoCols=['#1D4ED8','#2563EB','#3B82F6','#60A5FA','#93C5FD','#BFDBFE','#DBEAFE','#EFF6FF'];
+  const elRamo=document.getElementById('com-chart-ramo');
+  if(elRamo)elRamo.innerHTML=sortedRamo.map(([r,v],i)=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+      <div style="width:90px;font-size:10px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(r)}">${esc(r)}</div>
+      <div style="flex:1;height:14px;background:#EEF2F8;border-radius:7px;overflow:hidden">
+        <div style="height:100%;width:${Math.max(3,v/maxR*100)}%;background:${ramoCols[i%ramoCols.length]};border-radius:7px;transition:width .4s"></div>
+      </div>
+      <div style="width:68px;font-size:10px;font-weight:700;text-align:right">$${v.toFixed(0)}</div>
+    </div>`).join('')||'<div style="font-size:12px;color:var(--mu);padding:12px">Sin datos</div>';
+
+  // By Aseg chart
+  const byAseg={};
+  S.polizas.forEach(p=>{const k=p.aseg||'Otro';const miCom=(p.prima||0)*((p.comPct||0)/100)*((p.partPct||0)/100);byAseg[k]=(byAseg[k]||0)+miCom;});
+  const sortedAseg=Object.entries(byAseg).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxA=sortedAseg[0]?sortedAseg[0][1]:1;
+  const asegCols=['#15803D','#16A34A','#22C55E','#4ADE80','#86EFAC','#BBF7D0','#D1FAE5','#ECFDF5'];
+  const elAseg=document.getElementById('com-chart-aseg');
+  if(elAseg)elAseg.innerHTML=sortedAseg.map(([a,v],i)=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+      <div style="width:70px;font-size:10px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(a)}">${esc(a)}</div>
+      <div style="flex:1;height:14px;background:#EEF2F8;border-radius:7px;overflow:hidden">
+        <div style="height:100%;width:${Math.max(3,v/maxA*100)}%;background:${asegCols[i%asegCols.length]};border-radius:7px;transition:width .4s"></div>
+      </div>
+      <div style="width:68px;font-size:10px;font-weight:700;text-align:right">$${v.toFixed(0)}</div>
+    </div>`).join('')||'<div style="font-size:12px;color:var(--mu);padding:12px">Sin datos</div>';
+}
+
+// ── POLICY DOCUMENTS ───────────────────────────────────────────────────────
+// Stored as base64 in S.clientes[x].documentos[]
+function renderClientDocs(clienteId){
+  const c=GC(clienteId);
+  if(!c)return'';
+  const docs=c.documentos||[];
+  return`<div id="cli-docs-${clienteId}">
+    <div style="font-size:12px;font-weight:700;color:var(--mu);margin:12px 0 6px">📎 Documentos de Pólizas</div>
+    <div id="docs-list-${clienteId}" style="margin-bottom:8px">
+      ${docs.length?docs.map((d,i)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#F8FAFF;border-radius:6px;margin-bottom:4px;border:1px solid #E2E8F0">
+          <span style="font-size:16px">📄</span>
+          <span style="flex:1;font-size:12px;font-weight:600">${esc(d.nombre)}</span>
+          <span style="font-size:10px;color:var(--mu)">${d.fecha||''}</span>
+          <a href="${d.data}" download="${esc(d.nombre)}" class="btn bsm bgn" style="font-size:10px">⬇️</a>
+          <button class="btn bsm bic" style="color:var(--rd);font-size:10px" onclick="deleteDoc('${clienteId}',${i})">🗑</button>
+        </div>`).join(''):'<div style="font-size:11px;color:var(--mu);padding:6px 0">Sin documentos adjuntos</div>'}
+    </div>
+    <label style="cursor:pointer">
+      <input type="file" id="doc-file-${clienteId}" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple style="display:none" onchange="uploadDocs('${clienteId}',this)">
+      <span class="btn bsm" style="background:#EEF4FF;color:#1D4ED8;border-color:#BFDBFE;font-size:11px">📎 Adjuntar documento</span>
+    </label>
+    <div id="doc-upload-status-${clienteId}" style="font-size:11px;color:var(--mu);margin-top:4px"></div>
+  </div>`;
+}
+
+function uploadDocs(clienteId,inp){
+  const files=[...inp.files];
+  if(!files.length)return;
+  const statusEl=document.getElementById('doc-upload-status-'+clienteId);
+  if(statusEl)statusEl.textContent='⏳ Cargando...';
+  const c=GC(clienteId);
+  if(!c)return;
+  if(!c.documentos)c.documentos=[];
+  let done=0;
+  files.forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      c.documentos.push({nombre:f.name,data:e.target.result,fecha:new Date().toISOString().split('T')[0],size:Math.round(f.size/1024)+'KB'});
+      done++;
+      if(done===files.length){
+        save();
+        if(statusEl)statusEl.textContent='';
+        // Re-render docs list
+        const listEl=document.getElementById('docs-list-'+clienteId);
+        if(listEl){
+          const docs=c.documentos;
+          listEl.innerHTML=docs.map((d,i)=>`
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#F8FAFF;border-radius:6px;margin-bottom:4px;border:1px solid #E2E8F0">
+              <span style="font-size:16px">📄</span>
+              <span style="flex:1;font-size:12px;font-weight:600">${esc(d.nombre)}</span>
+              <span style="font-size:10px;color:var(--mu)">${d.fecha||''}</span>
+              <a href="${d.data}" download="${esc(d.nombre)}" class="btn bsm bgn" style="font-size:10px">⬇️</a>
+              <button class="btn bsm bic" style="color:var(--rd);font-size:10px" onclick="deleteDoc('${clienteId}',${i})">🗑</button>
+            </div>`).join('');
+        }
+        toast(`✅ ${files.length} documento${files.length>1?'s':''} cargado${files.length>1?'s':''}  ·  Máx. recomendado: 5MB por archivo`,'ok');
+      }
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function deleteDoc(clienteId,idx){
+  confirm2('¿Eliminar este documento?',()=>{
+    const c=GC(clienteId);
+    if(!c||!c.documentos)return;
+    c.documentos.splice(idx,1);
+    save();
+    // Re-render
+    const el=document.getElementById('cli-docs-'+clienteId);
+    if(el)el.outerHTML=renderClientDocs(clienteId);
+    toast('Documento eliminado');
+  });
+}
+
+// Inject docs section into client detail view when it opens
+const _origOC=window.OC;
+function OC(id){
+  if(typeof _origOC==='function')_origOC(id);
+  setTimeout(()=>{
+    // Find the historial section in the client panel and inject docs before it
+    const panel=document.getElementById('dpanel')||document.getElementById('dpb');
+    if(!panel)return;
+    if(panel.querySelector('[id^="cli-docs-"]'))return; // already injected
+    // Find a good injection point — before historial heading
+    const allDivs=panel.querySelectorAll('div');
+    let injected=false;
+    allDivs.forEach(div=>{
+      if(!injected&&div.textContent.includes('Historial de Comunicaciones')){
+        const wrap=document.createElement('div');
+        wrap.innerHTML=renderClientDocs(id);
+        div.parentNode.insertBefore(wrap.firstChild,div);
+        injected=true;
+      }
+    });
+    if(!injected){
+      // fallback: append to panel
+      const wrap=document.createElement('div');
+      wrap.style.padding='0 14px 14px';
+      wrap.innerHTML=renderClientDocs(id);
+      panel.appendChild(wrap);
+    }
+  },200);
+}
+
+// ── DASHBOARD: inject Notas alert panel ───────────────────────────────────
+// Add a <div id="dash-notas-alert"> at end of dashboard after existing cards
+(function injectDashNotasPanel(){
+  const dash=document.getElementById('pg-dash');
+  if(!dash)return;
+  const el=document.createElement('div');
+  el.id='dash-notas-alert';
+  el.className='card';
+  el.style.display='none';
+  el.style.marginBottom='10px';
+  dash.appendChild(el);
+})();
+
+// ── PORTAFOLIO: add export buttons ─────────────────────────────────────────
+(function injectPortExport(){
+  const portPh=document.querySelector('#pg-port .ph');
+  if(!portPh||portPh.querySelector('.port-export'))return;
+  const btns=document.createElement('div');
+  btns.className='port-export';
+  btns.style.cssText='display:flex;gap:6px';
+  btns.innerHTML=`<button class="btn" onclick="exportPortXLSX()" style="background:#217346;color:#fff;border-color:#1a5c38;font-size:12px">📥 Excel</button>
+    <button class="btn" onclick="exportPortPDF()" style="background:#C8102E;color:#fff;border-color:#a00d25;font-size:12px">📄 PDF</button>`;
+  portPh.appendChild(btns);
+})();
+
+// ── HOOK: extend RD to call renderDashNotasAlert ───────────────────────────
+const _origRD=window.RD;
+window.RD=function(){
+  if(typeof _origRD==='function')_origRD();
+  renderDashNotasAlert();
+};
+
+// ── HOOK: extend RCom to call chart renderer ───────────────────────────────
+const _origRCom=window.RCom;
+window.RCom=function(){
+  if(typeof _origRCom==='function')_origRCom();
+  RCom_v13_charts();
+};
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>{
+    if(!S.notas)S.notas=[];
+    renderDashNotasAlert();
+    // add Notas to SH router
+    const origSH=window.SH;
+    window.SH=function(id){
+      origSH(id);
+      if(id==='not')setTimeout(RNot,50);
+    };
+  },1500);
 });
 
 </script>
