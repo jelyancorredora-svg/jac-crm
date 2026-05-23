@@ -9,7 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bl:#1A3A6B;--rd:#C8102E;--bg:#EEF2F8;--wh:#fff;--bd:#D4DEF0;--tx:#18264B;--mu:#5A6A8A;--ok:#15803D;--okl:#D1FAE5;--wn:#B45309;--wnl:#FEF3C7;--dg:#B91C1C;--dgl:#FEE2E2;--in:#1D4ED8;--inl:#DBEAFE;--pu:#7E22CE;--pul:#F3E8FF;--cy:#0891B2;--r8:8px;--r6:6px;--sh:0 1px 4px rgba(26,58,107,.1);--sh2:0 4px 16px rgba(26,58,107,.15)}
+:root{
+  --dark-bg:#0F172A;--dark-card:#1E293B;--dark-bd:#334155;--dark-tx:#E2E8F0;--dark-mu:#94A3B8;--dark-nav:#1E293B;--bl:#1A3A6B;--rd:#C8102E;--bg:#EEF2F8;--wh:#fff;--bd:#D4DEF0;--tx:#18264B;--mu:#5A6A8A;--ok:#15803D;--okl:#D1FAE5;--wn:#B45309;--wnl:#FEF3C7;--dg:#B91C1C;--dgl:#FEE2E2;--in:#1D4ED8;--inl:#DBEAFE;--pu:#7E22CE;--pul:#F3E8FF;--cy:#0891B2;--r8:8px;--r6:6px;--sh:0 1px 4px rgba(26,58,107,.1);--sh2:0 4px 16px rgba(26,58,107,.15)}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;min-height:100vh}
 #ls{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1A3A6B 0%,#0D1F3C 100%);padding:16px}
 .lbox{background:var(--wh);border-radius:16px;padding:36px 30px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
@@ -148,6 +149,45 @@ textarea.fc{resize:vertical;min-height:52px}
 .waf{position:fixed;bottom:18px;right:16px;background:#25D366;color:#fff;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 14px rgba(37,211,102,.45);text-decoration:none;z-index:90}
 @media(max-width:768px){nav{display:none}.bnav{display:block}.dpanel{width:100%;top:auto;bottom:0;height:75vh;border-left:none;border-top:1px solid var(--bd);border-radius:16px 16px 0 0}.md{margin:auto auto 0;border-radius:16px 16px 0 0;max-height:90vh}.fg{grid-template-columns:1fr}.fg3{grid-template-columns:1fr 1fr}.ff{grid-column:1/-1}.sg .st{flex:1 1 calc(50% - 8px)}.waf{bottom:70px;right:12px}}
 @media(min-width:769px){.bnav{display:none!important}}
+
+/* ── DARK MODE ── */
+body.dark{background:var(--dark-bg);color:var(--dark-tx);}
+body.dark .nav{background:var(--dark-nav);border-color:var(--dark-bd);}
+body.dark .card{background:var(--dark-card);border-color:var(--dark-bd);color:var(--dark-tx);}
+body.dark .fc{background:#273549;border-color:var(--dark-bd);color:var(--dark-tx);}
+body.dark .fc:focus{border-color:var(--bl);}
+body.dark .pg{background:var(--dark-bg);}
+body.dark .mo .md{background:var(--dark-card);border-color:var(--dark-bd);color:var(--dark-tx);}
+body.dark .mo .mh{background:var(--dark-card);border-bottom-color:var(--dark-bd);}
+body.dark .mo .mf{background:var(--dark-card);border-top-color:var(--dark-bd);}
+body.dark .tw table{background:var(--dark-card);}
+body.dark .tw th{background:#273549;color:var(--dark-tx);border-color:var(--dark-bd);}
+body.dark .tw td{border-color:var(--dark-bd);color:var(--dark-tx);}
+body.dark .tw tr:hover{background:#273549;}
+body.dark .drow{border-bottom-color:var(--dark-bd);}
+body.dark .drow label{color:var(--dark-mu);}
+body.dark .dpanel{background:var(--dark-card);border-color:var(--dark-bd);}
+body.dark .dph{background:var(--dark-nav);border-color:var(--dark-bd);}
+body.dark .ph{border-bottom-color:var(--dark-bd);}
+body.dark .si{background:#273549;border-color:var(--dark-bd);color:var(--dark-tx);}
+body.dark .bnav,.body.dark .bmm{background:var(--dark-nav);}
+body.dark .st{background:var(--dark-card);border-color:var(--dark-bd);}
+body.dark .btn{background:#273549;border-color:var(--dark-bd);color:var(--dark-tx);}
+body.dark .btn.bp{background:#1D4ED8;color:#fff;border-color:#1D4ED8;}
+body.dark .btn.bgn{background:#15803D;color:#fff;}
+body.dark .btn.brd2{background:#DC2626;color:#fff;}
+body.dark .btn.bwa{background:#25D366;color:#fff;}
+body.dark .btn.bin{background:#1D4ED8;color:#fff;}
+body.dark #app{background:var(--dark-bg);}
+body.dark .tag{filter:brightness(.9);}
+body.dark .kc{background:#1E293B;border-color:#334155;}
+body.dark .kci{background:#273549;border-color:#334155;color:var(--dark-tx);}
+body.dark .dsec{color:var(--dark-mu);border-bottom-color:var(--dark-bd);}
+body.dark .ph h2{color:var(--dark-tx);}
+body.dark .ch{border-bottom-color:var(--dark-bd);}
+body.dark .ch h3{color:var(--dark-tx);}
+body.dark a{color:#60A5FA;}
+body.dark .mu{color:var(--dark-mu);}
 </style>
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -220,7 +260,7 @@ textarea.fc{resize:vertical;min-height:52px}
       oninput="gsearchLive(this.value)" onblur="setTimeout(()=>gsearchHide(),200)" autocomplete="off">
     <div id="gsearch-results" style="display:none;position:absolute;top:32px;right:0;background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;max-height:400px;overflow-y:auto;min-width:340px"></div>
   </div>
-  <button class="btn bsm" onclick="doLogout()">🚪</button>
+  <button onclick="toggleDarkMode()" id="dark-btn" class="btn bgh" style="padding:6px 10px;font-size:16px" title="Modo oscuro">🌙</button> <button class="btn bsm" onclick="doLogout()">🚪</button>
 </div>
 </div></div>
 
@@ -352,8 +392,13 @@ textarea.fc{resize:vertical;min-height:52px}
 <!-- RENOVACIONES -->
 <div class="pg" id="pg-ren">
   <div class="ph"><div><h2>🔔 Renovaciones</h2><small>Vencimientos con WhatsApp automático</small></div></div>
+  <div style="display:flex;gap:6px;margin-bottom:10px">
+    <button class="btn bsm on" id="ren-v-list" onclick="setRenView('list',this)">☰ Lista</button>
+    <button class="btn bsm" id="ren-v-cal" onclick="setRenView('cal',this)">📅 Calendario</button>
+  </div>
   <div class="sg" id="rsg"></div>
   <div id="rcon"></div>
+  <div id="rcal" style="display:none"></div>
 </div>
 
 <!-- PAGOS -->
@@ -629,11 +674,38 @@ textarea.fc{resize:vertical;min-height:52px}
       <button class="btn bsm" style="background:#EEF4FF;color:var(--in);border-color:#C7D7FF" onclick="testEmailJS()">🧪 Enviar email de prueba</button>
     </div>
   </div>
-<div class="card" style="padding:16px;margin-top:12px;max-width:820px">
-    <div style="font-size:13px;font-weight:700;color:var(--bl);margin-bottom:8px">ℹ️ Sistema</div>
+<!-- METAS DE COMISIONES -->
+  <div class="card" style="padding:16px;margin-top:12px;max-width:820px">
+    <div style="font-size:13px;font-weight:700;color:var(--bl);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--bd)">🎯 Metas de Comisiones</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="fl"><label>Meta mensual ($)</label><input class="fc" id="cfg-meta-men" type="number" step="100" placeholder="ej: 1500"></div>
+      <div class="fl"><label>Meta anual ($)</label><input class="fc" id="cfg-meta-anu" type="number" step="1000" placeholder="ej: 18000"></div>
+    </div>
+    <button class="btn bp" onclick="saveMetas()" style="width:100%">💾 Guardar metas</button>
+  </div>
+  <!-- PLANTILLAS DE MENSAJES -->
+  <div class="card" style="padding:16px;margin-top:12px;max-width:820px">
+    <div style="font-size:13px;font-weight:700;color:var(--bl);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--bd)">💬 Plantillas de Mensajes</div>
+    <div id="cfg-plantillas-list" style="margin-bottom:10px"></div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px">
+      <input class="fc" id="cfg-tpl-nom" placeholder="Nombre de la plantilla..." style="font-size:12px">
+      <select class="fc" id="cfg-tpl-tipo" style="font-size:12px;padding:6px 8px">
+        <option value="wa">WhatsApp</option><option value="email">Email</option><option value="ambos">Ambos</option>
+      </select>
+    </div>
+    <textarea class="fc" id="cfg-tpl-txt" rows="3" placeholder="Texto... Usa {nombre}, {poliza}, {fecha} como variables" style="font-size:12px;margin-bottom:8px"></textarea>
+    <button class="btn bp" onclick="savePlantilla()" style="width:100%">+ Guardar plantilla</button>
+  </div>
+  <!-- SISTEMA + BACKUP -->
+  <div class="card" style="padding:16px;margin-top:12px;max-width:820px">
+    <div style="font-size:13px;font-weight:700;color:var(--bl);margin-bottom:8px">ℹ️ Sistema & Backup</div>
     <p style="font-size:12px;color:var(--mu)">Clientes: <b id="cfg-ncli">0</b> · Pólizas: <b id="cfg-npol">0</b> · Prospectos: <b id="cfg-npro">0</b></p>
-    <p style="font-size:11px;color:var(--mu);margin-top:6px">Datos guardados en este navegador (localStorage). Para Netlify: arrastra el archivo .html a <a href="https://app.netlify.com/drop" target="_blank" style="color:var(--bl)">netlify.com/drop</a></p>
-    <button class="btn bsm brd2" onclick="clearData()" style="margin-top:10px">🗑 Borrar todos los datos</button>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn bgn" onclick="exportBackup()" style="flex:1">📥 Exportar backup (JSON)</button>
+      <label class="btn bin" style="flex:1;cursor:pointer;text-align:center">📤 Importar backup<input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
+      <button class="btn bsm brd2" onclick="clearData()">🗑 Borrar datos</button>
+    </div>
+    <p style="font-size:11px;color:var(--mu);margin-top:8px">Exporta periódicamente como respaldo de seguridad.</p>
   </div>
 </div>
 
@@ -704,6 +776,78 @@ textarea.fc{resize:vertical;min-height:52px}
   </div>
 </div></div>
 
+
+<!-- MODAL COTIZADOR RÁPIDO -->
+<div class="mo" id="mcotz"><div class="md mdsm" style="max-width:560px">
+  <div class="mh" style="background:#1D4ED8;color:#fff"><h2 style="color:#fff">🧮 Cotizador Rápido</h2><button class="btn bgh" onclick="CM('mcotz')" style="color:#fff;border-color:#2563EB">✕</button></div>
+  <div class="mb">
+    <div class="fg" style="gap:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="fl ff"><label>Ramo</label>
+          <select class="fc" id="cotz-ramo" onchange="cotzCalc()">
+            <option value="">— Seleccionar —</option>
+            <option value="AUTOS/VEHÍCULOS">🚗 Autos / Vehículos</option>
+            <option value="SALUD/MÉDICOS">🏥 Salud / Médicos</option>
+            <option value="VIDA">❤️ Vida</option>
+            <option value="INCENDIO Y LÍNEAS ALIADAS">🏠 Incendio / Hogar</option>
+            <option value="ACCIDENTES PERSONALES">🛡️ Accidentes Personales</option>
+            <option value="SOAT">🚦 SOAT</option>
+            <option value="RESPONSABILIDAD CIVIL">⚖️ Responsabilidad Civil</option>
+            <option value="ROBO/HURTO">🔒 Robo / Hurto</option>
+            <option value="TRANSPORTE">🚢 Transporte</option>
+            <option value="FIANZAS">📜 Fianzas</option>
+          </select>
+        </div>
+        <div class="fl ff"><label>Aseguradora</label>
+          <select class="fc" id="cotz-aseg">
+            <option value="ASSA">ASSA</option><option value="IS">IS</option><option value="SURA">SURA</option>
+            <option value="MAPFRE">MAPFRE</option><option value="PALIG">PALIG</option>
+            <option value="UNIVIVIR">UNIVIVIR</option><option value="FEDPA">FEDPA</option>
+            <option value="Acerta">Acerta</option><option value="Chubb">Chubb</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="fl ff"><label>Valor asegurado ($)</label><input class="fc" id="cotz-valor" type="number" step="100" placeholder="ej: 25000" oninput="cotzCalc()"></div>
+        <div class="fl ff"><label>Año del vehículo <span style="font-size:10px;color:var(--mu)">(si aplica)</span></label><input class="fc" id="cotz-anio" type="number" placeholder="ej: 2020" oninput="cotzCalc()"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="fl ff"><label>Edad del asegurado</label><input class="fc" id="cotz-edad" type="number" placeholder="ej: 35" oninput="cotzCalc()"></div>
+        <div class="fl ff"><label>Forma de pago</label>
+          <select class="fc" id="cotz-fpago" onchange="cotzCalc()">
+            <option value="anual">Anual</option><option value="semestral">Semestral</option>
+            <option value="trimestral">Trimestral</option><option value="mensual">Mensual</option>
+          </select>
+        </div>
+      </div>
+      <!-- Resultado -->
+      <div id="cotz-result" style="display:none;background:#EEF4FF;border:1px solid #C7D7FF;border-radius:8px;padding:14px">
+        <div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Estimado de prima</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+          <div><div style="font-size:20px;font-weight:900;color:#1D4ED8" id="cotz-prima-anual">$0</div><div style="font-size:10px;color:var(--mu)">Prima anual</div></div>
+          <div><div style="font-size:20px;font-weight:900;color:#7C3AED" id="cotz-prima-cuota">$0</div><div style="font-size:10px;color:var(--mu)" id="cotz-cuota-lbl">Por pago</div></div>
+          <div><div style="font-size:20px;font-weight:900;color:#15803D" id="cotz-com-est">$0</div><div style="font-size:10px;color:var(--mu)">Mi comisión est.</div></div>
+        </div>
+        <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:center">⚠️ Estimado referencial. La prima final la confirma la aseguradora.</div>
+      </div>
+      <!-- Cliente para envío -->
+      <div style="border-top:1px solid var(--bd);padding-top:10px">
+        <div style="font-size:12px;font-weight:600;color:var(--mu);margin-bottom:7px">Enviar cotización a:</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input class="fc" id="cotz-nom" placeholder="Nombre del cliente" style="font-size:12px">
+          <input class="fc" id="cotz-tel" placeholder="Teléfono (6XXX-XXXX)" style="font-size:12px" inputmode="tel">
+        </div>
+        <input class="fc" id="cotz-email" type="email" placeholder="Email (opcional)" style="font-size:12px;margin-top:6px">
+      </div>
+    </div>
+  </div>
+  <div class="mf">
+    <button class="btn" onclick="CM('mcotz')">Cancelar</button>
+    <button class="btn" style="background:#25D366;color:#fff;border-color:#25D366" onclick="cotzSendWA()">💬 Enviar por WA</button>
+    <button class="btn bp" onclick="cotzSendEmail()">📧 Enviar por Email</button>
+    <button class="btn bgn" onclick="cotzCrearPoliza()">📋 Crear póliza</button>
+  </div>
+</div></div>
 <!-- MODAL WHATSAPP COMPOSE -->
 <div class="mo" id="mwap"><div class="md mdsm" style="max-width:520px">
   <div class="mh" style="background:#25D366;color:#fff"><h2 style="color:#fff">💬 Enviar WhatsApp</h2><button class="btn bgh" onclick="CM('mwap')" style="color:#fff;border-color:#1EB85A">✕</button></div>
@@ -793,6 +937,7 @@ textarea.fc{resize:vertical;min-height:52px}
     <option value="inactivo">⚫ Inactivo</option>
   </select></div>
   <div class="fl"><label>Origen del cliente</label><select class="fc" id="c-origen"><option value="">—</option><option>Referido</option><option>Facebook</option><option>Instagram</option><option>WhatsApp</option><option>Web</option><option>Evento</option><option>Cold call</option><option>Otro</option></select></div>
+  <div class="fl"><label>Referido por (nombre)</label><input class="fc" id="c-referido" placeholder="Ej: Juan Pérez"></div>
   <div class="fl"><label>Aviso de operaciones</label><input class="fc" id="c-avo"></div>
   <div class="fl"><label>Aviso de operaciones 2</label><input class="fc" id="c-avisop"></div>
   <div class="fl ff"><label>Observaciones</label><textarea class="fc" id="c-obs" rows="2"></textarea></div>
@@ -1134,6 +1279,268 @@ function savePin(){
   a.pin=nw;saveAuth(a);toast('✓ PIN actualizado');
   ['cfg-opi','cfg-npi','cfg-npi2'].forEach(id=>SVal(id,''));
 }
+
+// ── DARK MODE ──────────────────────────────────────────
+function toggleDarkMode(){
+  S.darkMode=!S.darkMode;save();applyDarkMode();
+}
+function applyDarkMode(){
+  document.body.classList.toggle('dark',!!S.darkMode);
+  const btn=document.getElementById('dark-btn');
+  if(btn)btn.textContent=S.darkMode?'☀️':'🌙';
+}
+
+// ── METAS DE COMISIONES ────────────────────────────────
+function saveMetas(){
+  const men=parseFloat(document.getElementById('cfg-meta-men').value)||0;
+  const anu=parseFloat(document.getElementById('cfg-meta-anu').value)||0;
+  S.metas={mensual:men,anual:anu};save();
+  toast('✓ Metas guardadas');RD();RCom&&RCom();
+}
+function renderMetaBar(actual,meta,label){
+  if(!meta)return'';
+  const pct=Math.min(100,Math.round((actual/meta)*100));
+  const col=pct>=100?'#15803D':pct>=70?'#D97706':'#1D4ED8';
+  return`<div style="margin:8px 0">
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--mu)">${label}</span><span style="font-weight:700;color:${col}">${pct}% · ${fmtM(actual)} / ${fmtM(meta)}</span></div>
+    <div style="background:#E5E7EB;border-radius:20px;height:8px;overflow:hidden">
+      <div style="background:${col};width:${pct}%;height:100%;border-radius:20px;transition:width .5s"></div>
+    </div>
+  </div>`;
+}
+
+// ── BACKUP ─────────────────────────────────────────────
+function exportBackup(){
+  const data=JSON.stringify(S,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`jac-crm-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();URL.revokeObjectURL(a.href);
+  toast('✓ Backup exportado');
+}
+function importBackup(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.clientes||!d.polizas){toast('Archivo no válido','err');return;}
+      if(!confirm(`¿Importar backup?\n${d.clientes.length} clientes · ${d.polizas.length} pólizas\n\nEsto REEMPLAZA los datos actuales.`))return;
+      localStorage.setItem('jacv10',JSON.stringify(d));
+      toast('✓ Backup importado — recargando...');
+      setTimeout(()=>location.reload(),1500);
+    }catch{toast('Error al leer archivo','err');}
+  };r.readAsText(file);
+}
+
+// ── PLANTILLAS DE MENSAJES ─────────────────────────────
+function savePlantilla(){
+  const nom=(document.getElementById('cfg-tpl-nom').value||'').trim();
+  const tipo=document.getElementById('cfg-tpl-tipo').value||'wa';
+  const txt=(document.getElementById('cfg-tpl-txt').value||'').trim();
+  if(!nom||!txt){toast('Nombre y texto son requeridos','err');return;}
+  if(!S.plantillas)S.plantillas=[];
+  S.plantillas.push({id:'TPL'+uid(),nombre:nom,tipo,texto:txt});
+  save();
+  document.getElementById('cfg-tpl-nom').value='';
+  document.getElementById('cfg-tpl-txt').value='';
+  RCfg();toast('✓ Plantilla guardada');
+}
+function delPlantilla(id){
+  S.plantillas=(S.plantillas||[]).filter(p=>p.id!==id);save();RCfg();toast('Eliminada');
+}
+function fillWATplSelect(selId,tipo){
+  const sel=document.getElementById(selId);if(!sel)return;
+  const opts=(S.plantillas||[]).filter(p=>p.tipo===tipo||p.tipo==='ambos');
+  sel.innerHTML='<option value="">💾 Mis plantillas guardadas...</option>';
+  opts.forEach(p=>sel.add(new Option(p.nombre,p.id)));
+}
+function loadMyWATpl(){
+  const sel=document.getElementById('wap-my-tpl');
+  const id=sel?sel.value:'';if(!id)return;
+  const tpl=(S.plantillas||[]).find(p=>p.id===id);if(!tpl)return;
+  const nombre=document.getElementById('wap-nombre').textContent||'Cliente';
+  let txt=tpl.texto.replace(/{nombre}/g,nombre.split(' ')[0]).replace(/{fecha}/g,new Date().toLocaleDateString('es-PA'));
+  document.getElementById('wap-msg').value=txt;
+}
+function saveMyWATpl(){
+  const msg=(document.getElementById('wap-msg').value||'').trim();if(!msg)return;
+  const nom=prompt('Nombre para esta plantilla:','');if(!nom)return;
+  if(!S.plantillas)S.plantillas=[];
+  S.plantillas.push({id:'TPL'+uid(),nombre:nom,tipo:'wa',texto:msg});
+  save();fillWATplSelect('wap-my-tpl','wa');toast('✓ Plantilla guardada');
+}
+function loadMyCemTpl(){
+  const sel=document.getElementById('cem-my-tpl');
+  const id=sel?sel.value:'';if(!id)return;
+  const tpl=(S.plantillas||[]).find(p=>p.id===id);if(!tpl)return;
+  const nombre=document.getElementById('cem-to')?document.getElementById('cem-to').value:'';
+  let txt=tpl.texto.replace(/{nombre}/g,nombre).replace(/{fecha}/g,new Date().toLocaleDateString('es-PA'));
+  const bodyEl=document.getElementById('cem-body');if(bodyEl)bodyEl.value=txt;
+}
+function saveMyCemTpl(){
+  const body=(document.getElementById('cem-body').value||'').trim();if(!body)return;
+  const nom=prompt('Nombre para esta plantilla:','');if(!nom)return;
+  if(!S.plantillas)S.plantillas=[];
+  S.plantillas.push({id:'TPL'+uid(),nombre:nom,tipo:'email',texto:body});
+  save();fillWATplSelect('cem-my-tpl','email');toast('✓ Plantilla guardada');
+}
+
+// ── COTIZADOR RÁPIDO ───────────────────────────────────
+const COTZ_RATES={
+  'AUTOS/VEHÍCULOS':{tasa:.028,com:.15,itbms:.07},
+  'SALUD/MÉDICOS':{tasa:.06,com:.12,itbms:.05},
+  'VIDA':{tasa:.015,com:.20,itbms:.05},
+  'INCENDIO Y LÍNEAS ALIADAS':{tasa:.003,com:.15,itbms:.07},
+  'ACCIDENTES PERSONALES':{tasa:.02,com:.15,itbms:.05},
+  'SOAT':{tasa:0,fijo:36,com:.10,itbms:0},
+  'RESPONSABILIDAD CIVIL':{tasa:.018,com:.15,itbms:.07},
+  'ROBO/HURTO':{tasa:.012,com:.15,itbms:.07},
+  'TRANSPORTE':{tasa:.008,com:.15,itbms:.07},
+  'FIANZAS':{tasa:.02,com:.10,itbms:.07}
+};
+function openCotizador(){
+  document.getElementById('cotz-result').style.display='none';
+  ['cotz-ramo','cotz-valor','cotz-anio','cotz-edad','cotz-nom','cotz-tel','cotz-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  OM('mcotz');
+}
+function cotzCalc(){
+  const ramo=document.getElementById('cotz-ramo').value;
+  const valor=parseFloat(document.getElementById('cotz-valor').value)||0;
+  const fpago=document.getElementById('cotz-fpago').value||'anual';
+  if(!ramo||(!valor&&ramo!=='SOAT')){document.getElementById('cotz-result').style.display='none';return;}
+  const r=COTZ_RATES[ramo];if(!r)return;
+  let prima;
+  if(ramo==='SOAT'){prima=r.fijo||36;}
+  else if(ramo==='VIDA'){
+    const edad=parseInt(document.getElementById('cotz-edad').value)||30;
+    const factor=1+Math.max(0,(edad-30))*0.02;
+    prima=valor*r.tasa*factor;
+  } else {prima=valor*r.tasa;}
+  const total=prima*(1+(r.itbms||0));
+  const com=prima*(r.com||.15);
+  const cuotaMap={anual:1,semestral:2,trimestral:4,mensual:12};
+  const nc=cuotaMap[fpago]||1;
+  const cuota=total/nc;
+  document.getElementById('cotz-result').style.display='block';
+  document.getElementById('cotz-prima-anual').textContent=fmtM(total);
+  document.getElementById('cotz-prima-cuota').textContent=fmtM(cuota);
+  document.getElementById('cotz-cuota-lbl').textContent={anual:'Pago anual',semestral:'Pago semestral',trimestral:'Pago trimestral',mensual:'Pago mensual'}[fpago];
+  document.getElementById('cotz-com-est').textContent=fmtM(com);
+}
+function cotzMsg(){
+  const ramo=document.getElementById('cotz-ramo').value||'seguro';
+  const aseg=document.getElementById('cotz-aseg').value||'';
+  const nom=(document.getElementById('cotz-nom').value||'Cliente').split(' ')[0];
+  const prima=document.getElementById('cotz-prima-anual').textContent||'$0';
+  const cuota=document.getElementById('cotz-prima-cuota').textContent||'$0';
+  const fp=document.getElementById('cotz-fpago').value||'anual';
+  const valor=document.getElementById('cotz-valor').value||'';
+  return`Hola ${nom} 👋🏼\n\n*Cotización JAC Seguros*\n\n📋 Ramo: *${ramo}*\n🏛 Aseguradora: *${aseg}*${valor?'\n💰 Valor asegurado: *$'+parseFloat(valor).toLocaleString()+'*':''}\n\n*Prima anual: ${prima}*\nPago ${fp}: *${cuota}*\n\n⚠️ _Cotización referencial. Prima final sujeta a evaluación de la aseguradora._\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`;
+}
+function cotzSendWA(){
+  const tel=(document.getElementById('cotz-tel').value||'').replace(/\D/g,'');
+  if(!tel){toast('Ingresa el teléfono del cliente','err');return;}
+  const msg=cotzMsg();
+  window.open(`https://wa.me/507${tel}?text=${encodeURIComponent(msg)}`,'_blank');
+  toast('✓ WhatsApp abierto');
+}
+function cotzSendEmail(){
+  const email=document.getElementById('cotz-email').value||'';
+  if(!email){toast('Ingresa el email del cliente','err');return;}
+  const nom=document.getElementById('cotz-nom').value||'';
+  const ramo=document.getElementById('cotz-ramo').value||'seguro';
+  const msg=cotzMsg();
+  cemEntityType='cotz';cemEntityId=null;
+  const sub=`Cotización ${ramo} — JAC Seguros`;
+  SVal('cem-to',email);SVal('cem-sub',sub);SVal('cem-body',msg);SVal('cem-cc','');
+  CM('mcotz');OM('mcem');
+}
+function cotzCrearPoliza(){
+  CM('mcotz');
+  const cId=V('p-cl')||'';
+  OP();
+  setTimeout(()=>{
+    SVal('p-ra',document.getElementById('cotz-ramo')?document.getElementById('cotz-ramo').value:'');
+    SVal('p-as',document.getElementById('cotz-aseg')?document.getElementById('cotz-aseg').value:'');
+    const primaEl=document.getElementById('cotz-prima-anual');
+    if(primaEl)SVal('p-pr',parseFloat(primaEl.textContent.replace(/[^0-9.]/g,''))||'');
+    CT();
+  },200);
+  toast('Completa los datos de la póliza');
+}
+
+// ── CALENDARIO DE VENCIMIENTOS ─────────────────────────
+let renView='list';
+function setRenView(v,btn){
+  renView=v;
+  document.querySelectorAll('#ren-v-list,#ren-v-cal').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  document.getElementById('rcon').style.display=v==='list'?'':'none';
+  document.getElementById('rcal').style.display=v==='cal'?'':'none';
+  if(v==='cal')RRenCal();
+}
+function RRenCal(){
+  const now=new Date();
+  let selYear=now.getFullYear(),selMonth=now.getMonth();
+  renderCalMonth(selYear,selMonth);
+}
+function renderCalMonth(year,month){
+  const rcal=document.getElementById('rcal');if(!rcal)return;
+  const pol=S.polizas.filter(p=>p.estado!=='Cancelada'&&p.fechaFin);
+  // Build map: "YYYY-MM-DD" → [polizas]
+  const map={};
+  pol.forEach(p=>{
+    const k=p.fechaFin.slice(0,10);
+    if(!map[k])map[k]=[];map[k].push(p);
+  });
+  const first=new Date(year,month,1);
+  const last=new Date(year,month+1,0);
+  const startDow=first.getDay();// 0=Sun
+  const MON2=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let h=`<div class="card" style="padding:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <button class="btn bsm" onclick="renderCalMonth(${month===0?year-1:year},${month===0?11:month-1})">‹ Anterior</button>
+      <span style="font-weight:700;font-size:15px">${MON2[month]} ${year}</span>
+      <button class="btn bsm" onclick="renderCalMonth(${month===11?year+1:year},${month===11?0:month+1})">Siguiente ›</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center">`;
+  ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d=>{h+=`<div style="font-size:10px;font-weight:700;color:var(--mu);padding:4px">${d}</div>`;});
+  for(let i=0;i<startDow;i++)h+=`<div></div>`;
+  const today=new Date();today.setHours(0,0,0,0);
+  for(let d=1;d<=last.getDate();d++){
+    const dd=String(d).padStart(2,'0');const mm=String(month+1).padStart(2,'0');
+    const key=`${year}-${mm}-${dd}`;
+    const dayPols=map[key]||[];
+    const isToday=new Date(year,month,d).getTime()===today.getTime();
+    const isPast=new Date(year,month,d)<today;
+    const dotColor=dayPols.length?isPast?'#DC2626':'#1D4ED8':'';
+    h+=`<div style="padding:5px 2px;border-radius:6px;cursor:${dayPols.length?'pointer':'default'};background:${isToday?'#1D4ED8':'transparent'};border:${dayPols.length?'1px solid '+(isPast?'#FCA5A5':'#BFDBFE'):'1px solid transparent'}" 
+      ${dayPols.length?`onclick="showCalDay('${key}',${JSON.stringify(dayPols.map(p=>p.id)).replace(/"/g,"'")})"`:''}>
+      <div style="font-size:12px;font-weight:${isToday?700:400};color:${isToday?'#fff':isPast?'var(--mu)':'inherit'}">${d}</div>
+      ${dayPols.length?`<div style="width:6px;height:6px;border-radius:50%;background:${dotColor};margin:2px auto 0"></div>`:''}
+      ${dayPols.length>1?`<div style="font-size:9px;color:${isToday?'#fff':dotColor};font-weight:700">${dayPols.length}</div>`:''}
+    </div>`;
+  }
+  h+=`</div>`;
+  // Legend
+  h+=`<div style="display:flex;gap:12px;margin-top:10px;font-size:11px;justify-content:center">
+    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1D4ED8;margin-right:4px"></span>Próximas</span>
+    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#DC2626;margin-right:4px"></span>Vencidas</span>
+  </div></div>`;
+  rcal.innerHTML=h;
+}
+function showCalDay(fecha,ids){
+  const pols=ids.map(id=>S.polizas.find(p=>p.id===id)).filter(Boolean);
+  if(!pols.length)return;
+  let h=`<b>${fmt(fecha)} — ${pols.length} póliza(s)</b><br><br>`;
+  pols.forEach(p=>{const cl=GC(p.clienteId);h+=`• <b>${esc(cl.nombre||p.nombreCliente||'—')}</b> · ${esc(p.ramo)} · <span style="color:${ac(p.aseg)};font-weight:700">${esc(p.aseg)}</span> · ${fmtM(p.prima)}<br>`;});
+  toast(h.replace(/<[^>]+>/g,'').slice(0,200),'ok');
+  // Open first as detail
+  if(pols.length===1)setTimeout(()=>showPolDP(pols[0].id),200);
+}
+
 function clearData(){if(!confirm('¿BORRAR TODO? Irreversible.'))return;localStorage.removeItem('jacv10');toast('Datos borrados');setTimeout(()=>location.reload(),1500);}
 function addEtiqueta(){
   const n=V('cfg-tag-n').trim(),c=document.getElementById('cfg-tag-c').value;
@@ -1174,6 +1581,9 @@ function loadS(){
       if(!p.tareas)p.tareas=JSON.parse(JSON.stringify(D.tareas));
       if(!p.comisiones)p.comisiones=JSON.parse(JSON.stringify(D.comisiones));
       if(!p.pagos)p.pagos=[];
+      if(!p.plantillas)p.plantillas=[];
+      if(!p.metas)p.metas={mensual:0,anual:0};
+      if(!p.darkMode)p.darkMode=false;
       if(!p.vcReglas)p.vcReglas=JSON.parse(JSON.stringify(D.vcReglas));
       p.clientes.forEach(c=>{if(!c.historialWA)c.historialWA=[];if(!c.etiquetas)c.etiquetas=[];if(!c.archivos)c.archivos=[];});
       p.prospectos.forEach(pr=>{if(!pr.historial)pr.historial=[];if(!pr.archivos)pr.archivos=[];if(!pr.etiquetas)pr.etiquetas=[];});
@@ -1181,7 +1591,7 @@ function loadS(){
     }
   }catch(e){console.error('loadS:',e);}
   const n=JSON.parse(JSON.stringify(D));
-  n.pagos=[];
+  n.pagos=[];n.plantillas=[];n.metas={mensual:0,anual:0};n.darkMode=false;
   return n;
 }
 let S=loadS();
@@ -1777,9 +2187,9 @@ ${c.ingresoMensual?`<div class="drow"><label>Ingreso Mensual</label><div class="
 ${c.fExpirCed?`<div class="drow"><label>Exp. Doc.</label><div class="dv" style="${dFrom(c.fExpirCed)<90&&dFrom(c.fExpirCed)>=0?'color:#DC2626;font-weight:600':''}">${fmt(c.fExpirCed)}</div></div>`:''}
 ${(c.etiquetas||[]).length?`<div class="drow"><label>Etiquetas</label><div class="dv">${renderTags(c.etiquetas)}</div></div>`:''}
 <div class="dsec">Contacto</div>
-${c.cel?`<div class="drow"><label>Celular</label><div class="dv"><a href="tel:${esc(c.cel)}" style="color:var(--bl);font-weight:600">${esc(c.cel)}</a></div></div>`:''}
+${c.cel?`<div class="drow"><label>Celular</label><div class="dv" style="display:flex;align-items:center;gap:8px"><a href="tel:${esc(c.cel)}" style="color:var(--bl);font-weight:600">${esc(c.cel)}</a><button onclick="openWAForCli('${c.id}')" class="btn bsm bwa" style="padding:2px 8px;font-size:11px">💬 WA</button></div></div>`:''}
 ${c.celSec?`<div class="drow"><label>Celular 2</label><div class="dv">${esc(c.celSec)}</div></div>`:''}
-${c.email?`<div class="drow"><label>Email</label><div class="dv"><a href="mailto:${esc(c.email)}" style="color:var(--bl);font-size:11px">${esc(c.email)}</a></div></div>`:''}
+${c.email?`<div class="drow"><label>Email</label><div class="dv" style="display:flex;align-items:center;gap:8px"><a href="mailto:${esc(c.email)}" style="color:var(--bl);font-size:11px">${esc(c.email)}</a><button onclick="openEmailForClient('${c.id}')" class="btn bsm bin" style="padding:2px 8px;font-size:11px">📧 Email</button></div></div>`:''}
 ${c.emailSec?`<div class="drow"><label>Email 2</label><div class="dv" style="font-size:11px">${esc(c.emailSec)}</div></div>`:''}
 ${c.dir?`<div class="drow"><label>Dirección</label><div class="dv" style="font-size:11px">${esc(c.dir)}</div></div>`:''}
 ${c.ciudad?`<div class="drow"><label>Ciudad</label><div class="dv">${esc(c.ciudad)}${c.provincia?', '+esc(c.provincia):''}</div></div>`:''}
@@ -1787,6 +2197,7 @@ ${c.nomContacto?`<div class="drow"><label>Contacto Emerg.</label><div class="dv"
 ${c.banco?`<div class="drow"><label>Banco / Cta.</label><div class="dv" style="font-size:11px">${esc(c.banco)}${c.bancoNum?' — '+esc(c.bancoNum):''}</div></div>`:''}
 ${c.obs?`<div class="drow"><label>Observaciones</label><div class="dv" style="font-size:11px">${esc(c.obs)}</div></div>`:''}
 ${c.origenCliente?`<div class="drow"><label>Origen</label><div class="dv">${esc(c.origenCliente)}</div></div>`:''}
+${c.referidoPor?`<div class="drow"><label>Referido por</label><div class="dv" style="color:var(--bl);font-weight:600">👥 ${esc(c.referidoPor)}</div></div>`:''}
 <div class="dsec">Estado Comercial</div>
 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
   <select class="fc" style="padding:6px 10px;font-size:12px;min-width:140px;font-weight:600" onchange="setClientStatus('${id}',this.value)">
@@ -1865,7 +2276,7 @@ function setClientStatus(clientId,status){
 function OC(id){
   EID=id||null;_pf=[];const c=id?GC(id):{};
   const mct=document.getElementById('mct');if(mct)mct.textContent=id?'Editar Cliente':'Nuevo Cliente';
-  [['c-nom','nombre'],['c-td','tipoDoc'],['c-ced','cedula'],['c-cel','cel'],['c-cel2','celSec'],['c-tel','tel'],['c-tel2','telSec'],['c-em','email'],['c-em2','emailSec'],['c-fn','fNac'],['c-ge','genero'],['c-ocu','ocupacion'],['c-estcivil','estadoCivil'],['c-hijos','numHijos'],['c-empnom','empresaNom'],['c-cargo','cargo'],['c-ingresos','ingresoMensual'],['c-ciu','ciudad'],['c-prov','provincia'],['c-dis','distrito'],['c-cor','corregimiento'],['c-fec','fExpCed'],['c-fex','fExpirCed'],['c-ban','banco'],['c-bannum','bancoNum'],['c-dir','dir'],['c-dirs','dirSec'],['c-cat','categorias'],['c-est','estadoComercial'],['c-nc','nomContacto'],['c-nctel','nomContactoTel'],['c-ncrel','nomContactoRel'],['c-avo','avisOp'],['c-obs','obs'],['c-notas','notas'],['c-origen','origenCliente'],['c-avisop','avisOp2']].forEach(([fid,key])=>SVal(fid,c[key]));
+  [['c-nom','nombre'],['c-td','tipoDoc'],['c-ced','cedula'],['c-cel','cel'],['c-cel2','celSec'],['c-tel','tel'],['c-tel2','telSec'],['c-em','email'],['c-em2','emailSec'],['c-fn','fNac'],['c-ge','genero'],['c-ocu','ocupacion'],['c-estcivil','estadoCivil'],['c-hijos','numHijos'],['c-empnom','empresaNom'],['c-cargo','cargo'],['c-ingresos','ingresoMensual'],['c-ciu','ciudad'],['c-prov','provincia'],['c-dis','distrito'],['c-cor','corregimiento'],['c-fec','fExpCed'],['c-fex','fExpirCed'],['c-ban','banco'],['c-bannum','bancoNum'],['c-dir','dir'],['c-dirs','dirSec'],['c-cat','categorias'],['c-est','estadoComercial'],['c-nc','nomContacto'],['c-nctel','nomContactoTel'],['c-ncrel','nomContactoRel'],['c-avo','avisOp'],['c-obs','obs'],['c-notas','notas'],['c-origen','origenCliente'],['c-referido','referidoPor'],['c-avisop','avisOp2']].forEach(([fid,key])=>SVal(fid,c[key]));
   renderTagSel('c-tag-sel',c.etiquetas||[]);
   const fl=document.getElementById('c-file-list');if(fl)fl.innerHTML=renderFL(c.archivos||[],id||'','cliente');
   OM('mc');initFileInp('c-file-inp','c-file-pending');
@@ -1889,7 +2300,7 @@ function SC(){
     nomContacto:V('c-nc').trim(),nomContactoTel:V('c-nctel').trim(),nomContactoRel:V('c-ncrel').trim(),
     avisOp:V('c-avo').trim(),avisOp2:V('c-avisop').trim(),
     obs:V('c-obs').trim(),notas:V('c-notas').trim(),
-    origenCliente:V('c-origen').trim(),
+    origenCliente:V('c-origen').trim(),referidoPor:V('c-referido').trim(),
     etiquetas:getSelTags('c-tag-sel')};
   if(EID){const i=S.clientes.findIndex(c=>c.id===EID);if(i>=0){if(!S.clientes[i].archivos)S.clientes[i].archivos=[];S.clientes[i].archivos.push(..._pf);S.clientes[i]={...S.clientes[i],...d};}toast('✓ Cliente actualizado');}
   else{S.clientes.push({id:'C'+uid(),...d,archivos:[..._pf],alias:'',historialWA:[]});toast('✓ Cliente creado');}
@@ -2326,6 +2737,8 @@ function showPolDP(id){
 <div class="drow"><label>Nro.</label><div class="dv" style="font-family:monospace;font-weight:700;font-size:13px">${esc(p.num)}</div></div>
 <div class="drow"><label>Estado</label><div class="dv">${statusB(p)} ${b('bgr',p.etapa||'—')}</div></div>
 <div class="drow"><label>Cliente</label><div class="dv"><span onclick="closeDP();setTimeout(()=>showCliDP('${p.clienteId}'),80)" style="cursor:pointer;color:var(--bl);font-weight:600">${esc(cl.nombre||p.nombreCliente||'—')} ↗</span></div></div>
+${(cl.cel||cl.tel)?`<div class="drow"><label>Celular</label><div class="dv" style="display:flex;align-items:center;gap:8px"><a href="tel:${esc(cl.cel||cl.tel)}" style="color:var(--bl);font-weight:600">${esc(cl.cel||cl.tel)}</a><button onclick="openWAForPolCli('${p.id}','${p.clienteId}','Renovación')" class="btn bsm bwa" style="padding:2px 8px;font-size:11px">💬 Renovación</button><button onclick="openWAForPolCli('${p.id}','${p.clienteId}','Cobro')" class="btn bsm bwa2" style="padding:2px 8px;font-size:11px">💬 Cobro</button></div></div>`:''}
+${(cl.email||p.emailCliente)?`<div class="drow"><label>Email</label><div class="dv" style="display:flex;align-items:center;gap:8px"><a href="mailto:${esc(cl.email||p.emailCliente)}" style="color:var(--bl);font-size:11px">${esc(cl.email||p.emailCliente)}</a><button onclick="openEmailForPol('${p.id}')" class="btn bsm bin" style="padding:2px 8px;font-size:11px">📧 Email</button></div></div>`:''}
 <div class="drow"><label>Aseg.</label><div class="dv" style="color:${ac(p.aseg)};font-weight:700">${esc(p.aseg)}</div></div>
 <div class="drow"><label>Ramo</label><div class="dv">${esc(p.ramo)}${p.subramo?' · '+esc(p.subramo):''}</div></div>
 ${p.riesgo?`<div class="drow"><label>Riesgo</label><div class="dv" style="font-size:11px">${esc(p.riesgo)}</div></div>`:''}
@@ -3958,6 +4371,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   setTimeout(()=>{
     if(!S.notas)S.notas=[];
     renderDashNotasAlert();
+    if(typeof applyDarkMode==='function')applyDarkMode();
     // add Notas to SH router
     const origSH=window.SH;
     window.SH=function(id){
