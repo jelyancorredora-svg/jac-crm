@@ -203,9 +203,13 @@ body.dark .mu{color:var(--dark-mu);}
 <div id="ls">
 <div class="lbox">
   <div class="llogo">
-    <svg width="56" height="56" viewBox="0 0 100 100"><path d="M15 60 A35 35 0 0 1 85 60" fill="none" stroke="#C8102E" stroke-width="13" stroke-linecap="round"/><line x1="15" y1="60" x2="85" y2="60" stroke="#C8102E" stroke-width="2.5" opacity=".3"/><text x="50" y="90" text-anchor="middle" fill="#1A3A6B" font-size="18" font-weight="800" font-family="Outfit,sans-serif" letter-spacing="2">JAC</text></svg>
-    <h1>JAC SEGUROS</h1>
-    <p>Sistema CRM · Lic. #6175 · Panamá</p>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" width="200" aria-label="JAC Seguros">
+      <line x1="6" y1="14" x2="254" y2="14" stroke="#9B9589" stroke-width="2.5"/>
+      <line x1="6" y1="76" x2="254" y2="76" stroke="#9B9589" stroke-width="2.5"/>
+      <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#1A3A6B" letter-spacing="6">JAC</text>
+      <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="300" font-size="12" fill="#1A6FC4" letter-spacing="8">SEGUROS</text>
+    </svg>
+    <p style="margin-top:8px;font-size:11px;color:#6B7280">Sistema CRM · Lic. #6175 · Panamá</p>
   </div>
   <div class="ltabs">
     <button class="on" onclick="switchLT('pwd',this)">🔐 Contraseña</button>
@@ -216,7 +220,8 @@ body.dark .mu{color:var(--dark-mu);}
     <div class="lfld"><label>USUARIO</label><input type="text" id="lu" placeholder="jacseguros" autocomplete="username" spellcheck="false"></div>
     <div class="lfld"><label>CONTRASEÑA</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="lbtn" onclick="doLogin()">Ingresar →</button>
-    <div class="lhint">Usuario: jacseguros · Contraseña: jac2024</div>
+    <div class="lhint">Usuario: <b>jacseguros</b> · Contraseña: <b>jac2024</b></div>
+    <div style="text-align:center;margin-top:10px"><button onclick="resetLoginEmergency()" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer;text-decoration:underline">🔓 ¿No puedes entrar? Restablecer acceso</button></div>
   </div>
   <div class="lform" id="lf-pin">
     <div class="lfld"><label>PIN DE 4 DÍGITOS</label><input type="password" id="lpin" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="off"></div>
@@ -230,8 +235,12 @@ body.dark .mu{color:var(--dark-mu);}
 <div id="app">
 <div id="hdr"><div class="hi">
   <div class="lg2">
-    <svg width="30" height="30" viewBox="0 0 100 100"><path d="M15 60 A35 35 0 0 1 85 60" fill="none" stroke="#C8102E" stroke-width="13" stroke-linecap="round"/><line x1="15" y1="60" x2="85" y2="60" stroke="#C8102E" stroke-width="2.5" opacity=".3"/><text x="50" y="90" text-anchor="middle" fill="#1A3A6B" font-size="18" font-weight="800" font-family="Outfit,sans-serif" letter-spacing="2">JAC</text></svg>
-    <div class="lt"><b>JAC SEGUROS</b><small>Lic. #6175 · Jely An Castro Pérez</small></div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 76" height="44" aria-label="JAC Seguros">
+      <line x1="5" y1="12" x2="215" y2="12" stroke="#C4B89A" stroke-width="2"/>
+      <line x1="5" y1="64" x2="215" y2="64" stroke="#C4B89A" stroke-width="2"/>
+      <text x="110" y="49" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="36" fill="#FFFFFF" letter-spacing="5">JAC</text>
+      <text x="110" y="61" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="300" font-size="10" fill="#5BA4F5" letter-spacing="7">SEGUROS</text>
+    </svg>
   </div>
   <nav>
     <a class="on" onclick="SH('dash')">📊 Dashboard</a>
@@ -251,6 +260,7 @@ body.dark .mu{color:var(--dark-mu);}
     <a onclick="SH('aseg')">🏛 Aseg.</a>
     <a onclick="SH('wam')">📣 WA Masivo</a>
     <a onclick="SH('not')">📝 Notas</a>
+    <a onclick="SH('inf')">📊 Informes</a>
     <a onclick="SH('cfg')">⚙️</a>
   </nav>
   <div class="ha" id="ha">
@@ -624,6 +634,86 @@ body.dark .mu{color:var(--dark-mu);}
   </div>
 </div>
 
+<!-- INFORMES -->
+<div class="pg" id="pg-inf">
+  <div class="ph">
+    <div><h2>📊 Informes</h2><small>Reportes y análisis de cartera</small></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bcy" onclick="exportInformePDF()">📄 Exportar PDF</button>
+      <button class="btn bgn" onclick="exportInformeExcel()">📊 Exportar Excel</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <button class="btn" id="itab-resumen" onclick="showInfTab('resumen')" style="background:#1E3A8A;color:#fff">📋 Resumen General</button>
+    <button class="btn" id="itab-prod" onclick="showInfTab('prod')" style="background:#fff;color:#1E3A8A;border-color:#1E3A8A">🏆 Producción</button>
+    <button class="btn" id="itab-ren" onclick="showInfTab('ren')" style="background:#fff;color:#1E3A8A;border-color:#1E3A8A">🔔 Renovaciones</button>
+    <button class="btn" id="itab-cli" onclick="showInfTab('cli')" style="background:#fff;color:#1E3A8A;border-color:#1E3A8A">👥 Clientes</button>
+    <button class="btn" id="itab-aseg" onclick="showInfTab('aseg')" style="background:#fff;color:#1E3A8A;border-color:#1E3A8A">🏛 Aseguradoras</button>
+  </div>
+
+  <!-- Resumen General -->
+  <div id="inf-resumen">
+    <div class="sg" id="inf-stats" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+      <div class="card"><div class="ch"><h3>📈 Pólizas por Ramo</h3></div><div style="padding:12px" id="inf-ramo-list"></div></div>
+      <div class="card"><div class="ch"><h3>🏛 Pólizas por Aseguradora</h3></div><div style="padding:12px" id="inf-aseg-list"></div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="ch"><h3>💰 Comisiones por Mes (año actual)</h3></div><div style="padding:12px" id="inf-com-mes"></div></div>
+  </div>
+
+  <!-- Producción -->
+  <div id="inf-prod" style="display:none">
+    <div class="card">
+      <div class="ch" style="display:flex;justify-content:space-between;align-items:center">
+        <h3>🏆 Producción de Pólizas</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select class="fc" id="inf-prod-year" style="width:100px;font-size:12px" onchange="renderInfProd()">
+          </select>
+          <select class="fc" id="inf-prod-mes" style="width:110px;font-size:12px" onchange="renderInfProd()">
+            <option value="">Todos los meses</option>
+            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+            <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+          </select>
+        </div>
+      </div>
+      <div class="tw"><table><thead><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Comisión</th><th>Inicio</th><th>Estado</th></tr></thead><tbody id="inf-prod-tbl"></tbody></table></div>
+      <div style="padding:10px;font-weight:700;font-size:13px;border-top:1px solid var(--bd)" id="inf-prod-total"></div>
+    </div>
+  </div>
+
+  <!-- Renovaciones -->
+  <div id="inf-ren" style="display:none">
+    <div class="card">
+      <div class="ch"><h3>🔔 Pólizas por Renovar (próximos 90 días)</h3></div>
+      <div class="tw"><table><thead><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Vence</th><th>Días</th></tr></thead><tbody id="inf-ren-tbl"></tbody></table></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><h3>⚠️ Pólizas Vencidas</h3></div>
+      <div class="tw"><table><thead><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Prima</th><th>Venció</th></tr></thead><tbody id="inf-venc-tbl"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Clientes -->
+  <div id="inf-cli" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card"><div class="ch"><h3>🎂 Cumpleaños este mes</h3></div><div style="padding:12px" id="inf-bday-list"></div></div>
+      <div class="card"><div class="ch"><h3>📊 Clientes por Estado</h3></div><div style="padding:12px" id="inf-cli-estado"></div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="ch"><h3>🆕 Clientes nuevos por mes</h3></div><div style="padding:12px" id="inf-cli-nuevos"></div></div>
+  </div>
+
+  <!-- Aseguradoras -->
+  <div id="inf-aseg" style="display:none">
+    <div class="card"><div class="ch"><h3>🏛 Resumen por Aseguradora</h3></div>
+      <div class="tw"><table><thead><tr><th>Aseguradora</th><th>Pólizas</th><th>Prima Total</th><th>Comisión Total</th><th>Vigentes</th><th>Vencidas</th></tr></thead><tbody id="inf-aseg-tbl"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIG -->
 <div class="pg" id="pg-cfg">
   <div class="ph"><div><h2>⚙️ Configuración</h2></div></div>
@@ -757,6 +847,10 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="mh"><h2>📧 Redactar Correo</h2><button class="btn bgh" onclick="CM('mcem')">✕</button></div>
   <div class="mb">
     <div class="fg" style="gap:9px">
+      <div class="fl ff"><label>De (remitente)</label><select class="fc" id="cem-from">
+        <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com (JAC Seguros)</option>
+        <option value="jelyancorredora@gmail.com">jelyancorredora@gmail.com (Gmail)</option>
+      </select></div>
       <div class="fl ff"><label>Para (email) <span style="color:var(--rd)">*</span></label><input class="fc" id="cem-to" type="email" placeholder="destinatario@email.com"></div>
       <div class="fl ff"><label>CC (opcional)</label><input class="fc" id="cem-cc" type="email" placeholder="copia@email.com"></div>
       <div class="fl ff"><label>Asunto <span style="color:var(--rd)">*</span></label><input class="fc" id="cem-sub" placeholder="Asunto del correo"></div>
@@ -804,6 +898,7 @@ body.dark .mu{color:var(--dark-mu);}
             <option value="MAPFRE">MAPFRE</option><option value="PALIG">PALIG</option>
             <option value="UNIVIVIR">UNIVIVIR</option><option value="FEDPA">FEDPA</option>
             <option value="Acerta">Acerta</option><option value="Chubb">Chubb</option>
+            <option value="VUMI-LA REGIONAL DE SEGUROS">VUMI-LA REGIONAL</option><option value="VUMI-LA REGIONAL DE SEGUROS">VUMI-LA REGIONAL</option>
           </select>
         </div>
       </div>
@@ -883,8 +978,23 @@ body.dark .mu{color:var(--dark-mu);}
   </div>
   <div class="mf">
     <button class="btn" onclick="CM('mwap')">Cancelar</button>
-    <button class="btn" style="background:#25D366;color:#fff;border-color:#25D366;font-weight:700" onclick="sendWAMsg()">💬 Abrir WhatsApp</button>
+    <button class="btn" style="background:#25D366;color:#fff;border-color:#25D366;font-weight:700" onclick="sendWAMsg()">💬 Enviar Mensaje</button>
   </div>
+  <div style="padding:8px 14px 12px;border-top:1px solid #d4f0dd">
+    <label style="font-size:11px;font-weight:600;color:#128C7E">📎 Archivo adjunto (opcional)</label>
+    <div style="display:flex;gap:6px;margin-top:5px;align-items:center">
+      <input type="file" id="wap-file" style="flex:1;font-size:11px;padding:4px;border:1px solid #B2DFC9;border-radius:6px">
+      <button onclick="shareWAFile()" class="btn bsm" style="background:#E7F8EE;color:#128C7E;border-color:#B2DFC9;white-space:nowrap">📤 Compartir archivo</button>
+    </div>
+    <div style="font-size:10px;color:var(--mu);margin-top:3px">Abre WhatsApp con el mensaje y luego adjunta el archivo manualmente.</div>
+  </div>
+</div></div>
+
+
+<!-- MODAL NOTAS -->
+<div class="mo" id="mnota"><div class="md mdsm" style="max-width:520px">
+  <div class="mh"><h2 id="mnota-title">📝 Nueva Nota</h2><button class="btn bgh" onclick="CM('mnota')">✕</button></div>
+  <div class="mb" id="mnota-body"></div>
 </div></div>
 
 <!-- MODAL CLIENTE (formulario completo) -->
@@ -894,6 +1004,7 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="fl"><label>Tipo documento</label><select class="fc" id="c-td"><option>Cédula</option><option>RUC</option><option>Pasaporte</option><option>Extranjero</option></select></div>
   <div class="fl"><label>Nro. Documento <span>*</span></label><input class="fc" id="c-ced" placeholder="X-XXX-XXXX / RUC"></div>
   <span class="sl">📞 Contacto</span>
+  <div class="fl" style="max-width:180px"><label>Cód. País WhatsApp</label><select class="fc" id="c-codPais"><option value="507">🇵🇦 +507 Panamá</option><option value="1">🇺🇸 +1 USA/Canadá</option><option value="57">🇨🇴 +57 Colombia</option><option value="58">🇻🇪 +58 Venezuela</option><option value="52">🇲🇽 +52 México</option><option value="503">🇸🇻 +503 El Salvador</option><option value="502">🇬🇹 +502 Guatemala</option><option value="504">🇭🇳 +504 Honduras</option><option value="505">🇳🇮 +505 Nicaragua</option><option value="506">🇨🇷 +506 Costa Rica</option><option value="51">🇵🇪 +51 Perú</option><option value="54">🇦🇷 +54 Argentina</option><option value="55">🇧🇷 +55 Brasil</option><option value="56">🇨🇱 +56 Chile</option><option value="34">🇪🇸 +34 España</option></select></div>
   <div class="fl"><label>Celular principal</label><input class="fc" id="c-cel" inputmode="tel" placeholder="6XXX-XXXX"></div>
   <div class="fl"><label>Celular secundario</label><input class="fc" id="c-cel2" inputmode="tel" placeholder="6XXX-XXXX"></div>
   <div class="fl"><label>Teléfono fijo</label><input class="fc" id="c-tel" inputmode="tel" placeholder="XXXX-XXXX"></div>
@@ -960,6 +1071,7 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="fl ff"><label>Nombre completo <span>*</span></label><input class="fc" id="pro-n"></div>
   <div class="fl"><label>Tipo documento</label><select class="fc" id="pro-td"><option>Cédula</option><option>RUC</option><option>Pasaporte</option></select></div>
   <div class="fl"><label>Nro. Documento</label><input class="fc" id="pro-ced"></div>
+  <div class="fl" style="max-width:180px"><label>Cód. País WA</label><select class="fc" id="pro-codPais"><option value="507">🇵🇦 +507 Panamá</option><option value="1">🇺🇸 +1 USA/CA</option><option value="57">🇨🇴 +57 Colombia</option><option value="58">🇻🇪 +58 Venezuela</option><option value="52">🇲🇽 +52 México</option><option value="503">🇸🇻 +503 El Salvador</option><option value="502">🇬🇹 +502 Guatemala</option><option value="51">🇵🇪 +51 Perú</option><option value="54">🇦🇷 +54 Argentina</option><option value="34">🇪🇸 +34 España</option></select></div>
   <div class="fl"><label>Celular <span>*</span></label><input class="fc" id="pro-cel" inputmode="tel"></div>
   <div class="fl"><label>Teléfono</label><input class="fc" id="pro-tel" inputmode="tel"></div>
   <div class="fl"><label>Email</label><input class="fc" id="pro-em" type="email"></div>
@@ -1031,12 +1143,14 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="fl"><label>Cobertura</label><input class="fc" id="p-cob"></div>
   <span class="sl">💰 PRIMAS Y COMISIONES</span>
   <div class="fl"><label>Prima Neta ($) <span>*</span></label><input class="fc" id="p-pr" type="number" step="0.01" oninput="CT()" inputmode="decimal"></div>
-  <div class="fl"><label>% ITBMS</label><select class="fc" id="p-it" onchange="CT()"><option value="5">5%</option><option value="6" selected>6%</option><option value="7">7%</option><option value="0">0%</option></select></div>
+  <div class="fl"><label>% ITBMS</label><select class="fc" id="p-it" onchange="CT()"><option value="6" selected>6%</option><option value="5">5%</option><option value="0">0%</option></select></div>
   <div class="fl"><label>ITBMS ($)</label><input class="fc ro" id="p-ib" type="number" readonly></div>
   <div class="fl"><label>Gastos Expedición ($)</label><input class="fc" id="p-ge" type="number" step="0.01" oninput="CT()" inputmode="decimal"></div>
   <div class="fl"><label>Valor Financiación ($)</label><input class="fc" id="p-vf" type="number" step="0.01" inputmode="decimal"></div>
-  <div class="fl"><label>Total ($)</label><input class="fc ro" id="p-tot" type="number" readonly style="font-weight:700"></div>
-  <div class="fl"><label>% Comisión</label><input class="fc" id="p-cb" type="number" step="0.1" oninput="CT()" inputmode="decimal"></div>
+  <div class="fl"><label>Prima Total c/ITBMS ($)</label><input class="fc ro" id="p-tot" type="number" readonly style="font-weight:700;color:#1D4ED8"></div>
+  <div class="fl"><label>Cuota Mensual c/ITBMS ($)</label><input class="fc ro" id="p-cmes" type="number" readonly style="color:#15803D"></div>
+  <div class="fl"><label>Cuota Trimestral c/ITBMS ($)</label><input class="fc ro" id="p-ctri" type="number" readonly style="color:#15803D"></div>
+  <div class="fl"><label>% Comisión (sobre Prima Neta)</label><input class="fc" id="p-cb" type="number" step="0.1" oninput="CT()" inputmode="decimal"></div>
   <div class="fl"><label>Participación JAC (%)</label><input class="fc" id="p-pa" type="number" step="0.1" value="100" oninput="CT()" inputmode="decimal"></div>
   <div class="fl"><label>Comisión JAC ($)</label><input class="fc ro" id="p-co" type="number" readonly style="font-weight:700;color:#15803D"></div>
   <span class="sl">🤝 CO-CORRETAJE</span>
@@ -1256,6 +1370,13 @@ function startSession(){
   document.getElementById('app').style.display='block';
   SH('dash');
 }
+function resetLoginEmergency(){
+  if(!confirm('¿Restablecer acceso a valores por defecto?\n\nUsuario: jacseguros\nContraseña: jac2024\nPIN: 6175'))return;
+  localStorage.removeItem('jac_auth');
+  sessionStorage.clear();
+  alert('✅ Acceso restablecido.\n\nUsa:\nUsuario: jacseguros\nContraseña: jac2024');
+  location.reload();
+}
 function doLogout(){
   if(!confirm('¿Cerrar sesión?'))return;
   sessionStorage.removeItem('jac_s');
@@ -1388,17 +1509,18 @@ function saveMyCemTpl(){
 }
 
 // ── COTIZADOR RÁPIDO ───────────────────────────────────
+// ITBMS Panamá: 6% ramos generales, 5% vida/salud/AP, 0% SOAT/Fianzas
 const COTZ_RATES={
-  'AUTOS/VEHÍCULOS':{tasa:.028,com:.15,itbms:.07},
+  'AUTOS/VEHÍCULOS':{tasa:.028,com:.15,itbms:.06},
   'SALUD/MÉDICOS':{tasa:.06,com:.12,itbms:.05},
   'VIDA':{tasa:.015,com:.20,itbms:.05},
-  'INCENDIO Y LÍNEAS ALIADAS':{tasa:.003,com:.15,itbms:.07},
+  'INCENDIO Y LÍNEAS ALIADAS':{tasa:.003,com:.15,itbms:.06},
   'ACCIDENTES PERSONALES':{tasa:.02,com:.15,itbms:.05},
   'SOAT':{tasa:0,fijo:36,com:.10,itbms:0},
-  'RESPONSABILIDAD CIVIL':{tasa:.018,com:.15,itbms:.07},
-  'ROBO/HURTO':{tasa:.012,com:.15,itbms:.07},
-  'TRANSPORTE':{tasa:.008,com:.15,itbms:.07},
-  'FIANZAS':{tasa:.02,com:.10,itbms:.07}
+  'RESPONSABILIDAD CIVIL':{tasa:.018,com:.15,itbms:.06},
+  'ROBO/HURTO':{tasa:.012,com:.15,itbms:.06},
+  'TRANSPORTE':{tasa:.008,com:.15,itbms:.06},
+  'FIANZAS':{tasa:.02,com:.10,itbms:0}
 };
 function openCotizador(){
   document.getElementById('cotz-result').style.display='none';
@@ -1443,7 +1565,8 @@ function cotzSendWA(){
   const tel=(document.getElementById('cotz-tel').value||'').replace(/\D/g,'');
   if(!tel){toast('Ingresa el teléfono del cliente','err');return;}
   const msg=cotzMsg();
-  window.open(`https://wa.me/507${tel}?text=${encodeURIComponent(msg)}`,'_blank');
+  const codCotz=(document.getElementById('cotz-cod')||{}).value||'507';
+  window.open(`https://wa.me/${fmtWANum(tel,codCotz)}?text=${encodeURIComponent(msg)}`,'_blank');
   toast('✓ WhatsApp abierto');
 }
 function cotzSendEmail(){
@@ -1701,6 +1824,17 @@ function delFile(rid,rtype,fid){confirm2('¿Eliminar archivo?',()=>{const maps={
 // ── WHATSAPP — Tracking automático al hacer click ──
 // Números en formato 8 dígitos limpios (e.g. "62119106")
 // waL("62119106","msg") → "https://wa.me/50762119106?text=..."
+// fmtWA(client) → código de país + número limpio
+function fmtWANum(tel, codPais){
+  if(!tel)return'';
+  let n=(tel+'').replace(/[^0-9]/g,'');
+  let cp=(codPais||'507')+'';
+  // Si el número ya empieza con el código de país, no duplicar
+  if(n.startsWith(cp))return n;
+  // Si empieza con 00 + código, quitar los 00
+  if(n.startsWith('00'+cp))return n.slice(2);
+  return cp+n;
+}
 function formatTel(t){
   if(!t)return'';
   let n=String(t).replace(/[^0-9+\-\s]/g,'').trim();
@@ -1713,14 +1847,10 @@ function formatTel(t){
   if(d.length===7)return'+507 '+d.slice(0,4)+'-'+d.slice(4);
   return n;
 }
-function waL(tel,msg){
-  if(!tel)return null;
-  let n=String(tel).replace(/\D/g,'');
-  if(!n)return null;
-  if(n.startsWith('507')&&n.length>8)n=n.slice(3);
-  if(n.length>8)n=n.slice(-8);
-  if(n.length<7)return null;
-  return`https://wa.me/507${n}?text=${encodeURIComponent(msg)}`;
+function waL(tel,msg,codPais){
+  const n=fmtWANum(tel,codPais||'507');
+  if(!n||n.length<7)return null;
+  return`https://wa.me/${n}?text=${encodeURIComponent(msg)}`;
 }
 // Al hacer click: registra automáticamente en historial Y abre WhatsApp
 function waClick(url,entityType,entityId,msgType,nombre,mensaje){
@@ -1792,8 +1922,26 @@ function openWAForPros(pid){
   const hCnt=document.getElementById('wap-hist-cnt');
   if(hCnt)hCnt.textContent=hist.length?hist.length+' mensajes':'';
   if(hDiv){
-    if(!hist.length){hDiv.innerHTML='<div style="font-size:11px;color:var(--mu);text-align:center;padding:8px">Sin mensajes previos</div>';}
-    else{hDiv.innerHTML=hist.slice().reverse().slice(0,6).map(e=>`<div style="background:${e.tipo==='whatsapp'?'#E7F8EE':'#EEF4FF'};border-radius:6px;padding:5px 10px;margin-bottom:3px;font-size:11px"><span style="font-weight:700;color:${e.tipo==='whatsapp'?'#128C7E':'#1D4ED8'}">${e.tipo==='whatsapp'?'💬':'📧'}</span> ${e.fecha||''} · ${esc(e.accion||e.msgType||'')}</div>`).join('');}
+    if(!hist.length){hDiv.innerHTML='<div style="font-size:11px;color:var(--mu);text-align:center;padding:12px">Sin mensajes previos</div>';}
+    else{
+      const sorted=hist.slice().sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+      hDiv.innerHTML=sorted.map(e=>{
+        const isWA=e.tipo==='whatsapp';
+        const bgColor=isWA?'#E7F8EE':'#EEF4FF';
+        const bdColor=isWA?'#B2DFC9':'#C7D7FF';
+        const iconColor=isWA?'#128C7E':'#1D4ED8';
+        const icon=isWA?'💬':'📧';
+        const msgText=e.mensaje||e.notas||e.accion||e.msgType||'(sin contenido)';
+        return `<div style="background:${bgColor};border:1px solid ${bdColor};border-radius:8px;padding:8px 10px;margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-weight:700;font-size:11px;color:${iconColor}">${icon} ${isWA?'WhatsApp':'Email'}</span>
+            <span style="font-size:10px;color:var(--mu)">${e.fecha||''}</span>
+          </div>
+          <div style="font-size:12px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;max-height:80px;overflow-y:auto">${esc(msgText)}</div>
+          ${e.accion&&e.accion!==msgText?`<div style="font-size:10px;color:var(--mu);margin-top:3px">${esc(e.accion)}</div>`:''}
+        </div>`;
+      }).join('');
+    }
   }
   OM('mwap');
 }
@@ -1833,14 +1981,27 @@ function setWATemplate(tipo){
   }
   SVal('wap-msg',msg);
 }
+function shareWAFile(){
+  const fileInput=document.getElementById('wap-file');
+  const file=fileInput&&fileInput.files&&fileInput.files[0];
+  if(!file){toast('Selecciona un archivo primero','err');return;}
+  sendWAMsg(); // open WhatsApp first
+  setTimeout(()=>{
+    const url=URL.createObjectURL(file);
+    const a=document.createElement('a');a.href=url;a.download=file.name;a.click();
+    URL.revokeObjectURL(url);
+    toast('Archivo descargado - ahora adjúntalo en WhatsApp Web','ok');
+  },1500);
+}
 function sendWAMsg(){
   const msg=V('wap-msg');
   if(!msg){toast('Escribe un mensaje primero','err');return;}
   let entityType='',entityId='',nombre='',tel='';
-  if(waComposePid){const p=GPros(waComposePid);entityType='prospecto';entityId=waComposePid;nombre=p.nombre;tel=p.cel||p.tel||'';}
-  else if(waComposeCid){const c=GC(waComposeCid);entityType='cliente';entityId=waComposeCid;nombre=c.nombre;tel=c.cel||c.tel||'';}
+  let codPais='507';
+  if(waComposePid){const p=GPros(waComposePid);entityType='prospecto';entityId=waComposePid;nombre=p.nombre;tel=p.cel||p.tel||'';codPais=p.codPais||'507';}
+  else if(waComposeCid){const c=GC(waComposeCid);entityType='cliente';entityId=waComposeCid;nombre=c.nombre;tel=c.cel||c.tel||'';codPais=c.codPais||'507';}
   if(!tel){toast('Sin teléfono registrado','err');return;}
-  const url=waL(tel,msg);
+  const url=waL(tel,msg,codPais);
   if(!url){toast('Número inválido','err');return;}
   waClick(url,entityType,entityId,'Manual',nombre,msg);
   CM('mwap');
@@ -1960,7 +2121,7 @@ function sendEmailViaMailto(){
   CM('mcem');toast('📨 Abriendo app de correo...');
 }
 async function sendEmailViaEJS(){
-  const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body');
+  const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body'),fromEmail=V('cem-from')||'jcastro@jacsegurospa.com';
   if(!to||!sub||!body){toast('Completa todos los campos','err');return;}
   const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
   if(!cfg['ejs-pub']||!cfg['ejs-svc']){toast('Configura EmailJS en Configuración → Integración','err');return;}
@@ -1993,6 +2154,7 @@ function SH(id){
   document.querySelectorAll('nav a').forEach(a=>a.classList.remove('on'));
   document.querySelectorAll('.bni').forEach(a=>a.classList.remove('on'));
   const pg=document.getElementById('pg-'+id);
+  if(id==='inf'){try{renderInformes();}catch(e){}}
   if(pg){pg.classList.add('on');}
   document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
   document.getElementById('bn-'+id)?.classList.add('on');
@@ -2277,6 +2439,8 @@ function OC(id){
   EID=id||null;_pf=[];const c=id?GC(id):{};
   const mct=document.getElementById('mct');if(mct)mct.textContent=id?'Editar Cliente':'Nuevo Cliente';
   [['c-nom','nombre'],['c-td','tipoDoc'],['c-ced','cedula'],['c-cel','cel'],['c-cel2','celSec'],['c-tel','tel'],['c-tel2','telSec'],['c-em','email'],['c-em2','emailSec'],['c-fn','fNac'],['c-ge','genero'],['c-ocu','ocupacion'],['c-estcivil','estadoCivil'],['c-hijos','numHijos'],['c-empnom','empresaNom'],['c-cargo','cargo'],['c-ingresos','ingresoMensual'],['c-ciu','ciudad'],['c-prov','provincia'],['c-dis','distrito'],['c-cor','corregimiento'],['c-fec','fExpCed'],['c-fex','fExpirCed'],['c-ban','banco'],['c-bannum','bancoNum'],['c-dir','dir'],['c-dirs','dirSec'],['c-cat','categorias'],['c-est','estadoComercial'],['c-nc','nomContacto'],['c-nctel','nomContactoTel'],['c-ncrel','nomContactoRel'],['c-avo','avisOp'],['c-obs','obs'],['c-notas','notas'],['c-origen','origenCliente'],['c-referido','referidoPor'],['c-avisop','avisOp2']].forEach(([fid,key])=>SVal(fid,c[key]));
+  // Código de país WA
+  const cpSel=document.getElementById('c-codPais');if(cpSel)cpSel.value=c.codPais||'507';
   renderTagSel('c-tag-sel',c.etiquetas||[]);
   const fl=document.getElementById('c-file-list');if(fl)fl.innerHTML=renderFL(c.archivos||[],id||'','cliente');
   OM('mc');initFileInp('c-file-inp','c-file-pending');
@@ -2301,6 +2465,7 @@ function SC(){
     avisOp:V('c-avo').trim(),avisOp2:V('c-avisop').trim(),
     obs:V('c-obs').trim(),notas:V('c-notas').trim(),
     origenCliente:V('c-origen').trim(),referidoPor:V('c-referido').trim(),
+    codPais:(document.getElementById('c-codPais')?.value||'507'),
     etiquetas:getSelTags('c-tag-sel')};
   if(EID){const i=S.clientes.findIndex(c=>c.id===EID);if(i>=0){if(!S.clientes[i].archivos)S.clientes[i].archivos=[];S.clientes[i].archivos.push(..._pf);S.clientes[i]={...S.clientes[i],...d};}toast('✓ Cliente actualizado');}
   else{S.clientes.push({id:'C'+uid(),...d,archivos:[..._pf],alias:'',historialWA:[]});toast('✓ Cliente creado');}
@@ -2484,7 +2649,8 @@ function OPros(id){
   EID=id||null;_pf=[];const p=id?GPros(id):{};
   const mpt=document.getElementById('mprost');if(mpt)mpt.textContent=id?'Editar Prospecto':'Nuevo Prospecto';
   [['pro-n','nombre'],['pro-td','tipoDoc'],['pro-ced','cedula'],['pro-cel','cel'],['pro-tel','tel'],['pro-em','email'],['pro-fn','fNac'],['pro-ge','genero'],['pro-ocu','ocupacion'],['pro-ciu','ciudad'],['pro-prov','provincia'],['pro-tipo','tipo'],['pro-fue','fuente'],['pro-eta','etapaVenta'],['pro-pri','prioridad'],['pro-prob','probabilidad'],['pro-mon','montoEstimado'],['pro-fc','fContacto'],['pro-fs','fSeguimiento'],['pro-aact','asegActual'],['pro-vact','venceActual'],['pro-not','notas']].forEach(([fid,key])=>SVal(fid,p[key]));
-  const asel=document.getElementById('pro-aseg');if(asel){asel.innerHTML='<option value="">—</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','WW Medical','Generali','Chubb','La Regional'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.asegPreferida===a)o.selected=true;asel.add(o);});}
+  const cpSelPro=document.getElementById('pro-codPais');if(cpSelPro)cpSelPro.value=p.codPais||'507';
+  const asel=document.getElementById('pro-aseg');if(asel){asel.innerHTML='<option value="">—</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.asegPreferida===a)o.selected=true;asel.add(o);});}
   const isel=document.getElementById('pro-int-sel');
   if(isel)isel.innerHTML=RAMOS_ALL.map(r=>`<span style="display:inline-block;font-size:11px;cursor:pointer;padding:3px 8px;border:1px solid var(--bd);border-radius:5px;margin:2px;background:${(p.interes||[]).includes(r)?'var(--inl)':'transparent'};color:${(p.interes||[]).includes(r)?'var(--in)':'var(--mu)'}" onclick="this.dataset.sel=this.dataset.sel==='1'?'0':'1';this.style.background=this.dataset.sel==='1'?'var(--inl)':'transparent';this.style.color=this.dataset.sel==='1'?'var(--in)':'var(--mu)'" data-val="${esc(r)}" data-sel="${(p.interes||[]).includes(r)?'1':'0'}">${esc(r)}</span>`).join('');
   renderTagSel('pro-tag-sel',p.etiquetas||[]);
@@ -2510,8 +2676,33 @@ function addCotizacionRow(cot){
   const c=cot||{aseg:'',ramo:'',notas:'',miembros:[]};
   const list=document.getElementById('pro-cotizaciones-list');if(!list)return;
   const rid='CR'+Math.random().toString(36).slice(2,8);
-  const asegOpts=['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','WW Medical','Generali','Chubb','La Regional','General'].map(a=>`<option${a===c.aseg?' selected':''}>${a}</option>`).join('');
-  const mRows=(c.miembros||[{nombre:'',monto:''}]).map(m=>`<div class="cot-miembro-row" style="display:flex;gap:6px;margin-top:4px;align-items:center"><input class="fc cot-mnombre" placeholder="Miembro familia" style="flex:1;font-size:11px" value="${esc(m.nombre)}"><input class="fc cot-mmonto" type="number" placeholder="Monto $" style="width:90px;font-size:11px" value="${esc(m.monto)}"><button onclick="this.closest('.cot-miembro-row').remove()" class="btn bgh bic" style="color:var(--rd)">✕</button></div>`).join('');
+  const asegOpts=['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General'].map(a=>`<option${a===c.aseg?' selected':''}>${a}</option>`).join('');
+  const mRows=(c.miembros||[{nombre:'',monto:'',tipo:'titular',genero:'',fechaNac:'',periodicidad:'mensual'}]).map(m=>`<div class="cot-miembro-row" style="background:#fff;border:1px solid #C7D7FF;border-radius:6px;padding:7px;margin-top:5px">
+  <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+    <select class="fc cot-mtipo" style="width:130px;font-size:11px;font-weight:600">
+      <option value="titular" ${(m.tipo||'titular')==='titular'?'selected':''}>👤 Titular</option>
+      <option value="conyugue" ${m.tipo==='conyugue'?'selected':''}>💑 Cónyuge</option>
+      <option value="hijo" ${m.tipo==='hijo'?'selected':''}>👦 Hijo</option>
+      <option value="hija" ${m.tipo==='hija'?'selected':''}>👧 Hija</option>
+    </select>
+    <input class="fc cot-mnombre" placeholder="Nombre" style="flex:1;min-width:100px;font-size:11px" value="${esc(m.nombre)}">
+    <button onclick="this.closest('.cot-miembro-row').remove()" class="btn bgh bic" style="color:var(--rd);flex-shrink:0">✕</button>
+  </div>
+  <div class="cot-hijo-fields" style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
+    <select class="fc cot-mgenero" style="width:110px;font-size:11px">
+      <option value="">Género</option>
+      <option value="masculino" ${m.genero==='masculino'?'selected':''}>♂ Masculino</option>
+      <option value="femenino" ${m.genero==='femenino'?'selected':''}>♀ Femenino</option>
+    </select>
+    <input class="fc cot-mfechanac" type="date" placeholder="Fecha nac." style="flex:1;min-width:120px;font-size:11px" value="${esc(m.fechaNac||'')}" title="Fecha de nacimiento">
+    <input class="fc cot-mmonto" type="number" placeholder="Prima $" style="width:80px;font-size:11px" value="${esc(m.monto)}">
+    <select class="fc cot-mperiodicidad" style="width:110px;font-size:11px">
+      <option value="mensual" ${(m.periodicidad||'mensual')==='mensual'?'selected':''}>📅 Mensual</option>
+      <option value="trimestral" ${m.periodicidad==='trimestral'?'selected':''}>📆 Trimestral</option>
+      <option value="anual" ${m.periodicidad==='anual'?'selected':''}>📋 Anual</option>
+    </select>
+  </div>
+</div>`).join('');
   const div=document.createElement('div');
   div.className='cot-row';div.style.cssText='background:#EEF4FF;border:1px solid #C7D7FF;border-radius:7px;padding:10px;margin-bottom:8px';
   div.innerHTML=`<div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap">
@@ -2529,15 +2720,39 @@ function addCotizacionRow(cot){
   list.appendChild(div);
 }
 function addMiembroRow(btn){
-  const mr=btn.previousElementSibling;if(!mr)return;
-  const row=document.createElement('div');
-  row.className='cot-miembro-row';row.style.cssText='display:flex;gap:6px;margin-top:4px;align-items:center';
-  row.innerHTML=`<input class="fc cot-mnombre" placeholder="Ej: Titular, Cónyuge, Hijo..." style="flex:1;font-size:11px"><input class="fc cot-mmonto" type="number" placeholder="Monto $" style="width:90px;font-size:11px"><button onclick="this.closest('.cot-miembro-row').remove()" class="btn bgh bic" style="color:var(--rd)">✕</button>`;
-  mr.appendChild(row);
+  const list=btn.closest('.cot-row').querySelector('.cot-miembros-list');
+  const div=document.createElement('div');
+  div.className='cot-miembro-row';
+  div.style.cssText='background:#fff;border:1px solid #C7D7FF;border-radius:6px;padding:7px;margin-top:5px';
+  div.innerHTML=`<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+    <select class="fc cot-mtipo" style="width:130px;font-size:11px;font-weight:600">
+      <option value="titular">👤 Titular</option>
+      <option value="conyugue">💑 Cónyuge</option>
+      <option value="hijo">👦 Hijo</option>
+      <option value="hija">👧 Hija</option>
+    </select>
+    <input class="fc cot-mnombre" placeholder="Nombre" style="flex:1;min-width:100px;font-size:11px">
+    <button onclick="this.closest('.cot-miembro-row').remove()" class="btn bgh bic" style="color:var(--rd);flex-shrink:0">✕</button>
+  </div>
+  <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
+    <select class="fc cot-mgenero" style="width:110px;font-size:11px">
+      <option value="">Género</option>
+      <option value="masculino">♂ Masculino</option>
+      <option value="femenino">♀ Femenino</option>
+    </select>
+    <input class="fc cot-mfechanac" type="date" style="flex:1;min-width:120px;font-size:11px" title="Fecha de nacimiento">
+    <input class="fc cot-mmonto" type="number" placeholder="Prima $" style="width:80px;font-size:11px">
+    <select class="fc cot-mperiodicidad" style="width:110px;font-size:11px">
+      <option value="mensual">📅 Mensual</option>
+      <option value="trimestral">📆 Trimestral</option>
+      <option value="anual">📋 Anual</option>
+    </select>
+  </div>`;
+  list.appendChild(div);
 }
 function SPros(){
   const nom=(V('pro-n')||'').trim();if(!nom){toast('Nombre obligatorio','err');return;}
-  const d={nombre:nom,tipoDoc:V('pro-td'),cedula:V('pro-ced').trim(),cel:V('pro-cel').trim(),tel:V('pro-tel').trim(),email:V('pro-em').trim().toLowerCase(),fNac:V('pro-fn'),genero:V('pro-ge'),ocupacion:V('pro-ocu').trim(),ciudad:V('pro-ciu').trim(),provincia:V('pro-prov').trim(),tipo:V('pro-tipo')||'Personal',fuente:V('pro-fue'),etapaVenta:V('pro-eta')||'Contacto inicial',prioridad:V('pro-pri')||'Media',probabilidad:parseFloat(V('pro-prob'))||0,montoEstimado:parseFloat(V('pro-mon'))||0,asegPreferida:V('pro-aseg'),interes:getIntSel(),fContacto:V('pro-fc'),fSeguimiento:V('pro-fs'),asegActual:V('pro-aact'),venceActual:V('pro-vact'),notas:V('pro-not').trim(),etiquetas:getSelTags('pro-tag-sel'),cotizaciones:getCotizaciones()};
+  const d={nombre:nom,tipoDoc:V('pro-td'),cedula:V('pro-ced').trim(),cel:V('pro-cel').trim(),tel:V('pro-tel').trim(),email:V('pro-em').trim().toLowerCase(),fNac:V('pro-fn'),genero:V('pro-ge'),ocupacion:V('pro-ocu').trim(),ciudad:V('pro-ciu').trim(),provincia:V('pro-prov').trim(),tipo:V('pro-tipo')||'Personal',fuente:V('pro-fue'),etapaVenta:V('pro-eta')||'Contacto inicial',prioridad:V('pro-pri')||'Media',probabilidad:parseFloat(V('pro-prob'))||0,montoEstimado:parseFloat(V('pro-mon'))||0,asegPreferida:V('pro-aseg'),interes:getIntSel(),fContacto:V('pro-fc'),fSeguimiento:V('pro-fs'),asegActual:V('pro-aact'),venceActual:V('pro-vact'),notas:V('pro-not').trim(),etiquetas:getSelTags('pro-tag-sel'),cotizaciones:getCotizaciones(),codPais:(document.getElementById('pro-codPais')?.value||'507')};
   if(EID){const i=S.prospectos.findIndex(p=>p.id===EID);if(i>=0){if(!S.prospectos[i].archivos)S.prospectos[i].archivos=[];S.prospectos[i].archivos.push(..._pf);S.prospectos[i]={...S.prospectos[i],...d};}toast('✓ Actualizado');}
   else{S.prospectos.push({id:'PR'+uid(),...d,historial:[{fecha:TODAY.toISOString().split('T')[0],accion:'✨ Prospecto creado',resultado:'',tipo:'sistema'}],tareas:[],archivos:[..._pf],esVentaCruzada:false,clienteIdVinculado:''});toast('✓ Prospecto creado');}
   // Auto advance to Client ganado si corresponde
@@ -2658,46 +2873,90 @@ function regVC(cId,ramo,msg){
 function switchPortTab(ramo,el){portTab=ramo;document.querySelectorAll('#port-tabs a').forEach(a=>a.classList.remove('on'));el.classList.add('on');RPort();}
 function RPort(){
   const fil=S.polizas.filter(p=>p.ramo===portTab);
-  const tP=fil.reduce((s,p)=>s+(p.prima||0),0),tC=fil.reduce((s,p)=>s+(p.comision||0),0);
+  const tP=fil.reduce((s,p)=>s+(+p.total||+p.prima||0),0),tC=fil.reduce((s,p)=>s+(+p.comision||0),0);
   const vig=fil.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada').length;
   const ven=fil.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada').length;
   let h=`<div class="sg"><div class="st"><em>Pólizas ${esc(portTab)}</em><div class="n">${fil.length}</div><div class="sv">${vig} vigentes · ${ven} vencidas</div></div><div class="st"><em>Prima Total</em><div class="n" style="font-size:14px">${fmtM(tP)}</div></div><div class="st"><em>Mis Comisiones</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tC)}</div></div></div>`;
   if(!fil.length){h+=`<div class="card" style="padding:40px;text-align:center;color:var(--mu)">Sin pólizas en ${esc(portTab)}.<br><button class="btn bsm bp" onclick="OP()" style="margin-top:10px">+ Agregar</button></div>`;const pv=document.getElementById('port-view');if(pv)pv.innerHTML=h;return;}
-  h+='<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Sub-ramo</th><th>Riesgo</th><th>Prima</th><th>Com.</th><th>Vence</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
+  h+='<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Sub-ramo</th><th>Riesgo</th><th>Prima Total</th><th>Com. JAC</th><th>Vence</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
   fil.forEach(p=>{
     const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
-    h+=`<tr><td>${statusB(p)}</td><td style="font-weight:600;cursor:pointer" onclick="showCliDP('${p.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.subramo||'—')}</td><td style="font-size:10px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.riesgo||'').substring(0,50))}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td>${fmt(p.fechaFin)}</td><td><div class="ab">${wb}</div></td><td><div class="ab"><button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;
+    const ptot=p.total||p.prima||0;
+    h+=`<tr><td>${statusB(p)}</td><td style="font-weight:600;cursor:pointer" onclick="showCliDP('${p.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td><td style="font-family:monospace;font-size:11px">${esc(p.num||p.numero||'')}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.subramo||'—')}</td><td style="font-size:10px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.riesgo||'').substring(0,50))}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(ptot)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td>${fmt(p.fechaFin)}</td><td><div class="ab">${wb}</div></td><td><div class="ab"><button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;
   });
   const pv=document.getElementById('port-view');if(pv)pv.innerHTML=h+'</tbody></table></div></div>';
 }
 
 // ── PÓLIZAS ──
 function filtPol(){
-  const q=(V('spo')||'').toLowerCase(),fa=V('fpa')||'',fe=V('fpe')||'',fr=V('fpr')||'';
-  const asel=document.getElementById('fpa');if(asel&&asel.options.length<=1){[...new Set(S.polizas.map(p=>p.aseg).filter(Boolean))].sort().forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}
-  const rsel=document.getElementById('fpr');if(rsel&&rsel.options.length<=1){[...new Set(S.polizas.map(p=>p.ramo).filter(Boolean))].sort().forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;rsel.add(o);});}
+  const q=(V('spo')||'').trim().toLowerCase();
+  const fa=V('fpa')||'',fe=V('fpe')||'',fr=V('fpr')||'';
+  // Poblar dropdowns de aseguradora y ramo con opciones reales de los datos
+  const asel=document.getElementById('fpa');
+  if(asel){
+    const curA=asel.value;
+    asel.innerHTML='<option value="">Todas aseg.</option>';
+    [...new Set(S.polizas.map(p=>p.aseg).filter(Boolean))].sort().forEach(a=>{
+      const o=document.createElement('option');o.value=a;o.textContent=a;
+      if(a===curA)o.selected=true;
+      asel.add(o);
+    });
+  }
+  const rsel=document.getElementById('fpr');
+  if(rsel){
+    const curR=rsel.value;
+    rsel.innerHTML='<option value="">Ramo</option>';
+    [...new Set(S.polizas.map(p=>p.ramo).filter(Boolean))].sort().forEach(r=>{
+      const o=document.createElement('option');o.value=r;o.textContent=r;
+      if(r===curR)o.selected=true;
+      rsel.add(o);
+    });
+  }
   return S.polizas.filter(p=>{
-    const cl=GC(p.clienteId);const n=cl.nombre||p.nombreCliente||'';
-    if(q&&!p.num.toLowerCase().includes(q)&&!n.toLowerCase().includes(q)&&!p.ramo.toLowerCase().includes(q)&&!p.aseg.toLowerCase().includes(q)&&!(p.riesgo||'').toLowerCase().includes(q))return false;
-    if(fa&&p.aseg!==fa)return false;if(fr&&p.ramo!==fr)return false;
-    if(fe){const d=dFrom(p.fechaFin);const est=p.estado==='Cancelada'?'Cancelada':d<0?'Vencida':'Vigente';if(est!==fe&&p.estado!==fe)return false;}
+    const cl=GC(p.clienteId);
+    const n=(cl.nombre||p.nombreCliente||'').toLowerCase();
+    const num=(p.num||p.numero||'').toLowerCase();
+    const ramo=(p.ramo||'').toLowerCase();
+    const aseg=(p.aseg||'').toLowerCase();
+    const riesgo=(p.riesgo||'').toLowerCase();
+    const subramo=(p.subramo||'').toLowerCase();
+    // Búsqueda de texto libre
+    if(q){
+      const match=num.includes(q)||n.includes(q)||ramo.includes(q)||aseg.includes(q)||riesgo.includes(q)||subramo.includes(q);
+      if(!match)return false;
+    }
+    // Filtro por aseguradora
+    if(fa&&(p.aseg||'')!==fa)return false;
+    // Filtro por ramo
+    if(fr&&(p.ramo||'')!==fr)return false;
+    // Filtro por estado
+    if(fe){
+      const d=dFrom(p.fechaFin);
+      const est=p.estado==='Cancelada'?'Cancelada':d<0?'Vencida':'Vigente';
+      if(est!==fe&&(p.estado||'')!==fe)return false;
+    }
     return true;
   });
 }
 function setPV(v,el){PV=v;document.querySelectorAll('.vtog button').forEach(b=>b.classList.remove('on'));el.classList.add('on');RP();}
 function RP(){
   const fil=filtPol();
-  const cnt=document.getElementById('polcnt');if(cnt)cnt.textContent=`${fil.length} de ${S.polizas.length} · Prima: ${fmtM(fil.reduce((s,p)=>s+(p.prima||0),0))}`;
+  // Suma de prima TOTAL (con ITBMS) — no prima neta
+  const sumaTotal=fil.reduce((s,p)=>s+(+p.total||+p.prima||0),0);
+  const sumaComision=fil.reduce((s,p)=>s+(+p.comision||0),0);
+  const cnt=document.getElementById('polcnt');
+  if(cnt)cnt.textContent=`${fil.length} de ${S.polizas.length} · Prima Total: ${fmtM(sumaTotal)} · Comisión: ${fmtM(sumaComision)}`;
   if(PV==='table')renderPT(fil);else renderPK(fil,PV);
 }
 function renderPT(fil){
   let h='';
   fil.forEach(p=>{
     const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
-    h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num)}</td><td style="cursor:pointer" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px">${fmt(p.fechaFin)}</td><td onclick="event.stopPropagation()"><div class="ab">${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+    const primaTot=p.total||p.prima||0;
+    h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num||p.numero||'')}</td><td style="cursor:pointer" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(primaTot)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px">${fmt(p.fechaFin)}</td><td onclick="event.stopPropagation()"><div class="ab">${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
   });
   if(!h)h='<tr><td colspan="9" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
-  const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=`<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Comisión</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${h}</tbody></table></div></div>`;
+  const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=`<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima Total</th><th>Comisión JAC</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${h}</tbody></table></div></div>`;
 }
 function renderPK(fil,view){
   const KC2={'Vigente':'#15803D','Por Vencer':'#B45309','Vencida':'#B91C1C','Cancelada':'#64748B','Nueva':'#1D4ED8','En Proceso':'#7E22CE','Por Renovar':'#D97706','Renovada':'#15803D'};
@@ -2715,19 +2974,21 @@ function renderPK(fil,view){
   });
   const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=h+'</div>';
 }
-function primaDesglose(prima,periodo){
-  if(!prima||prima<=0)return'';
+function primaDesglose(primaTotal,periodo){
+  // primaTotal = prima con ITBMS incluido (p.total)
+  if(!primaTotal||primaTotal<=0)return'';
   const p=(periodo||'').toLowerCase();
   let mensual,trimestral,semestral,anual;
-  if(p.includes('mensual')){mensual=prima;trimestral=prima*3;semestral=prima*6;anual=prima*12;}
-  else if(p.includes('trimestral')){trimestral=prima;mensual=prima/3;semestral=prima*2;anual=prima*4;}
-  else if(p.includes('semestral')){semestral=prima;mensual=prima/6;trimestral=prima/2;anual=prima*2;}
-  else{mensual=prima/12;trimestral=prima/4;semestral=prima/2;anual=prima;}
+  // Cálculo basado en la prima TOTAL (con ITBMS)
+  if(p.includes('mensual')){mensual=primaTotal;trimestral=primaTotal*3;semestral=primaTotal*6;anual=primaTotal*12;}
+  else if(p.includes('trimestral')){trimestral=primaTotal;mensual=primaTotal/3;semestral=primaTotal*2;anual=primaTotal*4;}
+  else if(p.includes('semestral')){semestral=primaTotal;mensual=primaTotal/6;trimestral=primaTotal/2;anual=primaTotal*2;}
+  else{mensual=primaTotal/12;trimestral=primaTotal/4;semestral=primaTotal/2;anual=primaTotal;}
   return`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">
-    <span style="background:#F0FDF4;color:#15803D;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">📅 Mens: ${fmtM(mensual)}</span>
-    <span style="background:#EFF6FF;color:#1D4ED8;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">📆 Trim: ${fmtM(trimestral)}</span>
-    <span style="background:#FEF9C3;color:#B45309;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">🗓 Sem: ${fmtM(semestral)}</span>
-    <span style="background:#FDF4FF;color:#7E22CE;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">📋 Anual: ${fmtM(anual)}</span>
+    <span style="background:#F0FDF4;color:#15803D;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">📅 Mens c/ITBMS: ${fmtM(mensual)}</span>
+    <span style="background:#EFF6FF;color:#1D4ED8;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">📆 Trim c/ITBMS: ${fmtM(trimestral)}</span>
+    <span style="background:#FEF9C3;color:#B45309;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">🗓 Sem c/ITBMS: ${fmtM(semestral)}</span>
+    <span style="background:#FDF4FF;color:#7E22CE;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">📋 Anual c/ITBMS: ${fmtM(anual)}</span>
   </div>`;
 }
 function showPolDP(id){
@@ -2746,9 +3007,11 @@ ${p.riesgo?`<div class="drow"><label>Riesgo</label><div class="dv" style="font-s
 ${p.cobertura?`<div class="drow"><label>Cobertura</label><div class="dv" style="font-size:11px">${esc(p.cobertura)}</div></div>`:''}
 ${p.formaPago?`<div class="drow"><label>Pago</label><div class="dv">${esc(p.formaPago)} · ${esc(p.periodo||'')}</div></div>`:''}
 <div class="dsec">Financiero</div>
-<div class="drow"><label>Prima Neta</label><div class="dv" style="font-weight:700">${fmtM(p.prima)}${primaDesglose(p.prima,p.periodo)}</div></div>
-<div class="drow"><label>Total</label><div class="dv" style="font-weight:700">${fmtM(p.total)}</div></div>
-<div class="drow"><label>Mi Comisión (${p.comPct||0}% · ${p.participacion||100}%)</label><div class="dv" style="font-weight:700;color:#15803D">${fmtM(p.comision)}</div></div>
+<div class="drow"><label>Prima Neta</label><div class="dv" style="font-weight:600">${fmtM(p.prima)}</div></div>
+${p.itbmsPct?`<div class="drow"><label>ITBMS (${p.itbmsPct}%)</label><div class="dv">${fmtM(p.itbms||0)}</div></div>`:''}
+${(p.gastosExp&&p.gastosExp>0)?`<div class="drow"><label>Gastos Expedición</label><div class="dv">${fmtM(p.gastosExp)}</div></div>`:''}
+<div class="drow"><label>⭐ Prima Total (c/ITBMS)</label><div class="dv" style="font-weight:800;font-size:15px;color:#1D4ED8">${fmtM(p.total||p.prima)}${primaDesglose(p.total||p.prima,p.periodo)}</div></div>
+<div class="drow"><label>Comisión JAC (${p.comPct||0}% s/Prima Neta · ${p.participacion||100}% part.)</label><div class="dv" style="font-weight:700;color:#15803D">${fmtM(p.comision)}</div></div>
 ${p.coCor?`<div class="drow"><label>Co-Corretaje</label><div class="dv">${b('bbl',p.coCor)} ${p.coCorPart||0}% · ${fmtM(p.coCorCom)}</div></div>`:''}
 ${p.beneficiario?`<div class="drow"><label>Beneficiario</label><div class="dv">${esc(p.beneficiario)}</div></div>`:''}
 ${p.obs?`<div class="drow"><label>Obs.</label><div class="dv" style="font-size:11px">${esc(p.obs)}</div></div>`:''}
@@ -2773,7 +3036,7 @@ function OP(id){
   ['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','Acerta','WW Medical','VUMI','Generali','Chubb','Aliados','La Regional','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,a)=>a.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.aseg===a)o.selected=true;asel.add(o);});
   const rsel=document.getElementById('p-ra');rsel.innerHTML='';
   [...RAMOS_ALL,'SOAT','CUMPLIMIENTO','MULTIRIESGO','TODO RIESGO'].filter((x,i,a)=>a.indexOf(x)===i).forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;if(p.ramo===r)o.selected=true;rsel.add(o);});
-  [['p-nu','num'],['p-na','numAnexo'],['p-tp','tipo'],['p-sr','subramo'],['p-nr','nueva'],['p-es','estado'],['p-et','etapa'],['p-ri','riesgo'],['p-vr','valorRiesgo'],['p-cob','cobertura'],['p-tpo','tipoPol'],['p-pr','prima'],['p-it','itbmsPct'],['p-ib','itbms'],['p-ge','gastosExp'],['p-vf','valorFinanciacion'],['p-tot','total'],['p-cb','comPct'],['p-pa','participacion'],['p-co','comision'],['p-nas','nombreAsegurado'],['p-das','docAsegurado'],['p-nto','tomador'],['p-dto','docTomador'],['p-ben','beneficiario'],['p-cben','cedBeneficiario'],['p-fex','fechaExpedicion'],['p-fre','fechaRecepcion'],['p-fi','fechaInicio'],['p-ff','fechaFin'],['p-fca','fechaCancelada'],['p-fp','formaPago'],['p-pe','periodo'],['p-me','medio'],['p-ban','banco'],['p-mon','moneda'],['p-ven','vendedor'],['p-ob','obs'],['p-oi','obsInt']].forEach(([fid,key])=>SVal(fid,p[key]));
+  [['p-nu','num'],['p-na','numAnexo'],['p-tp','tipo'],['p-sr','subramo'],['p-nr','nueva'],['p-es','estado'],['p-et','etapa'],['p-ri','riesgo'],['p-vr','valorRiesgo'],['p-cob','cobertura'],['p-tpo','tipoPol'],['p-pr','prima'],['p-it','itbmsPct'],['p-ib','itbms'],['p-ge','gastosExp'],['p-vf','valorFinanciacion'],['p-tot','total'],['p-cmes','cuotaMensual'],['p-ctri','cuotaTrimestral'],['p-cb','comPct'],['p-pa','participacion'],['p-co','comision'],['p-nas','nombreAsegurado'],['p-das','docAsegurado'],['p-nto','tomador'],['p-dto','docTomador'],['p-ben','beneficiario'],['p-cben','cedBeneficiario'],['p-fex','fechaExpedicion'],['p-fre','fechaRecepcion'],['p-fi','fechaInicio'],['p-ff','fechaFin'],['p-fca','fechaCancelada'],['p-fp','formaPago'],['p-pe','periodo'],['p-me','medio'],['p-ban','banco'],['p-mon','moneda'],['p-ven','vendedor'],['p-ob','obs'],['p-oi','obsInt']].forEach(([fid,key])=>SVal(fid,p[key]));
   const hcc=!!(p.coCor);const phc=document.getElementById('p-hc');if(phc)phc.checked=hcc;const cob3=document.getElementById('cob3');if(cob3)cob3.className='cob'+(hcc?' on':'');
   SVal('p-cc',p.coCor);SVal('p-cp',p.coCorPart);SVal('p-cc2',p.coCorCom);
   const pfl=document.getElementById('p-file-list');if(pfl)pfl.innerHTML=renderFL(p.archivos||[],id||'','poliza');
@@ -2783,20 +3046,39 @@ function onRC(){
   const r=V('p-ra'),isG=GENERALES.has(r);
   const ccrow=document.getElementById('ccrow');if(ccrow)ccrow.style.display=isG?'block':'none';
   if(!isG){const phc=document.getElementById('p-hc');if(phc)phc.checked=false;const cob3=document.getElementById('cob3');if(cob3)cob3.className='cob';}
-  const it=document.getElementById('p-it');if(it){if(r==='INCENDIO Y LÍNEAS ALIADAS'||r==='HOGAR')it.value='7';else if(['VIDA','SALUD/MÉDICOS','ACCIDENTES PERSONALES'].includes(r))it.value='5';else if(r==='SOAT')it.value='0';else it.value='6';}
+  const it=document.getElementById('p-it');if(it){
+    // Panamá ITBMS: 6% ramos generales, 5% vida/salud/AP, 0% SOAT/Fianzas
+    if(['VIDA','SALUD/MÉDICOS','ACCIDENTES PERSONALES'].includes(r))it.value='5';
+    else if(r==='SOAT'||r==='FIANZAS'||r==='CUMPLIMIENTO')it.value='0';
+    else it.value='6'; // AUTOS, INCENDIO, RC, ROBO, TRANSPORTE, HOGAR, etc.
+  }
   CT();
 }
 function TC(){const cob3=document.getElementById('cob3'),phc=document.getElementById('p-hc');if(cob3&&phc)cob3.className='cob'+(phc.checked?' on':'');}
 function CT(){
   const pr=GF('p-pr'),itp=GF('p-it'),gex=GF('p-ge'),cpct=GF('p-cb'),part=GF('p-pa')||100,ccp=GF('p-cp');
-  const itb=pr*itp/100,tot=pr+itb+gex,cb=pr*cpct/100,myCom=cb*part/100,ccCom=cb*ccp/100;
-  SVal('p-ib',itb.toFixed(2));SVal('p-tot',tot.toFixed(2));SVal('p-co',myCom.toFixed(2));SVal('p-cc2',ccCom.toFixed(2));
+  // ITBMS se calcula sobre prima neta
+  const itb=pr*itp/100;
+  // Prima Total = Prima Neta + ITBMS + Gastos Expedición
+  const tot=pr+itb+gex;
+  // Comisión se calcula SIEMPRE sobre Prima Neta (no sobre total)
+  const cb=pr*cpct/100;
+  const myCom=cb*part/100;
+  const ccCom=cb*ccp/100;
+  // Cuotas con ITBMS incluido
+  const cmes=tot/12, ctri=tot/4;
+  SVal('p-ib',itb.toFixed(2));
+  SVal('p-tot',tot.toFixed(2));
+  SVal('p-cmes',cmes.toFixed(2));
+  SVal('p-ctri',ctri.toFixed(2));
+  SVal('p-co',myCom.toFixed(2));
+  SVal('p-cc2',ccCom.toFixed(2));
 }
 function SP(){
   const num=(V('p-nu')||'').trim(),aseg=V('p-as');
   if(!num||!aseg){toast('Nro. Póliza y Aseguradora son obligatorios','err');return;}
   const phc=document.getElementById('p-hc');const hcc=phc?phc.checked:false;const cId=V('p-cl');
-  const d={clienteId:cId,nombreCliente:GC(cId).nombre||'',num,numAnexo:V('p-na'),tipo:V('p-tp'),aseg,ramo:V('p-ra'),subramo:V('p-sr').trim(),nueva:V('p-nr'),estado:V('p-es'),etapa:V('p-et'),riesgo:V('p-ri').trim(),valorRiesgo:GF('p-vr'),cobertura:V('p-cob'),tipoPol:V('p-tpo'),prima:GF('p-pr'),itbmsPct:GF('p-it'),itbms:GF('p-ib'),gastosExp:GF('p-ge'),valorFinanciacion:GF('p-vf'),total:GF('p-tot'),comPct:GF('p-cb'),participacion:GF('p-pa')||100,comision:GF('p-co'),nombreAsegurado:V('p-nas'),docAsegurado:V('p-das'),tomador:V('p-nto'),docTomador:V('p-dto'),beneficiario:V('p-ben'),cedBeneficiario:V('p-cben'),fechaExpedicion:V('p-fex'),fechaRecepcion:V('p-fre'),fechaInicio:V('p-fi'),fechaFin:V('p-ff'),fechaCancelada:V('p-fca'),formaPago:V('p-fp'),periodo:V('p-pe'),medio:V('p-me'),banco:V('p-ban'),moneda:V('p-mon')||'USD',vendedor:V('p-ven').trim(),obs:V('p-ob').trim(),obsInt:V('p-oi').trim(),coCor:hcc?V('p-cc'):'',coCorPart:hcc?GF('p-cp'):0,coCorCom:hcc?GF('p-cc2'):0};
+  const d={clienteId:cId,nombreCliente:GC(cId).nombre||'',num,numAnexo:V('p-na'),tipo:V('p-tp'),aseg,ramo:V('p-ra'),subramo:V('p-sr').trim(),nueva:V('p-nr'),estado:V('p-es'),etapa:V('p-et'),riesgo:V('p-ri').trim(),valorRiesgo:GF('p-vr'),cobertura:V('p-cob'),tipoPol:V('p-tpo'),prima:GF('p-pr'),itbmsPct:GF('p-it'),itbms:GF('p-ib'),gastosExp:GF('p-ge'),valorFinanciacion:GF('p-vf'),total:GF('p-tot'),cuotaMensual:GF('p-cmes'),cuotaTrimestral:GF('p-ctri'),comPct:GF('p-cb'),participacion:GF('p-pa')||100,comision:GF('p-co'),nombreAsegurado:V('p-nas'),docAsegurado:V('p-das'),tomador:V('p-nto'),docTomador:V('p-dto'),beneficiario:V('p-ben'),cedBeneficiario:V('p-cben'),fechaExpedicion:V('p-fex'),fechaRecepcion:V('p-fre'),fechaInicio:V('p-fi'),fechaFin:V('p-ff'),fechaCancelada:V('p-fca'),formaPago:V('p-fp'),periodo:V('p-pe'),medio:V('p-me'),banco:V('p-ban'),moneda:V('p-mon')||'USD',vendedor:V('p-ven').trim(),obs:V('p-ob').trim(),obsInt:V('p-oi').trim(),coCor:hcc?V('p-cc'):'',coCorPart:hcc?GF('p-cp'):0,coCorCom:hcc?GF('p-cc2'):0};
   if(EID){const i=S.polizas.findIndex(p=>p.id===EID);if(i>=0){if(!S.polizas[i].archivos)S.polizas[i].archivos=[];S.polizas[i].archivos.push(..._pf);S.polizas[i]={...S.polizas[i],...d};}toast('✓ Póliza actualizada');}
   else{S.polizas.push({id:'P'+uid(),...d,asegurados:[],archivos:[..._pf]});toast('✓ Póliza guardada');}
   _pf=[];save();CM('mp');RP();
@@ -2885,7 +3167,7 @@ function OS(id){
   EID=id||null;_pf=[];const s=id?S.siniestros.find(x=>x.id===id)||{}:{};
   const mst=document.getElementById('mst');if(mst)mst.textContent=id?'Editar Siniestro':'Nuevo Siniestro';
   const csel=document.getElementById('s-cl');csel.innerHTML='<option value="">— Cliente —</option>';S.clientes.sort((a,z)=>a.nombre.localeCompare(z.nombre)).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre;if(s.clienteId===c.id)o.selected=true;csel.add(o);});
-  const asel=document.getElementById('s-as');asel.innerHTML='<option value="">—</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(s.aseg===a)o.selected=true;asel.add(o);});
+  const asel=document.getElementById('s-as');asel.innerHTML='<option value="">—</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(s.aseg===a)o.selected=true;asel.add(o);});
   [['s-po','poliza'],['s-sr','subramo'],['s-no','nombre'],['s-nc','numCia'],['s-fd','fechaSin'],['s-fa','fechaAviso'],['s-fn','fechaNotif'],['s-prov','proveedor'],['s-na','asegurado'],['s-da','docAseg'],['s-mr','montoReclamo'],['s-de','deducible'],['s-vi','valInd'],['s-cos','coaseguros'],['s-sp','sinPct'],['s-es','estado'],['s-ds','desc'],['s-seg','seguimiento']].forEach(([fid,key])=>SVal(fid,s[key]));
   const sfl=document.getElementById('s-file-list');if(sfl)sfl.innerHTML=renderFL(s.archivos||[],id||'','siniestro');
   OM('ms');initFileInp('s-file-inp','s-file-pending');
@@ -2954,7 +3236,7 @@ function RCom(){
   const tcd=document.getElementById('tcomd');if(tcd)tcd.innerHTML=hd;
 }
 function markCob(id){const i=S.comisiones.findIndex(c=>c.id===id);if(i>=0)S.comisiones[i].estado='cobrada';save();RCom();RD();toast('✓ Cobrada');}
-function OCom(){const asel=document.getElementById('cm-as');if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','VUMI','Generali','Chubb','La Regional'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}SVal('cm-me','');SVal('cm-mo','');SVal('cm-es','pendiente');OM('mcom');}
+function OCom(){const asel=document.getElementById('cm-as');if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','VUMI','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}SVal('cm-me','');SVal('cm-mo','');SVal('cm-es','pendiente');OM('mcom');}
 function SCom(){const aseg=V('cm-as'),monto=GF('cm-mo');if(!aseg||!monto){toast('Aseguradora y monto obligatorios','err');return;}S.comisiones.push({id:'COM'+uid(),aseg,mes:V('cm-me').trim(),monto,estado:V('cm-es')});save();CM('mcom');RCom();toast('✓ Registrada');}
 function DCom(id){confirm2('¿Eliminar?',()=>{S.comisiones=S.comisiones.filter(c=>c.id!==id);save();RCom();toast('Eliminada');});}
 
@@ -3199,22 +3481,17 @@ document.addEventListener('DOMContentLoaded',()=>{
   // ── AJUSTES DE UI DEL LOGIN ───────────────────────────────
   // Cambiar campo "USUARIO" por "EMAIL" y ocultar credenciales visibles
   document.addEventListener('DOMContentLoaded', () => {
-    // Quitar pista con credenciales hardcodeadas (seguridad)
-    document.querySelectorAll('.lhint').forEach(el => el.style.display = 'none');
-
-    // Cambiar input de usuario a tipo email
+    // Mantener pistas visibles para que nunca haya bloqueo
+    // Cambiar label a USUARIO/EMAIL (acepta ambos)
+    // Aceptar tanto usuario como email
     const luLabel = document.querySelector('#lf-pwd .lfld label');
-    if (luLabel) luLabel.textContent = 'EMAIL';
+    if (luLabel) luLabel.textContent = 'USUARIO / EMAIL';
     const luInput = document.getElementById('lu');
     if (luInput) {
-      luInput.type        = 'email';
-      luInput.placeholder = 'tu@email.com';
-      luInput.autocomplete = 'email';
+      luInput.type        = 'text';
+      luInput.placeholder = 'jacseguros  ó  tu@email.com';
+      luInput.autocomplete = 'username';
     }
-
-    // Cambiar texto del label de contraseña
-    const lpLabels = document.querySelectorAll('#lf-pwd .lfld label');
-    if (lpLabels[1]) lpLabels[1].textContent = 'CONTRASEÑA';
 
     // Agregar indicador de carga al botón de login
     const lbtn = document.querySelector('#lf-pwd .lbtn');
@@ -3241,85 +3518,75 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // ── AUTENTICACIÓN ─────────────────────────────────────────
 
-  /** Reemplaza doLogin() — usa Supabase Auth con email + contraseña */
+  /** doLogin — LOCAL PRIMERO (nunca bloquea), Supabase como bonus */
   window.doLogin = async function () {
     hideErr();
-    const email = (document.getElementById('lu')?.value || '').trim();
+    const raw   = (document.getElementById('lu')?.value || '').trim();
     const pwd   = document.getElementById('lp')?.value || '';
-
-    if (!email || !pwd) { showErr('Ingresa tu email y contraseña.'); return; }
+    if (!raw || !pwd) { showErr('Ingresa usuario/email y contraseña.'); return; }
     setLoading('lbtn-pwd', true);
 
-    const { data, error } = await db.auth.signInWithPassword({ email, password: pwd });
-
-    setLoading('lbtn-pwd', false);
-    if (error) {
-      showErr('Credenciales incorrectas. Verifica tu email y contraseña.');
-      console.error('[JAC Auth]', error.message);
+    // ── 1. Intentar auth LOCAL primero (siempre funciona) ──
+    const a = getAuth();
+    const localOk = (raw === a.user || raw.includes('@')) && pwd === a.pwd;
+    if (localOk) {
+      // Auth local exitoso → intentar Supabase en background (no bloquea)
+      if (raw.includes('@')) {
+        db.auth.signInWithPassword({ email: raw, password: pwd })
+          .then(({ data }) => { if (data?.session) localStorage.setItem('jac_email', raw); })
+          .catch(() => {});
+      }
+      setLoading('lbtn-pwd', false);
+      startSession();
       return;
     }
 
-    // Guardar email para login por PIN
-    localStorage.setItem('jac_email', email);
-    await initAfterLogin(data.session);
+    // ── 2. Si no coincide local, intentar Supabase ──
+    if (raw.includes('@')) {
+      try {
+        const { data, error } = await db.auth.signInWithPassword({ email: raw, password: pwd });
+        if (!error && data?.session) {
+          localStorage.setItem('jac_email', raw);
+          // Actualizar credenciales locales para próximas veces
+          const a2 = getAuth(); a2.user = raw; a2.pwd = pwd; saveAuth(a2);
+          setLoading('lbtn-pwd', false);
+          await initAfterLogin(data.session);
+          return;
+        }
+      } catch(e) {}
+    }
+
+    setLoading('lbtn-pwd', false);
+    showErr('Usuario o contraseña incorrectos. Por defecto: jacseguros / jac2024');
   };
 
-  /** Reemplaza doLoginPin() — verifica el PIN guardado en S */
+  /** doLoginPin — SIEMPRE funciona con PIN local (sin necesitar Supabase) */
   window.doLoginPin = async function () {
     hideErr();
     const pin = document.getElementById('lpin')?.value || '';
-
-    if (pin.length !== 4) { showErr('El PIN debe tener exactamente 4 dígitos.'); return; }
-
+    if (pin.length !== 4) { showErr('El PIN debe tener 4 dígitos.'); return; }
     setLoading('lbtn-pin', true);
 
-    // Intentar restaurar sesión activa de Supabase
-    const { data: { session } } = await db.auth.getSession();
-
-    if (!session) {
-      // Sesión expirada: re-autenticar con email guardado + PIN como contraseña auxiliar
-      const email = localStorage.getItem('jac_email');
-      if (!email) {
-        setLoading('lbtn-pin', false);
-        showErr('Sesión expirada. Usa tu contraseña la primera vez.');
-        return;
-      }
-
-      // Verificar PIN contra el valor guardado localmente (S.pin)
-      const localData = (() => {
-        try { return JSON.parse(localStorage.getItem('jacv10') || '{}'); } catch { return {}; }
-      })();
-      const storedPin = localData.pin || '6175';
-
-      if (pin !== storedPin) {
-        setLoading('lbtn-pin', false);
-        showErr('PIN incorrecto.');
-        return;
-      }
-
-      // PIN correcto pero sesión vencida: mostrar mensaje amigable
-      setLoading('lbtn-pin', false);
-      showErr('Tu sesión venció. Por favor inicia sesión con tu contraseña.');
-      // Cambiar automáticamente a la pestaña de contraseña
-      const pwdTab = document.querySelector('.ltabs button');
-      if (pwdTab && typeof switchLT === 'function') switchLT('pwd', pwdTab);
-      return;
-    }
-
-    // Sesión válida: verificar PIN
+    // ── Verificar PIN local siempre primero ──
     const localData = (() => {
       try { return JSON.parse(localStorage.getItem('jacv10') || '{}'); } catch { return {}; }
     })();
-    const storedPin = localData.pin || (typeof S !== 'undefined' ? S.pin : '6175') || '6175';
+    const aAuth = getAuth();
+    const storedPin = localData.pin || aAuth.pin || '6175';
 
     if (pin !== storedPin) {
       setLoading('lbtn-pin', false);
-      showErr('PIN incorrecto.');
+      showErr('PIN incorrecto. Por defecto: 6175');
       return;
     }
 
+    // PIN correcto → iniciar sesión local
     setLoading('lbtn-pin', false);
-    await initAfterLogin(session);
+    // Intentar conectar Supabase en background (no bloquea)
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (session) initAfterLogin(session).catch(() => {});
+    }).catch(() => {});
+    startSession();
   };
 
   /** Reemplaza doLogout() — cierra sesión en Supabase */
@@ -3712,7 +3979,7 @@ Desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) te deseamos un maravilloso d
 _Con cariño,
 Jely An Castro Pérez
 JAC Seguros · jcastro@jacsegurospa.com_`;
-  const waUrl = tel ? `https://wa.me/507${tel.replace(/\D/g,'')}?text=${encodeURIComponent(waMsg)}` : null;
+  const waUrl = tel ? `https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}` : null;
   return `
     <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #EEF2F8">
       <div style="font-size:22px">🎂</div>
@@ -3728,6 +3995,164 @@ JAC Seguros · jcastro@jacsegurospa.com_`;
     </div>`;
 }
 
+
+// ─── MÓDULO INFORMES ───────────────────────────────────────
+function showInfTab(tab){
+  ['resumen','prod','ren','cli','aseg'].forEach(t=>{
+    const el=document.getElementById('inf-'+t);
+    if(el)el.style.display=t===tab?'block':'none';
+    const btn=document.getElementById('itab-'+t);
+    if(btn){btn.style.background=t===tab?'#1E3A8A':'#fff';btn.style.color=t===tab?'#fff':'#1E3A8A';}
+  });
+  if(tab==='resumen')renderInfResumen();
+  else if(tab==='prod')renderInfProd();
+  else if(tab==='ren')renderInfRen();
+  else if(tab==='cli')renderInfCli();
+  else if(tab==='aseg')renderInfAseg();
+}
+
+function renderInformes(){
+  renderInfResumen();
+  // Populate year selector
+  const years=[...new Set(S.polizas.map(p=>p.fechaInicio?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const ys=document.getElementById('inf-prod-year');
+  if(ys){const cur=new Date().getFullYear();if(!years.includes(String(cur)))years.unshift(String(cur));ys.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');}
+}
+
+function renderInfResumen(){
+  const hoy=new Date().toISOString().split('T')[0];
+  const pol=S.polizas;
+  const vigentes=pol.filter(p=>p.estado==='Vigente');
+  const vencidas=pol.filter(p=>p.estado==='Vencida'||p.fechaFin<hoy);
+  const canceladas=pol.filter(p=>p.estado==='Cancelada');
+  const totalPrima=pol.reduce((s,p)=>s+(+p.prima||0),0);
+  const totalCom=pol.reduce((s,p)=>s+(+p.comision||0),0);
+  const stats=document.getElementById('inf-stats');
+  if(stats)stats.innerHTML=[
+    {label:'Total Pólizas',val:pol.length,color:'#1E3A8A',icon:'📋'},
+    {label:'Vigentes',val:vigentes.length,color:'#15803D',icon:'✅'},
+    {label:'Vencidas',val:vencidas.length,color:'#DC2626',icon:'🔴'},
+    {label:'Total Clientes',val:S.clientes.length,color:'#7C3AED',icon:'👥'},
+    {label:'Prima Total',val:'$'+fmt2(totalPrima),color:'#D97706',icon:'💰'},
+    {label:'Comisión Total',val:'$'+fmt2(totalCom),color:'#15803D',icon:'💵'},
+  ].map(s=>`<div class="card" style="padding:14px;border-left:4px solid ${s.color}">
+    <div style="font-size:22px;font-weight:900;color:${s.color}">${s.val}</div>
+    <div style="font-size:11px;color:var(--mu)">${s.icon} ${s.label}</div>
+  </div>`).join('');
+  // By ramo
+  const ramoMap={};pol.forEach(p=>{const r=p.ramo||'Otros';ramoMap[r]=(ramoMap[r]||0)+1;});
+  const ramoEl=document.getElementById('inf-ramo-list');
+  if(ramoEl)ramoEl.innerHTML=Object.entries(ramoMap).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${r}</span><span style="font-weight:700">${n}</span></div>`).join('');
+  // By aseg
+  const asegMap={};pol.forEach(p=>{const a=p.aseg||'Otra';asegMap[a]=(asegMap[a]||0)+1;});
+  const asegEl=document.getElementById('inf-aseg-list');
+  if(asegEl)asegEl.innerHTML=Object.entries(asegMap).sort((a,b)=>b[1]-a[1]).map(([a,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${a}</span><span style="font-weight:700">${n}</span></div>`).join('');
+  // Comisiones por mes
+  const mesMap={};
+  pol.filter(p=>p.fechaInicio).forEach(p=>{const m=p.fechaInicio.slice(0,7);mesMap[m]=(mesMap[m]||0)+(+p.comision||0);});
+  const year=new Date().getFullYear();
+  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const comEl=document.getElementById('inf-com-mes');
+  if(comEl)comEl.innerHTML=meses.map((mn,i)=>{const k=year+'-'+(i+1<10?'0':'')+(i+1);const v=mesMap[k]||0;const pct=v>0?Math.min(100,v/200*100):0;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="width:32px;font-size:11px;color:var(--mu)">${mn}</span><div style="flex:1;background:#F0F4FF;border-radius:4px;height:18px"><div style="width:${pct}%;background:#1E3A8A;height:100%;border-radius:4px"></div></div><span style="width:70px;text-align:right;font-size:11px;font-weight:600">$${fmt2(v)}</span></div>`;}).join('');
+}
+
+function renderInfProd(){
+  const year=document.getElementById('inf-prod-year')?.value||new Date().getFullYear();
+  const mes=document.getElementById('inf-prod-mes')?.value||'';
+  const filtered=S.polizas.filter(p=>{
+    const fi=p.fechaInicio||'';
+    return fi.startsWith(year)&&(!mes||fi.slice(5,7)===mes);
+  }).sort((a,b)=>(b.fechaInicio||'').localeCompare(a.fechaInicio||''));
+  const tbody=document.getElementById('inf-prod-tbl');
+  if(!tbody)return;
+  const cl=id=>S.clientes.find(c=>c.id===id)||{nombre:'—'};
+  tbody.innerHTML=filtered.map(p=>`<tr>
+    <td>${p.numero||'—'}</td><td>${esc(cl(p.clienteId).nombre)}</td>
+    <td>${p.aseg||'—'}</td><td>${p.ramo||'—'}</td>
+    <td>$${fmt2(p.prima||0)}</td><td style="color:#15803D;font-weight:700">$${fmt2(p.comision||0)}</td>
+    <td>${p.fechaInicio||'—'}</td>
+    <td><span class="b ${p.estado==='Vigente'?'bgn':p.estado==='Vencida'?'bdg':'bgr'}">${p.estado||'—'}</span></td>
+  </tr>`).join('');
+  const totPrima=filtered.reduce((s,p)=>s+(+p.prima||0),0);
+  const totCom=filtered.reduce((s,p)=>s+(+p.comision||0),0);
+  const totEl=document.getElementById('inf-prod-total');
+  if(totEl)totEl.innerHTML=`${filtered.length} pólizas · Prima total: <span style="color:#1E3A8A">$${fmt2(totPrima)}</span> · Comisión: <span style="color:#15803D">$${fmt2(totCom)}</span>`;
+}
+
+function renderInfRen(){
+  const hoy=new Date().toISOString().split('T')[0];
+  const en90=addDays(hoy,90);
+  const pronto=S.polizas.filter(p=>p.fechaFin&&p.fechaFin>=hoy&&p.fechaFin<=en90&&p.estado!=='Cancelada').sort((a,b)=>a.fechaFin.localeCompare(b.fechaFin));
+  const venc=S.polizas.filter(p=>p.fechaFin&&p.fechaFin<hoy&&p.estado!=='Cancelada').sort((a,b)=>b.fechaFin.localeCompare(a.fechaFin));
+  const cl=id=>S.clientes.find(c=>c.id===id)||{nombre:'—'};
+  const rTbl=document.getElementById('inf-ren-tbl');
+  if(rTbl)rTbl.innerHTML=pronto.map(p=>{const d=dFrom(p.fechaFin);return`<tr>
+    <td>${p.numero||'—'}</td><td>${esc(cl(p.clienteId).nombre)}</td>
+    <td>${p.aseg||'—'}</td><td>${p.ramo||'—'}</td>
+    <td>$${fmt2(p.prima||0)}</td><td>${p.fechaFin}</td>
+    <td><span class="b ${d<=7?'brd':d<=30?'bcy':'bgn'}">${d}d</span></td>
+  </tr>`}).join('');
+  const vTbl=document.getElementById('inf-venc-tbl');
+  if(vTbl)vTbl.innerHTML=venc.slice(0,30).map(p=>`<tr>
+    <td>${p.numero||'—'}</td><td>${esc(cl(p.clienteId).nombre)}</td>
+    <td>${p.aseg||'—'}</td><td>$${fmt2(p.prima||0)}</td><td style="color:var(--rd)">${p.fechaFin}</td>
+  </tr>`).join('');
+}
+
+function renderInfCli(){
+  const hoy=new Date();
+  const mes=hoy.getMonth()+1;
+  const bdays=S.clientes.filter(c=>{if(!c.fechaNac)return false;const m=+c.fechaNac.split('-')[1];return m===mes;}).sort((a,b)=>a.fechaNac.slice(8).localeCompare(b.fechaNac.slice(8)));
+  const bdEl=document.getElementById('inf-bday-list');
+  if(bdEl)bdEl.innerHTML=bdays.length?bdays.map(c=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>🎂 ${esc(c.nombre)}</span><span style="color:var(--mu)">${c.fechaNac?.slice(5)||''}</span></div>`).join(''):'<div style="color:var(--mu);font-size:12px">Sin cumpleaños este mes</div>';
+  // By estado
+  const estMap={};S.clientes.forEach(c=>{const e=c.estadoComercial||'activo';estMap[e]=(estMap[e]||0)+1;});
+  const estEl=document.getElementById('inf-cli-estado');
+  if(estEl)estEl.innerHTML=Object.entries(estMap).map(([e,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${e}</span><span style="font-weight:700">${n}</span></div>`).join('');
+}
+
+function renderInfAseg(){
+  const asegMap={};
+  S.polizas.forEach(p=>{
+    const a=p.aseg||'Otra';
+    if(!asegMap[a])asegMap[a]={count:0,prima:0,com:0,vigentes:0,vencidas:0};
+    asegMap[a].count++;asegMap[a].prima+=(+p.prima||0);asegMap[a].com+=(+p.comision||0);
+    if(p.estado==='Vigente')asegMap[a].vigentes++;
+    else if(p.estado==='Vencida')asegMap[a].vencidas++;
+  });
+  const tbody=document.getElementById('inf-aseg-tbl');
+  if(tbody)tbody.innerHTML=Object.entries(asegMap).sort((a,b)=>b[1].prima-a[1].prima).map(([a,d])=>`<tr>
+    <td style="font-weight:700">${a}</td><td>${d.count}</td>
+    <td>$${fmt2(d.prima)}</td><td style="color:#15803D;font-weight:700">$${fmt2(d.com)}</td>
+    <td style="color:#15803D">${d.vigentes}</td><td style="color:var(--rd)">${d.vencidas}</td>
+  </tr>`).join('');
+}
+
+function exportInformePDF(){
+  const w=window.open('','_blank');
+  const hoy=new Date().toLocaleDateString('es-PA');
+  const pol=S.polizas;const vigentes=pol.filter(p=>p.estado==='Vigente').length;
+  const totalPrima=pol.reduce((s,p)=>s+(+p.prima||0),0);
+  const totalCom=pol.reduce((s,p)=>s+(+p.comision||0),0);
+  w.document.write(`<!DOCTYPE html><html><head><title>Informe JAC Seguros</title><style>body{font-family:Arial,sans-serif;padding:30px;font-size:13px}h1{color:#0F172A}table{width:100%;border-collapse:collapse}th{background:#1E3A8A;color:#fff;padding:6px}td{padding:5px;border-bottom:1px solid #ddd}.stat{display:inline-block;margin:10px;padding:15px;background:#f0f4ff;border-radius:8px;min-width:150px}</style></head><body>
+  <h1>📊 Informe JAC Seguros</h1><p>Generado: ${hoy} · Lic. #6175</p>
+  <div><span class="stat"><b>${pol.length}</b><br>Total Pólizas</span><span class="stat"><b>${vigentes}</b><br>Vigentes</span><span class="stat"><b>$${fmt2(totalPrima)}</b><br>Prima Total</span><span class="stat"><b>$${fmt2(totalCom)}</b><br>Comisión Total</span></div>
+  <h3>Pólizas Activas</h3><table><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Comisión</th><th>Vence</th></tr>
+  ${S.polizas.filter(p=>p.estado==='Vigente').map(p=>{const cl=S.clientes.find(c=>c.id===p.clienteId)||{nombre:'—'};return`<tr><td>${p.numero||'—'}</td><td>${cl.nombre}</td><td>${p.aseg||'—'}</td><td>${p.ramo||'—'}</td><td>$${fmt2(p.prima||0)}</td><td>$${fmt2(p.comision||0)}</td><td>${p.fechaFin||'—'}</td></tr>`;}).join('')}
+  </table></body></html>`);
+  w.document.close();w.print();
+}
+
+function exportInformeExcel(){
+  const pol=S.polizas;
+  const cl=id=>S.clientes.find(c=>c.id===id)||{nombre:'—'};
+  let csv='Póliza,Cliente,Aseguradora,Ramo,Prima,Comisión,Estado,Inicio,Vencimiento\n';
+  csv+=pol.map(p=>`"${p.numero||''}","${cl(p.clienteId).nombre}","${p.aseg||''}","${p.ramo||''}","${p.prima||0}","${p.comision||0}","${p.estado||''}","${p.fechaInicio||''}","${p.fechaFin||''}"`).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='JAC_Informe_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  URL.revokeObjectURL(a.href);toast('📊 Excel exportado','ok');
+}
+// ─── END MÓDULO INFORMES ────────────────────────────────────
 function renderDashBirthdays() {
   const todayBdays = getTodayBirthdays();
   const upcoming = getUpcomingBirthdays(7).filter(c => c._daysUntilBday > 0);
@@ -3769,7 +4194,7 @@ function renderDashReminders() {
     const waMsg = `⚠️ Hola ${(cl.nombre||p.nombreCliente||'Cliente').split(' ')[0]} 👋🏼
 
 Te recordamos desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) que tu póliza de *${p.ramo}* con *${p.aseg}* vence el *${typeof fmt==='function'?fmt(p.fechaFin):p.fechaFin}*. Para renovarla y continuar protegido/a, contáctame lo antes posible. — JAC Seguros Lic. #6175`;
-    const waUrl = tel ? `https://wa.me/507${tel.replace(/\D/g,'')}?text=${encodeURIComponent(waMsg)}` : null;
+    const waUrl = tel ? `https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}` : null;
     const col = dias === 0 ? '#DC2626' : dias <= 7 ? '#DC2626' : dias <= 15 ? '#D97706' : '#2563EB';
     h += `<div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #EEF2F8">
       <div style="width:36px;height:36px;border-radius:50%;background:${col}18;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:${col};flex-shrink:0">${dias}d</div>
@@ -3855,7 +4280,7 @@ function showBirthdayCard(clientId) {
 
 Desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) te deseamos un día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! — Jely An Castro, JAC Seguros Lic. #6175 · jacsegurospa.com`;
   const tel = c.cel || c.tel || '';
-  const waUrl = tel ? `https://wa.me/507${tel.replace(/\D/g,'')}?text=${encodeURIComponent(waMsg)}` : null;
+  const waUrl = tel ? `https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}` : null;
   const dp = document.getElementById('dpanel');
   if (dp) {
     const t = document.getElementById('dptit');
@@ -4134,7 +4559,11 @@ function openAddNota(id){
         <button class="btn bp" onclick="saveNota('${id||''}')">💾 Guardar</button>
       </div>
     </div>`;
-  OM('mnota','📝 '+(id?'Editar':'Nueva')+' Nota',html);
+  const mnotaBody=document.getElementById('mnota-body');
+  const mnotaTitle=document.getElementById('mnota-title');
+  if(mnotaBody){mnotaBody.innerHTML=html;}
+  if(mnotaTitle){mnotaTitle.textContent='📝 '+(id?'Editar':'Nueva')+' Nota';}
+  OM('mnota');
 }
 
 function saveNota(id){
@@ -4353,11 +4782,7 @@ function OC(id){
 })();
 
 // ── HOOK: extend RD to call renderDashNotasAlert ───────────────────────────
-const _origRD=window.RD;
-window.RD=function(){
-  if(typeof _origRD==='function')_origRD();
-  renderDashNotasAlert();
-};
+(function(){const _origRD2=window.RD;window.RD=function(){if(typeof _origRD2==='function')_origRD2();renderDashNotasAlert();};})();
 
 // ── HOOK: extend RCom to call chart renderer ───────────────────────────────
 const _origRCom=window.RCom;
@@ -4502,7 +4927,7 @@ function wamGenerate(){
       const tel=cl.cel||cl.tel||'';
       if(!tel)return;
       const msg=wamBuildMsg(tipo,cl,p);
-      wamData.push({id:p.id+'_'+cl.id,nombre:cl.nombre||'—',tel,dias:d,info:`${p.ramo||''} · ${p.aseg||''} · ${fmt(p.fechaFin)}`,msg,sel:true,url:`https://wa.me/507${tel.replace(/\D/,'')}?text=${encodeURIComponent(msg)}`});
+      wamData.push({id:p.id+'_'+cl.id,nombre:cl.nombre||'—',tel,dias:d,info:`${p.ramo||''} · ${p.aseg||''} · ${fmt(p.fechaFin)}`,msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
     });
     wamData.sort((a,b)=>a.dias-b.dias);
   } else if(tipo==='bday'){
@@ -4515,13 +4940,13 @@ function wamGenerate(){
       const diff=Math.round((bday-today)/(864e5));
       if(diff<0||diff>bdayDias)return;
       const msg=wamBuildMsg('bday',c,null);
-      wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:diff,info:`Cumpleaños en ${diff===0?'HOY':diff+' días'} · ${fmt(c.fNac)}`,msg,sel:true,url:`https://wa.me/507${tel.replace(/\D/,'')}?text=${encodeURIComponent(msg)}`});
+      wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:diff,info:`Cumpleaños en ${diff===0?'HOY':diff+' días'} · ${fmt(c.fNac)}`,msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
     });
   } else {
     (S.clientes||[]).forEach(c=>{
       const tel=c.cel||c.tel||'';if(!tel)return;
       const msg=wamBuildMsg('custom',c,null);
-      wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:0,info:'Cliente',msg,sel:true,url:`https://wa.me/507${tel.replace(/\D/,'')}?text=${encodeURIComponent(msg)}`});
+      wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:0,info:'Cliente',msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
     });
   }
 
