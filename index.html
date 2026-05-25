@@ -282,10 +282,13 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="sg" id="dsg" style="display:flex;flex-wrap:wrap;gap:8px"></div>
   <!-- POLICY STATUS CARDS ROW -->
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px" id="dash-status-cards"></div>
-  <!-- CALENDAR QUICK LINK + AGENDA -->
-  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+  <!-- CALENDAR QUICK LINK + AGENDA + ACCIONES RÁPIDAS -->
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
     <a href="https://calendar.google.com" target="_blank" class="btn bp" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none">📅 Google Calendar</a>
     <button class="btn bgn" onclick="toggleAgenda()" style="display:inline-flex;align-items:center;gap:5px">📋 Agenda CRM</button>
+    <button class="btn" onclick="SH('inf')" style="background:#1E3A8A;color:#fff;border-color:#1E3A8A;display:inline-flex;align-items:center;gap:5px">📊 Informes</button>
+    <button class="btn" onclick="openCotizador()" style="background:#7C3AED;color:#fff;border-color:#7C3AED;display:inline-flex;align-items:center;gap:5px">🧮 Cotizar</button>
+    <button class="btn" onclick="SH('not')" style="background:#D97706;color:#fff;border-color:#D97706;display:inline-flex;align-items:center;gap:5px">📝 Notas</button>
   </div>
   <div id="dash-agenda" style="display:none;margin-bottom:10px"></div>
   <!-- BIRTHDAY ALERTS -->
@@ -898,7 +901,8 @@ body.dark .mu{color:var(--dark-mu);}
             <option value="MAPFRE">MAPFRE</option><option value="PALIG">PALIG</option>
             <option value="UNIVIVIR">UNIVIVIR</option><option value="FEDPA">FEDPA</option>
             <option value="Acerta">Acerta</option><option value="Chubb">Chubb</option>
-            <option value="VUMI-LA REGIONAL DE SEGUROS">VUMI-LA REGIONAL</option><option value="VUMI-LA REGIONAL DE SEGUROS">VUMI-LA REGIONAL</option>
+            <option value="WW Medical">WW Medical</option><option value="Generali">Generali</option>
+            <option value="VUMI-LA REGIONAL DE SEGUROS">VUMI-LA REGIONAL DE SEGUROS</option>
           </select>
         </div>
       </div>
@@ -915,15 +919,60 @@ body.dark .mu{color:var(--dark-mu);}
           </select>
         </div>
       </div>
+      <!-- Cotización para hijo/hija -->
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:10px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:#15803D">
+          <input type="checkbox" id="cotz-hijo" onchange="cotzToggleHijo()" style="width:16px;height:16px;accent-color:#15803D">
+          👶 ¿Cotización solo para hijo/hija?
+        </label>
+        <div id="cotz-hijo-fields" style="display:none;margin-top:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="fl ff"><label style="font-size:12px">Género del hijo/hija</label>
+              <select class="fc" id="cotz-hijo-genero" onchange="cotzCalc()">
+                <option value="">— Seleccionar —</option>
+                <option value="masculino">👦 Masculino</option>
+                <option value="femenino">👧 Femenino</option>
+              </select>
+            </div>
+            <div class="fl ff"><label style="font-size:12px">Fecha de nacimiento</label>
+              <input class="fc" id="cotz-hijo-dob" type="date" onchange="cotzCalcDOB()" style="font-size:12px">
+            </div>
+          </div>
+          <div id="cotz-hijo-edad-calc" style="font-size:11px;color:#15803D;margin-top:5px;font-weight:600"></div>
+        </div>
+      </div>
       <!-- Resultado -->
       <div id="cotz-result" style="display:none;background:#EEF4FF;border:1px solid #C7D7FF;border-radius:8px;padding:14px">
-        <div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Estimado de prima</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
-          <div><div style="font-size:20px;font-weight:900;color:#1D4ED8" id="cotz-prima-anual">$0</div><div style="font-size:10px;color:var(--mu)">Prima anual</div></div>
-          <div><div style="font-size:20px;font-weight:900;color:#7C3AED" id="cotz-prima-cuota">$0</div><div style="font-size:10px;color:var(--mu)" id="cotz-cuota-lbl">Por pago</div></div>
-          <div><div style="font-size:20px;font-weight:900;color:#15803D" id="cotz-com-est">$0</div><div style="font-size:10px;color:var(--mu)">Mi comisión est.</div></div>
+        <div style="font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Estimado de prima (c/ITBMS)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-bottom:8px">
+          <div style="background:#fff;border-radius:6px;padding:8px 4px;border:1px solid #E0E7FF">
+            <div style="font-size:16px;font-weight:900;color:#1D4ED8" id="cotz-prima-mensual">$0</div>
+            <div style="font-size:10px;color:var(--mu)">Mensual</div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px 4px;border:1px solid #E0E7FF">
+            <div style="font-size:16px;font-weight:900;color:#7C3AED" id="cotz-prima-trimestral">$0</div>
+            <div style="font-size:10px;color:var(--mu)">Trimestral</div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px 4px;border:1px solid #E0E7FF">
+            <div style="font-size:16px;font-weight:900;color:#D97706" id="cotz-prima-semestral">$0</div>
+            <div style="font-size:10px;color:var(--mu)">Semestral</div>
+          </div>
+          <div style="background:#dbeafe;border-radius:6px;padding:8px 4px;border:1px solid #93C5FD">
+            <div style="font-size:16px;font-weight:900;color:#1D4ED8" id="cotz-prima-anual">$0</div>
+            <div style="font-size:10px;color:#1D4ED8;font-weight:700">Anual</div>
+          </div>
         </div>
-        <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:center">⚠️ Estimado referencial. La prima final la confirma la aseguradora.</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #C7D7FF">
+          <div style="text-align:center">
+            <div style="font-size:14px;font-weight:900;color:#15803D" id="cotz-com-est">$0</div>
+            <div style="font-size:10px;color:var(--mu)">Mi comisión est.</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:14px;font-weight:700;color:#7C3AED" id="cotz-prima-cuota">$0</div>
+            <div style="font-size:10px;color:var(--mu)" id="cotz-cuota-lbl">Pago seleccionado</div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:center">⚠️ Estimado referencial. Prima final la confirma la aseguradora.</div>
       </div>
       <!-- Cliente para envío -->
       <div style="border-top:1px solid var(--bd);padding-top:10px">
@@ -1525,33 +1574,79 @@ const COTZ_RATES={
   'FIANZAS':{tasa:.02,com:.10,itbms:0}
 };
 function openCotizador(){
-  document.getElementById('cotz-result').style.display='none';
-  ['cotz-ramo','cotz-valor','cotz-anio','cotz-edad','cotz-nom','cotz-tel','cotz-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const resEl=document.getElementById('cotz-result');if(resEl)resEl.style.display='none';
+  ['cotz-ramo','cotz-valor','cotz-anio','cotz-edad','cotz-nom','cotz-tel','cotz-email','cotz-hijo-dob','cotz-hijo-genero'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const chk=document.getElementById('cotz-hijo');if(chk)chk.checked=false;
+  const hf=document.getElementById('cotz-hijo-fields');if(hf)hf.style.display='none';
+  const hc=document.getElementById('cotz-hijo-edad-calc');if(hc)hc.textContent='';
   OM('mcotz');
 }
+function cotzToggleHijo(){
+  const chk=document.getElementById('cotz-hijo');
+  const fields=document.getElementById('cotz-hijo-fields');
+  if(fields)fields.style.display=chk&&chk.checked?'block':'none';
+  cotzCalc();
+}
+function cotzCalcDOB(){
+  const dob=document.getElementById('cotz-hijo-dob')?.value;
+  const lbl=document.getElementById('cotz-hijo-edad-calc');
+  if(!dob||!lbl)return;
+  const hoy=new Date();
+  const nacimiento=new Date(dob);
+  let edad=hoy.getFullYear()-nacimiento.getFullYear();
+  const m=hoy.getMonth()-nacimiento.getMonth();
+  if(m<0||(m===0&&hoy.getDate()<nacimiento.getDate()))edad--;
+  if(edad>=0){
+    lbl.textContent=`👶 Edad calculada: ${edad} año${edad!==1?'s':''} — será usada en el cálculo de prima`;
+    // Auto-set edad field
+    const edadEl=document.getElementById('cotz-edad');
+    if(edadEl)edadEl.value=edad;
+    cotzCalc();
+  }
+}
 function cotzCalc(){
-  const ramo=document.getElementById('cotz-ramo').value;
-  const valor=parseFloat(document.getElementById('cotz-valor').value)||0;
-  const fpago=document.getElementById('cotz-fpago').value||'anual';
-  if(!ramo||(!valor&&ramo!=='SOAT')){document.getElementById('cotz-result').style.display='none';return;}
-  const r=COTZ_RATES[ramo];if(!r)return;
+  const ramo=document.getElementById('cotz-ramo')?.value||'';
+  const valor=parseFloat(document.getElementById('cotz-valor')?.value)||0;
+  const fpago=document.getElementById('cotz-fpago')?.value||'anual';
+  const esHijo=document.getElementById('cotz-hijo')?.checked||false;
+  if(!ramo||(!valor&&ramo!=='SOAT')){const r=document.getElementById('cotz-result');if(r)r.style.display='none';return;}
+  const rates=COTZ_RATES[ramo];if(!rates)return;
   let prima;
-  if(ramo==='SOAT'){prima=r.fijo||36;}
-  else if(ramo==='VIDA'){
-    const edad=parseInt(document.getElementById('cotz-edad').value)||30;
+  if(ramo==='SOAT'){prima=rates.fijo||36;}
+  else if(ramo==='VIDA'||ramo==='SALUD/MÉDICOS'||ramo==='ACCIDENTES PERSONALES'){
+    // Use DOB-calculated age if available, else manual entry
+    const dobEdad=esHijo&&document.getElementById('cotz-hijo-dob')?.value?
+      (()=>{const n=new Date(document.getElementById('cotz-hijo-dob').value);const h=new Date();let e=h.getFullYear()-n.getFullYear();const m=h.getMonth()-n.getMonth();if(m<0||(m===0&&h.getDate()<n.getDate()))e--;return e;})():null;
+    const edad=dobEdad!==null?dobEdad:(parseInt(document.getElementById('cotz-edad')?.value)||30);
     const factor=1+Math.max(0,(edad-30))*0.02;
-    prima=valor*r.tasa*factor;
-  } else {prima=valor*r.tasa;}
-  const total=prima*(1+(r.itbms||0));
-  const com=prima*(r.com||.15);
-  const cuotaMap={anual:1,semestral:2,trimestral:4,mensual:12};
-  const nc=cuotaMap[fpago]||1;
-  const cuota=total/nc;
-  document.getElementById('cotz-result').style.display='block';
-  document.getElementById('cotz-prima-anual').textContent=fmtM(total);
-  document.getElementById('cotz-prima-cuota').textContent=fmtM(cuota);
-  document.getElementById('cotz-cuota-lbl').textContent={anual:'Pago anual',semestral:'Pago semestral',trimestral:'Pago trimestral',mensual:'Pago mensual'}[fpago];
-  document.getElementById('cotz-com-est').textContent=fmtM(com);
+    prima=valor*rates.tasa*factor;
+  } else {prima=valor*rates.tasa;}
+  const itbmsRate=rates.itbms||0;
+  const total=prima*(1+itbmsRate);   // anual con ITBMS
+  const com=prima*(rates.com||.15);
+  // Breakdowns
+  const mensual=total/12;
+  const trimestral=total/4;
+  const semestral=total/2;
+  const cuotaMap={anual:total,semestral:semestral,trimestral:trimestral,mensual:mensual};
+  const cuota=cuotaMap[fpago]||total;
+  const resEl=document.getElementById('cotz-result');
+  if(resEl)resEl.style.display='block';
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  set('cotz-prima-mensual',fmtM(mensual));
+  set('cotz-prima-trimestral',fmtM(trimestral));
+  set('cotz-prima-semestral',fmtM(semestral));
+  set('cotz-prima-anual',fmtM(total));
+  set('cotz-prima-cuota',fmtM(cuota));
+  set('cotz-cuota-lbl',{anual:'Pago anual',semestral:'Pago semestral',trimestral:'Pago trimestral',mensual:'Pago mensual'}[fpago]);
+  set('cotz-com-est',fmtM(com));
+  // Show hijo/hija info in result if applicable
+  const hijoDatos=document.getElementById('cotz-hijo-edad-calc');
+  if(esHijo&&hijoDatos&&hijoDatos.textContent){
+    const gen=document.getElementById('cotz-hijo-genero')?.value||'';
+    const genLbl=gen==='masculino'?'👦 Niño':gen==='femenino'?'👧 Niña':'';
+    if(genLbl)hijoDatos.textContent=hijoDatos.textContent.split('—')[0]+'— '+genLbl;
+  }
 }
 function cotzMsg(){
   const ramo=document.getElementById('cotz-ramo').value||'seguro';
@@ -1680,7 +1775,7 @@ function delEtiqueta(id){confirm2('¿Eliminar etiqueta?',()=>{S.etiquetas=S.etiq
 const GENERALES=new Set(['AUTOS/VEHÍCULOS','MOTOS','INCENDIO Y LÍNEAS ALIADAS','HOGAR','FIANZAS/ROBO/SUSTRACCIÓN','RESPONSABILIDAD CIVIL','SOAT','MULTIRIESGO','TODO RIESGO','CUMPLIMIENTO','VIAJES/TURISMO']);
 const TODAY=new Date('2026-05-15');
 const MON=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const ACOL={ASSA:'#005F9E',SURA:'#E85D04',IS:'#1A3A6B',MAPFRE:'#C8102E',PALIG:'#2D6A4F',UNIVIVIR:'#7B2D8B',FEDPA:'#8B5E00',Ancón:'#3D405B','WW Medical':'#0D7377',Acerta:'#5C4033',Generali:'#C62828',Chubb:'#2E7D32',Aliados:'#0277BD','La Regional':'#E65100',General:'#4E342E',VUMI:'#00548B'};
+const ACOL={ASSA:'#005F9E',SURA:'#E85D04',IS:'#1A3A6B',MAPFRE:'#C8102E',PALIG:'#2D6A4F',UNIVIVIR:'#7B2D8B',FEDPA:'#8B5E00',Ancón:'#3D405B','WW Medical':'#0D7377',Acerta:'#5C4033',Generali:'#C62828',Chubb:'#2E7D32',Aliados:'#0277BD','La Regional':'#E65100',General:'#4E342E',VUMI:'#00548B','VUMI-LA REGIONAL DE SEGUROS':'#00548B'};
 // PIPELINE CORREGIDO: Contacto primero
 const PIPE_ETAPAS=[
   {id:'Contacto inicial',label:'📞 Contacto',color:'#1D4ED8'},
@@ -1956,13 +2051,31 @@ function openWAForCli(cid){
   const el=document.getElementById('wap-nombre');if(el)el.textContent=c.nombre||'';
   const el2=document.getElementById('wap-tel');if(el2)el2.textContent=formatTel(t);
   SVal('wap-msg',defMsg);
-  const hist=(c.historialWA||[]);
+  const histWA=(c.historialWA||[]);
+  const histAll=(c.historial||[]).filter(h=>h.tipo==='whatsapp'||h.tipo==='email');
+  const hist=[...histWA,...histAll].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
   const hDiv=document.getElementById('wap-hist');
   const hCnt=document.getElementById('wap-hist-cnt');
-  if(hCnt)hCnt.textContent=hist.length?hist.length+' mensajes':'';
+  if(hCnt)hCnt.textContent=hist.length?hist.length+' mensaje'+( hist.length!==1?'s':''):'';
   if(hDiv){
     if(!hist.length){hDiv.innerHTML='<div style="font-size:11px;color:var(--mu);text-align:center;padding:8px">Sin mensajes previos</div>';}
-    else{hDiv.innerHTML=hist.slice().reverse().slice(0,6).map(e=>`<div style="background:#E7F8EE;border-radius:6px;padding:5px 10px;margin-bottom:3px;font-size:11px"><span style="font-weight:700;color:#128C7E">💬</span> ${e.fecha||''} · ${esc(e.msgType||e.accion||'Mensaje')}</div>`).join('');}
+    else{
+      hDiv.innerHTML=hist.slice(0,10).map(e=>{
+        const isWA=e.tipo==='whatsapp'||!e.tipo;
+        const bg=isWA?'#E7F8EE':'#EEF4FF';
+        const bd=isWA?'#B2DFC9':'#C7D7FF';
+        const ic=isWA?'💬':'📧';
+        const clr=isWA?'#128C7E':'#1D4ED8';
+        const txt=e.mensaje||e.preview||e.notas||e.accion||e.msgType||'(sin contenido)';
+        return`<div style="background:${bg};border:1px solid ${bd};border-radius:8px;padding:8px 10px;margin-bottom:5px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-weight:700;font-size:11px;color:${clr}">${ic} ${isWA?'WhatsApp':'Email'}</span>
+            <span style="font-size:10px;color:var(--mu)">${e.fecha||''}</span>
+          </div>
+          <div style="font-size:11px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;max-height:70px;overflow-y:auto">${esc(String(txt).slice(0,300))}</div>
+        </div>`;
+      }).join('');
+    }
   }
   OM('mwap');
 }
@@ -2115,10 +2228,17 @@ function openEmailForPol(pid){
 }
 function sendEmailViaMailto(){
   const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body'),cc=V('cem-cc');
+  const fromEmail=V('cem-from')||'jcastro@jacsegurospa.com';
   if(!to||!sub){toast('Para y Asunto son obligatorios','err');return;}
   let ml=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
   if(cc)ml+=`&cc=${encodeURIComponent(cc)}`;
-  window.open(ml);
+  // If Gmail selected, open Gmail compose directly
+  if(fromEmail==='jelyancorredora@gmail.com'){
+    const gmUrl=`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}${cc?'&cc='+encodeURIComponent(cc):''}`;
+    window.open(gmUrl,'_blank');
+  } else {
+    window.open(ml);
+  }
   logEmailSent();
   CM('mcem');toast('📨 Abriendo app de correo...');
 }
@@ -2143,7 +2263,8 @@ async function sendEmailViaEJS(){
     attachStr='\n\n📎 Archivos adjuntos:\n'+b64arr.join('\n');
     toast('⚠️ EmailJS no soporta adjuntos binarios. Los archivos se enviarán como referencia en el cuerpo.','warn');
   }
-  const ok=await sendEmailJS(tpl,{to_name:'',to_email:to,subject:sub,message:body+attachStr,from_name:'Desde JAC Seguros | Jely An Castro',from_email:'jcastro@jacsegurospa.com',company:'JAC Seguros · Lic. #6175',phone:'+507 6292-6010',attachments:files.map(f=>f.name).join(', ')});
+  const fromName=fromEmail==='jelyancorredora@gmail.com'?'Jely An Castro (Gmail)':'JAC Seguros | Jely An Castro';
+  const ok=await sendEmailJS(tpl,{to_name:'',to_email:to,subject:sub,message:body+attachStr,from_name:fromName,from_email:fromEmail,reply_to:fromEmail,company:'JAC Seguros · Lic. #6175',phone:'+507 6292-6010',attachments:files.map(f=>f.name).join(', ')});
   if(ok){logEmailSent();if(attachInput)attachInput.value='';CM('mcem');toast('✅ Correo enviado por EmailJS','ok');}
   else toast('Error enviando. Usa "Abrir app de correo"','err');
 }
@@ -3035,7 +3156,7 @@ function OP(id){
   const csel=document.getElementById('p-cl');csel.innerHTML='<option value="">— Cliente —</option>';
   S.clientes.sort((a,z)=>a.nombre.localeCompare(z.nombre)).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre;if(p.clienteId===c.id)o.selected=true;csel.add(o);});
   const asel=document.getElementById('p-as');asel.innerHTML='';
-  ['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','Acerta','WW Medical','VUMI','Generali','Chubb','Aliados','La Regional','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,a)=>a.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.aseg===a)o.selected=true;asel.add(o);});
+  ['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','Acerta','WW Medical','VUMI-LA REGIONAL DE SEGUROS','Generali','Chubb','Aliados','La Regional','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,a)=>a.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.aseg===a)o.selected=true;asel.add(o);});
   const rsel=document.getElementById('p-ra');rsel.innerHTML='';
   [...RAMOS_ALL,'SOAT','CUMPLIMIENTO','MULTIRIESGO','TODO RIESGO'].filter((x,i,a)=>a.indexOf(x)===i).forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;if(p.ramo===r)o.selected=true;rsel.add(o);});
   [['p-nu','num'],['p-na','numAnexo'],['p-tp','tipo'],['p-sr','subramo'],['p-nr','nueva'],['p-es','estado'],['p-et','etapa'],['p-ri','riesgo'],['p-vr','valorRiesgo'],['p-cob','cobertura'],['p-tpo','tipoPol'],['p-pr','prima'],['p-it','itbmsPct'],['p-ib','itbms'],['p-ge','gastosExp'],['p-vf','valorFinanciacion'],['p-tot','total'],['p-cmes','cuotaMensual'],['p-ctri','cuotaTrimestral'],['p-csem','cuotaSemestral'],['p-canu','cuotaAnual'],['p-cb','comPct'],['p-pa','participacion'],['p-co','comision'],['p-nas','nombreAsegurado'],['p-das','docAsegurado'],['p-nto','tomador'],['p-dto','docTomador'],['p-ben','beneficiario'],['p-cben','cedBeneficiario'],['p-fex','fechaExpedicion'],['p-fre','fechaRecepcion'],['p-fi','fechaInicio'],['p-ff','fechaFin'],['p-fca','fechaCancelada'],['p-fp','formaPago'],['p-pe','periodo'],['p-me','medio'],['p-ban','banco'],['p-mon','moneda'],['p-ven','vendedor'],['p-ob','obs'],['p-oi','obsInt']].forEach(([fid,key])=>SVal(fid,p[key]));
@@ -3171,7 +3292,7 @@ function OS(id){
   EID=id||null;_pf=[];const s=id?S.siniestros.find(x=>x.id===id)||{}:{};
   const mst=document.getElementById('mst');if(mst)mst.textContent=id?'Editar Siniestro':'Nuevo Siniestro';
   const csel=document.getElementById('s-cl');csel.innerHTML='<option value="">— Cliente —</option>';S.clientes.sort((a,z)=>a.nombre.localeCompare(z.nombre)).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.nombre;if(s.clienteId===c.id)o.selected=true;csel.add(o);});
-  const asel=document.getElementById('s-as');asel.innerHTML='<option value="">—</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(s.aseg===a)o.selected=true;asel.add(o);});
+  const asel=document.getElementById('s-as');asel.innerHTML='<option value="">—</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(s.aseg===a)o.selected=true;asel.add(o);});
   [['s-po','poliza'],['s-sr','subramo'],['s-no','nombre'],['s-nc','numCia'],['s-fd','fechaSin'],['s-fa','fechaAviso'],['s-fn','fechaNotif'],['s-prov','proveedor'],['s-na','asegurado'],['s-da','docAseg'],['s-mr','montoReclamo'],['s-de','deducible'],['s-vi','valInd'],['s-cos','coaseguros'],['s-sp','sinPct'],['s-es','estado'],['s-ds','desc'],['s-seg','seguimiento']].forEach(([fid,key])=>SVal(fid,s[key]));
   const sfl=document.getElementById('s-file-list');if(sfl)sfl.innerHTML=renderFL(s.archivos||[],id||'','siniestro');
   OM('ms');initFileInp('s-file-inp','s-file-pending');
@@ -3240,7 +3361,7 @@ function RCom(){
   const tcd=document.getElementById('tcomd');if(tcd)tcd.innerHTML=hd;
 }
 function markCob(id){const i=S.comisiones.findIndex(c=>c.id===id);if(i>=0)S.comisiones[i].estado='cobrada';save();RCom();RD();toast('✓ Cobrada');}
-function OCom(){const asel=document.getElementById('cm-as');if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','VUMI','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}SVal('cm-me','');SVal('cm-mo','');SVal('cm-es','pendiente');OM('mcom');}
+function OCom(){const asel=document.getElementById('cm-as');if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}SVal('cm-me','');SVal('cm-mo','');SVal('cm-es','pendiente');OM('mcom');}
 function SCom(){const aseg=V('cm-as'),monto=GF('cm-mo');if(!aseg||!monto){toast('Aseguradora y monto obligatorios','err');return;}S.comisiones.push({id:'COM'+uid(),aseg,mes:V('cm-me').trim(),monto,estado:V('cm-es')});save();CM('mcom');RCom();toast('✓ Registrada');}
 function DCom(id){confirm2('¿Eliminar?',()=>{S.comisiones=S.comisiones.filter(c=>c.id!==id);save();RCom();toast('Eliminada');});}
 
@@ -4470,20 +4591,32 @@ function exportPortPDF(){
   });
 }
 
+// ── VUMI-LA REGIONAL: garantizar que esté en S.aseguradoras ───────────────
+(function ensureVUMI(){
+  if(!S.aseguradoras)S.aseguradoras=[];
+  const already=S.aseguradoras.some(a=>(a.nombre||'').toUpperCase().includes('VUMI'));
+  if(!already){
+    S.aseguradoras.push({id:'vumi-regional-001',nombre:'VUMI-LA REGIONAL DE SEGUROS',ruc:'',email:'',dir:'Ciudad de Panamá, Panamá',tel:'',banco:'',linkPago:'',codInt:'VUMI',retPct:0,itbmsPct:6});
+    save();
+  }
+})();
+
 // ── NOTAS CON RECORDATORIO ─────────────────────────────────────────────────
 if(!S.notas)S.notas=[];
 
 function RNot(){
+  try{
+  if(!S.notas)S.notas=[];
   const search=(document.getElementById('not-search')?.value||'').toLowerCase();
   const filter=document.getElementById('not-filter')?.value||'';
   const today=new Date().toISOString().split('T')[0];
   const overdue=S.notas.filter(n=>n.fecha&&n.fecha<=today&&!n.done);
   const soon=S.notas.filter(n=>n.fecha&&n.fecha>today&&n.fecha<=addDays(today,7)&&!n.done);
-  
-  document.getElementById('not-cnt').textContent=`${S.notas.length} notas`;
-  document.getElementById('not-alert-cnt').textContent=`${overdue.length} pendiente${overdue.length!==1?'s':''}`;
-  document.getElementById('not-soon-cnt').textContent=`${soon.length} próxima${soon.length!==1?'s':''}`;
-  
+
+  const elCnt=document.getElementById('not-cnt');if(elCnt)elCnt.textContent=`${S.notas.length} nota${S.notas.length!==1?'s':''}`;
+  const elAl=document.getElementById('not-alert-cnt');if(elAl)elAl.textContent=`${overdue.length} pendiente${overdue.length!==1?'s':''}`;
+  const elSn=document.getElementById('not-soon-cnt');if(elSn)elSn.textContent=`${soon.length} próxima${soon.length!==1?'s':''}`;
+
   const renderNota=(n,compact)=>{
     const isOverdue=n.fecha&&n.fecha<=today&&!n.done;
     const isSoon=n.fecha&&n.fecha>today&&n.fecha<=addDays(today,7)&&!n.done;
@@ -4518,15 +4651,16 @@ function RNot(){
   
   // Full list with filter
   let notas=[...S.notas].sort((a,b)=>new Date(b.cre||'2000')-new Date(a.cre||'2000'));
-  if(search)notas=notas.filter(n=>(n.titulo+n.cuerpo+n.etiqueta).toLowerCase().includes(search));
+  if(search)notas=notas.filter(n=>((n.titulo||'')+(n.cuerpo||'')+(n.etiqueta||'')).toLowerCase().includes(search));
   if(filter==='alert')notas=notas.filter(n=>n.fecha);
   if(filter==='noalert')notas=notas.filter(n=>!n.fecha);
   const ll=document.getElementById('not-list');
   if(ll)ll.innerHTML=notas.length?`<div style="padding:10px">${notas.map(n=>renderNota(n)).join('')}</div>`:'<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">Sin notas. Crea tu primera nota con el botón +</div>';
-  
+
   // Badge on nav
   const badge=overdue.length+soon.length;
   document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'not'"))a.textContent=badge?`📝 Notas (${badge})`:'📝 Notas';});
+  }catch(e){console.warn('[RNot error]',e);}
 }
 
 function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];}
