@@ -220,13 +220,11 @@ body.dark .mu{color:var(--dark-mu);}
     <div class="lfld"><label>USUARIO</label><input type="text" id="lu" placeholder="jacseguros" autocomplete="username" spellcheck="false"></div>
     <div class="lfld"><label>CONTRASEÑA</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="lbtn" onclick="doLogin()">Ingresar →</button>
-    <div class="lhint">Usuario: <b>jacseguros</b> · Contraseña: <b>jac2024</b></div>
     <div style="text-align:center;margin-top:10px"><button onclick="resetLoginEmergency()" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer;text-decoration:underline">🔓 ¿No puedes entrar? Restablecer acceso</button></div>
   </div>
   <div class="lform" id="lf-pin">
     <div class="lfld"><label>PIN DE 4 DÍGITOS</label><input type="password" id="lpin" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="off"></div>
     <button class="lbtn" onclick="doLoginPin()">Ingresar →</button>
-    <div class="lhint">PIN por defecto: 6175</div>
   </div>
 </div>
 </div>
@@ -261,6 +259,7 @@ body.dark .mu{color:var(--dark-mu);}
     <a onclick="SH('wam')">📣 WA Masivo</a>
     <a onclick="SH('not')">📝 Notas</a>
     <a onclick="SH('inf')">📊 Informes</a>
+    <a onclick="SH('cotp')" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border-radius:8px;font-weight:700">🧮 Cotizador Pro</a>
     <a onclick="SH('cfg')">⚙️</a>
   </nav>
   <div class="ha" id="ha">
@@ -896,15 +895,22 @@ body.dark .mu{color:var(--dark-mu);}
             <option value="FIANZAS">📜 Fianzas</option>
           </select>
         </div>
-        <div class="fl ff"><label>Aseguradora</label>
-          <select class="fc" id="cotz-aseg">
-            <option value="ASSA">ASSA</option><option value="IS">IS</option><option value="SURA">SURA</option>
-            <option value="MAPFRE">MAPFRE</option><option value="PALIG">PALIG</option>
-            <option value="UNIVIVIR">UNIVIVIR</option><option value="FEDPA">FEDPA</option>
-            <option value="Acerta">Acerta</option><option value="Chubb">Chubb</option>
-            <option value="WW Medical">WW Medical</option><option value="Generali">Generali</option>
-            <option value="VUMI-LA REGIONAL DE SEGUROS">VUMI-LA REGIONAL DE SEGUROS</option>
-          </select>
+        <div class="fl ff"><label>Aseguradora(s)</label>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <select class="fc" id="cotz-aseg" onchange="cotzCalc()" style="font-size:12px">
+              <option value="ASSA">ASSA</option><option value="IS">IS</option><option value="SURA">SURA</option>
+              <option value="MAPFRE">MAPFRE</option><option value="PALIG">PALIG</option>
+              <option value="UNIVIVIR">UNIVIVIR</option><option value="FEDPA">FEDPA</option>
+              <option value="ACERTA">Acerta</option><option value="CHUBB">Chubb</option>
+              <option value="WWMED">WW Medical</option><option value="GENERALI">Generali</option>
+              <option value="VUMI">VUMI-La Regional</option><option value="BG">BG Seguros</option>
+              <option value="ALIADOS">Aliados</option><option value="ANCON">Ancón</option>
+            </select>
+            <label style="font-size:10px;display:flex;align-items:center;gap:4px;cursor:pointer;color:#7C3AED;font-weight:600">
+              <input type="checkbox" id="cotz-multi" onchange="cotzToggleMulti()" style="accent-color:#7C3AED">
+              🔀 Comparar varias aseguradoras
+            </label>
+          </div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
@@ -912,6 +918,9 @@ body.dark .mu{color:var(--dark-mu);}
         <div class="fl ff"><label>Año del vehículo <span style="font-size:10px;color:var(--mu)">(si aplica)</span></label><input class="fc" id="cotz-anio" type="number" placeholder="ej: 2020" oninput="cotzCalc()"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="fl ff"><label>F. nacimiento <span style="font-size:9px;color:var(--mu)">(calcula edad)</span></label>
+          <input class="fc" id="cotz-dob-adult" type="date" onchange="cotzCalcAdultAge()" style="font-size:12px">
+        </div>
         <div class="fl ff"><label>Edad del asegurado</label><input class="fc" id="cotz-edad" type="number" placeholder="ej: 35" oninput="cotzCalc()"></div>
         <div class="fl ff"><label>Forma de pago</label>
           <select class="fc" id="cotz-fpago" onchange="cotzCalc()">
@@ -974,6 +983,16 @@ body.dark .mu{color:var(--dark-mu);}
           </div>
         </div>
         <div style="font-size:10px;color:var(--mu);margin-top:8px;text-align:center">⚠️ Estimado referencial. Prima final la confirma la aseguradora.</div>
+      </div>
+      <!-- Multi-aseguradora comparison -->
+      <div id="cotz-multi-panel" style="display:none;background:#F5F3FF;border:1px solid #C4B5FD;border-radius:8px;padding:12px">
+        <div style="font-size:11px;font-weight:700;color:#7C3AED;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🔀 Comparativo multi-aseguradora</div>
+        <div style="font-size:10px;color:#8B5CF6;margin-bottom:8px">Selecciona las aseguradoras a comparar:</div>
+        <div id="cotz-multi-checks" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">
+          <!-- Generated by cotzToggleMulti() -->
+        </div>
+        <button class="btn" onclick="cotzCompararAll()" style="background:#7C3AED;color:#fff;border-color:#7C3AED;font-size:11px;padding:5px 12px;width:100%">⚡ Generar Comparativo</button>
+        <div id="cotz-multi-result" style="margin-top:10px"></div>
       </div>
       <!-- Cliente para envío -->
       <div style="border-top:1px solid var(--bd);padding-top:10px">
@@ -1694,6 +1713,156 @@ function cotzCrearPoliza(){
   toast('Completa los datos de la póliza');
 }
 
+// ── COTIZADOR ADULT DOB & MULTI-ASEG ─────────────────────────────────────
+function cotzCalcAdultAge(){
+  const dob=document.getElementById('cotz-dob-adult')?.value;
+  if(!dob)return;
+  const hoy=new Date();
+  const n=new Date(dob);
+  let edad=hoy.getFullYear()-n.getFullYear();
+  const m=hoy.getMonth()-n.getMonth();
+  if(m<0||(m===0&&hoy.getDate()<n.getDate()))edad--;
+  const el=document.getElementById('cotz-edad');
+  if(el&&edad>=0){el.value=edad;cotzCalc();}
+}
+function cotzToggleMulti(){
+  const on=document.getElementById('cotz-multi')?.checked;
+  const panel=document.getElementById('cotz-multi-panel');
+  if(panel)panel.style.display=on?'block':'none';
+  if(on)cotzBuildMultiChecks();
+}
+function cotzBuildMultiChecks(){
+  const cont=document.getElementById('cotz-multi-checks');
+  if(!cont)return;
+  const asegList=['ASSA','SURA','MAPFRE','IS','PALIG','FEDPA','ACERTA','WWMED','ANCON','GENERALI','CHUBB','ALIADOS','VUMI','BG','UNIVIVIR'];
+  cont.innerHTML=asegList.map(a=>`<label style="font-size:10px;background:#fff;border:1px solid #C4B5FD;border-radius:5px;padding:3px 8px;cursor:pointer;display:flex;align-items:center;gap:3px">
+    <input type="checkbox" class="cotz-aseg-chk" value="${a}" style="accent-color:#7C3AED"> ${a}
+  </label>`).join('');
+}
+function cotzCompararAll(){
+  const ramo=document.getElementById('cotz-ramo')?.value||'';
+  const valor=parseFloat(document.getElementById('cotz-valor')?.value)||0;
+  const fpago=document.getElementById('cotz-fpago')?.value||'anual';
+  const edad=parseInt(document.getElementById('cotz-edad')?.value)||30;
+  const esHijo=document.getElementById('cotz-hijo')?.checked||false;
+  const hijoDob=document.getElementById('cotz-hijo-dob')?.value;
+  const sel=[...document.querySelectorAll('.cotz-aseg-chk:checked')].map(c=>c.value);
+  if(!ramo){toast('Selecciona un ramo primero','err');return;}
+  if(!sel.length){toast('Selecciona al menos una aseguradora','err');return;}
+  
+  // compute edadFinal
+  let edadFinal=edad;
+  if(esHijo&&hijoDob){
+    const n=new Date(hijoDob);const h=new Date();
+    let e=h.getFullYear()-n.getFullYear();const m=h.getMonth()-n.getMonth();
+    if(m<0||(m===0&&h.getDate()<n.getDate()))e--;
+    edadFinal=e;
+  }
+  
+  const ramoCOTZ={'AUTOS/VEHÍCULOS':'autos','SALUD/MÉDICOS':'salud','VIDA':'vida','INCENDIO Y LÍNEAS ALIADAS':'hogar','ACCIDENTES PERSONALES':'ap','SOAT':'soat','RESPONSABILIDAD CIVIL':'rc','ROBO/HURTO':'robo','TRANSPORTE':'transporte','FIANZAS':'fianzas'};
+  const ramoKey=ramoCOTZ[ramo]||ramo.toLowerCase();
+  
+  const fM2=v=>'$'+(v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const cuotaDiv={'anual':1,'semestral':2,'trimestral':4,'mensual':12};
+  
+  let rows=[];
+  sel.forEach(aseg=>{
+    const rd=COTP_RATES[ramoKey];if(!rd)return;
+    let rate;
+    if(ramoKey==='autos')rate=rd.todo_riesgo?rd.todo_riesgo[aseg]:null;
+    else if(ramoKey==='salud')rate=rd.individual?rd.individual[aseg]:null;
+    else rate=rd[aseg];
+    if(!rate)return;
+    
+    let primaNeta;
+    if(ramoKey==='soat'){primaNeta=rate.fijo||36;}
+    else if(ramoKey==='salud'){
+      primaNeta=(rate.base||80)+(edadFinal-18)*Math.max(0,(rate.edad_factor||0.04));
+      primaNeta=Math.max(rate.base||80,primaNeta)*12;
+    }
+    else if(ramoKey==='vida'||ramoKey==='ap'){primaNeta=valor*(rate.tasa||0.004)*(1+Math.max(0,(edadFinal-30))*0.02);}
+    else{primaNeta=valor*(rate.tasa||0.02);}
+    
+    const itbms=primaNeta*(rate.itbms||0.06);
+    const total=primaNeta+itbms;
+    const cuota=total/(cuotaDiv[fpago]||1);
+    const com=primaNeta*(rate.com||0.15);
+    rows.push({aseg,primaNeta,itbms,total,cuota,com,cobertura:rate.cobertura||'',deducible:rate.deducible||'—'});
+  });
+  
+  if(!rows.length){document.getElementById('cotz-multi-result').innerHTML='<div style="font-size:11px;color:#DC2626;padding:8px">No hay tarifas disponibles para este ramo/aseguradoras.</div>';return;}
+  rows.sort((a,z)=>a.total-z.total);
+  
+  const fpLbl={'anual':'Anual','semestral':'Semestral','trimestral':'Trimestral','mensual':'Mensual'}[fpago];
+  const tbl=`<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:11px">
+<thead><tr style="background:#7C3AED;color:#fff">
+<th style="padding:6px 4px;text-align:left">Aseguradora</th>
+<th style="padding:6px 4px;text-align:right">Prima Neta</th>
+<th style="padding:6px 4px;text-align:right">ITBMS</th>
+<th style="padding:6px 4px;text-align:right">Total Anual</th>
+<th style="padding:6px 4px;text-align:right">${fpLbl}</th>
+<th style="padding:6px 4px;text-align:right">Mi Comisión</th>
+</tr></thead><tbody>
+${rows.map((r,i)=>`<tr style="background:${i===0?'#F0FDF4':'#fff'};border-bottom:1px solid #E9D5FF">
+<td style="padding:5px 4px;font-weight:700;color:${i===0?'#15803D':'#1e293b'}">${i===0?'🥇 ':''}${r.aseg}</td>
+<td style="padding:5px 4px;text-align:right">${fM2(r.primaNeta)}</td>
+<td style="padding:5px 4px;text-align:right;color:#64748b">${fM2(r.itbms)}</td>
+<td style="padding:5px 4px;text-align:right;font-weight:700;color:${i===0?'#15803D':'#1D4ED8'}">${fM2(r.total)}</td>
+<td style="padding:5px 4px;text-align:right;color:#7C3AED;font-weight:600">${fM2(r.cuota)}</td>
+<td style="padding:5px 4px;text-align:right;color:#D97706">${fM2(r.com)}</td>
+</tr>`).join('')}
+</tbody></table></div>
+<div style="font-size:9px;color:#8B5CF6;margin-top:6px;text-align:center">⚠️ Estimados referenciales. Primas finales las confirma cada aseguradora.</div>`;
+  document.getElementById('cotz-multi-result').innerHTML=tbl;
+}
+
+// ── COTIZADOR PRO EXTRA HELPERS ───────────────────────────────────────────
+let _cotpRamoSel=null;
+function cotpInit(){
+  if(!document.getElementById('cotp-ramos-grid'))return;
+  cotpBuildRamoGrid();
+  cotpBuildAsegGrid();
+  // Pre-fill client data if any was entered
+  const nom=document.getElementById('cotp-cli-nom');
+  if(nom&&!nom.value&&typeof S!=='undefined'){
+    // leave empty — user can search
+  }
+}
+function cotpBuildAsegGrid(){
+  const grid=document.getElementById('cotp-aseg-grid');
+  if(!grid)return;
+  if(typeof COTP_ASEG==='undefined')return;
+  grid.innerHTML=COTP_ASEG.map(a=>`
+    <div class="aseg-card sel" id="aseg-card-${a.id}" onclick="cotpToggleAseg('${a.id}')" style="background:#EDE9FE;border:2px solid #7C3AED;border-radius:10px;padding:10px;cursor:pointer;text-align:center;font-size:11px;font-weight:600;transition:all .15s">
+      <div style="font-size:16px;margin-bottom:4px">${a.logo}</div>
+      <div style="color:#1e293b;font-size:10px;font-weight:700">${a.id}</div>
+      <div style="font-size:9px;color:#64748b;margin-top:2px">${a.rating}</div>
+    </div>`).join('');
+}
+function cotpToggleHijo(){
+  const chk=document.getElementById('cotp-es-hijo');
+  const sec=document.getElementById('cotp-hijo-sec');
+  if(sec)sec.style.display=chk&&chk.checked?'block':'none';
+}
+function cotpCalcHijoEdad(){
+  const dob=document.getElementById('cotp-hijo-dob2')?.value;
+  const msg=document.getElementById('cotp-hijo-edad-msg');
+  if(!dob||!msg)return;
+  const n=new Date(dob);const h=new Date();
+  let e=h.getFullYear()-n.getFullYear();
+  const m=h.getMonth()-n.getMonth();
+  if(m<0||(m===0&&h.getDate()<n.getDate()))e--;
+  if(e>=0){
+    msg.textContent=`👶 Edad calculada: ${e} año${e!==1?'s':''}`;
+    // also update main cli dob age
+    const mainDob=document.getElementById('cotp-cli-dob');
+    if(mainDob)mainDob.value=dob;
+    cotpCalcEdad();
+  }
+}
+function cotpFmtM(v){return'$'+(v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+
 // ── CALENDARIO DE VENCIMIENTOS ─────────────────────────
 let renView='list';
 function setRenView(v,btn){
@@ -1853,7 +2022,7 @@ function OM(id){document.getElementById(id)?.classList.add('on');}
 function CM(id){document.getElementById(id)?.classList.remove('on');EID=null;_pf=[];}
 function openDP(html,title){document.getElementById('dpb').innerHTML=html;document.getElementById('dptit').textContent=title;document.getElementById('dpanel').classList.add('on');}
 function closeDP(){document.getElementById('dpanel').classList.remove('on');}
-function statusB(p){const d=dFrom(p.fechaFin);if(p.estado==='Cancelada')return b('bgr','Cancelada');if(d<0)return b('bdg','🔴 Vencida');if(d<=7)return b('brd','🚨 '+d+'d');if(d<=30)return b('bwn','⚠️ '+d+'d');return b('bok','✓ Vigente');}
+function statusB(p){const d=dFrom(p.fechaFin);const est=(p.estado||'').toLowerCase();if(est==='cancelada')return b('bgr','Cancelada');if(est==='pendiente')return b('bwn','Pendiente');if(est==='suspendida')return b('bgr','Suspendida');if(est==='vigente'){if(d>=0&&d<=7)return b('brd','🚨 '+d+'d');if(d>=0&&d<=30)return b('bwn','⚠️ '+d+'d');return b('bok','✓ Vigente');}if(est==='vencida')return b('bdg','🔴 Vencida');if(d<0)return b('bdg','🔴 Vencida');if(d<=7)return b('brd','🚨 '+d+'d');if(d<=30)return b('bwn','⚠️ '+d+'d');return b('bok','✓ Vigente');}
 function pcol(p){return{'Alta':'#DC2626','Media':'#D97706','Baja':'#2563EB'}[p]||'#64748B';}
 
 // ── TAGS ──
@@ -2289,7 +2458,7 @@ function SH(id){
   document.querySelectorAll('nav a').forEach(a=>a.classList.remove('on'));
   document.querySelectorAll('.bni').forEach(a=>a.classList.remove('on'));
   const pg=document.getElementById('pg-'+id);
-  if(id==='inf'){try{renderInformes();}catch(e){}}
+  if(id==='inf'){try{renderInformes();}catch(e){}} if(id==='cotp'){try{cotpInit();}catch(e){console.warn('cotpInit:',e);}}
   if(pg){pg.classList.add('on');}
   document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
   document.getElementById('bn-'+id)?.classList.add('on');
@@ -2361,7 +2530,7 @@ function RAgenda(){
 function RD(){
   const ddt=document.getElementById('ddt');if(ddt)ddt.textContent='Hoy: '+fmt(TODAY.toISOString().split('T')[0]);
   const vp=S.polizas.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada').length;
-  const vv=S.polizas.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada').length;
+  const vv=S.polizas.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada'&&(p.estado||'').toLowerCase()!=='vigente').length;
   const p30=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';}).length;
   const tP=S.polizas.reduce((s,p)=>s+(p.prima||0),0);
   const tC=S.polizas.reduce((s,p)=>s+(p.comision||0),0);
@@ -2403,7 +2572,7 @@ function RD(){
   if(!pTar.length)th+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin tareas pendientes ✓</div>';
   else{th+='<div>';pTar.slice(0,6).forEach(t=>{th+=`<div style="padding:8px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(pcol(t.prioridad))}<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.titulo)}</div><div style="font-size:10px;color:var(--mu)">${t.tipo||''}</div></div>${t.fechaLimite?`<span style="font-size:10px;color:var(--mu)">${fmt(t.fechaLimite)}</span>`:''}</div>`;});th+='</div>';}
   const dtar=document.getElementById('dtar');if(dtar)dtar.innerHTML=th;
-  const venc=S.polizas.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada');
+  const venc=S.polizas.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada'&&(p.estado||'').toLowerCase()!=='vigente');
   let vh=`<div class="ch"><h3>🔴 Vencidas (${venc.length})</h3></div>`;
   if(!venc.length)vh+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin vencidas ✓</div>';
   else{vh+='<div style="padding:10px;display:flex;flex-wrap:wrap;gap:6px">';venc.forEach(p=>{const cl=GC(p.clienteId);const t=cl.cel||cl.tel||p.celCliente||'';const wu=t?waL(t,waRenMsg(p,cl)):null;vh+=`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 10px;font-size:11px;flex:1;min-width:130px"><div style="font-weight:700">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</div><div style="color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm')+'':''}</div>`;});vh+='</div>';}
@@ -2468,7 +2637,8 @@ function RC(){
   const tcl=document.getElementById('tcl');if(tcl)tcl.innerHTML=h;
 }
 function showCliDP(id){
-  const c=GC(id);if(!c.id)return;
+  try{
+  const c=GC(id);if(!c.id){toast('Cliente no encontrado','err');return;};
   const ps=polsByC(id),ec=c.estadoComercial||'activo';
   const wa=waBtnC(c);
   let h=`<div class="dsec">Identificación</div>
@@ -2534,6 +2704,7 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
   </div>
   <div style="max-height:600px;overflow-y:auto">${renderCommsHistory(allComms)}</div>`;}
   openDP(h,c.nombre);
+  }catch(e){console.error('showCliDP error:',e);toast('Error al abrir cliente: '+e.message,'err');}
 }
 function setClientStatus(clientId,status){
   const i=S.clientes.findIndex(c=>c.id===clientId);if(i<0)return;
@@ -3698,7 +3869,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
 
     setLoading('lbtn-pwd', false);
-    showErr('Usuario o contraseña incorrectos. Por defecto: jacseguros / jac2024');
+    showErr('Usuario o contraseña incorrectos.');
   };
 
   /** doLoginPin — SIEMPRE funciona con PIN local (sin necesitar Supabase) */
@@ -4305,6 +4476,187 @@ function exportInformePDF(){
     <button class="btn bp" onclick="openComposeEmail('',ehistCname,'','')" style="display:none" id="ehist-em-btn">📧 Nuevo Email</button>
   </div>
 </div></div>
+
+<!-- ═══ COTIZADOR PRO PAGE ═══════════════════════════════════════════════ -->
+<div class="pg" id="pg-cotp">
+  <div style="max-width:1200px;margin:0 auto;padding:16px">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);border-radius:16px;padding:20px 24px;margin-bottom:20px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.05);border-radius:50%"></div>
+      <div style="position:absolute;right:40px;bottom:-30px;width:80px;height:80px;background:rgba(255,255,255,.05);border-radius:50%"></div>
+      <div style="position:relative">
+        <div style="font-size:24px;font-weight:900;margin-bottom:4px">🧮 Cotizador Pro <span style="font-size:12px;background:rgba(255,255,255,.2);border-radius:20px;padding:2px 10px;vertical-align:middle">Admin</span></div>
+        <div style="font-size:13px;opacity:.85">Comparativo multi-aseguradora · Todas las compañías de Panamá · Informes PDF</div>
+      </div>
+    </div>
+    <!-- Step indicator -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px" id="cotp-steps">
+      <div class="cotp-step on" onclick="cotpGoStep(1)" id="cotp-step-1" style="background:#7C3AED;color:#fff;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:rgba(255,255,255,.3);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">1</span>Ramo
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(2)" id="cotp-step-2" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">2</span>Datos
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(3)" id="cotp-step-3" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">3</span>Aseguradoras
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(4)" id="cotp-step-4" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">4</span>Resultados
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <button class="btn" onclick="cotpReset()" style="font-size:11px;padding:4px 12px;background:#F1F5F9;color:#64748B;border-color:#E2E8F0">🔄 Nueva cotización</button>
+      </div>
+    </div>
+    <!-- Main content area -->
+    <div id="cotp-body">
+      <!-- Step 1: Ramo selection -->
+      <div id="cotp-s1" style="display:block">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;margin-bottom:16px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;color:#1e293b">¿Qué tipo de seguro deseas cotizar?</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:16px">Selecciona el ramo para comparar tarifas entre todas las aseguradoras de Panamá</div>
+          <div id="cotp-ramos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">
+            <!-- Built by cotpBuildRamoGrid() -->
+          </div>
+        </div>
+        <!-- Buscar cliente -->
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #E2E8F0">
+          <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">👤 DATOS DEL CLIENTE (OPCIONAL)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+            <div class="fl ff"><label style="font-size:11px">Nombre</label><input class="fc" id="cotp-cli-nom" placeholder="Nombre del cliente" style="font-size:12px"></div>
+            <div class="fl ff"><label style="font-size:11px">Email</label><input class="fc" id="cotp-cli-email" type="email" placeholder="email@ejemplo.com" style="font-size:12px"></div>
+            <div class="fl ff"><label style="font-size:11px">Buscar en CRM</label>
+              <div style="display:flex;gap:6px">
+                <input class="fc" id="cotp-buscar-q" placeholder="Nombre/cédula..." style="font-size:12px" oninput="cotpBuscar()">
+              </div>
+            </div>
+          </div>
+          <div id="cotp-buscar-res" style="margin-top:8px"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div class="fl ff"><label style="font-size:11px">Teléfono</label><input class="fc" id="cotp-cli-tel" placeholder="+507 6XXX-XXXX" style="font-size:12px" inputmode="tel"></div>
+            <div class="fl ff"><label style="font-size:11px">F. Nacimiento</label><input class="fc" id="cotp-cli-dob" type="date" onchange="cotpCalcEdad()" style="font-size:12px"></div>
+          </div>
+          <div id="cotp-edad-display" style="font-size:11px;color:#7C3AED;font-weight:600;margin-top:4px"></div>
+        </div>
+      </div>
+      <!-- Step 2: Datos del ramo -->
+      <div id="cotp-s2" style="display:none">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0">
+          <div id="cotp-ramo-title" style="font-size:15px;font-weight:800;margin-bottom:16px;color:#1D4ED8"></div>
+          <div id="cotp-ramo-fields">
+            <!-- Built by cotpBuildRamoFields() -->
+          </div>
+          <!-- Hijo/hija section -->
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:12px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:#15803D">
+              <input type="checkbox" id="cotp-es-hijo" onchange="cotpToggleHijo()" style="accent-color:#15803D;width:16px;height:16px">
+              👶 ¿Cotización para hijo/hija únicamente?
+            </label>
+            <div id="cotp-hijo-sec" style="display:none;margin-top:10px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="fl ff"><label style="font-size:11px">Género del menor</label>
+                  <select class="fc" id="cotp-hijo-gen" style="font-size:12px">
+                    <option value="">— Seleccionar —</option>
+                    <option value="masculino">👦 Masculino</option>
+                    <option value="femenino">👧 Femenino</option>
+                  </select>
+                </div>
+                <div class="fl ff"><label style="font-size:11px">F. Nacimiento del menor</label>
+                  <input class="fc" id="cotp-hijo-dob2" type="date" onchange="cotpCalcHijoEdad()" style="font-size:12px">
+                </div>
+              </div>
+              <div id="cotp-hijo-edad-msg" style="font-size:11px;color:#15803D;margin-top:5px;font-weight:600"></div>
+            </div>
+          </div>
+          <!-- Forma de pago -->
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="fl ff"><label style="font-size:11px">Forma de pago</label>
+              <select class="fc" id="cotp-fpago2" style="font-size:12px">
+                <option value="anual">Anual</option>
+                <option value="semestral">Semestral</option>
+                <option value="trimestral">Trimestral</option>
+                <option value="mensual">Mensual</option>
+              </select>
+            </div>
+            <div class="fl ff"><label style="font-size:11px">Moneda</label>
+              <select class="fc" id="cotp-moneda" style="font-size:12px">
+                <option value="USD">🇺🇸 USD — Dólares</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn" onclick="cotpGoStep(1)" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;font-size:12px">← Atrás</button>
+            <button class="btn" onclick="cotpGoStep(3)" style="background:#7C3AED;color:#fff;border-color:#7C3AED;flex:1;font-size:12px">Siguiente → Seleccionar aseguradoras</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 3: Aseguradoras -->
+      <div id="cotp-s3" style="display:none">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:14px;font-weight:700;color:#1e293b">Selecciona las aseguradoras a comparar</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn" onclick="cotpToggleAll(true)" style="font-size:11px;padding:4px 10px;background:#7C3AED;color:#fff;border-color:#7C3AED">✓ Todas</button>
+              <button class="btn" onclick="cotpToggleAll(false)" style="font-size:11px;padding:4px 10px">✗ Ninguna</button>
+            </div>
+          </div>
+          <div id="cotp-aseg-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px">
+            <!-- Built by cotpBuildAsegGrid() -->
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="cotpGoStep(2)" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;font-size:12px">← Atrás</button>
+            <button class="btn" onclick="cotpCalcAll()" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border:none;flex:1;font-size:13px;font-weight:700;padding:10px">⚡ Calcular Comparativo</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 4: Resultados -->
+      <div id="cotp-s4" style="display:none">
+        <!-- Results header -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;margin-bottom:16px">
+          <div style="background:linear-gradient(135deg,#1D4ED8,#7C3AED);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div>
+              <div style="color:#fff;font-weight:800;font-size:15px" id="cotp-res-title">Comparativo</div>
+              <div style="color:rgba(255,255,255,.8);font-size:11px" id="cotp-res-sub"></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn" onclick="cotpGenReport()" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);font-size:11px">📄 PDF</button>
+              <button class="btn" onclick="cotpSendWA()" style="background:#25D366;color:#fff;border-color:#25D366;font-size:11px">💬 WA</button>
+              <button class="btn" onclick="cotpSendEmail()" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);font-size:11px">📧 Email</button>
+              <button class="btn" onclick="cotpGoStep(3)" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:11px">← Modificar</button>
+            </div>
+          </div>
+          <!-- Sort controls -->
+          <div style="padding:10px 16px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:11px;color:#64748B;font-weight:600">Ordenar por:</span>
+            <button class="btn bsm" onclick="cotpSortTable('prima')" id="cotp-sort-prima" style="font-size:10px;padding:3px 10px;background:#7C3AED;color:#fff;border-color:#7C3AED">💰 Prima</button>
+            <button class="btn bsm" onclick="cotpSortTable('rating')" id="cotp-sort-rating" style="font-size:10px;padding:3px 10px">⭐ Rating</button>
+            <button class="btn bsm" onclick="cotpSortTable('com')" id="cotp-sort-com" style="font-size:10px;padding:3px 10px">💼 Comisión</button>
+          </div>
+          <!-- Results table -->
+          <div style="overflow-x:auto">
+            <div id="cotp-table" style="min-width:700px">
+              <!-- Built by cotpRenderTable() -->
+            </div>
+          </div>
+        </div>
+        <!-- Summary cards -->
+        <div id="cotp-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px"></div>
+        <!-- Save prospect -->
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #E2E8F0">
+          <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">💾 GUARDAR COMO PROSPECTO</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+            <input class="fc" id="cotp-save-nom" placeholder="Nombre del prospecto" style="font-size:12px">
+            <input class="fc" id="cotp-save-aseg" placeholder="Aseguradora seleccionada" style="font-size:12px">
+            <button class="btn bgn" onclick="cotpSaveProspe()" style="font-size:11px">💾 Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- end cotp-body -->
+  </div><!-- end max-width -->
+</div><!-- end pg-cotp -->
+
 </body></html>`);
   w.document.close();w.print();
 }
@@ -5397,6 +5749,1129 @@ function renderEHist(){
   }).join('');
 }
 
+
+
+// ═══ COTIZADOR PRO ENGINE ════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COTIZADOR PRO — Engine JAC Seguros
+// ═══════════════════════════════════════════════════════════════════════════
+const COTP_RAMOS = [
+  {id:'autos',     icon:'🚗', label:'Autos',          color:'#1D4ED8', bg:'#DBEAFE'},
+  {id:'salud',     icon:'🏥', label:'Salud/Médicos',  color:'#DC2626', bg:'#FEE2E2'},
+  {id:'vida',      icon:'❤️', label:'Vida',            color:'#7C3AED', bg:'#EDE9FE'},
+  {id:'hogar',     icon:'🏠', label:'Hogar/Incendio', color:'#D97706', bg:'#FEF3C7'},
+  {id:'ap',        icon:'🛡️', label:'Acc. Personales',color:'#059669', bg:'#D1FAE5'},
+  {id:'soat',      icon:'🚦', label:'SOAT',           color:'#64748B', bg:'#F1F5F9'},
+  {id:'rc',        icon:'⚖️', label:'Resp. Civil',    color:'#9333EA', bg:'#F3E8FF'},
+  {id:'robo',      icon:'🔒', label:'Robo/Hurto',     color:'#0F172A', bg:'#F8FAFC'},
+  {id:'transporte',icon:'🚢', label:'Transporte',     color:'#0369A1', bg:'#E0F2FE'},
+  {id:'viaje',     icon:'✈️', label:'Viaje',           color:'#C026D3', bg:'#FAE8FF'},
+  {id:'fianzas',   icon:'📜', label:'Fianzas',        color:'#92400E', bg:'#FEF3C7'},
+  {id:'cyb',       icon:'💻', label:'Ciberseguridad', color:'#374151', bg:'#F3F4F6'},
+];
+
+const COTP_ASEG = [
+  {id:'ASSA',      nombre:'ASSA Compañía de Seguros',      rating:'A+', sfp:'Excelente', logo:'🔵', color:'#005F9E', activos:'$1.2B', anios:50},
+  {id:'SURA',      nombre:'Seguros SURA Panamá',           rating:'A',  sfp:'Excelente', logo:'🟠', color:'#E85D04', activos:'$850M', anios:35},
+  {id:'MAPFRE',    nombre:'MAPFRE Panamá',                 rating:'A',  sfp:'Muy buena', logo:'🔴', color:'#C8102E', activos:'$620M', anios:40},
+  {id:'IS',        nombre:'International de Seguros',       rating:'A',  sfp:'Muy buena', logo:'🟣', color:'#1A3A6B', activos:'$480M', anios:55},
+  {id:'PALIG',     nombre:'Pan-American Life (PALIG)',      rating:'A+', sfp:'Excelente', logo:'🟢', color:'#2D6A4F', activos:'$2.1B', anios:70},
+  {id:'FEDPA',     nombre:'Aseguradora Fénix (FEDPA)',     rating:'BBB+',sfp:'Buena',    logo:'🟡', color:'#8B5E00', activos:'$220M', anios:45},
+  {id:'ACERTA',    nombre:'Seguros Acerta',                 rating:'A-', sfp:'Buena',     logo:'🟤', color:'#5C4033', activos:'$180M', anios:25},
+  {id:'WWMED',     nombre:'WW Medical Seguros',             rating:'A-', sfp:'Buena',     logo:'⚪', color:'#0D7377', activos:'$160M', anios:20},
+  {id:'ANCON',     nombre:'Ancón Compañía de Seguros',     rating:'A-', sfp:'Buena',     logo:'🔷', color:'#3D405B', activos:'$140M', anios:30},
+  {id:'GENERALI',  nombre:'Generali Seguros Panamá',       rating:'A',  sfp:'Muy buena', logo:'🔶', color:'#C62828', activos:'$890M', anios:60},
+  {id:'CHUBB',     nombre:'Chubb de Panamá',               rating:'A++',sfp:'Superior',  logo:'🟦', color:'#2E7D32', activos:'$3.5B', anios:80},
+  {id:'ALIADOS',   nombre:'Seguros Aliados',                rating:'A-', sfp:'Buena',     logo:'🔹', color:'#0277BD', activos:'$130M', anios:20},
+  {id:'LAREGIONAL',nombre:'La Regional de Seguros',         rating:'BBB',sfp:'Adecuada',  logo:'🟥', color:'#E65100', activos:'$95M',  anios:15},
+  {id:'GENERAL',   nombre:'General de Seguros',             rating:'A-', sfp:'Buena',     logo:'🟫', color:'#4E342E', activos:'$200M', anios:35},
+  {id:'VUMI',      nombre:'VUMI-La Regional de Seguros',   rating:'A-', sfp:'Buena',     logo:'🔵', color:'#00548B', activos:'$350M', anios:40},
+  {id:'UNIVIVIR',  nombre:'Univivir Seguros',               rating:'BBB',sfp:'Adecuada',  logo:'🟪', color:'#7B2D8B', activos:'$80M',  anios:20},
+  {id:'BG',        nombre:'BG Seguros (Banco General)',     rating:'A',  sfp:'Muy buena', logo:'⬛', color:'#1B1B1B', activos:'$410M', anios:30},
+];
+
+// RATES: {tasa, itbms, com, deducible, coberturas, notas}
+const COTP_RATES = {
+  autos:{
+    todo_riesgo:{
+      ASSA:     {tasa:0.0300,itbms:0.06,com:0.15,deducible:'1% mín. $150',cobertura:'Todo riesgo, robo total, daños propios, RC incl.'},
+      SURA:     {tasa:0.0315,itbms:0.06,com:0.15,deducible:'1% mín. $175',cobertura:'Todo riesgo, robo total, vidrios, asistencia vial'},
+      MAPFRE:   {tasa:0.0285,itbms:0.06,com:0.15,deducible:'2% mín. $200',cobertura:'Todo riesgo, robo total, RC $50,000'},
+      IS:       {tasa:0.0295,itbms:0.06,com:0.15,deducible:'1.5% mín. $150',cobertura:'Todo riesgo, robo parcial, RC $50,000'},
+      PALIG:    {tasa:0.0350,itbms:0.06,com:0.15,deducible:'1% mín. $200',cobertura:'Todo riesgo premium, RC $100,000, asistencia 24/7'},
+      FEDPA:    {tasa:0.0270,itbms:0.06,com:0.12,deducible:'2% mín. $200',cobertura:'Todo riesgo básico, RC $30,000'},
+      ACERTA:   {tasa:0.0265,itbms:0.06,com:0.14,deducible:'1.5% mín. $150',cobertura:'Todo riesgo, RC $50,000'},
+      ANCON:    {tasa:0.0280,itbms:0.06,com:0.14,deducible:'1% mín. $150',cobertura:'Todo riesgo, robo total, RC $50,000'},
+      GENERALI: {tasa:0.0320,itbms:0.06,com:0.15,deducible:'1% mín. $150',cobertura:'Todo riesgo premium, RC $75,000, asistencia'},
+      CHUBB:    {tasa:0.0380,itbms:0.06,com:0.15,deducible:'1% mín. $250',cobertura:'Todo riesgo superior, RC $100,000, GAP'},
+      ALIADOS:  {tasa:0.0260,itbms:0.06,com:0.14,deducible:'2% mín. $200',cobertura:'Todo riesgo, RC $30,000'},
+      LAREGIONAL:{tasa:0.0250,itbms:0.06,com:0.12,deducible:'2% mín. $200',cobertura:'Todo riesgo básico, RC $25,000'},
+      GENERAL:  {tasa:0.0255,itbms:0.06,com:0.13,deducible:'1.5% mín. $150',cobertura:'Todo riesgo, RC $40,000'},
+      VUMI:     {tasa:0.0290,itbms:0.06,com:0.15,deducible:'1% mín. $150',cobertura:'Todo riesgo, RC $50,000, asistencia'},
+      BG:       {tasa:0.0305,itbms:0.06,com:0.15,deducible:'1% mín. $175',cobertura:'Todo riesgo, RC $75,000, asistencia 24/7'},
+    },
+    terceros:{
+      ASSA:     {tasa:0.0120,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000, lesiones corporales'},
+      SURA:     {tasa:0.0130,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000, lesiones corporales'},
+      MAPFRE:   {tasa:0.0110,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $25,000'},
+      IS:       {tasa:0.0115,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000'},
+      PALIG:    {tasa:0.0140,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $50,000'},
+      FEDPA:    {tasa:0.0100,itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC $20,000'},
+      ACERTA:   {tasa:0.0105,itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC $25,000'},
+      ANCON:    {tasa:0.0110,itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC $30,000'},
+      GENERALI: {tasa:0.0125,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $40,000'},
+      CHUBB:    {tasa:0.0150,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $50,000'},
+      ALIADOS:  {tasa:0.0100,itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC $20,000'},
+      LAREGIONAL:{tasa:0.0095,itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC $15,000'},
+      GENERAL:  {tasa:0.0100,itbms:0.06,com:0.13,deducible:'N/A',cobertura:'RC $20,000'},
+      VUMI:     {tasa:0.0115,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000'},
+      BG:       {tasa:0.0120,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $35,000'},
+    }
+  },
+  salud:{
+    individual:{
+      ASSA:     {base:85, edad_factor:0.045, itbms:0.05, com:0.10, deducible:'$300/año',cobertura:'$50,000 suma, hospitalización, quirúrgico, consultas'},
+      SURA:     {base:90, edad_factor:0.048, itbms:0.05, com:0.10, deducible:'$500/año',cobertura:'$75,000 suma, hospitalización, cirugías, urgencias'},
+      MAPFRE:   {base:92, edad_factor:0.042, itbms:0.05, com:0.10, deducible:'$300/año',cobertura:'$60,000 suma, hospitalización, quirúrgico'},
+      IS:       {base:88, edad_factor:0.044, itbms:0.05, com:0.10, deducible:'$300/año',cobertura:'$50,000 suma, hospitalización, quirúrgico'},
+      PALIG:    {base:110,edad_factor:0.055, itbms:0.05, com:0.10, deducible:'$500/año',cobertura:'$100,000 suma, hospitalización, cirugías, internacional'},
+      FEDPA:    {base:75, edad_factor:0.040, itbms:0.05, com:0.08, deducible:'$300/año',cobertura:'$30,000 suma, hospitalización básica'},
+      ACERTA:   {base:82, edad_factor:0.043, itbms:0.05, com:0.09, deducible:'$300/año',cobertura:'$40,000 suma, hospitalización, quirúrgico'},
+      WWMED:    {base:95, edad_factor:0.050, itbms:0.05, com:0.10, deducible:'$200/año',cobertura:'$60,000 suma, hospitalización, quirúrgico, lab'},
+      GENERALI: {base:100,edad_factor:0.052, itbms:0.05, com:0.10, deducible:'$300/año',cobertura:'$80,000 suma, hospitalización, cirugías'},
+      CHUBB:    {base:130,edad_factor:0.065, itbms:0.05, com:0.10, deducible:'$500/año',cobertura:'$150,000 suma, cobertura internacional premium'},
+      VUMI:     {base:88, edad_factor:0.046, itbms:0.05, com:0.10, deducible:'$300/año',cobertura:'$50,000 suma + cobertura internacional VUMI'},
+      BG:       {base:95, edad_factor:0.048, itbms:0.05, com:0.10, deducible:'$300/año',cobertura:'$75,000 suma, hospitalización, quirúrgico'},
+    }
+  },
+  vida:{
+    ASSA:     {tasa:0.0040, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, DIPO, invalidez total'},
+    SURA:     {tasa:0.0045, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, DIPO, enfermedades graves'},
+    MAPFRE:   {tasa:0.0042, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, DIPO'},
+    IS:       {tasa:0.0043, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, DIPO'},
+    PALIG:    {tasa:0.0038, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, DIPO, valor en efectivo'},
+    FEDPA:    {tasa:0.0035, itbms:0.05, com:0.12, deducible:'N/A', cobertura:'Muerte natural, DIPO'},
+    ACERTA:   {tasa:0.0038, itbms:0.05, com:0.14, deducible:'N/A', cobertura:'Muerte natural/accidental'},
+    GENERALI: {tasa:0.0044, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, enfermedades graves, DIPO'},
+    CHUBB:    {tasa:0.0050, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, cobertura universal premium'},
+    UNIVIVIR: {tasa:0.0035, itbms:0.05, com:0.12, deducible:'N/A', cobertura:'Muerte natural, básico'},
+    VUMI:     {tasa:0.0041, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, DIPO'},
+    BG:       {tasa:0.0042, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte natural/accidental, DIPO'},
+  },
+  hogar:{
+    ASSA:     {tasa:0.0020, itbms:0.06, com:0.15, deducible:'$300',cobertura:'Incendio, rayo, explosión, robo, inundación, RC vecinos'},
+    SURA:     {tasa:0.0022, itbms:0.06, com:0.15, deducible:'$300',cobertura:'Incendio, rayo, robo, daños por agua, RC'},
+    MAPFRE:   {tasa:0.0018, itbms:0.06, com:0.15, deducible:'$300',cobertura:'Incendio, rayo, explosión, robo'},
+    IS:       {tasa:0.0019, itbms:0.06, com:0.15, deducible:'$250',cobertura:'Incendio, rayo, explosión, RC vecinos'},
+    PALIG:    {tasa:0.0023, itbms:0.06, com:0.15, deducible:'$500',cobertura:'Incendio, robo, daños, RC, pérdida de alquileres'},
+    FEDPA:    {tasa:0.0016, itbms:0.06, com:0.12, deducible:'$300',cobertura:'Incendio básico, robo'},
+    ACERTA:   {tasa:0.0017, itbms:0.06, com:0.14, deducible:'$250',cobertura:'Incendio, rayo, explosión'},
+    ANCON:    {tasa:0.0018, itbms:0.06, com:0.14, deducible:'$300',cobertura:'Incendio, rayo, explosión, RC'},
+    GENERALI: {tasa:0.0021, itbms:0.06, com:0.15, deducible:'$300',cobertura:'Incendio, robo, daños, RC, todo riesgo hogar'},
+    CHUBB:    {tasa:0.0028, itbms:0.06, com:0.15, deducible:'$500',cobertura:'Todo riesgo hogar premium, RC, objetos de valor'},
+    VUMI:     {tasa:0.0019, itbms:0.06, com:0.15, deducible:'$300',cobertura:'Incendio, robo, RC vecinos'},
+    BG:       {tasa:0.0021, itbms:0.06, com:0.15, deducible:'$300',cobertura:'Incendio, rayo, explosión, robo, daños por agua'},
+  },
+  ap:{
+    ASSA:     {tasa:0.0050, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos $5,000'},
+    SURA:     {tasa:0.0055, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos $5,000'},
+    MAPFRE:   {tasa:0.0048, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO'},
+    IS:       {tasa:0.0050, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos'},
+    PALIG:    {tasa:0.0060, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos $10,000, renta'},
+    FEDPA:    {tasa:0.0042, itbms:0.05, com:0.12, deducible:'N/A', cobertura:'Muerte accidental, DIPO básico'},
+    ACERTA:   {tasa:0.0045, itbms:0.05, com:0.14, deducible:'N/A', cobertura:'Muerte accidental, DIPO'},
+    GENERALI: {tasa:0.0052, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos'},
+    CHUBB:    {tasa:0.0070, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos premium'},
+    VUMI:     {tasa:0.0050, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos'},
+    BG:       {tasa:0.0052, itbms:0.05, com:0.15, deducible:'N/A', cobertura:'Muerte accidental, DIPO, gastos médicos'},
+  },
+  soat:{
+    ASSA:     {fijo:36, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones, gastos médicos'},
+    SURA:     {fijo:38, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones, gastos médicos'},
+    MAPFRE:   {fijo:36, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    IS:       {fijo:36, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    PALIG:    {fijo:40, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones, cobertura amplia'},
+    FEDPA:    {fijo:36, itbms:0, com:0.06, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    ACERTA:   {fijo:36, itbms:0, com:0.07, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    ANCON:    {fijo:36, itbms:0, com:0.07, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    GENERALI: {fijo:38, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    CHUBB:    {fijo:42, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones, plus'},
+    LAREGIONAL:{fijo:35,itbms:0, com:0.06, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    GENERAL:  {fijo:36, itbms:0, com:0.07, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    VUMI:     {fijo:36, itbms:0, com:0.07, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    BG:       {fijo:38, itbms:0, com:0.08, deducible:'N/A', cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+  },
+  rc:{
+    ASSA:     {tasa:0.0080, itbms:0.06, com:0.15, deducible:'$500',cobertura:'RC general, daños a terceros, lesiones corporales'},
+    SURA:     {tasa:0.0085, itbms:0.06, com:0.15, deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
+    MAPFRE:   {tasa:0.0075, itbms:0.06, com:0.15, deducible:'$500',cobertura:'RC general, daños materiales'},
+    IS:       {tasa:0.0078, itbms:0.06, com:0.15, deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
+    PALIG:    {tasa:0.0090, itbms:0.06, com:0.15, deducible:'$1,000',cobertura:'RC general amplia, defensa legal incluida'},
+    GENERALI: {tasa:0.0082, itbms:0.06, com:0.15, deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
+    CHUBB:    {tasa:0.0100, itbms:0.06, com:0.15, deducible:'$1,000',cobertura:'RC general premium, defensa legal, cobertura amplia'},
+    VUMI:     {tasa:0.0080, itbms:0.06, com:0.15, deducible:'$500',cobertura:'RC general, daños a terceros'},
+    BG:       {tasa:0.0085, itbms:0.06, com:0.15, deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
+  },
+  robo:{
+    ASSA:     {tasa:0.0150, itbms:0.06, com:0.15, deducible:'10% mín. $300',cobertura:'Robo con violencia, asalto, hurto'},
+    SURA:     {tasa:0.0160, itbms:0.06, com:0.15, deducible:'10% mín. $300',cobertura:'Robo con violencia, asalto'},
+    MAPFRE:   {tasa:0.0140, itbms:0.06, com:0.15, deducible:'10% mín. $300',cobertura:'Robo con violencia'},
+    IS:       {tasa:0.0145, itbms:0.06, com:0.15, deducible:'10% mín. $300',cobertura:'Robo con violencia, asalto'},
+    GENERALI: {tasa:0.0155, itbms:0.06, com:0.15, deducible:'10% mín. $300',cobertura:'Robo con violencia, hurto'},
+    CHUBB:    {tasa:0.0180, itbms:0.06, com:0.15, deducible:'5% mín. $200',cobertura:'Robo todo riesgo, asalto, burglary'},
+    VUMI:     {tasa:0.0148, itbms:0.06, com:0.15, deducible:'10% mín. $300',cobertura:'Robo con violencia'},
+  },
+  transporte:{
+    ASSA:     {tasa:0.0060, itbms:0.06, com:0.15, deducible:'10%',cobertura:'Mercancías en tránsito, carga, daños'},
+    SURA:     {tasa:0.0065, itbms:0.06, com:0.15, deducible:'10%',cobertura:'Mercancías en tránsito, carga'},
+    MAPFRE:   {tasa:0.0055, itbms:0.06, com:0.15, deducible:'10%',cobertura:'Mercancías en tránsito'},
+    IS:       {tasa:0.0058, itbms:0.06, com:0.15, deducible:'10%',cobertura:'Mercancías en tránsito, carga'},
+    GENERALI: {tasa:0.0062, itbms:0.06, com:0.15, deducible:'10%',cobertura:'Mercancías en tránsito, carga, internacional'},
+    CHUBB:    {tasa:0.0075, itbms:0.06, com:0.15, deducible:'5%', cobertura:'Mercancías todo riesgo, internacional'},
+    VUMI:     {tasa:0.0060, itbms:0.06, com:0.15, deducible:'10%',cobertura:'Mercancías en tránsito'},
+  },
+  viaje:{
+    ASSA:     {fijo_dia:2.80, itbms:0.05, com:0.20, deducible:'$100',cobertura:'Gastos médicos $50,000, cancelación, equipaje, demora'},
+    SURA:     {fijo_dia:3.00, itbms:0.05, com:0.20, deducible:'$100',cobertura:'Gastos médicos $75,000, cancelación, robo'},
+    MAPFRE:   {fijo_dia:2.60, itbms:0.05, com:0.20, deducible:'$100',cobertura:'Gastos médicos $50,000, cancelación'},
+    PALIG:    {fijo_dia:3.50, itbms:0.05, com:0.20, deducible:'$100',cobertura:'Gastos médicos $100,000, cancelación, asistencia premium'},
+    IS:       {fijo_dia:2.75, itbms:0.05, com:0.20, deducible:'$100',cobertura:'Gastos médicos $50,000'},
+    GENERALI: {fijo_dia:3.20, itbms:0.05, com:0.20, deducible:'$100',cobertura:'Gastos médicos $100,000, deportes'},
+    CHUBB:    {fijo_dia:4.00, itbms:0.05, com:0.20, deducible:'$0',  cobertura:'Gastos médicos $150,000, cancelación, equipaje premium'},
+    VUMI:     {fijo_dia:3.00, itbms:0.05, com:0.20, deducible:'$100',cobertura:'Gastos médicos internacionales VUMI $75,000'},
+  },
+  fianzas:{
+    ASSA:     {tasa:0.0150, itbms:0, com:0.12, deducible:'N/A', cobertura:'Fiel cumplimiento, licitación, advance payment'},
+    SURA:     {tasa:0.0160, itbms:0, com:0.12, deducible:'N/A', cobertura:'Fiel cumplimiento, licitación'},
+    MAPFRE:   {tasa:0.0140, itbms:0, com:0.12, deducible:'N/A', cobertura:'Fiel cumplimiento'},
+    IS:       {tasa:0.0145, itbms:0, com:0.12, deducible:'N/A', cobertura:'Fiel cumplimiento, licitación'},
+    FEDPA:    {tasa:0.0130, itbms:0, com:0.10, deducible:'N/A', cobertura:'Fiel cumplimiento'},
+    CHUBB:    {tasa:0.0180, itbms:0, com:0.12, deducible:'N/A', cobertura:'Fiel cumplimiento premium, internacional'},
+  },
+  cyb:{
+    CHUBB:    {tasa:0.0150, itbms:0.06, com:0.15, deducible:'$2,500',cobertura:'Violación datos, ransomware, responsabilidad cibernética $500K'},
+    GENERALI: {tasa:0.0140, itbms:0.06, com:0.15, deducible:'$2,500',cobertura:'Violación datos, ransomware $250K'},
+    ASSA:     {tasa:0.0130, itbms:0.06, com:0.15, deducible:'$5,000',cobertura:'Ciberseguridad básica, violación de datos'},
+    MAPFRE:   {tasa:0.0145, itbms:0.06, com:0.15, deducible:'$2,500',cobertura:'Ciberseguridad, responsabilidad digital'},
+  }
+};
+
+let cotpCurrentStep=1, cotpSelectedRamo='', cotpSubRamo='', cotpResults=[], cotpSelectedIds=new Set(), cotpLinkedId=null;
+
+function cotpReset(){
+  cotpCurrentStep=1; cotpSelectedRamo=''; cotpSubRamo=''; cotpResults=[]; cotpSelectedIds=new Set(); cotpLinkedId=null;
+  ['cotp-nombre','cotp-cedula','cotp-tel','cotp-email','cotp-notas','cotp-buscar'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const dob=document.getElementById('cotp-dob');if(dob)dob.value='';
+  const ed=document.getElementById('cotp-edad-display');if(ed)ed.textContent='— años';
+  cotpGoStep(1);
+}
+function cotpCalcEdad(){
+  const dob=document.getElementById('cotp-dob')?.value;
+  const disp=document.getElementById('cotp-edad-display');
+  if(!dob||!disp)return;
+  const hoy=new Date(); const nac=new Date(dob);
+  let edad=hoy.getFullYear()-nac.getFullYear();
+  const m=hoy.getMonth()-nac.getMonth();
+  if(m<0||(m===0&&hoy.getDate()<nac.getDate()))edad--;
+  disp.textContent=edad>=0?`${edad} años`:'— años';
+}
+function cotpGoStep(n){
+  // Validate step 1 before proceeding
+  if(n>1 && !document.getElementById('cotp-nombre')?.value.trim()){
+    toast('Ingresa el nombre del asegurado','err'); return;
+  }
+  if(n>2 && !cotpSelectedRamo){toast('Selecciona un ramo','err');return;}
+  cotpCurrentStep=n;
+  [1,2,3,4].forEach(i=>{
+    const s=document.getElementById('cotp-s'+i);
+    if(s)s.style.display=i===n?'block':'none';
+    const tab=document.getElementById('cotp-step'+i+'-tab');
+    if(tab){
+      tab.style.background=i===n?'rgba(255,255,255,0.25)':'transparent';
+      tab.style.color=i<=n?'#fff':'rgba(255,255,255,0.5)';
+      tab.style.fontWeight=i===n?'700':'600';
+    }
+  });
+  if(n===2)cotpBuildRamoGrid();
+}
+function cotpNextStep(n){cotpGoStep(n);}
+function cotpBuildRamoGrid(){
+  const grid=document.getElementById('cotp-ramo-grid');
+  if(!grid)return;
+  grid.innerHTML=COTP_RAMOS.map(r=>{
+    const sel=r.id===cotpSelectedRamo;
+    return`<div onclick="cotpSelectRamo('${r.id}')" style="background:${sel?r.bg:'#F8FAFC'};border:2px solid ${sel?r.color:'#E2E8F0'};border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;transform:${sel?'scale(1.05)':'scale(1)'}">
+      <div style="font-size:24px;margin-bottom:4px">${r.icon}</div>
+      <div style="font-size:10px;font-weight:700;color:${sel?r.color:'#374151'}">${r.label}</div>
+    </div>`;
+  }).join('');
+}
+function cotpSelectRamo(id){
+  cotpSelectedRamo=id;
+  cotpBuildRamoGrid();
+  cotpBuildRamoFields(id);
+}
+function cotpBuildRamoFields(ramo){
+  const el=document.getElementById('cotp-ramo-fields');
+  if(!el)return;
+  const R=COTP_RAMOS.find(r=>r.id===ramo);
+  let html=`<div style="background:linear-gradient(135deg,${R.bg},#fff);border:2px solid ${R.color}33;border-radius:12px;padding:16px;margin-top:10px">
+    <div style="font-size:13px;font-weight:800;color:${R.color};margin-bottom:14px">${R.icon} Datos del riesgo — ${R.label}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">`;
+  if(ramo==='autos'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">SUBTIPO</label>
+        <select class="fc" id="cotp-sub" onchange="cotpSubRamo=this.value">
+          <option value="todo_riesgo">Todo Riesgo</option>
+          <option value="terceros">Solo Terceros</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">VALOR DEL VEHÍCULO ($) *</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="18000" min="1000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">AÑO DEL VEHÍCULO</label>
+        <input class="fc" id="cotp-anio" type="number" placeholder="${new Date().getFullYear()}" min="1990"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">MARCA / MODELO</label>
+        <input class="fc" id="cotp-marca" placeholder="Toyota Corolla"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">PLACAS</label>
+        <input class="fc" id="cotp-placa" placeholder="AA-0000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">USO DEL VEHÍCULO</label>
+        <select class="fc" id="cotp-uso">
+          <option value="particular">Particular</option>
+          <option value="comercial">Comercial</option>
+          <option value="transporte">Transporte público</option>
+        </select></div>`;
+    cotpSubRamo='todo_riesgo';
+  } else if(ramo==='salud'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">PLAN</label>
+        <select class="fc" id="cotp-sub" onchange="cotpSubRamo=this.value">
+          <option value="individual">Individual</option>
+          <option value="familiar">Familiar (2+ personas)</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">EDAD DEL TITULAR</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="35" min="0" max="99"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">N° DE DEPENDIENTES</label>
+        <input class="fc" id="cotp-deps" type="number" placeholder="0" min="0" max="10" value="0"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">SUMA ASEGURADA ($)</label>
+        <select class="fc" id="cotp-suma">
+          <option value="30000">$30,000</option>
+          <option value="50000" selected>$50,000</option>
+          <option value="75000">$75,000</option>
+          <option value="100000">$100,000</option>
+          <option value="150000">$150,000</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">¿PRE-EXISTENCIAS?</label>
+        <select class="fc" id="cotp-preex">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">DEDUCIBLE</label>
+        <select class="fc" id="cotp-ded">
+          <option value="200">$200/año</option>
+          <option value="300" selected>$300/año</option>
+          <option value="500">$500/año</option>
+          <option value="1000">$1,000/año</option>
+        </select></div>`;
+    cotpSubRamo='individual';
+  } else if(ramo==='vida'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">SUMA ASEGURADA ($) *</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="100000" min="10000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">EDAD DEL ASEGURADO</label>
+        <input class="fc" id="cotp-edad-val" type="number" placeholder="35" min="18" max="70"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">PLAZO (años)</label>
+        <select class="fc" id="cotp-plazo">
+          <option value="10">10 años</option>
+          <option value="15">15 años</option>
+          <option value="20" selected>20 años</option>
+          <option value="30">30 años</option>
+        </select></div>`;
+    cotpSubRamo='';
+  } else if(ramo==='hogar'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">VALOR DEL INMUEBLE ($) *</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="120000" min="10000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">TIPO DE PROPIEDAD</label>
+        <select class="fc" id="cotp-tipo-prop">
+          <option value="casa">Casa</option>
+          <option value="apto">Apartamento</option>
+          <option value="comercial">Local comercial</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">CONTENIDO ($)</label>
+        <input class="fc" id="cotp-cont" type="number" placeholder="20000" min="0"></div>`;
+    cotpSubRamo='';
+  } else if(ramo==='ap'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">SUMA ASEGURADA ($) *</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="50000" min="5000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">N° DE ASEGURADOS</label>
+        <input class="fc" id="cotp-num-aseg" type="number" placeholder="1" min="1" value="1"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">ACTIVIDAD / OCUPACIÓN</label>
+        <select class="fc" id="cotp-ocup">
+          <option value="oficina">Oficina / Administrativo</option>
+          <option value="campo">Campo / Trabajo físico</option>
+          <option value="riesgo">Alto riesgo</option>
+        </select></div>`;
+    cotpSubRamo='';
+  } else if(ramo==='soat'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">TIPO DE VEHÍCULO</label>
+        <select class="fc" id="cotp-tipo-veh">
+          <option value="auto">Automóvil/Pickup</option>
+          <option value="moto">Motocicleta</option>
+          <option value="bus">Bus/Microbus</option>
+          <option value="camion">Camión</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">PLACAS</label>
+        <input class="fc" id="cotp-placa" placeholder="AA-0000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">AÑO</label>
+        <input class="fc" id="cotp-anio" type="number" placeholder="${new Date().getFullYear()}"></div>`;
+    cotpSubRamo='';
+  } else if(ramo==='rc'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">LÍMITE DE COBERTURA ($) *</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="100000" min="10000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">ACTIVIDAD ECONÓMICA</label>
+        <input class="fc" id="cotp-act" placeholder="Consultora, restaurant, construcción..."></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">N° DE EMPLEADOS</label>
+        <input class="fc" id="cotp-emps" type="number" placeholder="10" min="1"></div>`;
+    cotpSubRamo='';
+  } else if(ramo==='viaje'){
+    html+=`
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">DESTINO</label>
+        <select class="fc" id="cotp-dest">
+          <option value="latam">Latinoamérica</option>
+          <option value="eeuu">EE.UU. / Canadá</option>
+          <option value="europa">Europa</option>
+          <option value="mundial">Mundial</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">N° DE DÍAS</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="15" min="1" max="365"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">N° DE VIAJEROS</label>
+        <input class="fc" id="cotp-viaj" type="number" placeholder="1" min="1" max="20" value="1"></div>`;
+    cotpSubRamo='';
+  } else {
+    html+=`
+      <div class="fl ff" style="grid-column:1/3"><label style="font-size:11px;font-weight:700;color:#64748B">VALOR ASEGURADO / SUMA ($) *</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="100000" min="1000"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">VIGENCIA</label>
+        <select class="fc" id="cotp-vig">
+          <option value="anual">Anual</option>
+          <option value="semestral">Semestral</option>
+        </select></div>`;
+    cotpSubRamo='';
+  }
+  // Payment frequency
+  html+=`
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px">
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">FORMA DE PAGO</label>
+        <select class="fc" id="cotp-fpago">
+          <option value="anual">Anual</option>
+          <option value="semestral">Semestral</option>
+          <option value="trimestral">Trimestral</option>
+          <option value="mensual">Mensual</option>
+        </select></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">INICIO DE VIGENCIA</label>
+        <input class="fc" id="cotp-inicio" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="fl ff"><label style="font-size:11px;font-weight:700;color:#64748B">ASEGURADORAS A COTIZAR</label>
+        <select class="fc" id="cotp-aseg-sel" multiple style="height:80px">
+          <option value="ALL" selected>Todas las disponibles</option>
+        </select></div>
+    </div>
+  </div>`;
+  el.innerHTML=html;
+}
+
+function cotpCalcAll(){
+  const ramo=cotpSelectedRamo;
+  if(!ramo){toast('Selecciona un ramo','err');return;}
+  const val=parseFloat(document.getElementById('cotp-val')?.value)||0;
+  const fpago=document.getElementById('cotp-fpago')?.value||'anual';
+  const subRamo=document.getElementById('cotp-sub')?.value||cotpSubRamo||'';
+  // Get rates for this ramo
+  let rateMap = COTP_RATES[ramo];
+  if(!rateMap){toast('Ramo sin tarifas configuradas','err');return;}
+  // Handle nested ramos (autos has todo_riesgo/terceros, salud has individual/familiar)
+  if(subRamo && rateMap[subRamo]) rateMap = rateMap[subRamo];
+  const edad=parseInt(document.getElementById('cotp-val')?.value)||parseInt(document.getElementById('cotp-edad-val')?.value)||35;
+  const deps=parseInt(document.getElementById('cotp-deps')?.value)||0;
+  const numViaj=parseInt(document.getElementById('cotp-viaj')?.value)||1;
+  cotpResults=[];
+  Object.entries(rateMap).forEach(([asegId, rates])=>{
+    const aseg=COTP_ASEG.find(a=>a.id===asegId);
+    if(!aseg)return;
+    let primaNeta=0;
+    if(rates.fijo){primaNeta=rates.fijo*(ramo==='viaje'?(val*numViaj):1);}
+    else if(rates.fijo_dia){primaNeta=rates.fijo_dia*val*numViaj;}
+    else if(rates.base){
+      // Salud: age-based
+      const edadCalc=ramo==='salud'?(parseInt(document.getElementById('cotp-val')?.value)||35):edad;
+      const edadFactor=1+Math.max(0,(edadCalc-30))*rates.edad_factor;
+      primaNeta=rates.base*12*edadFactor*(1+deps*0.65);
+    }
+    else if(rates.tasa){primaNeta=val*rates.tasa;}
+    const itbmsAmt=primaNeta*rates.itbms;
+    const primaTotal=primaNeta+itbmsAmt;
+    const com=primaNeta*rates.com;
+    const cuotaMap={anual:primaTotal,semestral:primaTotal/2,trimestral:primaTotal/4,mensual:primaTotal/12};
+    const cuota=cuotaMap[fpago]||primaTotal;
+    const cuotasNum={anual:1,semestral:2,trimestral:4,mensual:12}[fpago]||1;
+    cotpResults.push({
+      asegId, aseg, rates, primaNeta, itbmsAmt, primaTotal, com, cuota, cuotasNum, fpago,
+      deducible:rates.deducible, cobertura:rates.cobertura
+    });
+  });
+  cotpResults.sort((a,b)=>a.primaTotal-b.primaTotal);
+  cotpSelectedIds=new Set(cotpResults.map(r=>r.asegId));
+  cotpRenderTable();
+  cotpGoStep(3);
+  // Update badge
+  const R=COTP_RAMOS.find(r=>r.id===ramo);
+  const badge=document.getElementById('cotp-ramo-badge');
+  if(badge&&R)badge.textContent=`${R.icon} ${R.label}`;
+  const summary=document.getElementById('cotp-client-summary');
+  if(summary){
+    const nombre=document.getElementById('cotp-nombre')?.value||'';
+    const subLabel=subRamo?` — ${subRamo.replace('_',' ')}`:'';
+    summary.textContent=`Cliente: ${nombre}${subLabel} · ${cotpResults.length} aseguradoras cotizadas`;
+  }
+}
+function cotpSortTable(){
+  const sort=document.getElementById('cotp-sort')?.value||'prima_asc';
+  if(sort==='prima_asc')cotpResults.sort((a,b)=>a.primaTotal-b.primaTotal);
+  else if(sort==='prima_desc')cotpResults.sort((a,b)=>b.primaTotal-a.primaTotal);
+  else if(sort==='rating_desc')cotpResults.sort((a,b)=>{const ra={'A++':5,'A+':4,'A':3,'A-':2,'BBB+':1,'BBB':0};return (ra[b.aseg.rating]||0)-(ra[a.aseg.rating]||0);});
+  else if(sort==='com_desc')cotpResults.sort((a,b)=>b.com-a.com);
+  cotpRenderTable();
+}
+function cotpToggleAll(){
+  if(cotpSelectedIds.size===cotpResults.length) cotpSelectedIds=new Set();
+  else cotpSelectedIds=new Set(cotpResults.map(r=>r.asegId));
+  cotpRenderTable();
+}
+function cotpToggleAseg(id){
+  if(cotpSelectedIds.has(id))cotpSelectedIds.delete(id);
+  else cotpSelectedIds.add(id);
+  const row=document.getElementById('cotp-row-'+id);
+  if(row)row.style.opacity=cotpSelectedIds.has(id)?'1':'0.4';
+  const chk=document.getElementById('cotp-chk-'+id);
+  if(chk)chk.checked=cotpSelectedIds.has(id);
+  cotpUpdateSelCount();
+}
+function cotpUpdateSelCount(){
+  const cnt=document.getElementById('cotp-selected-count');
+  if(cnt)cnt.textContent=`${cotpSelectedIds.size} aseguradora${cotpSelectedIds.size!==1?'s':''} seleccionada${cotpSelectedIds.size!==1?'s':''}`;
+}
+function fM(n){return typeof n==='number'?'$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','):'—';}
+function cotpRenderTable(){
+  // Highlights (top 3)
+  const top3=cotpResults.slice(0,3);
+  const hDiv=document.getElementById('cotp-highlights');
+  if(hDiv){
+    const lbls=['🥇 Menor precio','🥈 Mejor relación','🥉 Mayor cobertura'];
+    const cols=['#15803D','#2563EB','#7C3AED'];
+    hDiv.innerHTML=top3.map((r,i)=>`<div style="background:linear-gradient(135deg,${cols[i]}15,${cols[i]}05);border:2px solid ${cols[i]}44;border-radius:14px;padding:14px">
+      <div style="font-size:10px;font-weight:700;color:${cols[i]};margin-bottom:6px">${lbls[i]}</div>
+      <div style="font-size:13px;font-weight:800;color:#0F172A">${r.aseg.logo} ${r.aseg.nombre}</div>
+      <div style="font-size:22px;font-weight:900;color:${cols[i]};margin:6px 0">${fM(r.primaTotal)}<span style="font-size:11px;font-weight:500;color:#64748B">/año</span></div>
+      <div style="font-size:10px;color:#64748B">${r.aseg.rating} · ${r.cobertura.slice(0,50)}...</div>
+    </div>`).join('');
+  }
+  // Table
+  const tbl=document.getElementById('cotp-table');
+  if(!tbl)return;
+  const fpLabel={anual:'Anual',semestral:'Semestral',trimestral:'Trimestral',mensual:'Mensual'};
+  const fpago=document.getElementById('cotp-fpago')?.value||'anual';
+  tbl.innerHTML=`<thead><tr style="background:linear-gradient(135deg,#0F172A,#1E3A8A);color:#fff">
+    <th style="padding:10px 8px;text-align:left;border-radius:8px 0 0 0;font-size:11px">✓</th>
+    <th style="padding:10px 8px;text-align:left;font-size:11px">Aseguradora</th>
+    <th style="padding:10px 8px;text-align:right;font-size:11px">Prima neta</th>
+    <th style="padding:10px 8px;text-align:right;font-size:11px">ITBMS</th>
+    <th style="padding:10px 8px;text-align:right;font-size:11px">Prima total/año</th>
+    <th style="padding:10px 8px;text-align:right;font-size:11px">Cuota ${fpLabel[fpago]||''}</th>
+    <th style="padding:10px 8px;text-align:center;font-size:11px">Calificación</th>
+    <th style="padding:10px 8px;text-align:right;font-size:11px">Com. JAC</th>
+    <th style="padding:10px 8px;text-align:left;font-size:11px;border-radius:0 8px 0 0">Cobertura</th>
+  </tr></thead><tbody>
+  ${cotpResults.map((r,i)=>{
+    const sel=cotpSelectedIds.has(r.asegId);
+    const bg=i%2===0?'#fff':'#F8FAFC';
+    const best=i===0;
+    return`<tr id="cotp-row-${r.asegId}" style="background:${best?'#F0FDF4':bg};opacity:${sel?1:0.4};transition:opacity .2s" onclick="cotpToggleAseg('${r.asegId}')">
+      <td style="padding:10px 8px;text-align:center"><input type="checkbox" id="cotp-chk-${r.asegId}" ${sel?'checked':''} onclick="event.stopPropagation();cotpToggleAseg('${r.asegId}')"></td>
+      <td style="padding:10px 8px">
+        <div style="font-size:11px;font-weight:700;color:#0F172A">${r.aseg.logo} ${r.aseg.nombre}</div>
+        <div style="font-size:9px;color:#94A3B8">${r.aseg.sfp} · ${r.aseg.anios}+ años en mercado</div>
+        ${best?'<span style="background:#DCFCE7;color:#15803D;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700">⭐ MEJOR PRECIO</span>':''}
+      </td>
+      <td style="padding:10px 8px;text-align:right;font-size:12px;font-weight:600">${fM(r.primaNeta)}</td>
+      <td style="padding:10px 8px;text-align:right;font-size:11px;color:#64748B">${fM(r.itbmsAmt)}</td>
+      <td style="padding:10px 8px;text-align:right;font-size:13px;font-weight:800;color:${best?'#15803D':'#0F172A'}">${fM(r.primaTotal)}</td>
+      <td style="padding:10px 8px;text-align:right;font-size:12px;font-weight:700;color:#7C3AED">${fM(r.cuota)}</td>
+      <td style="padding:10px 8px;text-align:center">
+        <span style="background:${r.aseg.rating.startsWith('A+')?'#DCFCE7':r.aseg.rating.startsWith('A')?'#DBEAFE':'#FEF3C7'};color:${r.aseg.rating.startsWith('A+')?'#15803D':r.aseg.rating.startsWith('A')?'#1D4ED8':'#D97706'};border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700">${r.aseg.rating}</span>
+      </td>
+      <td style="padding:10px 8px;text-align:right;font-size:11px;color:#059669;font-weight:600">${fM(r.com)}</td>
+      <td style="padding:10px 8px;font-size:10px;color:#374151;max-width:200px">${r.cobertura}</td>
+    </tr>`;
+  }).join('')}
+  </tbody>`;
+  cotpUpdateSelCount();
+}
+function cotpSetLink(id){cotpLinkedId=id;const d=document.getElementById('cotp-link-display');if(d)d.textContent=id&&id!=='none'?'Vinculado a cliente/prospecto':'Nuevo prospecto (sin vinculación)';}
+function cotpBuscar(q){
+  const el=document.getElementById('cotp-buscar-res');if(!el)return;
+  if(!q||q.length<2){el.innerHTML='';return;}
+  const qq=q.toLowerCase();
+  const clientes=(S.clientes||[]).filter(c=>(c.nombre||'').toLowerCase().includes(qq)||(c.cedula||'').includes(qq)||(c.email||'').toLowerCase().includes(qq));
+  const prospectos=(S.prospectos||[]).filter(p=>(p.nombre||'').toLowerCase().includes(qq)||(p.cedula||'').includes(qq));
+  const all=[...clientes.map(c=>({...c,_tipo:'cliente'})),...prospectos.map(p=>({...p,_tipo:'prospecto'}))].slice(0,8);
+  el.innerHTML=all.length?all.map(x=>`<div onclick="cotpLoadClient('${x.id}','${x._tipo}')" style="padding:8px 10px;border-radius:8px;cursor:pointer;margin-bottom:4px;background:#F8FAFC;border:1px solid #E2E8F0" onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#F8FAFC'">
+    <div style="font-size:12px;font-weight:700">${esc(x.nombre||'')}</div>
+    <div style="font-size:10px;color:#64748B">${x._tipo==='cliente'?'👥 Cliente':'🎯 Prospecto'} · ${esc(x.cedula||x.email||'')}</div>
+  </div>`).join(''):'<div style="font-size:11px;color:#94A3B8;padding:8px">Sin resultados</div>';
+}
+function cotpLoadClient(id,tipo){
+  const src=tipo==='cliente'?(S.clientes||[]):(S.prospectos||[]);
+  const c=src.find(x=>x.id===id);if(!c)return;
+  SVal('cotp-nombre',c.nombre||'');SVal('cotp-cedula',c.cedula||'');SVal('cotp-tel',c.cel||c.tel||'');SVal('cotp-email',c.email||'');
+  if(c.fechaNac){document.getElementById('cotp-dob').value=c.fechaNac;cotpCalcEdad();}
+  cotpLinkedId=id;
+  document.getElementById('cotp-buscar-res').innerHTML='';document.getElementById('cotp-buscar').value='';
+  const d=document.getElementById('cotp-link-display');if(d)d.textContent=`✅ Vinculado: ${c.nombre}`;
+  toast('Cliente cargado en cotizador ✓','ok');
+}
+function cotpGenReport(){
+  if(cotpSelectedIds.size===0){toast('Selecciona al menos una aseguradora','err');return;}
+  const selected=cotpResults.filter(r=>cotpSelectedIds.has(r.asegId));
+  const ramo=cotpSelectedRamo;
+  const R=COTP_RAMOS.find(r=>r.id===ramo);
+  const nombre=document.getElementById('cotp-nombre')?.value||'Cliente';
+  const cedula=document.getElementById('cotp-cedula')?.value||'';
+  const fecha=new Date().toLocaleDateString('es-PA',{year:'numeric',month:'long',day:'numeric'});
+  const fpago=document.getElementById('cotp-fpago')?.value||'anual';
+  const fpLabel={anual:'anual',semestral:'semestral (2 cuotas/año)',trimestral:'trimestral (4 cuotas/año)',mensual:'mensual (12 cuotas/año)'};
+  const inicio=document.getElementById('cotp-inicio')?.value||new Date().toISOString().split('T')[0];
+  const best=selected[0];
+  // Build report HTML
+  const reportHTML=`
+    <div id="cotp-report-inner" style="font-family:'Segoe UI',Arial,sans-serif;color:#0F172A">
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#0F172A,#1E3A8A);padding:28px 32px;border-radius:14px;margin-bottom:20px;color:#fff">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:22px;font-weight:900;letter-spacing:-0.5px">JAC SEGUROS</div>
+            <div style="font-size:11px;color:#94A3B8;margin-top:2px">Lic. SSRP N° 6175 · jelyancorredora@gmail.com</div>
+            <div style="font-size:11px;color:#94A3B8">📞 +507 6292-6010 · jcastro@jacsegurospa.com</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:#94A3B8">COTIZACIÓN</div>
+            <div style="font-size:20px;font-weight:800;color:#60A5FA">COT-${Date.now().toString().slice(-6)}</div>
+            <div style="font-size:11px;color:#94A3B8">${fecha}</div>
+          </div>
+        </div>
+      </div>
+      <!-- Client info -->
+      <div style="background:#F8FAFC;border-radius:12px;padding:16px 20px;margin-bottom:20px;border:1px solid #E2E8F0">
+        <div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:8px">DATOS DEL ASEGURADO</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div><div style="font-size:10px;color:#94A3B8">Nombre</div><div style="font-weight:700">${esc(nombre)}</div></div>
+          <div><div style="font-size:10px;color:#94A3B8">Cédula</div><div style="font-weight:600">${esc(cedula)||'—'}</div></div>
+          <div><div style="font-size:10px;color:#94A3B8">Ramo cotizado</div><div style="font-weight:700;color:#7C3AED">${R?R.icon+' '+R.label:ramo}</div></div>
+          <div><div style="font-size:10px;color:#94A3B8">Forma de pago</div><div style="font-weight:600">${fpLabel[fpago]||fpago}</div></div>
+          <div><div style="font-size:10px;color:#94A3B8">Inicio propuesto</div><div style="font-weight:600">${inicio}</div></div>
+          <div><div style="font-size:10px;color:#94A3B8">Aseguradoras</div><div style="font-weight:600">${selected.length} opciones</div></div>
+        </div>
+      </div>
+      <!-- Best option highlight -->
+      <div style="background:linear-gradient(135deg,#DCFCE7,#D1FAE5);border:2px solid #22C55E;border-radius:14px;padding:16px 20px;margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:#15803D;margin-bottom:6px">⭐ RECOMENDACIÓN JAC SEGUROS — MEJOR OPCIÓN PRECIO/CALIDAD</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:18px;font-weight:800">${best.aseg.logo} ${best.aseg.nombre}</div>
+            <div style="font-size:11px;color:#374151;margin-top:4px">${best.cobertura}</div>
+            <div style="font-size:11px;color:#64748B;margin-top:2px">Deducible: ${best.deducible} · Calificación: ${best.aseg.rating}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:28px;font-weight:900;color:#15803D">${fM(best.primaTotal)}<span style="font-size:12px;font-weight:500;color:#64748B">/año</span></div>
+            <div style="font-size:13px;color:#374151">Cuota ${fpLabel[fpago]||''}: <strong>${fM(best.cuota)}</strong></div>
+          </div>
+        </div>
+      </div>
+      <!-- Comparison table -->
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:10px">📊 Tabla comparativa de aseguradoras</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:20px">
+        <thead><tr style="background:#0F172A;color:#fff">
+          <th style="padding:9px 10px;text-align:left">Aseguradora</th>
+          <th style="padding:9px 10px;text-align:right">Prima neta</th>
+          <th style="padding:9px 10px;text-align:right">ITBMS</th>
+          <th style="padding:9px 10px;text-align:right">Total/año</th>
+          <th style="padding:9px 10px;text-align:right">Cuota</th>
+          <th style="padding:9px 10px;text-align:center">Calif.</th>
+          <th style="padding:9px 10px;text-align:left">Deducible</th>
+        </tr></thead>
+        <tbody>${selected.map((r,i)=>`<tr style="background:${i===0?'#F0FDF4':i%2===0?'#fff':'#F8FAFC'}">
+          <td style="padding:8px 10px;font-weight:${i===0?'800':'600'}">${r.aseg.logo} ${r.aseg.nombre}${i===0?' ⭐':''}</td>
+          <td style="padding:8px 10px;text-align:right">${fM(r.primaNeta)}</td>
+          <td style="padding:8px 10px;text-align:right;color:#64748B">${fM(r.itbmsAmt)}</td>
+          <td style="padding:8px 10px;text-align:right;font-weight:800;color:${i===0?'#15803D':'#0F172A'}">${fM(r.primaTotal)}</td>
+          <td style="padding:8px 10px;text-align:right;font-weight:700;color:#7C3AED">${fM(r.cuota)}</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:${r.aseg.rating.startsWith('A+')?'#DCFCE7':r.aseg.rating.startsWith('A')?'#DBEAFE':'#FEF3C7'};padding:2px 7px;border-radius:4px;font-weight:700">${r.aseg.rating}</span></td>
+          <td style="padding:8px 10px;color:#64748B">${r.deducible}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      <!-- Coverage detail -->
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:10px">🛡️ Detalle de coberturas</div>
+      <div style="display:grid;gap:8px;margin-bottom:20px">
+        ${selected.map((r,i)=>`<div style="background:${i===0?'#F0FDF4':'#F8FAFC'};border-radius:8px;padding:10px 12px;border-left:3px solid ${r.aseg.color||'#64748B'}">
+          <div style="font-size:11px;font-weight:700;color:#0F172A">${r.aseg.logo} ${r.aseg.nombre}</div>
+          <div style="font-size:10px;color:#374151;margin-top:3px">${r.cobertura}</div>
+        </div>`).join('')}
+      </div>
+      <!-- Footer disclaimer -->
+      <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;padding:12px 16px;font-size:10px;color:#92400E;margin-bottom:16px">
+        <strong>⚠️ Nota importante:</strong> Las primas aquí presentadas son estimadas y de referencia. La prima final está sujeta a la evaluación del riesgo por parte de cada aseguradora. Esta cotización tiene vigencia de 30 días. Para formalizar, contáctenos.
+      </div>
+      <div style="text-align:center;font-size:10px;color:#94A3B8;padding:12px 0;border-top:1px solid #E2E8F0">
+        JAC Seguros · Jely An Castro Pérez · Lic. SSRP N° 6175 · +507 6292-6010 · jcastro@jacsegurospa.com · jacsegurospa.com<br>
+        Documento generado el ${fecha} · Uso exclusivo del cliente
+      </div>
+    </div>`;
+  const prev=document.getElementById('cotp-report-preview');
+  if(prev)prev.innerHTML=reportHTML;
+  // Commission summary
+  const comDiv=document.getElementById('cotp-com-summary');
+  if(comDiv){
+    const totalCom=selected.reduce((a,r)=>a+r.com,0)/selected.length;
+    const maxCom=Math.max(...selected.map(r=>r.com));
+    const bestComAseg=selected.find(r=>r.com===maxCom);
+    comDiv.innerHTML=`
+      <div style="font-size:11px;color:#CBD5E1;margin-bottom:10px">Seleccionadas: ${selected.length} aseguradoras</div>
+      <div style="margin-bottom:8px"><div style="font-size:10px;color:#94A3B8">Comisión promedio</div><div style="font-size:20px;font-weight:800;color:#60A5FA">${fM(totalCom)}</div></div>
+      <div style="margin-bottom:8px"><div style="font-size:10px;color:#94A3B8">Mayor comisión (mejor para JAC)</div><div style="font-size:16px;font-weight:700;color:#4ADE80">${fM(maxCom)}</div><div style="font-size:10px;color:#94A3B8">${bestComAseg?bestComAseg.aseg.nombre:''}</div></div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:10px;margin-top:10px">
+        <div style="font-size:10px;color:#CBD5E1;font-weight:700;margin-bottom:6px">Por aseguradora:</div>
+        ${selected.map(r=>`<div style="display:flex;justify-content:space-between;font-size:10px;color:#E2E8F0;padding:2px 0">${r.aseg.nombre.split(' ')[0]}<span style="color:#4ADE80;font-weight:600">${fM(r.com)}</span></div>`).join('')}
+      </div>`;
+  }
+  cotpGoStep(4);
+}
+function cotpPrintReport(){
+  const inner=document.getElementById('cotp-report-inner');
+  if(!inner){toast('Genera el informe primero','err');return;}
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Cotización JAC Seguros</title><style>body{margin:20px;font-family:'Segoe UI',Arial,sans-serif}@media print{body{margin:0}}
+.cotp-step{transition:all .2s;user-select:none}
+.cotp-step:hover{opacity:.85}
+.cotp-step.on{background:linear-gradient(135deg,#7C3AED,#1D4ED8)!important;color:#fff!important}
+#cotp-aseg-grid .aseg-card{background:#F8FAFC;border:2px solid #E2E8F0;border-radius:10px;padding:10px;cursor:pointer;transition:all .15s;text-align:center;font-size:11px;font-weight:600}
+#cotp-aseg-grid .aseg-card:hover{border-color:#7C3AED;background:#F5F3FF}
+#cotp-aseg-grid .aseg-card.sel{border-color:#7C3AED;background:#EDE9FE;color:#7C3AED}
+.cotp-row-best{background:#F0FDF4!important}
+.cotp-row-best td:first-child::before{content:"🥇 ";font-size:12px}
+
+</style></head><body>${inner.outerHTML}<script>window.print();</script>
+<!-- ═══ COTIZADOR PRO PAGE ═══════════════════════════════════════════════ -->
+<div class="pg" id="pg-cotp">
+  <div style="max-width:1200px;margin:0 auto;padding:16px">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);border-radius:16px;padding:20px 24px;margin-bottom:20px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.05);border-radius:50%"></div>
+      <div style="position:absolute;right:40px;bottom:-30px;width:80px;height:80px;background:rgba(255,255,255,.05);border-radius:50%"></div>
+      <div style="position:relative">
+        <div style="font-size:24px;font-weight:900;margin-bottom:4px">🧮 Cotizador Pro <span style="font-size:12px;background:rgba(255,255,255,.2);border-radius:20px;padding:2px 10px;vertical-align:middle">Admin</span></div>
+        <div style="font-size:13px;opacity:.85">Comparativo multi-aseguradora · Todas las compañías de Panamá · Informes PDF</div>
+      </div>
+    </div>
+    <!-- Step indicator -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px" id="cotp-steps">
+      <div class="cotp-step on" onclick="cotpGoStep(1)" id="cotp-step-1" style="background:#7C3AED;color:#fff;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:rgba(255,255,255,.3);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">1</span>Ramo
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(2)" id="cotp-step-2" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">2</span>Datos
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(3)" id="cotp-step-3" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">3</span>Aseguradoras
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(4)" id="cotp-step-4" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">4</span>Resultados
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <button class="btn" onclick="cotpReset()" style="font-size:11px;padding:4px 12px;background:#F1F5F9;color:#64748B;border-color:#E2E8F0">🔄 Nueva cotización</button>
+      </div>
+    </div>
+    <!-- Main content area -->
+    <div id="cotp-body">
+      <!-- Step 1: Ramo selection -->
+      <div id="cotp-s1" style="display:block">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;margin-bottom:16px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;color:#1e293b">¿Qué tipo de seguro deseas cotizar?</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:16px">Selecciona el ramo para comparar tarifas entre todas las aseguradoras de Panamá</div>
+          <div id="cotp-ramos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">
+            <!-- Built by cotpBuildRamoGrid() -->
+          </div>
+        </div>
+        <!-- Buscar cliente -->
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #E2E8F0">
+          <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">👤 DATOS DEL CLIENTE (OPCIONAL)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+            <div class="fl ff"><label style="font-size:11px">Nombre</label><input class="fc" id="cotp-cli-nom" placeholder="Nombre del cliente" style="font-size:12px"></div>
+            <div class="fl ff"><label style="font-size:11px">Email</label><input class="fc" id="cotp-cli-email" type="email" placeholder="email@ejemplo.com" style="font-size:12px"></div>
+            <div class="fl ff"><label style="font-size:11px">Buscar en CRM</label>
+              <div style="display:flex;gap:6px">
+                <input class="fc" id="cotp-buscar-q" placeholder="Nombre/cédula..." style="font-size:12px" oninput="cotpBuscar()">
+              </div>
+            </div>
+          </div>
+          <div id="cotp-buscar-res" style="margin-top:8px"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div class="fl ff"><label style="font-size:11px">Teléfono</label><input class="fc" id="cotp-cli-tel" placeholder="+507 6XXX-XXXX" style="font-size:12px" inputmode="tel"></div>
+            <div class="fl ff"><label style="font-size:11px">F. Nacimiento</label><input class="fc" id="cotp-cli-dob" type="date" onchange="cotpCalcEdad()" style="font-size:12px"></div>
+          </div>
+          <div id="cotp-edad-display" style="font-size:11px;color:#7C3AED;font-weight:600;margin-top:4px"></div>
+        </div>
+      </div>
+      <!-- Step 2: Datos del ramo -->
+      <div id="cotp-s2" style="display:none">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0">
+          <div id="cotp-ramo-title" style="font-size:15px;font-weight:800;margin-bottom:16px;color:#1D4ED8"></div>
+          <div id="cotp-ramo-fields">
+            <!-- Built by cotpBuildRamoFields() -->
+          </div>
+          <!-- Hijo/hija section -->
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:12px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:#15803D">
+              <input type="checkbox" id="cotp-es-hijo" onchange="cotpToggleHijo()" style="accent-color:#15803D;width:16px;height:16px">
+              👶 ¿Cotización para hijo/hija únicamente?
+            </label>
+            <div id="cotp-hijo-sec" style="display:none;margin-top:10px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="fl ff"><label style="font-size:11px">Género del menor</label>
+                  <select class="fc" id="cotp-hijo-gen" style="font-size:12px">
+                    <option value="">— Seleccionar —</option>
+                    <option value="masculino">👦 Masculino</option>
+                    <option value="femenino">👧 Femenino</option>
+                  </select>
+                </div>
+                <div class="fl ff"><label style="font-size:11px">F. Nacimiento del menor</label>
+                  <input class="fc" id="cotp-hijo-dob2" type="date" onchange="cotpCalcHijoEdad()" style="font-size:12px">
+                </div>
+              </div>
+              <div id="cotp-hijo-edad-msg" style="font-size:11px;color:#15803D;margin-top:5px;font-weight:600"></div>
+            </div>
+          </div>
+          <!-- Forma de pago -->
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="fl ff"><label style="font-size:11px">Forma de pago</label>
+              <select class="fc" id="cotp-fpago2" style="font-size:12px">
+                <option value="anual">Anual</option>
+                <option value="semestral">Semestral</option>
+                <option value="trimestral">Trimestral</option>
+                <option value="mensual">Mensual</option>
+              </select>
+            </div>
+            <div class="fl ff"><label style="font-size:11px">Moneda</label>
+              <select class="fc" id="cotp-moneda" style="font-size:12px">
+                <option value="USD">🇺🇸 USD — Dólares</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn" onclick="cotpGoStep(1)" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;font-size:12px">← Atrás</button>
+            <button class="btn" onclick="cotpGoStep(3)" style="background:#7C3AED;color:#fff;border-color:#7C3AED;flex:1;font-size:12px">Siguiente → Seleccionar aseguradoras</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 3: Aseguradoras -->
+      <div id="cotp-s3" style="display:none">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:14px;font-weight:700;color:#1e293b">Selecciona las aseguradoras a comparar</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn" onclick="cotpToggleAll(true)" style="font-size:11px;padding:4px 10px;background:#7C3AED;color:#fff;border-color:#7C3AED">✓ Todas</button>
+              <button class="btn" onclick="cotpToggleAll(false)" style="font-size:11px;padding:4px 10px">✗ Ninguna</button>
+            </div>
+          </div>
+          <div id="cotp-aseg-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px">
+            <!-- Built by cotpBuildAsegGrid() -->
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="cotpGoStep(2)" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;font-size:12px">← Atrás</button>
+            <button class="btn" onclick="cotpCalcAll()" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border:none;flex:1;font-size:13px;font-weight:700;padding:10px">⚡ Calcular Comparativo</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 4: Resultados -->
+      <div id="cotp-s4" style="display:none">
+        <!-- Results header -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;margin-bottom:16px">
+          <div style="background:linear-gradient(135deg,#1D4ED8,#7C3AED);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div>
+              <div style="color:#fff;font-weight:800;font-size:15px" id="cotp-res-title">Comparativo</div>
+              <div style="color:rgba(255,255,255,.8);font-size:11px" id="cotp-res-sub"></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn" onclick="cotpGenReport()" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);font-size:11px">📄 PDF</button>
+              <button class="btn" onclick="cotpSendWA()" style="background:#25D366;color:#fff;border-color:#25D366;font-size:11px">💬 WA</button>
+              <button class="btn" onclick="cotpSendEmail()" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);font-size:11px">📧 Email</button>
+              <button class="btn" onclick="cotpGoStep(3)" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:11px">← Modificar</button>
+            </div>
+          </div>
+          <!-- Sort controls -->
+          <div style="padding:10px 16px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:11px;color:#64748B;font-weight:600">Ordenar por:</span>
+            <button class="btn bsm" onclick="cotpSortTable('prima')" id="cotp-sort-prima" style="font-size:10px;padding:3px 10px;background:#7C3AED;color:#fff;border-color:#7C3AED">💰 Prima</button>
+            <button class="btn bsm" onclick="cotpSortTable('rating')" id="cotp-sort-rating" style="font-size:10px;padding:3px 10px">⭐ Rating</button>
+            <button class="btn bsm" onclick="cotpSortTable('com')" id="cotp-sort-com" style="font-size:10px;padding:3px 10px">💼 Comisión</button>
+          </div>
+          <!-- Results table -->
+          <div style="overflow-x:auto">
+            <div id="cotp-table" style="min-width:700px">
+              <!-- Built by cotpRenderTable() -->
+            </div>
+          </div>
+        </div>
+        <!-- Summary cards -->
+        <div id="cotp-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px"></div>
+        <!-- Save prospect -->
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #E2E8F0">
+          <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">💾 GUARDAR COMO PROSPECTO</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+            <input class="fc" id="cotp-save-nom" placeholder="Nombre del prospecto" style="font-size:12px">
+            <input class="fc" id="cotp-save-aseg" placeholder="Aseguradora seleccionada" style="font-size:12px">
+            <button class="btn bgn" onclick="cotpSaveProspe()" style="font-size:11px">💾 Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- end cotp-body -->
+  </div><!-- end max-width -->
+</div><!-- end pg-cotp -->
+
+</body></html>`);
+  w.document.close();
+}
+function cotpSendWA(){
+  const nombre=document.getElementById('cotp-nombre')?.value||'';
+  const tel=document.getElementById('cotp-tel')?.value||'';
+  if(!tel){toast('El cliente no tiene teléfono registrado','err');return;}
+  const selected=cotpResults.filter(r=>cotpSelectedIds.has(r.asegId));
+  const best=selected[0];
+  const ramo=cotpSelectedRamo;
+  const R=COTP_RAMOS.find(r=>r.id===ramo);
+  const msg=encodeURIComponent(`Hola ${nombre.split(' ')[0]} 👋🏼\n\nTe comparto la cotización de *${R?R.label:ramo}* que preparé para ti desde *JAC Seguros*:\n\n${selected.slice(0,5).map((r,i)=>`${i===0?'⭐':'  '} *${r.aseg.nombre}*: ${fM(r.primaTotal)}/año (${fM(r.cuota)} ${r.fpago})\n   Calificación: ${r.aseg.rating} · Deducible: ${r.deducible}`).join('\n\n')}\n\n📋 Informe completo disponible. ¿Te interesa continuar con alguna opción?\n\n_Jely An Castro · JAC Seguros · 📞 +507 6292-6010_`);
+  const phone=tel.replace(/\D/g,'');
+  window.open(`https://wa.me/${phone.startsWith('507')?phone:'507'+phone}?text=${msg}`,'_blank');
+}
+function cotpSendEmail(){
+  const nombre=document.getElementById('cotp-nombre')?.value||'';
+  const email=document.getElementById('cotp-email')?.value||'';
+  if(!email){toast('El cliente no tiene email registrado','err');return;}
+  const selected=cotpResults.filter(r=>cotpSelectedIds.has(r.asegId));
+  const ramo=cotpSelectedRamo;
+  const R=COTP_RAMOS.find(r=>r.id===ramo);
+  const subject=encodeURIComponent(`Cotización de ${R?R.label:ramo} — JAC Seguros`);
+  const body=encodeURIComponent(`Estimado(a) ${nombre},\n\nAdjunto el resumen de la cotización de ${R?R.label:ramo} preparado especialmente para usted.\n\n${selected.slice(0,5).map((r,i)=>`${i===0?'[RECOMENDADA] ':''}${r.aseg.nombre}: ${fM(r.primaTotal)}/año\nCalificación: ${r.aseg.rating} | Cobertura: ${r.cobertura}`).join('\n\n')}\n\nEstoy disponible para resolver cualquier consulta.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros — Lic. SSRP N° 6175\n+507 6292-6010`);
+  window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${subject}&body=${body}`,'_blank');
+}
+function cotpSaveProspe(){
+  const nombre=document.getElementById('cotp-nombre')?.value||'';
+  if(!nombre){toast('Completa el nombre del cliente','err');return;}
+  if(cotpLinkedId){toast('Ya vinculado a un cliente existente','ok');return;}
+  const np={id:'P'+uid(),nombre,cedula:document.getElementById('cotp-cedula')?.value||'',cel:document.getElementById('cotp-tel')?.value||'',email:document.getElementById('cotp-email')?.value||'',estado:'prospecto_nuevo',fuente:'Cotizador Pro',cre:TODAY.toISOString(),historial:[{id:'H'+uid(),fecha:TODAY.toISOString().split('T')[0],accion:`💼 Cotización ${COTP_RAMOS.find(r=>r.id===cotpSelectedRamo)?.label||cotpSelectedRamo} generada desde Cotizador Pro`,tipo:'cotizacion',resultado:'Pendiente respuesta'}]};
+  if(!S.prospectos)S.prospectos=[];
+  S.prospectos.unshift(np);
+  save();
+  cotpLinkedId=np.id;
+  toast(`✅ ${nombre} guardado como prospecto en el CRM`,'ok');
+}
+
+
 </script>
+
+<!-- ═══ COTIZADOR PRO PAGE ═══════════════════════════════════════════════ -->
+<div class="pg" id="pg-cotp">
+  <div style="max-width:1200px;margin:0 auto;padding:16px">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);border-radius:16px;padding:20px 24px;margin-bottom:20px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.05);border-radius:50%"></div>
+      <div style="position:absolute;right:40px;bottom:-30px;width:80px;height:80px;background:rgba(255,255,255,.05);border-radius:50%"></div>
+      <div style="position:relative">
+        <div style="font-size:24px;font-weight:900;margin-bottom:4px">🧮 Cotizador Pro <span style="font-size:12px;background:rgba(255,255,255,.2);border-radius:20px;padding:2px 10px;vertical-align:middle">Admin</span></div>
+        <div style="font-size:13px;opacity:.85">Comparativo multi-aseguradora · Todas las compañías de Panamá · Informes PDF</div>
+      </div>
+    </div>
+    <!-- Step indicator -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px" id="cotp-steps">
+      <div class="cotp-step on" onclick="cotpGoStep(1)" id="cotp-step-1" style="background:#7C3AED;color:#fff;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:rgba(255,255,255,.3);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">1</span>Ramo
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(2)" id="cotp-step-2" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">2</span>Datos
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(3)" id="cotp-step-3" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">3</span>Aseguradoras
+      </div>
+      <div style="display:flex;align-items:center;color:#CBD5E1;font-size:16px">›</div>
+      <div class="cotp-step" onclick="cotpGoStep(4)" id="cotp-step-4" style="background:#F1F5F9;color:#64748B;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+        <span style="background:#CBD5E1;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px">4</span>Resultados
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+        <button class="btn" onclick="cotpReset()" style="font-size:11px;padding:4px 12px;background:#F1F5F9;color:#64748B;border-color:#E2E8F0">🔄 Nueva cotización</button>
+      </div>
+    </div>
+    <!-- Main content area -->
+    <div id="cotp-body">
+      <!-- Step 1: Ramo selection -->
+      <div id="cotp-s1" style="display:block">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0;margin-bottom:16px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;color:#1e293b">¿Qué tipo de seguro deseas cotizar?</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:16px">Selecciona el ramo para comparar tarifas entre todas las aseguradoras de Panamá</div>
+          <div id="cotp-ramos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">
+            <!-- Built by cotpBuildRamoGrid() -->
+          </div>
+        </div>
+        <!-- Buscar cliente -->
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #E2E8F0">
+          <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">👤 DATOS DEL CLIENTE (OPCIONAL)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+            <div class="fl ff"><label style="font-size:11px">Nombre</label><input class="fc" id="cotp-cli-nom" placeholder="Nombre del cliente" style="font-size:12px"></div>
+            <div class="fl ff"><label style="font-size:11px">Email</label><input class="fc" id="cotp-cli-email" type="email" placeholder="email@ejemplo.com" style="font-size:12px"></div>
+            <div class="fl ff"><label style="font-size:11px">Buscar en CRM</label>
+              <div style="display:flex;gap:6px">
+                <input class="fc" id="cotp-buscar-q" placeholder="Nombre/cédula..." style="font-size:12px" oninput="cotpBuscar()">
+              </div>
+            </div>
+          </div>
+          <div id="cotp-buscar-res" style="margin-top:8px"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div class="fl ff"><label style="font-size:11px">Teléfono</label><input class="fc" id="cotp-cli-tel" placeholder="+507 6XXX-XXXX" style="font-size:12px" inputmode="tel"></div>
+            <div class="fl ff"><label style="font-size:11px">F. Nacimiento</label><input class="fc" id="cotp-cli-dob" type="date" onchange="cotpCalcEdad()" style="font-size:12px"></div>
+          </div>
+          <div id="cotp-edad-display" style="font-size:11px;color:#7C3AED;font-weight:600;margin-top:4px"></div>
+        </div>
+      </div>
+      <!-- Step 2: Datos del ramo -->
+      <div id="cotp-s2" style="display:none">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0">
+          <div id="cotp-ramo-title" style="font-size:15px;font-weight:800;margin-bottom:16px;color:#1D4ED8"></div>
+          <div id="cotp-ramo-fields">
+            <!-- Built by cotpBuildRamoFields() -->
+          </div>
+          <!-- Hijo/hija section -->
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px;margin-top:12px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:#15803D">
+              <input type="checkbox" id="cotp-es-hijo" onchange="cotpToggleHijo()" style="accent-color:#15803D;width:16px;height:16px">
+              👶 ¿Cotización para hijo/hija únicamente?
+            </label>
+            <div id="cotp-hijo-sec" style="display:none;margin-top:10px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="fl ff"><label style="font-size:11px">Género del menor</label>
+                  <select class="fc" id="cotp-hijo-gen" style="font-size:12px">
+                    <option value="">— Seleccionar —</option>
+                    <option value="masculino">👦 Masculino</option>
+                    <option value="femenino">👧 Femenino</option>
+                  </select>
+                </div>
+                <div class="fl ff"><label style="font-size:11px">F. Nacimiento del menor</label>
+                  <input class="fc" id="cotp-hijo-dob2" type="date" onchange="cotpCalcHijoEdad()" style="font-size:12px">
+                </div>
+              </div>
+              <div id="cotp-hijo-edad-msg" style="font-size:11px;color:#15803D;margin-top:5px;font-weight:600"></div>
+            </div>
+          </div>
+          <!-- Forma de pago -->
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="fl ff"><label style="font-size:11px">Forma de pago</label>
+              <select class="fc" id="cotp-fpago2" style="font-size:12px">
+                <option value="anual">Anual</option>
+                <option value="semestral">Semestral</option>
+                <option value="trimestral">Trimestral</option>
+                <option value="mensual">Mensual</option>
+              </select>
+            </div>
+            <div class="fl ff"><label style="font-size:11px">Moneda</label>
+              <select class="fc" id="cotp-moneda" style="font-size:12px">
+                <option value="USD">🇺🇸 USD — Dólares</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn" onclick="cotpGoStep(1)" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;font-size:12px">← Atrás</button>
+            <button class="btn" onclick="cotpGoStep(3)" style="background:#7C3AED;color:#fff;border-color:#7C3AED;flex:1;font-size:12px">Siguiente → Seleccionar aseguradoras</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 3: Aseguradoras -->
+      <div id="cotp-s3" style="display:none">
+        <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #E2E8F0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:14px;font-weight:700;color:#1e293b">Selecciona las aseguradoras a comparar</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn" onclick="cotpToggleAll(true)" style="font-size:11px;padding:4px 10px;background:#7C3AED;color:#fff;border-color:#7C3AED">✓ Todas</button>
+              <button class="btn" onclick="cotpToggleAll(false)" style="font-size:11px;padding:4px 10px">✗ Ninguna</button>
+            </div>
+          </div>
+          <div id="cotp-aseg-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px">
+            <!-- Built by cotpBuildAsegGrid() -->
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="cotpGoStep(2)" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;font-size:12px">← Atrás</button>
+            <button class="btn" onclick="cotpCalcAll()" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border:none;flex:1;font-size:13px;font-weight:700;padding:10px">⚡ Calcular Comparativo</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 4: Resultados -->
+      <div id="cotp-s4" style="display:none">
+        <!-- Results header -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;margin-bottom:16px">
+          <div style="background:linear-gradient(135deg,#1D4ED8,#7C3AED);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div>
+              <div style="color:#fff;font-weight:800;font-size:15px" id="cotp-res-title">Comparativo</div>
+              <div style="color:rgba(255,255,255,.8);font-size:11px" id="cotp-res-sub"></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn" onclick="cotpGenReport()" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);font-size:11px">📄 PDF</button>
+              <button class="btn" onclick="cotpSendWA()" style="background:#25D366;color:#fff;border-color:#25D366;font-size:11px">💬 WA</button>
+              <button class="btn" onclick="cotpSendEmail()" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);font-size:11px">📧 Email</button>
+              <button class="btn" onclick="cotpGoStep(3)" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);font-size:11px">← Modificar</button>
+            </div>
+          </div>
+          <!-- Sort controls -->
+          <div style="padding:10px 16px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:11px;color:#64748B;font-weight:600">Ordenar por:</span>
+            <button class="btn bsm" onclick="cotpSortTable('prima')" id="cotp-sort-prima" style="font-size:10px;padding:3px 10px;background:#7C3AED;color:#fff;border-color:#7C3AED">💰 Prima</button>
+            <button class="btn bsm" onclick="cotpSortTable('rating')" id="cotp-sort-rating" style="font-size:10px;padding:3px 10px">⭐ Rating</button>
+            <button class="btn bsm" onclick="cotpSortTable('com')" id="cotp-sort-com" style="font-size:10px;padding:3px 10px">💼 Comisión</button>
+          </div>
+          <!-- Results table -->
+          <div style="overflow-x:auto">
+            <div id="cotp-table" style="min-width:700px">
+              <!-- Built by cotpRenderTable() -->
+            </div>
+          </div>
+        </div>
+        <!-- Summary cards -->
+        <div id="cotp-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px"></div>
+        <!-- Save prospect -->
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #E2E8F0">
+          <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">💾 GUARDAR COMO PROSPECTO</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+            <input class="fc" id="cotp-save-nom" placeholder="Nombre del prospecto" style="font-size:12px">
+            <input class="fc" id="cotp-save-aseg" placeholder="Aseguradora seleccionada" style="font-size:12px">
+            <button class="btn bgn" onclick="cotpSaveProspe()" style="font-size:11px">💾 Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- end cotp-body -->
+  </div><!-- end max-width -->
+</div><!-- end pg-cotp -->
+
 </body>
 </html>
