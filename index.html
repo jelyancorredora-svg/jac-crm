@@ -3762,6 +3762,253 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 </script>
 
+<!-- MODAL: HISTORIAL COMPLETO EMAILS + WHATSAPP -->
+<div class="mo" id="mEmailHist"><div class="md" style="max-width:700px;width:95vw">
+  <div class="mh" style="background:linear-gradient(135deg,#1D4ED8,#25D366);color:#fff">
+    <h2 style="color:#fff">📬 Historial Completo de Comunicaciones</h2>
+    <button class="btn bgh" onclick="CM('mEmailHist')" style="color:#fff;border-color:rgba(255,255,255,0.3)">✕</button>
+  </div>
+  <div class="mb" style="padding:12px">
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+      <div id="ehist-name" style="font-weight:700;font-size:14px;flex:1"></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn bsm" onclick="filterEHist('all')" id="ehist-f-all" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8">📬 Todos</button>
+        <button class="btn bsm" onclick="filterEHist('email')" id="ehist-f-email">📧 Emails</button>
+        <button class="btn bsm" onclick="filterEHist('whatsapp')" id="ehist-f-wa">💬 WhatsApp</button>
+      </div>
+    </div>
+    <div id="ehist-count" style="font-size:11px;color:var(--mu);margin-bottom:8px"></div>
+    <div id="ehist-list" style="max-height:calc(80vh - 180px);overflow-y:auto;padding-right:4px"></div>
+  </div>
+  <div class="mf">
+    <button class="btn" onclick="CM('mEmailHist')">Cerrar</button>
+    <button class="btn bwa" onclick="openWAForCli(ehistCid)" style="display:none" id="ehist-wa-btn">💬 Nuevo WhatsApp</button>
+    <button class="btn bp" onclick="openComposeEmail('',ehistCname,'','')" style="display:none" id="ehist-em-btn">📧 Nuevo Email</button>
+  </div>
+</div></div>
+
+<!-- ═══ COTIZADOR PRO PAGE ═══════════════════════════════════════════════ -->
+<!-- ═══ COTIZADOR PRO PAGE ═══════════════════════════════════════════════ -->
+<div class="pg" id="pg-cotp">
+<style>
+.cotp-card{background:#fff;border-radius:16px;border:2px solid #E2E8F0;overflow:hidden;transition:all .2s;cursor:pointer}
+.cotp-card:hover{border-color:#7C3AED;box-shadow:0 8px 24px rgba(124,58,237,.12);transform:translateY(-2px)}
+.cotp-card.selected{border-color:#7C3AED;background:#FAFAFF}
+.cotp-ramo-btn{background:#F8FAFC;border:2px solid #E2E8F0;border-radius:14px;padding:16px 10px;cursor:pointer;text-align:center;transition:all .2s}
+.cotp-ramo-btn:hover{border-color:#7C3AED;background:#F5F3FF;transform:translateY(-2px)}
+.cotp-ramo-btn.active{border-color:#7C3AED;background:linear-gradient(135deg,#EDE9FE,#F5F3FF);box-shadow:0 4px 12px rgba(124,58,237,.2)}
+.cotp-step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;transition:all .3s;cursor:pointer;flex-shrink:0}
+.cotp-step-dot.done{background:#7C3AED;color:#fff}
+.cotp-step-dot.active{background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.4)}
+.cotp-step-dot.pending{background:#E2E8F0;color:#94A3B8}
+.cotp-ins-card{border:2px solid #E2E8F0;border-radius:12px;padding:12px;cursor:pointer;transition:all .15s;background:#fff}
+.cotp-ins-card:hover{border-color:#7C3AED;background:#FAFAFF}
+.cotp-ins-card.sel{border-color:#7C3AED;background:linear-gradient(135deg,#EDE9FE,#FAFAFF)}
+.cotp-result-card{background:#fff;border-radius:16px;border:2px solid #E2E8F0;overflow:hidden;transition:all .2s}
+.cotp-result-card.best{border-color:#15803D;box-shadow:0 8px 32px rgba(21,128,61,.15)}
+.cotp-result-card.selected{border-color:#7C3AED}
+.cotp-badge{display:inline-block;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.cotp-check{color:#15803D;font-weight:700}
+.cotp-x{color:#CBD5E1}
+.cotp-btn-primary{background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.cotp-btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(124,58,237,.3)}
+.cotp-btn-sec{background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:10px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.cotp-btn-sec:hover{background:#E2E8F0}
+</style>
+  <div style="max-width:1100px;margin:0 auto;padding:16px 12px">
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,#0F172A 0%,#1D4ED8 50%,#7C3AED 100%);border-radius:20px;padding:24px 28px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:rgba(255,255,255,.04);border-radius:50%"></div>
+      <div style="position:absolute;right:60px;bottom:-60px;width:120px;height:120px;background:rgba(255,255,255,.04);border-radius:50%"></div>
+      <div style="position:relative;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">🧮 Cotizador Pro <span style="font-size:11px;background:rgba(255,255,255,.15);border-radius:20px;padding:3px 12px;vertical-align:middle;letter-spacing:.5px">PRIVADO · ADMIN</span></div>
+          <div style="font-size:13px;opacity:.75;margin-top:4px">17 aseguradoras · 12 ramos · Panamá · Comparativo completo con informe</div>
+        </div>
+        <button onclick="cotpReset()" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer">🔄 Nueva cotización</button>
+      </div>
+      <!-- Progress Steps -->
+      <div style="display:flex;align-items:center;gap:0;margin-top:20px">
+        <div style="display:flex;align-items:center;gap:6px;flex:1" onclick="cotpGoStep(1)">
+          <div class="cotp-step-dot active" id="csd1">1</div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9)" id="csl1">Ramo</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5)">Tipo de seguro</div>
+          </div>
+          <div style="width:40px;height:2px;background:rgba(255,255,255,.2);border-radius:2px" id="csline1"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex:1" onclick="cotpGoStep(2)">
+          <div class="cotp-step-dot pending" id="csd2">2</div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6)" id="csl2">Datos</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4)">Cliente + asegurado</div>
+          </div>
+          <div style="width:40px;height:2px;background:rgba(255,255,255,.2);border-radius:2px" id="csline2"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex:1" onclick="cotpGoStep(3)">
+          <div class="cotp-step-dot pending" id="csd3">3</div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6)" id="csl3">Aseguradoras</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4)">Seleccionar</div>
+          </div>
+          <div style="width:40px;height:2px;background:rgba(255,255,255,.2);border-radius:2px" id="csline3"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px" onclick="cotpGoStep(4)">
+          <div class="cotp-step-dot pending" id="csd4">4</div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6)" id="csl4">Resultados</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4)">Comparativo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 1: RAMO ─────────────────────────────────────── -->
+    <div id="cotp-s1" style="display:block">
+      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;margin-bottom:16px">
+        <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:4px">¿Qué tipo de seguro deseas cotizar?</div>
+        <div style="font-size:12px;color:#64748B;margin-bottom:20px">Selecciona el ramo para comparar todas las aseguradoras disponibles en Panamá</div>
+        <div id="cotp-ramos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px"></div>
+      </div>
+      <!-- Client search -->
+      <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #E2E8F0">
+        <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#7C3AED;margin-bottom:14px">👤 Datos del cliente (opcional)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="fl ff"><label style="font-size:11px">Nombre completo</label><input class="fc" id="cotp-nombre" placeholder="Nombre del cliente" style="font-size:12px"></div>
+          <div class="fl ff"><label style="font-size:11px">Cédula / Pasaporte</label><input class="fc" id="cotp-cedula" placeholder="8-123-456" style="font-size:12px"></div>
+          <div class="fl ff"><label style="font-size:11px">Buscar en CRM</label>
+            <input class="fc" id="cotp-buscar" placeholder="Buscar cliente..." style="font-size:12px" oninput="cotpBuscar(this.value)">
+          </div>
+        </div>
+        <div id="cotp-buscar-res" style="margin-bottom:8px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="fl ff"><label style="font-size:11px">Teléfono</label><input class="fc" id="cotp-tel" placeholder="+507 6XXX-XXXX" style="font-size:12px" inputmode="tel"></div>
+          <div class="fl ff"><label style="font-size:11px">Email</label><input class="fc" id="cotp-email" type="email" placeholder="email@cliente.com" style="font-size:12px"></div>
+          <div class="fl ff"><label style="font-size:11px">F. nacimiento (auto-calcula edad)</label><input class="fc" id="cotp-dob" type="date" onchange="cotpCalcEdad()" style="font-size:12px"></div>
+        </div>
+        <div id="cotp-edad-display" style="font-size:11px;color:#7C3AED;font-weight:600;margin-top:6px"></div>
+        <div id="cotp-link-display" style="font-size:11px;color:#15803D;margin-top:4px"></div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: DATOS DEL RAMO ───────────────────────────── -->
+    <div id="cotp-s2" style="display:none">
+      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;margin-bottom:16px">
+        <div id="cotp-ramo-badge" style="display:inline-flex;align-items:center;gap:8px;border-radius:12px;padding:8px 16px;margin-bottom:16px;font-weight:800;font-size:15px"></div>
+        <div id="cotp-ramo-fields"></div>
+        <!-- Hijo/hija -->
+        <div style="background:#F0FDF4;border:2px solid #BBF7D0;border-radius:12px;padding:14px;margin-top:14px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:700;color:#15803D;font-size:13px">
+            <input type="checkbox" id="cotp-es-hijo" onchange="cotpToggleHijo()" style="width:18px;height:18px;accent-color:#15803D">
+            👶 ¿La cotización es SOLO para hijo/hija (menor de edad)?
+          </label>
+          <div id="cotp-hijo-sec" style="display:none;margin-top:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+              <div class="fl ff"><label style="font-size:11px">Nombre del menor</label><input class="fc" id="cotp-hijo-nom" placeholder="Nombre" style="font-size:12px"></div>
+              <div class="fl ff"><label style="font-size:11px">Género</label>
+                <select class="fc" id="cotp-hijo-gen" style="font-size:12px">
+                  <option value="">— Seleccionar —</option>
+                  <option value="masculino">👦 Masculino</option>
+                  <option value="femenino">👧 Femenino</option>
+                </select>
+              </div>
+              <div class="fl ff"><label style="font-size:11px">Fecha de nacimiento</label>
+                <input class="fc" id="cotp-hijo-dob" type="date" onchange="cotpCalcHijoEdad2()" style="font-size:12px">
+              </div>
+            </div>
+            <div id="cotp-hijo-edad-msg2" style="font-size:11px;color:#15803D;font-weight:700;margin-top:8px"></div>
+          </div>
+        </div>
+        <!-- Forma pago -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+          <div class="fl ff"><label style="font-size:11px">Forma de pago</label>
+            <select class="fc" id="cotp-fpago" style="font-size:12px">
+              <option value="anual">Anual (1 pago)</option>
+              <option value="semestral">Semestral (2 pagos/año)</option>
+              <option value="trimestral">Trimestral (4 pagos/año)</option>
+              <option value="mensual">Mensual (12 pagos/año)</option>
+            </select>
+          </div>
+          <div class="fl ff"><label style="font-size:11px">Moneda</label>
+            <select class="fc" id="cotp-moneda" style="font-size:12px"><option>USD — Dólares americanos</option></select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:18px">
+          <button class="cotp-btn-sec" onclick="cotpGoStep(1)">← Atrás</button>
+          <button class="cotp-btn-primary" onclick="cotpGoStep(3)" style="flex:1">Continuar → Seleccionar aseguradoras</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: ASEGURADORAS ─────────────────────────────── -->
+    <div id="cotp-s3" style="display:none">
+      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A">Selecciona las aseguradoras a comparar</div>
+            <div style="font-size:12px;color:#64748B;margin-top:2px" id="cotp-sel-count">0 aseguradoras seleccionadas</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="cotp-btn-sec" onclick="cotpToggleAll(false)" style="font-size:11px;padding:7px 14px">✗ Ninguna</button>
+            <button class="cotp-btn-primary" onclick="cotpToggleAll(true)" style="padding:7px 14px;font-size:11px">✓ Todas</button>
+          </div>
+        </div>
+        <div id="cotp-aseg-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px"></div>
+        <div style="display:flex;gap:10px">
+          <button class="cotp-btn-sec" onclick="cotpGoStep(2)">← Atrás</button>
+          <button class="cotp-btn-primary" onclick="cotpCalcAll()" style="flex:1;font-size:14px;padding:14px">⚡ Calcular comparativo completo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: RESULTADOS ───────────────────────────────── -->
+    <div id="cotp-s4" style="display:none">
+      <!-- Action bar -->
+      <div style="background:#fff;border-radius:16px;padding:16px 20px;border:1px solid #E2E8F0;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#0F172A" id="cotp-res-title">Comparativo</div>
+          <div style="font-size:12px;color:#64748B" id="cotp-res-sub"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="cotp-btn-sec" onclick="cotpGoStep(3)" style="font-size:11px;padding:8px 14px">← Modificar</button>
+          <button onclick="cotpToggleView()" id="cotp-view-btn" style="background:#F1F5F9;border:1px solid #E2E8F0;border-radius:10px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer">📋 Vista tabla</button>
+          <button onclick="cotpGenReport()" style="background:#0F172A;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer">📄 Informe PDF</button>
+          <button onclick="cotpSendWA()" style="background:#25D366;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer">💬 WhatsApp</button>
+          <button onclick="cotpSendEmail()" style="background:#2563EB;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer">📧 Email</button>
+        </div>
+      </div>
+      <!-- Podium top 3 -->
+      <div id="cotp-podium" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
+      <!-- Sort controls -->
+      <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #E2E8F0;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:11px;color:#64748B;font-weight:700">ORDENAR:</span>
+        <button onclick="cotpSortBy('prima')" id="csort-prima" style="background:#7C3AED;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">💰 Precio ↑</button>
+        <button onclick="cotpSortBy('rating')" id="csort-rating" style="background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer">⭐ Rating</button>
+        <button onclick="cotpSortBy('com')" id="csort-com" style="background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer">💼 Comisión</button>
+        <div style="margin-left:auto;font-size:11px;color:#64748B" id="cotp-showing">0 resultados</div>
+      </div>
+      <!-- Cards view -->
+      <div id="cotp-cards-view">
+        <div id="cotp-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px"></div>
+      </div>
+      <!-- Table view (hidden by default) -->
+      <div id="cotp-table-view" style="display:none;background:#fff;border-radius:16px;border:1px solid #E2E8F0;overflow:hidden">
+        <div style="overflow-x:auto"><table id="cotp-table" style="width:100%;border-collapse:collapse"></table></div>
+      </div>
+      <!-- Save to CRM -->
+      <div style="background:#fff;border-radius:16px;padding:16px 20px;border:1px solid #E2E8F0;margin-top:16px">
+        <div style="font-size:12px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">💾 Guardar cotización en CRM</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+          <div class="fl ff"><label style="font-size:11px">Nombre prospecto</label><input class="fc" id="cotp-save-nom" style="font-size:12px"></div>
+          <div class="fl ff"><label style="font-size:11px">Aseguradora elegida</label><input class="fc" id="cotp-save-aseg" placeholder="Aseguradora seleccionada" style="font-size:12px"></div>
+          <button class="cotp-btn-primary" onclick="cotpSaveProspe()" style="padding:10px 20px">💾 Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- end max-width -->
+</div><!-- end pg-cotp -->
+<!-- end pg-cotp -->
+
 <!-- ═══ SUPABASE PATCH · JAC Seguros ═══ -->
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -4452,253 +4699,6 @@ function exportInformePDF(){
   <h3>Pólizas Activas</h3><table><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Comisión</th><th>Vence</th></tr>
   ${S.polizas.filter(p=>p.estado==='Vigente').map(p=>{const cl=S.clientes.find(c=>c.id===p.clienteId)||{nombre:'—'};return`<tr><td>${p.numero||'—'}</td><td>${cl.nombre}</td><td>${p.aseg||'—'}</td><td>${p.ramo||'—'}</td><td>$${fmt2(p.prima||0)}</td><td>$${fmt2(p.comision||0)}</td><td>${p.fechaFin||'—'}</td></tr>`;}).join('')}
   </table>
-<!-- MODAL: HISTORIAL COMPLETO EMAILS + WHATSAPP -->
-<div class="mo" id="mEmailHist"><div class="md" style="max-width:700px;width:95vw">
-  <div class="mh" style="background:linear-gradient(135deg,#1D4ED8,#25D366);color:#fff">
-    <h2 style="color:#fff">📬 Historial Completo de Comunicaciones</h2>
-    <button class="btn bgh" onclick="CM('mEmailHist')" style="color:#fff;border-color:rgba(255,255,255,0.3)">✕</button>
-  </div>
-  <div class="mb" style="padding:12px">
-    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
-      <div id="ehist-name" style="font-weight:700;font-size:14px;flex:1"></div>
-      <div style="display:flex;gap:6px">
-        <button class="btn bsm" onclick="filterEHist('all')" id="ehist-f-all" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8">📬 Todos</button>
-        <button class="btn bsm" onclick="filterEHist('email')" id="ehist-f-email">📧 Emails</button>
-        <button class="btn bsm" onclick="filterEHist('whatsapp')" id="ehist-f-wa">💬 WhatsApp</button>
-      </div>
-    </div>
-    <div id="ehist-count" style="font-size:11px;color:var(--mu);margin-bottom:8px"></div>
-    <div id="ehist-list" style="max-height:calc(80vh - 180px);overflow-y:auto;padding-right:4px"></div>
-  </div>
-  <div class="mf">
-    <button class="btn" onclick="CM('mEmailHist')">Cerrar</button>
-    <button class="btn bwa" onclick="openWAForCli(ehistCid)" style="display:none" id="ehist-wa-btn">💬 Nuevo WhatsApp</button>
-    <button class="btn bp" onclick="openComposeEmail('',ehistCname,'','')" style="display:none" id="ehist-em-btn">📧 Nuevo Email</button>
-  </div>
-</div></div>
-
-<!-- ═══ COTIZADOR PRO PAGE ═══════════════════════════════════════════════ -->
-<!-- ═══ COTIZADOR PRO PAGE ═══════════════════════════════════════════════ -->
-<div class="pg" id="pg-cotp">
-<style>
-.cotp-card{background:#fff;border-radius:16px;border:2px solid #E2E8F0;overflow:hidden;transition:all .2s;cursor:pointer}
-.cotp-card:hover{border-color:#7C3AED;box-shadow:0 8px 24px rgba(124,58,237,.12);transform:translateY(-2px)}
-.cotp-card.selected{border-color:#7C3AED;background:#FAFAFF}
-.cotp-ramo-btn{background:#F8FAFC;border:2px solid #E2E8F0;border-radius:14px;padding:16px 10px;cursor:pointer;text-align:center;transition:all .2s}
-.cotp-ramo-btn:hover{border-color:#7C3AED;background:#F5F3FF;transform:translateY(-2px)}
-.cotp-ramo-btn.active{border-color:#7C3AED;background:linear-gradient(135deg,#EDE9FE,#F5F3FF);box-shadow:0 4px 12px rgba(124,58,237,.2)}
-.cotp-step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;transition:all .3s;cursor:pointer;flex-shrink:0}
-.cotp-step-dot.done{background:#7C3AED;color:#fff}
-.cotp-step-dot.active{background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;box-shadow:0 4px 10px rgba(124,58,237,.4)}
-.cotp-step-dot.pending{background:#E2E8F0;color:#94A3B8}
-.cotp-ins-card{border:2px solid #E2E8F0;border-radius:12px;padding:12px;cursor:pointer;transition:all .15s;background:#fff}
-.cotp-ins-card:hover{border-color:#7C3AED;background:#FAFAFF}
-.cotp-ins-card.sel{border-color:#7C3AED;background:linear-gradient(135deg,#EDE9FE,#FAFAFF)}
-.cotp-result-card{background:#fff;border-radius:16px;border:2px solid #E2E8F0;overflow:hidden;transition:all .2s}
-.cotp-result-card.best{border-color:#15803D;box-shadow:0 8px 32px rgba(21,128,61,.15)}
-.cotp-result-card.selected{border-color:#7C3AED}
-.cotp-badge{display:inline-block;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.3px}
-.cotp-check{color:#15803D;font-weight:700}
-.cotp-x{color:#CBD5E1}
-.cotp-btn-primary{background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
-.cotp-btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(124,58,237,.3)}
-.cotp-btn-sec{background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:10px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-.cotp-btn-sec:hover{background:#E2E8F0}
-</style>
-  <div style="max-width:1100px;margin:0 auto;padding:16px 12px">
-    <!-- HEADER -->
-    <div style="background:linear-gradient(135deg,#0F172A 0%,#1D4ED8 50%,#7C3AED 100%);border-radius:20px;padding:24px 28px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:rgba(255,255,255,.04);border-radius:50%"></div>
-      <div style="position:absolute;right:60px;bottom:-60px;width:120px;height:120px;background:rgba(255,255,255,.04);border-radius:50%"></div>
-      <div style="position:relative;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div>
-          <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">🧮 Cotizador Pro <span style="font-size:11px;background:rgba(255,255,255,.15);border-radius:20px;padding:3px 12px;vertical-align:middle;letter-spacing:.5px">PRIVADO · ADMIN</span></div>
-          <div style="font-size:13px;opacity:.75;margin-top:4px">17 aseguradoras · 12 ramos · Panamá · Comparativo completo con informe</div>
-        </div>
-        <button onclick="cotpReset()" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer">🔄 Nueva cotización</button>
-      </div>
-      <!-- Progress Steps -->
-      <div style="display:flex;align-items:center;gap:0;margin-top:20px">
-        <div style="display:flex;align-items:center;gap:6px;flex:1" onclick="cotpGoStep(1)">
-          <div class="cotp-step-dot active" id="csd1">1</div>
-          <div style="flex:1">
-            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9)" id="csl1">Ramo</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.5)">Tipo de seguro</div>
-          </div>
-          <div style="width:40px;height:2px;background:rgba(255,255,255,.2);border-radius:2px" id="csline1"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;flex:1" onclick="cotpGoStep(2)">
-          <div class="cotp-step-dot pending" id="csd2">2</div>
-          <div style="flex:1">
-            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6)" id="csl2">Datos</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.4)">Cliente + asegurado</div>
-          </div>
-          <div style="width:40px;height:2px;background:rgba(255,255,255,.2);border-radius:2px" id="csline2"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;flex:1" onclick="cotpGoStep(3)">
-          <div class="cotp-step-dot pending" id="csd3">3</div>
-          <div style="flex:1">
-            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6)" id="csl3">Aseguradoras</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.4)">Seleccionar</div>
-          </div>
-          <div style="width:40px;height:2px;background:rgba(255,255,255,.2);border-radius:2px" id="csline3"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px" onclick="cotpGoStep(4)">
-          <div class="cotp-step-dot pending" id="csd4">4</div>
-          <div>
-            <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6)" id="csl4">Resultados</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.4)">Comparativo</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── STEP 1: RAMO ─────────────────────────────────────── -->
-    <div id="cotp-s1" style="display:block">
-      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;margin-bottom:16px">
-        <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:4px">¿Qué tipo de seguro deseas cotizar?</div>
-        <div style="font-size:12px;color:#64748B;margin-bottom:20px">Selecciona el ramo para comparar todas las aseguradoras disponibles en Panamá</div>
-        <div id="cotp-ramos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px"></div>
-      </div>
-      <!-- Client search -->
-      <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #E2E8F0">
-        <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#7C3AED;margin-bottom:14px">👤 Datos del cliente (opcional)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
-          <div class="fl ff"><label style="font-size:11px">Nombre completo</label><input class="fc" id="cotp-nombre" placeholder="Nombre del cliente" style="font-size:12px"></div>
-          <div class="fl ff"><label style="font-size:11px">Cédula / Pasaporte</label><input class="fc" id="cotp-cedula" placeholder="8-123-456" style="font-size:12px"></div>
-          <div class="fl ff"><label style="font-size:11px">Buscar en CRM</label>
-            <input class="fc" id="cotp-buscar" placeholder="Buscar cliente..." style="font-size:12px" oninput="cotpBuscar(this.value)">
-          </div>
-        </div>
-        <div id="cotp-buscar-res" style="margin-bottom:8px"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-          <div class="fl ff"><label style="font-size:11px">Teléfono</label><input class="fc" id="cotp-tel" placeholder="+507 6XXX-XXXX" style="font-size:12px" inputmode="tel"></div>
-          <div class="fl ff"><label style="font-size:11px">Email</label><input class="fc" id="cotp-email" type="email" placeholder="email@cliente.com" style="font-size:12px"></div>
-          <div class="fl ff"><label style="font-size:11px">F. nacimiento (auto-calcula edad)</label><input class="fc" id="cotp-dob" type="date" onchange="cotpCalcEdad()" style="font-size:12px"></div>
-        </div>
-        <div id="cotp-edad-display" style="font-size:11px;color:#7C3AED;font-weight:600;margin-top:6px"></div>
-        <div id="cotp-link-display" style="font-size:11px;color:#15803D;margin-top:4px"></div>
-      </div>
-    </div>
-
-    <!-- ── STEP 2: DATOS DEL RAMO ───────────────────────────── -->
-    <div id="cotp-s2" style="display:none">
-      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;margin-bottom:16px">
-        <div id="cotp-ramo-badge" style="display:inline-flex;align-items:center;gap:8px;border-radius:12px;padding:8px 16px;margin-bottom:16px;font-weight:800;font-size:15px"></div>
-        <div id="cotp-ramo-fields"></div>
-        <!-- Hijo/hija -->
-        <div style="background:#F0FDF4;border:2px solid #BBF7D0;border-radius:12px;padding:14px;margin-top:14px">
-          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:700;color:#15803D;font-size:13px">
-            <input type="checkbox" id="cotp-es-hijo" onchange="cotpToggleHijo()" style="width:18px;height:18px;accent-color:#15803D">
-            👶 ¿La cotización es SOLO para hijo/hija (menor de edad)?
-          </label>
-          <div id="cotp-hijo-sec" style="display:none;margin-top:14px">
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-              <div class="fl ff"><label style="font-size:11px">Nombre del menor</label><input class="fc" id="cotp-hijo-nom" placeholder="Nombre" style="font-size:12px"></div>
-              <div class="fl ff"><label style="font-size:11px">Género</label>
-                <select class="fc" id="cotp-hijo-gen" style="font-size:12px">
-                  <option value="">— Seleccionar —</option>
-                  <option value="masculino">👦 Masculino</option>
-                  <option value="femenino">👧 Femenino</option>
-                </select>
-              </div>
-              <div class="fl ff"><label style="font-size:11px">Fecha de nacimiento</label>
-                <input class="fc" id="cotp-hijo-dob" type="date" onchange="cotpCalcHijoEdad2()" style="font-size:12px">
-              </div>
-            </div>
-            <div id="cotp-hijo-edad-msg2" style="font-size:11px;color:#15803D;font-weight:700;margin-top:8px"></div>
-          </div>
-        </div>
-        <!-- Forma pago -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
-          <div class="fl ff"><label style="font-size:11px">Forma de pago</label>
-            <select class="fc" id="cotp-fpago" style="font-size:12px">
-              <option value="anual">Anual (1 pago)</option>
-              <option value="semestral">Semestral (2 pagos/año)</option>
-              <option value="trimestral">Trimestral (4 pagos/año)</option>
-              <option value="mensual">Mensual (12 pagos/año)</option>
-            </select>
-          </div>
-          <div class="fl ff"><label style="font-size:11px">Moneda</label>
-            <select class="fc" id="cotp-moneda" style="font-size:12px"><option>USD — Dólares americanos</option></select>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:18px">
-          <button class="cotp-btn-sec" onclick="cotpGoStep(1)">← Atrás</button>
-          <button class="cotp-btn-primary" onclick="cotpGoStep(3)" style="flex:1">Continuar → Seleccionar aseguradoras</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── STEP 3: ASEGURADORAS ─────────────────────────────── -->
-    <div id="cotp-s3" style="display:none">
-      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-          <div>
-            <div style="font-size:15px;font-weight:800;color:#0F172A">Selecciona las aseguradoras a comparar</div>
-            <div style="font-size:12px;color:#64748B;margin-top:2px" id="cotp-sel-count">0 aseguradoras seleccionadas</div>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="cotp-btn-sec" onclick="cotpToggleAll(false)" style="font-size:11px;padding:7px 14px">✗ Ninguna</button>
-            <button class="cotp-btn-primary" onclick="cotpToggleAll(true)" style="padding:7px 14px;font-size:11px">✓ Todas</button>
-          </div>
-        </div>
-        <div id="cotp-aseg-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px"></div>
-        <div style="display:flex;gap:10px">
-          <button class="cotp-btn-sec" onclick="cotpGoStep(2)">← Atrás</button>
-          <button class="cotp-btn-primary" onclick="cotpCalcAll()" style="flex:1;font-size:14px;padding:14px">⚡ Calcular comparativo completo</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── STEP 4: RESULTADOS ───────────────────────────────── -->
-    <div id="cotp-s4" style="display:none">
-      <!-- Action bar -->
-      <div style="background:#fff;border-radius:16px;padding:16px 20px;border:1px solid #E2E8F0;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:15px;font-weight:800;color:#0F172A" id="cotp-res-title">Comparativo</div>
-          <div style="font-size:12px;color:#64748B" id="cotp-res-sub"></div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="cotp-btn-sec" onclick="cotpGoStep(3)" style="font-size:11px;padding:8px 14px">← Modificar</button>
-          <button onclick="cotpToggleView()" id="cotp-view-btn" style="background:#F1F5F9;border:1px solid #E2E8F0;border-radius:10px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer">📋 Vista tabla</button>
-          <button onclick="cotpGenReport()" style="background:#0F172A;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer">📄 Informe PDF</button>
-          <button onclick="cotpSendWA()" style="background:#25D366;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer">💬 WhatsApp</button>
-          <button onclick="cotpSendEmail()" style="background:#2563EB;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer">📧 Email</button>
-        </div>
-      </div>
-      <!-- Podium top 3 -->
-      <div id="cotp-podium" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
-      <!-- Sort controls -->
-      <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #E2E8F0;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span style="font-size:11px;color:#64748B;font-weight:700">ORDENAR:</span>
-        <button onclick="cotpSortBy('prima')" id="csort-prima" style="background:#7C3AED;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">💰 Precio ↑</button>
-        <button onclick="cotpSortBy('rating')" id="csort-rating" style="background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer">⭐ Rating</button>
-        <button onclick="cotpSortBy('com')" id="csort-com" style="background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer">💼 Comisión</button>
-        <div style="margin-left:auto;font-size:11px;color:#64748B" id="cotp-showing">0 resultados</div>
-      </div>
-      <!-- Cards view -->
-      <div id="cotp-cards-view">
-        <div id="cotp-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px"></div>
-      </div>
-      <!-- Table view (hidden by default) -->
-      <div id="cotp-table-view" style="display:none;background:#fff;border-radius:16px;border:1px solid #E2E8F0;overflow:hidden">
-        <div style="overflow-x:auto"><table id="cotp-table" style="width:100%;border-collapse:collapse"></table></div>
-      </div>
-      <!-- Save to CRM -->
-      <div style="background:#fff;border-radius:16px;padding:16px 20px;border:1px solid #E2E8F0;margin-top:16px">
-        <div style="font-size:12px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">💾 Guardar cotización en CRM</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
-          <div class="fl ff"><label style="font-size:11px">Nombre prospecto</label><input class="fc" id="cotp-save-nom" style="font-size:12px"></div>
-          <div class="fl ff"><label style="font-size:11px">Aseguradora elegida</label><input class="fc" id="cotp-save-aseg" placeholder="Aseguradora seleccionada" style="font-size:12px"></div>
-          <button class="cotp-btn-primary" onclick="cotpSaveProspe()" style="padding:10px 20px">💾 Guardar</button>
-        </div>
-      </div>
-    </div>
-  </div><!-- end max-width -->
-</div><!-- end pg-cotp -->
-<!-- end pg-cotp -->
-
 </body></html>`);
   w.document.close();w.print();
 }
