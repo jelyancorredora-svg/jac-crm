@@ -866,8 +866,9 @@ body.dark .mu{color:var(--dark-mu);}
       </div></div>
     </div>
   </div>
-  <div class="mf">
+  <div class="mf" style="flex-wrap:wrap;gap:6px">
     <button class="btn" onclick="CM('mcem')">Cancelar</button>
+    <button class="btn bsm" style="background:#EEF4FF;color:#1D4ED8;border-color:#C7D7FF;font-size:11px" onclick="CM('mcem');if(cemEntityId&&cemEntityType==='cliente'||cemEntityType==='prospecto')openFullHistory(cemEntityId)">📬 Ver historial</button>
     <button class="btn bcy" onclick="sendEmailViaMailto()">📨 Abrir app de correo</button>
     <button class="btn bp" onclick="sendEmailViaEJS()">📧 Enviar vía EmailJS</button>
   </div>
@@ -1017,16 +1018,18 @@ body.dark .mu{color:var(--dark-mu);}
         <div style="font-size:10px;color:var(--mu);margin-top:2px">💡 Usa *texto* para negrita y _texto_ para cursiva en WhatsApp.</div>
       </div>
       <div>
-        <div style="font-weight:600;font-size:11px;color:var(--mu);margin-bottom:5px;display:flex;align-items:center;gap:6px">
-          📋 Historial reciente
+        <div style="font-weight:600;font-size:11px;color:var(--mu);margin-bottom:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          📋 Historial completo de comunicaciones
           <span id="wap-hist-cnt" style="background:#E7F8EE;color:#128C7E;border-radius:10px;padding:1px 7px;font-size:10px"></span>
+          <span style="font-size:10px;color:#128C7E;font-style:italic">▼ clic para leer cada mensaje</span>
         </div>
-        <div id="wap-hist" style="max-height:120px;overflow-y:auto"></div>
+        <div id="wap-hist" style="max-height:420px;overflow-y:auto"></div>
       </div>
     </div>
   </div>
-  <div class="mf">
+  <div class="mf" style="flex-wrap:wrap;gap:6px">
     <button class="btn" onclick="CM('mwap')">Cancelar</button>
+    <button class="btn bsm" style="background:#E7F8EE;color:#128C7E;border-color:#B2DFC9;font-size:11px" onclick="CM('mwap');if(waComposeCid)openFullHistory(waComposeCid)">📬 Ver historial completo</button>
     <button class="btn" style="background:#25D366;color:#fff;border-color:#25D366;font-weight:700" onclick="sendWAMsg()">💬 Enviar Mensaje</button>
   </div>
   <div style="padding:8px 14px 12px;border-top:1px solid #d4f0dd">
@@ -2053,29 +2056,16 @@ function openWAForCli(cid){
   SVal('wap-msg',defMsg);
   const histWA=(c.historialWA||[]);
   const histAll=(c.historial||[]).filter(h=>h.tipo==='whatsapp'||h.tipo==='email');
-  const hist=[...histWA,...histAll].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  const histComms=(c.historialComms||[]);
+  const allIds=new Set([...histWA,...histComms].map(x=>x.id).filter(Boolean));
+  const extraHist=histAll.filter(h=>!allIds.has(h.id));
+  const hist=[...histComms,...histWA.filter(w=>!(histComms).some(x=>x.id&&x.id===w.id)),...extraHist].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
   const hDiv=document.getElementById('wap-hist');
   const hCnt=document.getElementById('wap-hist-cnt');
-  if(hCnt)hCnt.textContent=hist.length?hist.length+' mensaje'+( hist.length!==1?'s':''):'';
+  if(hCnt)hCnt.textContent=hist.length?hist.length+' comunicación'+(hist.length!==1?'es':''):'';
   if(hDiv){
     if(!hist.length){hDiv.innerHTML='<div style="font-size:11px;color:var(--mu);text-align:center;padding:8px">Sin mensajes previos</div>';}
-    else{
-      hDiv.innerHTML=hist.slice(0,10).map(e=>{
-        const isWA=e.tipo==='whatsapp'||!e.tipo;
-        const bg=isWA?'#E7F8EE':'#EEF4FF';
-        const bd=isWA?'#B2DFC9':'#C7D7FF';
-        const ic=isWA?'💬':'📧';
-        const clr=isWA?'#128C7E':'#1D4ED8';
-        const txt=e.mensaje||e.preview||e.notas||e.accion||e.msgType||'(sin contenido)';
-        return`<div style="background:${bg};border:1px solid ${bd};border-radius:8px;padding:8px 10px;margin-bottom:5px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-            <span style="font-weight:700;font-size:11px;color:${clr}">${ic} ${isWA?'WhatsApp':'Email'}</span>
-            <span style="font-size:10px;color:var(--mu)">${e.fecha||''}</span>
-          </div>
-          <div style="font-size:11px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;max-height:70px;overflow-y:auto">${esc(String(txt).slice(0,300))}</div>
-        </div>`;
-      }).join('');
-    }
+    else{hDiv.innerHTML=renderCommsHistory(hist);}
   }
   OM('mwap');
 }
@@ -2126,13 +2116,35 @@ function renderCommsHistory(entries,maxShow){
   if(!entries||!entries.length)return'<div style="font-size:11px;color:var(--mu);text-align:center;padding:10px">Sin comunicaciones registradas</div>';
   const sorted=entries.slice().sort((a,z)=>new Date(z.fecha||'2000-01-01')-new Date(a.fecha||'2000-01-01'));
   const shown=maxShow?sorted.slice(0,maxShow):sorted;
-  return shown.map(e=>{
-    const isWA=e.tipo==='whatsapp';
+  return shown.map((e,idx)=>{
+    const isWA=e.tipo==='whatsapp'||(!e.tipo&&(e.msgType==='WhatsApp'||e.msgType==='Manual'));
     const bg=isWA?'#E7F8EE':'#EEF4FF';
     const bc=isWA?'#25D366':'#1D4ED8';
     const icon=isWA?'💬':'📧';
-    return`<div style="background:${bg};border-radius:6px;padding:7px 10px;margin-bottom:5px;border-left:3px solid ${bc}"><div style="font-size:10px;color:var(--mu)">${fmt(e.fecha)} · ${isWA?'WhatsApp':'Email'}</div><div style="font-size:12px;font-weight:600">${icon} ${esc(e.accion||e.msgType||'Mensaje')}</div>${e.preview?`<div style="font-size:11px;color:var(--mu);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.preview)}</div>`:''}</div>`;
+    const tipo=isWA?'WhatsApp':'Email';
+    const titulo=e.accion||e.msgType||e.asunto||e.subject||tipo;
+    const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||'';
+    const uid2='ch_'+(e.id||idx)+'_'+Math.random().toString(36).slice(2,6);
+    return`<div id="${uid2}" style="background:${bg};border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid ${bc}">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleCommDetail('${uid2}')">
+        <div style="font-size:11px;font-weight:700;color:${bc}">${icon} ${esc(titulo)}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px;color:var(--mu)">${fmt(e.fecha)||e.fecha||''}</span>
+          <span style="font-size:11px;color:${bc}" id="${uid2}_arr">▼</span>
+        </div>
+      </div>
+      ${e.resultado?'<div style="font-size:10px;color:var(--mu);margin-top:2px">Para: '+esc(e.resultado)+'</div>':''} 
+      <div id="${uid2}_body" style="display:none;margin-top:6px;font-size:11px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,0.7);border-radius:4px;padding:6px;max-height:350px;overflow-y:auto">${cuerpo?esc(cuerpo):'<em style="color:var(--mu)">(sin contenido registrado)</em>'}</div>
+    </div>`;
   }).join('');
+}
+function toggleCommDetail(id){
+  const body=document.getElementById(id+'_body');
+  const arr=document.getElementById(id+'_arr');
+  if(!body)return;
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  if(arr)arr.textContent=open?'▼':'▲';
 }
 function openWAForPolCli(polId,cliId,msgType){
   const pol=GP(polId);const cl=GC(cliId);
@@ -2157,7 +2169,7 @@ _Jely An Castro Pérez · 📞 +507 6292-6010_`;}
   if(hCnt)hCnt.textContent=hist.length?hist.length+' mensajes':'';
   if(hDiv){
     if(!hist.length){hDiv.innerHTML='<div style="font-size:11px;color:var(--mu);text-align:center;padding:8px">Sin mensajes previos</div>';}
-    else{hDiv.innerHTML=renderCommsHistory(hist,6);}
+    else{hDiv.innerHTML=renderCommsHistory(hist);}
   }
   OM('mwap');
 }
@@ -2516,7 +2528,11 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
   if(!ps.length)h+=`<div style="font-size:12px;color:var(--mu);text-align:center;padding:12px">Sin pólizas.<br><button class="btn bsm bp" onclick="OP_forClient('${id}')" style="margin-top:6px">+ Nueva Póliza</button></div>`;
   if((c.archivos||[]).length)h+=`<div class="dsec">Archivos (${c.archivos.length})</div><div style="padding:4px 0">${renderFLFull(c.archivos,id,'cliente')}</div>${renderFL(c.archivos,id,'cliente')}`;
   const allComms=[...(c.historialComms||[]),...(c.historialWA||[]).filter(w=>!(c.historialComms||[]).some(x=>x.id&&x.id===w.id)),...(c.historialEmail||[]).filter(e=>!(c.historialComms||[]).some(x=>x.id&&x.id===e.id))];
-  if(allComms.length){h+=`<div class="dsec">Comunicaciones (${allComms.length})</div>${renderCommsHistory(allComms)}`;}
+  if(allComms.length){h+=`<div class="dsec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+    <span>Comunicaciones (${allComms.length})</span>
+    <button class="btn bsm bp" onclick="openFullHistory('${c.id}')" style="font-size:10px;padding:2px 10px">📬 Ver historial completo</button>
+  </div>
+  <div style="max-height:600px;overflow-y:auto">${renderCommsHistory(allComms)}</div>`;}
   openDP(h,c.nombre);
 }
 function setClientStatus(clientId,status){
@@ -4264,7 +4280,32 @@ function exportInformePDF(){
   <div><span class="stat"><b>${pol.length}</b><br>Total Pólizas</span><span class="stat"><b>${vigentes}</b><br>Vigentes</span><span class="stat"><b>$${fmt2(totalPrima)}</b><br>Prima Total</span><span class="stat"><b>$${fmt2(totalCom)}</b><br>Comisión Total</span></div>
   <h3>Pólizas Activas</h3><table><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Comisión</th><th>Vence</th></tr>
   ${S.polizas.filter(p=>p.estado==='Vigente').map(p=>{const cl=S.clientes.find(c=>c.id===p.clienteId)||{nombre:'—'};return`<tr><td>${p.numero||'—'}</td><td>${cl.nombre}</td><td>${p.aseg||'—'}</td><td>${p.ramo||'—'}</td><td>$${fmt2(p.prima||0)}</td><td>$${fmt2(p.comision||0)}</td><td>${p.fechaFin||'—'}</td></tr>`;}).join('')}
-  </table></body></html>`);
+  </table>
+<!-- MODAL: HISTORIAL COMPLETO EMAILS + WHATSAPP -->
+<div class="mo" id="mEmailHist"><div class="md" style="max-width:700px;width:95vw">
+  <div class="mh" style="background:linear-gradient(135deg,#1D4ED8,#25D366);color:#fff">
+    <h2 style="color:#fff">📬 Historial Completo de Comunicaciones</h2>
+    <button class="btn bgh" onclick="CM('mEmailHist')" style="color:#fff;border-color:rgba(255,255,255,0.3)">✕</button>
+  </div>
+  <div class="mb" style="padding:12px">
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+      <div id="ehist-name" style="font-weight:700;font-size:14px;flex:1"></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn bsm" onclick="filterEHist('all')" id="ehist-f-all" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8">📬 Todos</button>
+        <button class="btn bsm" onclick="filterEHist('email')" id="ehist-f-email">📧 Emails</button>
+        <button class="btn bsm" onclick="filterEHist('whatsapp')" id="ehist-f-wa">💬 WhatsApp</button>
+      </div>
+    </div>
+    <div id="ehist-count" style="font-size:11px;color:var(--mu);margin-bottom:8px"></div>
+    <div id="ehist-list" style="max-height:calc(80vh - 180px);overflow-y:auto;padding-right:4px"></div>
+  </div>
+  <div class="mf">
+    <button class="btn" onclick="CM('mEmailHist')">Cerrar</button>
+    <button class="btn bwa" onclick="openWAForCli(ehistCid)" style="display:none" id="ehist-wa-btn">💬 Nuevo WhatsApp</button>
+    <button class="btn bp" onclick="openComposeEmail('',ehistCname,'','')" style="display:none" id="ehist-em-btn">📧 Nuevo Email</button>
+  </div>
+</div></div>
+</body></html>`);
   w.document.close();w.print();
 }
 
@@ -5295,6 +5336,66 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
   },2000);
 });
+
+
+// ─── Full Communications History Modal ────────────────────────────────────
+let ehistCid=null,ehistCname='',ehistFilter='all',ehistData=[];
+function openFullHistory(cid){
+  const c=GC(cid);if(!c||!c.id)return;
+  ehistCid=cid;ehistCname=c.nombre||'';
+  const histComms=c.historialComms||[];
+  const histWA=c.historialWA||[];
+  const histOld=(c.historial||[]).filter(h=>h.tipo==='whatsapp'||h.tipo==='email');
+  const seenIds=new Set([...histComms,...histWA].map(x=>x.id).filter(Boolean));
+  const extras=histOld.filter(h=>!seenIds.has(h.id));
+  ehistData=[...histComms,...histWA.filter(w=>!histComms.some(x=>x.id&&x.id===w.id)),...extras].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  ehistFilter='all';
+  const nm=document.getElementById('ehist-name');if(nm)nm.textContent=c.nombre||'';
+  const waBtn=document.getElementById('ehist-wa-btn');if(waBtn)waBtn.style.display=c.cel||c.tel?'':'none';
+  const emBtn=document.getElementById('ehist-em-btn');if(emBtn)emBtn.style.display=c.email?'':'none';
+  renderEHist();
+  OM('mEmailHist');
+}
+function filterEHist(f){
+  ehistFilter=f;
+  ['all','email','wa'].forEach(x=>{const b=document.getElementById('ehist-f-'+x);if(b){b.style.background='';b.style.color='';b.style.borderColor='';}});
+  const active=document.getElementById('ehist-f-'+f);
+  if(active){active.style.background='#1D4ED8';active.style.color='#fff';active.style.borderColor='#1D4ED8';}
+  renderEHist();
+}
+function renderEHist(){
+  let data=ehistData;
+  if(ehistFilter==='email')data=data.filter(e=>e.tipo==='email'||e.msgType==='Email');
+  else if(ehistFilter==='whatsapp')data=data.filter(e=>e.tipo==='whatsapp'||e.msgType==='WhatsApp'||e.msgType==='Manual'||!e.tipo);
+  const cnt=document.getElementById('ehist-count');if(cnt)cnt.textContent=data.length+' comunicación'+(data.length!==1?'es':'')+' encontrada'+(data.length!==1?'s':'');
+  const list=document.getElementById('ehist-list');
+  if(!list)return;
+  if(!data.length){list.innerHTML='<div style="text-align:center;padding:30px;color:var(--mu)">Sin comunicaciones en esta categoría</div>';return;}
+  list.innerHTML=data.map((e,idx)=>{
+    const isWA=e.tipo==='whatsapp'||(!e.tipo&&(e.msgType==='WhatsApp'||e.msgType==='Manual'));
+    const bg=isWA?'#E7F8EE':'#EEF4FF';
+    const bc=isWA?'#25D366':'#1D4ED8';
+    const icon=isWA?'💬':'📧';
+    const tipo=isWA?'WhatsApp':'Email';
+    const titulo=e.accion||e.subject||e.msgType||tipo;
+    const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||'';
+    const uid2='eh_'+idx+'_'+Math.random().toString(36).slice(2,5);
+    const dest=e.resultado||e.para||'';
+    return`<div style="background:${bg};border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:4px solid ${bc}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer" onclick="toggleCommDetail('${uid2}')">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:${bc};margin-bottom:2px">${icon} ${esc(titulo)}</div>
+          ${dest?'<div style="font-size:10px;color:var(--mu)">Para: '+esc(dest)+'</div>':''} 
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="font-size:10px;color:var(--mu);white-space:nowrap">${fmt(e.fecha)||e.fecha||''}</span>
+          <span style="font-size:11px;color:${bc}" id="${uid2}_arr">▼</span>
+        </div>
+      </div>
+      <div id="${uid2}_body" style="display:none;margin-top:8px;font-size:12px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,0.75);border-radius:6px;padding:8px 10px;border:1px solid ${bc}33;line-height:1.5">${cuerpo?esc(cuerpo):'<em style="color:var(--mu)">(sin contenido de mensaje registrado)</em>'}</div>
+    </div>`;
+  }).join('');
+}
 
 </script>
 </body>
