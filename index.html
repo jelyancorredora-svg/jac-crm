@@ -1999,6 +1999,23 @@ function loadS(){
       return p;
     }
   }catch(e){console.error('loadS:',e);}
+}
+
+// ─── Global Error Shield ─────────────────────────────────────────
+window.addEventListener('error',function(ev){
+  const msg=(ev.message||'').toLowerCase();
+  // Suppress known non-critical errors
+  if(msg.includes('script error')||msg.includes('resizeobserver'))return;
+  console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
+  // Only show toast for user-visible errors
+  if(msg.includes('cannot read')||msg.includes('is not a function')||msg.includes('is not defined')){
+    if(typeof toast==='function')toast('⚠️ Error recuperado — recarga si persiste','err');
+  }
+});
+window.addEventListener('unhandledrejection',function(ev){
+  console.warn('[JAC CRM Promise]',ev.reason);
+  ev.preventDefault();
+
   const n=JSON.parse(JSON.stringify(D));
   n.pagos=[];n.plantillas=[];n.metas={mensual:0,anual:0};n.darkMode=false;
   return n;
@@ -2141,6 +2158,18 @@ function waL(tel,msg,codPais){
 }
 // Al hacer click: registra automáticamente en historial Y abre WhatsApp
 function waClick(url,entityType,entityId,msgType,nombre,mensaje){
+  // Log communication with FULL message body
+  try{
+    const entry={id:'WA'+uid(),fecha:new Date().toISOString(),tipo:'whatsapp',
+      msgType:msgType||'WhatsApp',accion:`💬 WA enviado: ${msgType||'Mensaje'}`,
+      mensaje:mensaje||'',para:nombre||'',resultado:'Enviado'};
+    if(entityType==='cliente'&&entityId){
+      const c=GC(entityId);if(c){if(!c.historialComms)c.historialComms=[];c.historialComms.unshift(entry);save();}
+    }else if(entityType==='prospecto'&&entityId){
+      const p=(S.prospectos||[]).find(x=>x.id===entityId);
+      if(p){if(!p.historialComms)p.historialComms=[];p.historialComms.unshift(entry);save();}
+    }
+  }catch(e){console.warn('[waClick log]',e);}
   if(!url)return;
   const today=TODAY.toISOString().split('T')[0];
   const preview=(mensaje||'').substring(0,80)+(mensaje&&mensaje.length>80?'…':'');
@@ -2313,7 +2342,7 @@ function renderCommsHistory(entries,maxShow){
     const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||'';
     const uid2='ch_'+(e.id||idx)+'_'+Math.random().toString(36).slice(2,6);
     return`<div id="${uid2}" style="background:${bg};border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid ${bc}">
-      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleCommDetail('${uid2}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px" onclick="toggleCommDetail('${uid2}')">
         <div style="font-size:11px;font-weight:700;color:${bc}">${icon} ${esc(titulo)}</div>
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:10px;color:var(--mu)">${fmt(e.fecha)||e.fecha||''}</span>
@@ -2327,11 +2356,15 @@ function renderCommsHistory(entries,maxShow){
 }
 function toggleCommDetail(id){
   const body=document.getElementById(id+'_body');
-  const arr=document.getElementById(id+'_arr');
+  const btn=document.getElementById(id+'_btn');
   if(!body)return;
   const open=body.style.display==='block';
   body.style.display=open?'none':'block';
-  if(arr)arr.textContent=open?'▼':'▲';
+  if(btn){
+    const cur=btn.textContent;
+    if(open){btn.textContent=cur.replace('▲','▼').replace('Ocultar','Ver mensaje');}
+    else{btn.textContent=cur.replace('▼','▲').replace('Ver mensaje','Ocultar');}
+  }
 }
 function openWAForPolCli(polId,cliId,msgType){
   const pol=GP(polId);const cl=GC(cliId);
@@ -5793,18 +5826,20 @@ function renderEHist(){
     const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||'';
     const uid2='eh_'+idx+'_'+Math.random().toString(36).slice(2,5);
     const dest=e.resultado||e.para||'';
-    return`<div style="background:${bg};border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:4px solid ${bc}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer" onclick="toggleCommDetail('${uid2}')">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:${bc};margin-bottom:2px">${icon} ${esc(titulo)}</div>
-          ${dest?'<div style="font-size:10px;color:var(--mu)">Para: '+esc(dest)+'</div>':''} 
+    const cuerpoDisplay=cuerpo?esc(cuerpo).replace(/\n/g,'<br>'):'<em style="color:var(--mu)">(sin contenido registrado)</em>';
+    const hasCuerpo=!!cuerpo;
+    return`<div style="background:${bg};border-radius:10px;padding:10px 12px;margin-bottom:10px;border-left:4px solid ${bc};box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:700;color:${bc}">${icon} ${esc(titulo)}</span>
+            ${dest?'<span style="font-size:10px;background:rgba(0,0,0,0.07);padding:1px 6px;border-radius:10px;color:#555">→ '+esc(dest)+'</span>':''}
+          </div>
+          <div style="font-size:10px;color:var(--mu)">${fmt(e.fecha)||e.fecha||''}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span style="font-size:10px;color:var(--mu);white-space:nowrap">${fmt(e.fecha)||e.fecha||''}</span>
-          <span style="font-size:11px;color:${bc}" id="${uid2}_arr">▼</span>
-        </div>
+        <button onclick="toggleCommDetail('${uid2}')" style="background:${bc}22;border:none;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:11px;color:${bc};font-weight:600;flex-shrink:0" id="${uid2}_btn">${hasCuerpo?'Ver mensaje ▼':'Sin cuerpo'}</button>
       </div>
-      <div id="${uid2}_body" style="display:none;margin-top:8px;font-size:12px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,0.75);border-radius:6px;padding:8px 10px;border:1px solid ${bc}33;line-height:1.5">${cuerpo?esc(cuerpo):'<em style="color:var(--mu)">(sin contenido de mensaje registrado)</em>'}</div>
+      <div id="${uid2}_body" style="display:none;margin-top:10px;font-size:12px;color:#1a1a1a;line-height:1.6;background:rgba(255,255,255,0.85);border-radius:8px;padding:12px 14px;border:1px solid ${bc}44;word-break:break-word;max-height:400px;overflow-y:auto">${cuerpoDisplay}</div>
     </div>`;
   }).join('');
 }
@@ -6768,11 +6803,39 @@ function cotpLoadModelos(){
   });
   document.getElementById('cotp-val').value='';
 }
+function cotpCalcDeprec(){
+  const anio=parseInt(document.getElementById('cotp-anio')?.value)||0;
+  const valActual=parseFloat(document.getElementById('cotp-val')?.value)||0;
+  const display=document.getElementById('cotp-deprec-display');
+  const info=document.getElementById('cotp-deprec-info');
+  if(!anio||!valActual){
+    if(display)display.textContent='— ingresa año y valor —';
+    if(info)info.textContent='';
+    return;
+  }
+  const hoy=new Date().getFullYear();
+  const edad=Math.max(0,hoy-anio);
+  // Tabla depreciación SSRP Panamá: 20% primer año, 15% c/año siguiente, mín 20% valor
+  let deprecPct=0;
+  if(edad===0)deprecPct=0;
+  else if(edad===1)deprecPct=0.20;
+  else if(edad===2)deprecPct=0.32;
+  else if(edad===3)deprecPct=0.42;
+  else if(edad===4)deprecPct=0.50;
+  else if(edad===5)deprecPct=0.57;
+  else deprecPct=Math.min(0.80,0.57+(edad-5)*0.05);
+  const valDeprec=Math.round(valActual*(1-deprecPct));
+  if(display)display.textContent='$'+valDeprec.toLocaleString('es-PA')+' USD';
+  if(info)info.textContent=`Antigüedad: ${edad} año${edad!==1?'s':''} · Depreciación: ${Math.round(deprecPct*100)}% · Tabla SSRP Panamá`;
+  // Store for cotpCalcAll
+  window._cotpValDeprec=valDeprec;
+  window._cotpValActual=valActual;
+}
 function cotpSetValorFromModelo(){
   const v=document.getElementById('cotp-modelo')?.value;
   const valEl=document.getElementById('cotp-val');if(!valEl)return;
   if(v&&!isNaN(Number(v))){
-    valEl.value=v;
+    valEl.value=v;cotpCalcDeprec();
     valEl.style.background='#f0fdf4';
     setTimeout(()=>{valEl.style.background='';},1200);
   }
@@ -6792,17 +6855,37 @@ function cotpBuildRamoFields(ramo){
           <option value="terceros">Terceros</option>
         </select>
       </div>
-      <div class="fl ff"><label style="font-size:11px">Valor del vehículo (USD)</label><input class="fc" id="cotp-val" type="number" placeholder="15000" style="font-size:12px"></div>
-      <div class="fl ff"><label style="font-size:11px">Año del vehículo</label><input class="fc" id="cotp-anio" type="number" placeholder="2023" style="font-size:12px"></div>
       <div class="fl ff"><label style="font-size:11px">Marca</label>
         <select class="fc" id="cotp-marca" onchange="cotpLoadModelos()" style="font-size:12px">
           <option value="">— Seleccionar marca —</option>
         </select>
       </div>
-      <div class="fl ff"><label style="font-size:11px">Modelo</label>
+      <div class="fl ff" style="grid-column:1/-1"><label style="font-size:11px">Modelo</label>
         <select class="fc" id="cotp-modelo" onchange="cotpSetValorFromModelo()" style="font-size:12px">
           <option value="">— Seleccionar modelo —</option>
         </select>
+      </div>
+      <div class="fl ff"><label style="font-size:11px">Año del vehículo</label>
+        <input class="fc" id="cotp-anio" type="number" placeholder="${new Date().getFullYear()}" min="1990" max="${new Date().getFullYear()}" oninput="cotpCalcDeprec()" style="font-size:12px">
+      </div>
+      <div class="fl ff"><label style="font-size:11px">Valor actual del vehículo (USD)</label>
+        <input class="fc" id="cotp-val" type="number" placeholder="15000" oninput="cotpCalcDeprec()" style="font-size:12px">
+      </div>
+      <div class="fl ff" style="grid-column:1/-1">
+        <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:10px;font-weight:700;color:#16A34A;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Valor depreciado calculado</div>
+            <div style="font-size:18px;font-weight:800;color:#15803D" id="cotp-deprec-display">— ingresa año y valor —</div>
+            <div style="font-size:10px;color:#6B7280" id="cotp-deprec-info"></div>
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:10px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Calcular prima sobre</label>
+            <select class="fc" id="cotp-val-mode" style="font-size:12px" onchange="cotpCalcDeprec()">
+              <option value="actual">Valor actual (nuevo/precio)</option>
+              <option value="depreciado">Valor depreciado (SSRP)</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>`;
   }else if(ramo==='salud'){
@@ -7003,7 +7086,13 @@ function cotpCalcAll(){
   const ramo=cotpSelectedRamo;
   const rateMap=COTP_RATES[ramo]||{};
   const sub=document.getElementById('cotp-sub')?.value||cotpSelectedSub||null;
-  const val=parseFloat(document.getElementById('cotp-val')?.value)||0;
+  const _valMode=document.getElementById('cotp-val-mode')?.value||'actual';
+  const _rawVal=parseFloat(document.getElementById('cotp-val')?.value)||0;
+  const val=(_valMode==='depreciado'&&window._cotpValDeprec)?window._cotpValDeprec:_rawVal;
+  if(cotpSelectedRamo==='autos'&&_valMode==='depreciado'&&window._cotpValDeprec){
+    // Note for display
+    window._cotpValUsed=window._cotpValDeprec;
+  }else{window._cotpValUsed=_rawVal;}
   const deps=parseInt(document.getElementById('cotp-deps')?.value)||0;
   const numViaj=parseInt(document.getElementById('cotp-viaj')?.value)||1;
   const fpago=document.getElementById('cotp-fpago')?.value||'anual';
