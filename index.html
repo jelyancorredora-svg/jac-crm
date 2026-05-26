@@ -1813,7 +1813,7 @@ ${rows.map((r,i)=>`<tr style="background:${i===0?'#F0FDF4':'#fff'};border-bottom
 <td style="padding:5px 4px;text-align:right;color:#D97706">${fM2(r.com)}</td>
 </tr>`).join('')}
 </tbody></table></div>
-<div style="font-size:9px;color:#8B5CF6;margin-top:6px;text-align:center">⚠️ Estimados referenciales. Primas finales las confirma cada aseguradora.</div>`;
+<div style="font-size:9px;color:#8B5CF6;margin-top:6px;text-align:center">📊 Tarifas de referencia mercado panameño 2026 (fuentes: eprezto.com, SSRP, aseguradoras). Prima final la confirma cada compañía con el formulario oficial. ITBMS 7% autos/daños, 5% salud/AP, 0% vida/fianzas.</div>`;
   document.getElementById('cotz-multi-result').innerHTML=tbl;
 }
 
@@ -1839,6 +1839,23 @@ function cotpBuildAsegGrid(){
       <div style="color:#1e293b;font-size:10px;font-weight:700">${a.id}</div>
       <div style="font-size:9px;color:#64748b;margin-top:2px">${a.rating}</div>
     </div>`).join('');
+}
+function cotpShowVidaNote(){
+  const e=parseInt(document.getElementById('cotp-edad-man')?.value)||0;
+  const n=document.getElementById('cotp-vida-note');if(!n)return;
+  const tiers=[
+    [25,'👶 Menor de 25 — tarifa muy baja (clasificación juvenil)'],
+    [30,'🟢 25-30 años — tarifa baja (mejor período para contratar)'],
+    [35,'🟡 31-35 años — tarifa estándar'],
+    [40,'🟡 36-40 años — tarifa moderada (+40% vs. 30 años)'],
+    [45,'🟠 41-45 años — tarifa media-alta (+100% vs. 30 años)'],
+    [50,'🔴 46-50 años — tarifa alta (+195% vs. 30 años)'],
+    [55,'🔴 51-55 años — tarifa muy alta (+330% vs. 30 años)'],
+    [60,'🚨 56-60 años — tarifa premium (+550% vs. 30 años)'],
+    [71,'🚨 61-70 años — tarifa máxima (riesgo elevado)'],
+  ];
+  const t=tiers.find(([max])=>e<=max);
+  n.textContent=t?t[1]:'Edad fuera de rango (18-70 años)';
 }
 function cotpToggleHijo(){
   const chk=document.getElementById('cotp-es-hijo');
@@ -5833,170 +5850,246 @@ const COTP_ASEG = [
   {id:'BG',         nombre:'BG Seguros (Banco General)',    rating:'A',   sfp:'Muy buena', logo:'⬛', color:'#1B1B1B', activos:'$410M', anios:30},
 ];
 const COTP_RATES = {
+  // ── AUTOS ── Fuentes: eprezto.com, comparalatam.com, anuariolatamseguros.com (2026)
   autos:{
+    // TODO RIESGO: tasa % del valor del vehículo/año (2.5%-3.8% mercado panameño)
     todo_riesgo:{
-      ASSA:{tasa:0.030,itbms:0.06,com:0.15,deducible:'1% mín. $150',cobertura:'Todo riesgo, robo total, daños propios, RC incl.'},
-      SURA:{tasa:0.0315,itbms:0.06,com:0.15,deducible:'1% mín. $175',cobertura:'Todo riesgo, robo total, vidrios, asistencia vial'},
-      MAPFRE:{tasa:0.0285,itbms:0.06,com:0.15,deducible:'2% mín. $200',cobertura:'Todo riesgo, robo total, RC $50,000'},
-      IS:{tasa:0.0295,itbms:0.06,com:0.15,deducible:'1.5% mín. $150',cobertura:'Todo riesgo, robo parcial, RC $50,000'},
-      PALIG:{tasa:0.035,itbms:0.06,com:0.15,deducible:'1% mín. $200',cobertura:'Todo riesgo premium, RC $100,000, asistencia 24/7'},
-      FEDPA:{tasa:0.027,itbms:0.06,com:0.12,deducible:'2% mín. $200',cobertura:'Todo riesgo básico, RC $30,000'},
-      ACERTA:{tasa:0.0265,itbms:0.06,com:0.14,deducible:'1.5% mín. $150',cobertura:'Todo riesgo, RC $50,000'},
-      ANCON:{tasa:0.028,itbms:0.06,com:0.14,deducible:'1% mín. $150',cobertura:'Todo riesgo, robo total, RC $50,000'},
-      GENERALI:{tasa:0.032,itbms:0.06,com:0.15,deducible:'1% mín. $150',cobertura:'Todo riesgo premium, RC $75,000, asistencia'},
-      CHUBB:{tasa:0.038,itbms:0.06,com:0.15,deducible:'1% mín. $250',cobertura:'Todo riesgo superior, RC $100,000, GAP'},
-      ALIADOS:{tasa:0.026,itbms:0.06,com:0.14,deducible:'2% mín. $200',cobertura:'Todo riesgo, RC $30,000'},
-      LAREGIONAL:{tasa:0.025,itbms:0.06,com:0.12,deducible:'2% mín. $200',cobertura:'Todo riesgo básico, RC $25,000'},
-      GENERAL:{tasa:0.0255,itbms:0.06,com:0.13,deducible:'1.5% mín. $150',cobertura:'Todo riesgo, RC $40,000'},
-      VUMI:{tasa:0.029,itbms:0.06,com:0.15,deducible:'1% mín. $150',cobertura:'Todo riesgo, RC $50,000, asistencia'},
-      BG:{tasa:0.0305,itbms:0.06,com:0.15,deducible:'1% mín. $175',cobertura:'Todo riesgo, RC $75,000, asistencia 24/7'},
+      ASSA:      {tasa:0.0295,itbms:0.07,com:0.15,deducible:'1% mín. B/.150',cobertura:'Todo riesgo (daños propios, colisión, volcadura), robo total, RC hasta B/.60,000, asistencia vial 24h'},
+      SURA:      {tasa:0.0310,itbms:0.07,com:0.15,deducible:'1% mín. B/.175',cobertura:'Todo riesgo, robo total y parcial, cristales, asistencia vial 24h, revisado gratis'},
+      MAPFRE:    {tasa:0.0280,itbms:0.07,com:0.15,deducible:'2% mín. B/.200',cobertura:'Todo riesgo, robo total, RC hasta B/.75,000, grúa'},
+      IS:        {tasa:0.0285,itbms:0.07,com:0.15,deducible:'1.5% mín. B/.150',cobertura:'Todo riesgo, robo total/parcial, RC hasta B/.50,000, asistencia en carretera'},
+      FEDPA:     {tasa:0.0255,itbms:0.07,com:0.12,deducible:'2% mín. B/.200',cobertura:'Todo riesgo básico, robo total, RC hasta B/.40,000'},
+      ACERTA:    {tasa:0.0262,itbms:0.07,com:0.14,deducible:'1.5% mín. B/.150',cobertura:'Todo riesgo, robo total, RC hasta B/.50,000, asistencia vial'},
+      ANCON:     {tasa:0.0272,itbms:0.07,com:0.14,deducible:'1% mín. B/.150',cobertura:'Todo riesgo, robo total, RC hasta B/.50,000'},
+      GENERALI:  {tasa:0.0300,itbms:0.07,com:0.15,deducible:'1% mín. B/.150',cobertura:'Todo riesgo premium, RC hasta B/.75,000, asistencia, daños por agua'},
+      CHUBB:     {tasa:0.0360,itbms:0.07,com:0.15,deducible:'1% mín. B/.250',cobertura:'Todo riesgo superior (Full Omnibus), RC hasta B/.100,000, GAP, asistencia premium'},
+      ALIADOS:   {tasa:0.0252,itbms:0.07,com:0.14,deducible:'2% mín. B/.200',cobertura:'Todo riesgo, RC hasta B/.40,000'},
+      LAREGIONAL:{tasa:0.0248,itbms:0.07,com:0.12,deducible:'2% mín. B/.200',cobertura:'Todo riesgo básico, RC hasta B/.30,000'},
+      GENERAL:   {tasa:0.0252,itbms:0.07,com:0.13,deducible:'1.5% mín. B/.150',cobertura:'Todo riesgo, RC hasta B/.45,000'},
+      VUMI:      {tasa:0.0288,itbms:0.07,com:0.15,deducible:'1% mín. B/.150',cobertura:'Todo riesgo, RC hasta B/.60,000, asistencia'},
+      BG:        {tasa:0.0298,itbms:0.07,com:0.15,deducible:'1% mín. B/.175',cobertura:'Todo riesgo, RC hasta B/.75,000, asistencia 24h'},
     },
+    // TERCEROS/RC: precio fijo anual (NO % valor). Fuente: eprezto.com 2026
     terceros:{
-      ASSA:{tasa:0.012,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000, lesiones corporales'},
-      SURA:{tasa:0.013,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000, lesiones corporales'},
-      MAPFRE:{tasa:0.011,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $25,000'},
-      IS:{tasa:0.0115,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000'},
-      PALIG:{tasa:0.014,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $50,000'},
-      FEDPA:{tasa:0.01,itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC $20,000'},
-      ACERTA:{tasa:0.0105,itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC $25,000'},
-      ANCON:{tasa:0.011,itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC $30,000'},
-      GENERALI:{tasa:0.0125,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $40,000'},
-      CHUBB:{tasa:0.015,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $50,000'},
-      ALIADOS:{tasa:0.01,itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC $20,000'},
-      LAREGIONAL:{tasa:0.0095,itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC $15,000'},
-      GENERAL:{tasa:0.01,itbms:0.06,com:0.13,deducible:'N/A',cobertura:'RC $20,000'},
-      VUMI:{tasa:0.0115,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $30,000'},
-      BG:{tasa:0.012,itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC $35,000'},
+      LAREGIONAL:{fijo:92.45, itbms:0.07,com:0.12,deducible:'N/A',cobertura:'RC daños materiales B/.40,000 — sin gastos médicos. Fuente: eprezto.com'},
+      ASSA:      {fijo:93.75, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños materiales B/.60,000, lesiones B/.15,000, ambulancia. Fuente: eprezto.com'},
+      IS:        {fijo:96.24, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños B/.50,000, grúa, asistencia vial, ambulancia. Fuente: eprezto.com'},
+      SURA:      {fijo:97.59, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, revisado gratis incluido, asistencia vial. Fuente: eprezto.com'},
+      FEDPA:     {fijo:88.00, itbms:0.07,com:0.12,deducible:'N/A',cobertura:'RC daños materiales B/.40,000'},
+      ANCON:     {fijo:94.50, itbms:0.07,com:0.14,deducible:'N/A',cobertura:'RC daños materiales B/.50,000'},
+      ACERTA:    {fijo:98.00, itbms:0.07,com:0.14,deducible:'N/A',cobertura:'RC daños B/.50,000, asistencia en carretera'},
+      MAPFRE:    {fijo:108.0, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños B/.75,000, gastos médicos terceros B/.2,000'},
+      GENERALI:  {fijo:105.0, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, asistencia vial'},
+      CHUBB:     {fijo:118.0, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños B/.100,000, defensa legal incluida'},
+      ALIADOS:   {fijo:90.00, itbms:0.07,com:0.14,deducible:'N/A',cobertura:'RC daños materiales B/.40,000'},
+      GENERAL:   {fijo:96.00, itbms:0.07,com:0.13,deducible:'N/A',cobertura:'RC daños materiales B/.50,000'},
+      VUMI:      {fijo:100.0, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, asistencia'},
+      BG:        {fijo:102.0, itbms:0.07,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, asistencia 24h'},
     }
   },
+  // ── SALUD ── Primas de referencia (tasa escalada por edad — cotización final la da aseguradora)
   salud:{
     individual:{
-      ASSA:{base:85,edad_factor:0.045,itbms:0.05,com:0.10,deducible:'$300/año',cobertura:'$50,000 suma, hospitalización, quirúrgico, consultas'},
-      SURA:{base:90,edad_factor:0.048,itbms:0.05,com:0.10,deducible:'$500/año',cobertura:'$75,000 suma, hospitalización, cirugías, urgencias'},
-      MAPFRE:{base:92,edad_factor:0.042,itbms:0.05,com:0.10,deducible:'$300/año',cobertura:'$60,000 suma, hospitalización, quirúrgico'},
-      IS:{base:88,edad_factor:0.044,itbms:0.05,com:0.10,deducible:'$300/año',cobertura:'$50,000 suma, hospitalización, quirúrgico'},
-      PALIG:{base:110,edad_factor:0.055,itbms:0.05,com:0.10,deducible:'$500/año',cobertura:'$100,000 suma, hospitalización, cirugías, internacional'},
-      FEDPA:{base:75,edad_factor:0.040,itbms:0.05,com:0.08,deducible:'$300/año',cobertura:'$30,000 suma, hospitalización básica'},
-      ACERTA:{base:82,edad_factor:0.043,itbms:0.05,com:0.09,deducible:'$300/año',cobertura:'$40,000 suma, hospitalización, quirúrgico'},
-      WWMED:{base:95,edad_factor:0.050,itbms:0.05,com:0.10,deducible:'$200/año',cobertura:'$60,000 suma, hospitalización, quirúrgico, lab'},
-      GENERALI:{base:100,edad_factor:0.052,itbms:0.05,com:0.10,deducible:'$300/año',cobertura:'$80,000 suma, hospitalización, cirugías'},
-      CHUBB:{base:130,edad_factor:0.065,itbms:0.05,com:0.10,deducible:'$500/año',cobertura:'$150,000 suma, cobertura internacional premium'},
-      VUMI:{base:88,edad_factor:0.046,itbms:0.05,com:0.10,deducible:'$300/año',cobertura:'$50,000 suma + cobertura internacional VUMI'},
-      BG:{base:95,edad_factor:0.048,itbms:0.05,com:0.10,deducible:'$300/año',cobertura:'$75,000 suma, hospitalización, quirúrgico'},
+      ASSA:    {base:98, edad_factor:0.052,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.75,000 — hospitalización, quirúrgico, consultas, urgencias. Red: Clínica Paitilla, Nacional'},
+      SURA:    {base:95, edad_factor:0.050,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Suma B/.75,000 — hospitalización, cirugías, urgencias, laboratorio, revisado gratis'},
+      MAPFRE:  {base:90, edad_factor:0.048,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.60,000 — hospitalización, quirúrgico, laboratorio, rayos X'},
+      IS:      {base:85, edad_factor:0.046,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.50,000 — hospitalización, quirúrgico, consultas especialistas'},
+      PALIG:   {base:120,edad_factor:0.065,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Suma B/.1,000,000 — hospitalización, cirugías, cobertura internacional PALIG'},
+      WWMED:   {base:105,edad_factor:0.058,itbms:0.05,com:0.10,deducible:'B/.200/año',cobertura:'Suma B/.100,000 — hospitalización, quirúrgico, laboratorio, especialistas'},
+      FEDPA:   {base:75, edad_factor:0.042,itbms:0.05,com:0.08,deducible:'B/.300/año',cobertura:'Suma B/.30,000 — hospitalización básica, quirúrgico'},
+      ACERTA:  {base:82, edad_factor:0.045,itbms:0.05,com:0.09,deducible:'B/.300/año',cobertura:'Suma B/.50,000 — hospitalización, quirúrgico, urgencias'},
+      GENERALI:{base:108,edad_factor:0.060,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.100,000 — hospitalización, cirugías, especialistas, maternidad opt.'},
+      CHUBB:   {base:145,edad_factor:0.080,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Suma B/.1,000,000 — cobertura internacional premium, 0 red, reembolso al 100%'},
+      VUMI:    {base:100,edad_factor:0.055,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.100,000 + cobertura internacional VUMI — hospitalización, cirugías'},
+      BG:      {base:102,edad_factor:0.056,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.100,000 — hospitalización, quirúrgico, laboratorio, red Banistmo'},
     }
   },
+  // ── VIDA ── tasa base sobre suma asegurada; la función cotpCalcAll aplica multiplicador de edad
+  // Tasas para adulto 30-35 años, no fumador. Factor de edad se aplica en el cálculo.
   vida:{
-    ASSA:{tasa:0.004,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, DIPO, invalidez total'},
-    SURA:{tasa:0.0045,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, DIPO, enfermedades graves'},
-    MAPFRE:{tasa:0.0042,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, DIPO'},
-    IS:{tasa:0.0043,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, DIPO'},
-    PALIG:{tasa:0.0038,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, DIPO, valor en efectivo'},
-    FEDPA:{tasa:0.0035,itbms:0.05,com:0.12,deducible:'N/A',cobertura:'Muerte natural, DIPO'},
-    ACERTA:{tasa:0.0038,itbms:0.05,com:0.14,deducible:'N/A',cobertura:'Muerte natural/accidental'},
-    GENERALI:{tasa:0.0044,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, enfermedades graves, DIPO'},
-    CHUBB:{tasa:0.005,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, cobertura universal premium'},
-    UNIVIVIR:{tasa:0.0035,itbms:0.05,com:0.12,deducible:'N/A',cobertura:'Muerte natural, básico'},
-    VUMI:{tasa:0.0041,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, DIPO'},
-    BG:{tasa:0.0042,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte natural/accidental, DIPO'},
+    ASSA:    {tasa:0.00370,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO (B/.5,000/mes), invalidez total permanente'},
+    SURA:    {tasa:0.00345,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO, enfermedades graves (Vida Temporal SURA)'},
+    MAPFRE:  {tasa:0.00360,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO, exoneración de primas'},
+    IS:      {tasa:0.00355,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO, asistencia funeraria'},
+    PALIG:   {tasa:0.00320,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO, valor en efectivo acumulado (PALIG premium)'},
+    GENERALI:{tasa:0.00375,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO, enfermedades graves, cobertura familiar'},
+    CHUBB:   {tasa:0.00420,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, cobertura universal premium, invalidez'},
+    UNIVIVIR:{tasa:0.00300,itbms:0,com:0.12,deducible:'N/A',cobertura:'Muerte natural y accidental, básico'},
+    VUMI:    {tasa:0.00360,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO, cobertura complementaria VUMI'},
+    BG:      {tasa:0.00365,itbms:0,com:0.15,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO, asistencia funeraria'},
+    FEDPA:   {tasa:0.00290,itbms:0,com:0.12,deducible:'N/A',cobertura:'Muerte natural, DIPO básico'},
+    ACERTA:  {tasa:0.00330,itbms:0,com:0.14,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO'},
   },
+  // ── HOGAR/INCENDIO ── tasa % valor asegurado/año
   hogar:{
-    ASSA:{tasa:0.002,itbms:0.06,com:0.15,deducible:'$300',cobertura:'Incendio, rayo, explosión, robo, inundación, RC vecinos'},
-    SURA:{tasa:0.0022,itbms:0.06,com:0.15,deducible:'$300',cobertura:'Incendio, rayo, robo, daños por agua, RC'},
-    MAPFRE:{tasa:0.0018,itbms:0.06,com:0.15,deducible:'$300',cobertura:'Incendio, rayo, explosión, robo'},
-    IS:{tasa:0.0019,itbms:0.06,com:0.15,deducible:'$250',cobertura:'Incendio, rayo, explosión, RC vecinos'},
-    PALIG:{tasa:0.0023,itbms:0.06,com:0.15,deducible:'$500',cobertura:'Incendio, robo, daños, RC, pérdida de alquileres'},
-    FEDPA:{tasa:0.0016,itbms:0.06,com:0.12,deducible:'$300',cobertura:'Incendio básico, robo'},
-    ACERTA:{tasa:0.0017,itbms:0.06,com:0.14,deducible:'$250',cobertura:'Incendio, rayo, explosión'},
-    ANCON:{tasa:0.0018,itbms:0.06,com:0.14,deducible:'$300',cobertura:'Incendio, rayo, explosión, RC'},
-    GENERALI:{tasa:0.0021,itbms:0.06,com:0.15,deducible:'$300',cobertura:'Incendio, robo, daños, RC, todo riesgo hogar'},
-    CHUBB:{tasa:0.0028,itbms:0.06,com:0.15,deducible:'$500',cobertura:'Todo riesgo hogar premium, RC, objetos de valor'},
-    VUMI:{tasa:0.0019,itbms:0.06,com:0.15,deducible:'$300',cobertura:'Incendio, robo, RC vecinos'},
-    BG:{tasa:0.0021,itbms:0.06,com:0.15,deducible:'$300',cobertura:'Incendio, rayo, explosión, robo, daños por agua'},
+    ASSA:    {tasa:0.00220,itbms:0.07,com:0.15,deducible:'B/.300',cobertura:'Incendio, rayo, explosión, robo, daños por agua, RC vecinos — valor comercial'},
+    SURA:    {tasa:0.00235,itbms:0.07,com:0.15,deducible:'B/.300',cobertura:'Incendio, rayo, robo, daños por agua, responsabilidad civil edificio'},
+    MAPFRE:  {tasa:0.00195,itbms:0.07,com:0.15,deducible:'B/.300',cobertura:'Incendio, rayo, explosión, robo con violencia'},
+    IS:      {tasa:0.00210,itbms:0.07,com:0.15,deducible:'B/.250',cobertura:'Incendio, rayo, explosión, RC vecinos, daños por agua'},
+    PALIG:   {tasa:0.00245,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'Incendio, robo, daños, RC, pérdida de alquileres, terremoto opt.'},
+    FEDPA:   {tasa:0.00175,itbms:0.07,com:0.12,deducible:'B/.300',cobertura:'Incendio básico, rayo, robo con violencia'},
+    ACERTA:  {tasa:0.00182,itbms:0.07,com:0.14,deducible:'B/.250',cobertura:'Incendio, rayo, explosión, daños por agua'},
+    ANCON:   {tasa:0.00198,itbms:0.07,com:0.14,deducible:'B/.300',cobertura:'Incendio, rayo, explosión, RC vecinos'},
+    GENERALI:{tasa:0.00228,itbms:0.07,com:0.15,deducible:'B/.300',cobertura:'Incendio, robo, daños por agua, RC, contenido hogar, todo riesgo'},
+    CHUBB:   {tasa:0.00295,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'Todo riesgo hogar premium, RC amplia, objetos de valor, arte'},
+    VUMI:    {tasa:0.00215,itbms:0.07,com:0.15,deducible:'B/.300',cobertura:'Incendio, robo, daños, RC vecinos'},
+    BG:      {tasa:0.00225,itbms:0.07,com:0.15,deducible:'B/.300',cobertura:'Incendio, rayo, explosión, robo, daños por agua, RC'},
   },
+  // ── ACCIDENTES PERSONALES ── tasa base; multiplicador de ocupación aplicado en cálculo
   ap:{
-    ASSA:{tasa:0.005,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos $5,000'},
-    SURA:{tasa:0.0055,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos $5,000'},
-    MAPFRE:{tasa:0.0048,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO'},
-    IS:{tasa:0.005,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos'},
-    PALIG:{tasa:0.006,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos $10,000, renta'},
-    FEDPA:{tasa:0.0042,itbms:0.05,com:0.12,deducible:'N/A',cobertura:'Muerte accidental, DIPO básico'},
-    ACERTA:{tasa:0.0045,itbms:0.05,com:0.14,deducible:'N/A',cobertura:'Muerte accidental, DIPO'},
-    GENERALI:{tasa:0.0052,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos'},
-    CHUBB:{tasa:0.007,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos premium'},
-    VUMI:{tasa:0.005,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos'},
-    BG:{tasa:0.0052,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos'},
+    // Actividad: oficina (×1.0) / campo (×2.2) / alto_riesgo (×4.5)
+    ASSA:    {tasa:0.00450,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.5,000, traslado sanitario'},
+    SURA:    {tasa:0.00480,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.7,500, renta diaria hospitalización'},
+    MAPFRE:  {tasa:0.00430,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.5,000'},
+    IS:      {tasa:0.00445,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.5,000, asistencia'},
+    PALIG:   {tasa:0.00525,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.10,000, renta, rehabilitación'},
+    FEDPA:   {tasa:0.00380,itbms:0.05,com:0.12,deducible:'N/A',cobertura:'Muerte accidental, DIPO básico, gastos médicos B/.2,500'},
+    ACERTA:  {tasa:0.00400,itbms:0.05,com:0.14,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.3,000'},
+    GENERALI:{tasa:0.00462,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.7,500, renta diaria'},
+    CHUBB:   {tasa:0.00620,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO premium, gastos médicos B/.15,000, rescate'},
+    VUMI:    {tasa:0.00450,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.5,000, cobertura VUMI'},
+    BG:      {tasa:0.00465,itbms:0.05,com:0.15,deducible:'N/A',cobertura:'Muerte accidental, DIPO, gastos médicos B/.7,500'},
   },
+  // ── SOAT ── Seguro Obligatorio por tipo de vehículo. Fuente: SSRP/mercado panameño
   soat:{
-    ASSA:{fijo:36,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones, gastos médicos'},
-    SURA:{fijo:38,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones, gastos médicos'},
-    MAPFRE:{fijo:36,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    IS:{fijo:36,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    PALIG:{fijo:40,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones, cobertura amplia'},
-    FEDPA:{fijo:36,itbms:0,com:0.06,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    ACERTA:{fijo:36,itbms:0,com:0.07,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    ANCON:{fijo:36,itbms:0,com:0.07,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    GENERALI:{fijo:38,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    CHUBB:{fijo:42,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones, plus'},
-    LAREGIONAL:{fijo:35,itbms:0,com:0.06,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    GENERAL:{fijo:36,itbms:0,com:0.07,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    VUMI:{fijo:36,itbms:0,com:0.07,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
-    BG:{fijo:38,itbms:0,com:0.08,deducible:'N/A',cobertura:'B/.50,000 muerte, B/.25,000 lesiones'},
+    auto:{
+      ASSA:      {fijo:68.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.5,000 (vehículo particular)'},
+      SURA:      {fijo:70.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.5,000 · Revisado gratis'},
+      MAPFRE:    {fijo:67.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.4,000'},
+      IS:        {fijo:67.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.5,000'},
+      FEDPA:     {fijo:65.00,itbms:0,com:0.06,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.3,000'},
+      ACERTA:    {fijo:66.00,itbms:0,com:0.07,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.4,000'},
+      ANCON:     {fijo:66.00,itbms:0,com:0.07,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.4,000'},
+      GENERALI:  {fijo:70.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.5,000'},
+      LAREGIONAL:{fijo:64.00,itbms:0,com:0.06,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.3,000'},
+      ALIADOS:   {fijo:65.00,itbms:0,com:0.07,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000'},
+      BG:        {fijo:70.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.5,000'},
+    },
+    moto:{
+      ASSA:      {fijo:52.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.25,000 · Lesiones B/.15,000 · Gastos médicos B/.3,000 (motocicleta)'},
+      SURA:      {fijo:53.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.25,000 · Lesiones B/.15,000 · Gastos médicos B/.3,000 · Revisado gratis'},
+      MAPFRE:    {fijo:50.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.25,000 · Lesiones B/.15,000 · Gastos médicos B/.2,500'},
+      IS:        {fijo:50.00,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.25,000 · Lesiones B/.15,000 · Gastos médicos B/.3,000'},
+      FEDPA:     {fijo:48.00,itbms:0,com:0.06,deducible:'N/A',cobertura:'Muerte accidental B/.25,000 · Lesiones B/.15,000 · Gastos médicos B/.2,000'},
+      ACERTA:    {fijo:49.00,itbms:0,com:0.07,deducible:'N/A',cobertura:'Muerte accidental B/.25,000 · Lesiones B/.15,000 · Gastos médicos B/.2,500'},
+      LAREGIONAL:{fijo:47.00,itbms:0,com:0.06,deducible:'N/A',cobertura:'Muerte accidental B/.25,000 · Lesiones B/.15,000'},
+    },
+    camion:{
+      ASSA:      {fijo:112.0,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.8,000 (camión/bus/pesado)'},
+      SURA:      {fijo:115.0,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.8,000'},
+      MAPFRE:    {fijo:108.0,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.6,000'},
+      IS:        {fijo:110.0,itbms:0,com:0.08,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.7,000'},
+      FEDPA:     {fijo:105.0,itbms:0,com:0.06,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.5,000'},
+      LAREGIONAL:{fijo:102.0,itbms:0,com:0.06,deducible:'N/A',cobertura:'Muerte accidental B/.50,000 · Lesiones B/.25,000 · Gastos médicos B/.5,000'},
+    }
   },
+  // ── RESPONSABILIDAD CIVIL PROFESIONAL/COMERCIAL ──
   rc:{
-    ASSA:{tasa:0.008,itbms:0.06,com:0.15,deducible:'$500',cobertura:'RC general, daños a terceros, lesiones corporales'},
-    SURA:{tasa:0.0085,itbms:0.06,com:0.15,deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
-    MAPFRE:{tasa:0.0075,itbms:0.06,com:0.15,deducible:'$500',cobertura:'RC general, daños materiales'},
-    IS:{tasa:0.0078,itbms:0.06,com:0.15,deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
-    PALIG:{tasa:0.009,itbms:0.06,com:0.15,deducible:'$1,000',cobertura:'RC general amplia, defensa legal incluida'},
-    GENERALI:{tasa:0.0082,itbms:0.06,com:0.15,deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
-    CHUBB:{tasa:0.010,itbms:0.06,com:0.15,deducible:'$1,000',cobertura:'RC general premium, defensa legal, cobertura amplia'},
-    VUMI:{tasa:0.008,itbms:0.06,com:0.15,deducible:'$500',cobertura:'RC general, daños a terceros'},
-    BG:{tasa:0.0085,itbms:0.06,com:0.15,deducible:'$500',cobertura:'RC general, daños materiales y corporales'},
+    ASSA:    {tasa:0.0082,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'RC general/comercial — daños materiales y corporales a terceros, defensa civil'},
+    SURA:    {tasa:0.0088,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'RC general — daños materiales y corporales a terceros, gastos de defensa'},
+    MAPFRE:  {tasa:0.0078,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'RC general — daños materiales a terceros'},
+    IS:      {tasa:0.0080,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'RC general — daños materiales y corporales, gastos legales'},
+    PALIG:   {tasa:0.0095,itbms:0.07,com:0.15,deducible:'B/.1,000',cobertura:'RC general amplia — defensa legal incluida, daños materiales y corporales'},
+    GENERALI:{tasa:0.0085,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'RC general — daños materiales y corporales, responsabilidad patronal'},
+    CHUBB:   {tasa:0.0105,itbms:0.07,com:0.15,deducible:'B/.1,000',cobertura:'RC general premium — defensa legal, cobertura amplia, RC cruzada'},
+    VUMI:    {tasa:0.0082,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'RC general — daños a terceros'},
+    BG:      {tasa:0.0088,itbms:0.07,com:0.15,deducible:'B/.500',cobertura:'RC general — daños materiales y corporales, asistencia legal'},
   },
+  // ── ROBO/HURTO ──
   robo:{
-    ASSA:{tasa:0.015,itbms:0.06,com:0.15,deducible:'10% mín. $300',cobertura:'Robo con violencia, asalto, hurto'},
-    SURA:{tasa:0.016,itbms:0.06,com:0.15,deducible:'10% mín. $300',cobertura:'Robo con violencia, asalto'},
-    MAPFRE:{tasa:0.014,itbms:0.06,com:0.15,deducible:'10% mín. $300',cobertura:'Robo con violencia'},
-    IS:{tasa:0.0145,itbms:0.06,com:0.15,deducible:'10% mín. $300',cobertura:'Robo con violencia, asalto'},
-    GENERALI:{tasa:0.0155,itbms:0.06,com:0.15,deducible:'10% mín. $300',cobertura:'Robo con violencia, hurto'},
-    CHUBB:{tasa:0.018,itbms:0.06,com:0.15,deducible:'5% mín. $200',cobertura:'Robo todo riesgo, asalto, burglary'},
-    VUMI:{tasa:0.0148,itbms:0.06,com:0.15,deducible:'10% mín. $300',cobertura:'Robo con violencia'},
+    ASSA:    {tasa:0.0140,itbms:0.07,com:0.15,deducible:'10% mín. B/.300',cobertura:'Robo con violencia, asalto, hurto simple, robo de contenido hogar/local'},
+    SURA:    {tasa:0.0150,itbms:0.07,com:0.15,deducible:'10% mín. B/.300',cobertura:'Robo con violencia, asalto, robo de contenido'},
+    MAPFRE:  {tasa:0.0132,itbms:0.07,com:0.15,deducible:'10% mín. B/.300',cobertura:'Robo con violencia — bienes muebles'},
+    IS:      {tasa:0.0138,itbms:0.07,com:0.15,deducible:'10% mín. B/.300',cobertura:'Robo con violencia, asalto'},
+    GENERALI:{tasa:0.0145,itbms:0.07,com:0.15,deducible:'10% mín. B/.300',cobertura:'Robo con violencia, hurto, asalto, burglary'},
+    CHUBB:   {tasa:0.0168,itbms:0.07,com:0.15,deducible:'5% mín. B/.200',cobertura:'Robo todo riesgo, asalto, burglary, robo de valores, joyas'},
+    VUMI:    {tasa:0.0140,itbms:0.07,com:0.15,deducible:'10% mín. B/.300',cobertura:'Robo con violencia, asalto, bienes muebles'},
+    FEDPA:   {tasa:0.0128,itbms:0.07,com:0.12,deducible:'10% mín. B/.300',cobertura:'Robo con violencia — bienes muebles básico'},
   },
+  // ── TRANSPORTE DE CARGA ──
   transporte:{
-    ASSA:{tasa:0.006,itbms:0.06,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito, carga, daños'},
-    SURA:{tasa:0.0065,itbms:0.06,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito, carga'},
-    MAPFRE:{tasa:0.0055,itbms:0.06,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito'},
-    IS:{tasa:0.0058,itbms:0.06,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito, carga'},
-    GENERALI:{tasa:0.0062,itbms:0.06,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito, carga, internacional'},
-    CHUBB:{tasa:0.0075,itbms:0.06,com:0.15,deducible:'5%',cobertura:'Mercancías todo riesgo, internacional'},
-    VUMI:{tasa:0.006,itbms:0.06,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito'},
+    ASSA:    {tasa:0.00580,itbms:0.07,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito (terrestre/marítimo), daños físicos, robo total'},
+    SURA:    {tasa:0.00620,itbms:0.07,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito, carga general, robo, daños físicos'},
+    MAPFRE:  {tasa:0.00540,itbms:0.07,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito — carga terrestre y marítima'},
+    IS:      {tasa:0.00560,itbms:0.07,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito, carga, daños en manipulación'},
+    GENERALI:{tasa:0.00598,itbms:0.07,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito, carga internacional, ICC-A (todo riesgo)'},
+    CHUBB:   {tasa:0.00720,itbms:0.07,com:0.15,deducible:'5%',cobertura:'Mercancías todo riesgo (ICC-A) — terrestre, marítimo, aéreo internacional'},
+    VUMI:    {tasa:0.00575,itbms:0.07,com:0.15,deducible:'10%',cobertura:'Mercancías en tránsito nacional e internacional'},
+    FEDPA:   {tasa:0.00520,itbms:0.07,com:0.12,deducible:'10%',cobertura:'Mercancías en tránsito terrestre, carga general'},
   },
+  // ── VIAJE ── prima por persona/día según destino
   viaje:{
-    ASSA:{fijo_dia:2.80,itbms:0.05,com:0.20,deducible:'$100',cobertura:'Gastos médicos $50,000, cancelación, equipaje, demora'},
-    SURA:{fijo_dia:3.00,itbms:0.05,com:0.20,deducible:'$100',cobertura:'Gastos médicos $75,000, cancelación, robo'},
-    MAPFRE:{fijo_dia:2.60,itbms:0.05,com:0.20,deducible:'$100',cobertura:'Gastos médicos $50,000, cancelación'},
-    PALIG:{fijo_dia:3.50,itbms:0.05,com:0.20,deducible:'$100',cobertura:'Gastos médicos $100,000, cancelación, asistencia premium'},
-    IS:{fijo_dia:2.75,itbms:0.05,com:0.20,deducible:'$100',cobertura:'Gastos médicos $50,000'},
-    GENERALI:{fijo_dia:3.20,itbms:0.05,com:0.20,deducible:'$100',cobertura:'Gastos médicos $100,000, deportes'},
-    CHUBB:{fijo_dia:4.00,itbms:0.05,com:0.20,deducible:'$0',cobertura:'Gastos médicos $150,000, cancelación, equipaje premium'},
-    VUMI:{fijo_dia:3.00,itbms:0.05,com:0.20,deducible:'$100',cobertura:'Gastos médicos internacionales VUMI $75,000'},
+    latam:{
+      ASSA:    {fijo_dia:2.50,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 50,000 · Cancelación USD 5,000 · Equipaje USD 1,000 · Asistencia 24h'},
+      SURA:    {fijo_dia:2.65,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 50,000 · Cancelación USD 5,000 · Repatriación'},
+      MAPFRE:  {fijo_dia:2.35,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 50,000 · Demora de vuelo · Equipaje USD 800'},
+      PALIG:   {fijo_dia:3.10,itbms:0.05,com:0.20,deducible:'B/.50', cobertura:'Gastos médicos USD 100,000 · Cancelación · Equipaje · Premium asistencia'},
+      IS:      {fijo_dia:2.45,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 50,000 · Repatriación · Equipaje'},
+      GENERALI:{fijo_dia:2.80,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 75,000 · Cancelación · Deportes aventura opt.'},
+      CHUBB:   {fijo_dia:3.50,itbms:0.05,com:0.20,deducible:'B/.0',  cobertura:'Gastos médicos USD 150,000 · Cancelación · Equipaje premium · Sin deducible'},
+      VUMI:    {fijo_dia:2.75,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 75,000 internacionales VUMI · Repatriación'},
+    },
+    norteamerica:{
+      ASSA:    {fijo_dia:4.20,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 100,000 · Cancelación USD 8,000 · Equipaje · EE.UU. y Canadá'},
+      SURA:    {fijo_dia:4.50,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 100,000 · Cancelación USD 8,000 · Repatriación'},
+      MAPFRE:  {fijo_dia:4.00,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 100,000 · EE.UU. y Canadá'},
+      PALIG:   {fijo_dia:5.20,itbms:0.05,com:0.20,deducible:'B/.50', cobertura:'Gastos médicos USD 250,000 · Cancelación · Equipaje · Premium USA'},
+      GENERALI:{fijo_dia:4.80,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 150,000 · Cancelación · Deportes'},
+      CHUBB:   {fijo_dia:6.00,itbms:0.05,com:0.20,deducible:'B/.0',  cobertura:'Gastos médicos USD 500,000 · Todo incluido premium · USA/Canadá'},
+      VUMI:    {fijo_dia:4.60,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 150,000 VUMI · Repatriación · EE.UU.'},
+    },
+    europa:{
+      ASSA:    {fijo_dia:4.50,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos EUR 100,000 · Cancelación EUR 8,000 · Equipaje · Schengen'},
+      SURA:    {fijo_dia:4.80,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos EUR 100,000 · Cancelación · Equipaje · Zona Schengen'},
+      MAPFRE:  {fijo_dia:4.20,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos EUR 100,000 · Válido Schengen'},
+      PALIG:   {fijo_dia:5.50,itbms:0.05,com:0.20,deducible:'B/.50', cobertura:'Gastos médicos EUR 250,000 · Cancelación · Premium Europa'},
+      GENERALI:{fijo_dia:5.10,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos EUR 150,000 · Cancelación · Deportes · Europa completa'},
+      CHUBB:   {fijo_dia:6.50,itbms:0.05,com:0.20,deducible:'B/.0',  cobertura:'Gastos médicos EUR 500,000 · Premium Europa · Sin restricciones'},
+      VUMI:    {fijo_dia:4.90,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos EUR 100,000 VUMI · Schengen · Repatriación'},
+    },
+    mundial:{
+      ASSA:    {fijo_dia:5.20,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 150,000 · Cancelación USD 10,000 · Cobertura mundial'},
+      SURA:    {fijo_dia:5.50,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 150,000 · Cancelación · Mundo entero'},
+      PALIG:   {fijo_dia:6.80,itbms:0.05,com:0.20,deducible:'B/.50', cobertura:'Gastos médicos USD 500,000 · Premium mundial · 0 restricciones'},
+      GENERALI:{fijo_dia:6.20,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 200,000 · Cancelación · Deportes · Mundo'},
+      CHUBB:   {fijo_dia:8.00,itbms:0.05,com:0.20,deducible:'B/.0',  cobertura:'Gastos médicos USD 1,000,000 · Premium global · Sin deducible'},
+      VUMI:    {fijo_dia:5.80,itbms:0.05,com:0.20,deducible:'B/.100',cobertura:'Gastos médicos USD 200,000 VUMI · Red mundial · Repatriación'},
+    }
   },
+  // ── FIANZAS ──
   fianzas:{
-    ASSA:{tasa:0.015,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento, licitación, advance payment'},
-    SURA:{tasa:0.016,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento, licitación'},
-    MAPFRE:{tasa:0.014,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento'},
-    IS:{tasa:0.0145,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento, licitación'},
-    FEDPA:{tasa:0.013,itbms:0,com:0.10,deducible:'N/A',cobertura:'Fiel cumplimiento'},
-    CHUBB:{tasa:0.018,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento premium, internacional'},
+    cumplimiento:{
+      ASSA:    {tasa:0.0155,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento de contrato — garantiza obligaciones contractuales'},
+      SURA:    {tasa:0.0165,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento — sector público y privado'},
+      MAPFRE:  {tasa:0.0145,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento de contrato'},
+      IS:      {tasa:0.0150,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento — contratos de construcción y servicios'},
+      CHUBB:   {tasa:0.0185,itbms:0,com:0.12,deducible:'N/A',cobertura:'Fiel cumplimiento premium — internacional, CSS, gobierno'},
+      FEDPA:   {tasa:0.0135,itbms:0,com:0.10,deducible:'N/A',cobertura:'Fiel cumplimiento básico'},
+    },
+    licitacion:{
+      ASSA:    {tasa:0.0100,itbms:0,com:0.12,deducible:'N/A',cobertura:'Bid Bond / Licitación — garantía de seriedad de oferta'},
+      SURA:    {tasa:0.0105,itbms:0,com:0.12,deducible:'N/A',cobertura:'Licitación — garantía de oferta'},
+      MAPFRE:  {tasa:0.0095,itbms:0,com:0.12,deducible:'N/A',cobertura:'Bid Bond — oferta licitación pública'},
+      IS:      {tasa:0.0098,itbms:0,com:0.12,deducible:'N/A',cobertura:'Garantía de licitación'},
+      CHUBB:   {tasa:0.0120,itbms:0,com:0.12,deducible:'N/A',cobertura:'Bid Bond premium — proyectos internacionales'},
+      FEDPA:   {tasa:0.0088,itbms:0,com:0.10,deducible:'N/A',cobertura:'Garantía de licitación básica'},
+    },
+    advance:{
+      ASSA:    {tasa:0.0200,itbms:0,com:0.12,deducible:'N/A',cobertura:'Advance Payment Bond — garantía de devolución de anticipo'},
+      SURA:    {tasa:0.0210,itbms:0,com:0.12,deducible:'N/A',cobertura:'Advance Payment — devolución de anticipo contractual'},
+      CHUBB:   {tasa:0.0240,itbms:0,com:0.12,deducible:'N/A',cobertura:'Advance Payment premium — sector gobierno y construcción'},
+      IS:      {tasa:0.0195,itbms:0,com:0.12,deducible:'N/A',cobertura:'Garantía de anticipo'},
+    }
   },
+  // ── CIBERSEGURIDAD ──
   cyb:{
-    CHUBB:{tasa:0.015,itbms:0.06,com:0.15,deducible:'$2,500',cobertura:'Violación datos, ransomware, responsabilidad cibernética $500K'},
-    GENERALI:{tasa:0.014,itbms:0.06,com:0.15,deducible:'$2,500',cobertura:'Violación datos, ransomware $250K'},
-    SURA:{tasa:0.013,itbms:0.06,com:0.15,deducible:'$2,500',cobertura:'Protección cibernética empresarial $200K'},
-    ASSA:{tasa:0.012,itbms:0.06,com:0.15,deducible:'$2,500',cobertura:'Ciberriesgo básico $100K'},
+    CHUBB:   {tasa:0.0145,itbms:0.07,com:0.15,deducible:'B/.2,500',cobertura:'Violación datos personales, ransomware, responsabilidad cibernética B/.500K, notificación'},
+    GENERALI:{tasa:0.0132,itbms:0.07,com:0.15,deducible:'B/.2,500',cobertura:'Violación de datos, ransomware, interrupción de negocio B/.250K'},
+    SURA:    {tasa:0.0125,itbms:0.07,com:0.15,deducible:'B/.2,500',cobertura:'Protección cibernética empresarial — datos y sistemas B/.200K'},
+    ASSA:    {tasa:0.0115,itbms:0.07,com:0.15,deducible:'B/.2,500',cobertura:'Ciberriesgo básico — datos y privacidad B/.100K'},
+    MAPFRE:  {tasa:0.0128,itbms:0.07,com:0.15,deducible:'B/.2,500',cobertura:'Ciberriesgo — datos, ransomware, phishing B/.200K'},
   }
 };
-
 // ─── State ────────────────────────────────────────────────────────────────
 let cotpSelectedRamo=null,cotpSelectedSub=null,cotpResults=[],cotpSelectedIds=new Set();
 let cotpLinkedId=null,cotpCurrentStep=1,cotpViewMode='cards',cotpSortField='prima';
@@ -6119,10 +6212,19 @@ function cotpBuildRamoFields(ramo){
       <div class="fl ff"><label style="font-size:11px">Dependientes (si familiar)</label><input class="fc" id="cotp-deps" type="number" placeholder="0" min="0" style="font-size:12px"></div>
     </div>`;
   }else if(ramo==='vida'){
-    html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    html=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div class="fl ff"><label style="font-size:11px">Suma asegurada (USD)</label><input class="fc" id="cotp-val" type="number" placeholder="100000" style="font-size:12px"></div>
-      <div class="fl ff"><label style="font-size:11px">Edad del asegurado</label><input class="fc" id="cotp-edad-man" type="number" placeholder="35" style="font-size:12px"></div>
-    </div>`;
+      <div class="fl ff"><label style="font-size:11px">Edad del asegurado</label><input class="fc" id="cotp-edad-man" type="number" placeholder="35" min="18" max="70" style="font-size:12px" onchange="cotpShowVidaNote()"></div>
+      <div class="fl ff"><label style="font-size:11px">Plazo (años)</label>
+        <select class="fc" id="cotp-sub" style="font-size:12px">
+          <option value="temporal_10">Temporal 10 años</option>
+          <option value="temporal_20" selected>Temporal 20 años</option>
+          <option value="temporal_30">Temporal 30 años</option>
+          <option value="vitalicio">Vitalicio</option>
+        </select>
+      </div>
+    </div>
+    <div id="cotp-vida-note" style="font-size:10px;color:#7C3AED;margin-top:6px;background:#EDE9FE;padding:6px 10px;border-radius:6px"></div>`;
   }else if(ramo==='hogar'){
     html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="fl ff"><label style="font-size:11px">Valor de la propiedad (USD)</label><input class="fc" id="cotp-val" type="number" placeholder="80000" style="font-size:12px"></div>
@@ -6186,26 +6288,28 @@ function cotpBuildRamoFields(ramo){
     html=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div class="fl ff"><label style="font-size:11px">Días de viaje</label><input class="fc" id="cotp-val" type="number" placeholder="14" min="1" style="font-size:12px"></div>
       <div class="fl ff"><label style="font-size:11px">Destino</label>
-        <select class="fc" id="cotp-sub" onchange="cotpSelectedSub=this.value" style="font-size:12px">
-          <option value="latam">Latinoamérica</option>
-          <option value="norteamerica">Norteamérica</option>
-          <option value="europa">Europa</option>
-          <option value="mundial">Mundial</option>
+        <select class="fc" id="cotp-sub" style="font-size:12px">
+          <option value="latam">Latinoamérica / Caribe</option>
+          <option value="norteamerica">Norteamérica (EE.UU./Canadá)</option>
+          <option value="europa">Europa (incl. Schengen)</option>
+          <option value="mundial">Mundial (cobertura global)</option>
         </select>
       </div>
       <div class="fl ff"><label style="font-size:11px">Viajeros</label><input class="fc" id="cotp-viaj" type="number" placeholder="1" min="1" style="font-size:12px"></div>
-    </div>`;
+    </div>
+    <div style="font-size:10px;color:#7C3AED;margin-top:6px;background:#EDE9FE;padding:5px 10px;border-radius:6px">💡 Tarifa por persona/día según destino. Ingresa los días totales del viaje.</div>`;
   }else if(ramo==='fianzas'){
     html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="fl ff"><label style="font-size:11px">Monto de la fianza (USD)</label><input class="fc" id="cotp-val" type="number" placeholder="100000" style="font-size:12px"></div>
       <div class="fl ff"><label style="font-size:11px">Tipo de fianza</label>
-        <select class="fc" id="cotp-sub" onchange="cotpSelectedSub=this.value" style="font-size:12px">
-          <option value="cumplimiento">Fiel cumplimiento</option>
-          <option value="licitacion">Licitación</option>
-          <option value="advance">Advance payment</option>
+        <select class="fc" id="cotp-sub" style="font-size:12px">
+          <option value="cumplimiento">Fiel cumplimiento de contrato</option>
+          <option value="licitacion">Garantía de licitación (Bid Bond)</option>
+          <option value="advance">Advance Payment Bond (anticipo)</option>
         </select>
       </div>
-    </div>`;
+    </div>
+    <div style="font-size:10px;color:#7C3AED;margin-top:6px;background:#EDE9FE;padding:5px 10px;border-radius:6px">💡 Prima = % del monto de la fianza. Las tasas aplican a contratos de construcción, servicios y gobierno.</div>`;
   }else if(ramo==='cyb'){
     html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="fl ff"><label style="font-size:11px">Suma asegurada (USD)</label><input class="fc" id="cotp-val" type="number" placeholder="250000" style="font-size:12px"></div>
@@ -6297,9 +6401,8 @@ function cotpCalcAll(){
   const deps=parseInt(document.getElementById('cotp-deps')?.value)||0;
   const numViaj=parseInt(document.getElementById('cotp-viaj')?.value)||1;
   const fpago=document.getElementById('cotp-fpago')?.value||'anual';
-  const edad=parseFloat(document.getElementById('cotp-val')?.value)||35;
   cotpResults=[];
-  // Pick correct rate source
+  // ── Select rate source (supports nested sub-ramos: soat.auto, viaje.europa, etc.) ──
   let rates_source={};
   if(sub&&rateMap[sub]){rates_source=rateMap[sub];}
   else{
@@ -6307,22 +6410,49 @@ function cotpCalcAll(){
     if(keys.length&&typeof rateMap[keys[0]]==='object'&&('tasa' in rateMap[keys[0]]||'fijo' in rateMap[keys[0]]||'fijo_dia' in rateMap[keys[0]]||'base' in rateMap[keys[0]])){
       rates_source=rateMap;
     }else if(keys.length){
-      // use first sub-ramo
       rates_source=rateMap[keys[0]]||{};
     }
   }
+  // ── Age multiplier for VIDA (tabla actuarial simplificada) ──
+  function _ageMultVida(a){
+    if(a<=25)return 0.65;if(a<=30)return 0.82;if(a<=35)return 1.00;
+    if(a<=40)return 1.40;if(a<=45)return 2.00;if(a<=50)return 2.95;
+    if(a<=55)return 4.30;if(a<=60)return 6.50;return 9.50;
+  }
+  // ── AP occupation factor ──
+  const _apOcuFact={'oficina':1.0,'campo':2.4,'alto_riesgo':5.0};
+  // ── Salud age factor (agresiva — seguro médico sube mucho con edad) ──
+  function _saludEdadFactor(e,ef){return 1+Math.max(0,(e-30))*ef*(e>50?1.8:e>40?1.3:1.0);}
+  
   Array.from(cotpSelectedIds).forEach(asegId=>{
     const rates=rates_source[asegId];if(!rates)return;
     const aseg=COTP_ASEG.find(a=>a.id===asegId);if(!aseg)return;
     let primaNeta=0;
-    if(rates.fijo){primaNeta=rates.fijo*(ramo==='viaje'?(val*numViaj):1);}
-    else if(rates.fijo_dia){primaNeta=rates.fijo_dia*val*numViaj;}
-    else if(rates.base){
-      const edadCalc=ramo==='salud'?(parseInt(document.getElementById('cotp-val')?.value)||35):edad;
-      const edadFactor=1+Math.max(0,(edadCalc-30))*rates.edad_factor;
-      primaNeta=rates.base*12*edadFactor*(1+deps*0.65);
+    if(rates.fijo_dia){
+      // VIAJE: prima = tarifa/día × días × viajeros
+      primaNeta=rates.fijo_dia*Math.max(1,val)*Math.max(1,numViaj);
+    }else if(rates.fijo){
+      // Precio fijo (SOAT, terceros auto, etc.)
+      primaNeta=rates.fijo;
+    }else if(rates.base){
+      // SALUD: base mensual × 12 meses × factor edad × factor dependientes
+      const edadS=parseInt(document.getElementById('cotp-val')?.value)||35;
+      primaNeta=rates.base*12*_saludEdadFactor(edadS,rates.edad_factor)*(1+deps*0.58);
+    }else if(rates.tasa){
+      const safeVal=val||50000;
+      if(ramo==='vida'){
+        // VIDA: suma × tasa_base × factor_edad (actuarial)
+        const edadV=parseInt(document.getElementById('cotp-edad-man')?.value)||35;
+        primaNeta=safeVal*rates.tasa*_ageMultVida(edadV);
+      }else if(ramo==='ap'){
+        // AP: suma × tasa_base × factor_ocupación
+        const ocuF=_apOcuFact[sub]||1.0;
+        primaNeta=safeVal*rates.tasa*ocuF;
+      }else{
+        // Default: valor × tasa
+        primaNeta=safeVal*rates.tasa;
+      }
     }
-    else if(rates.tasa){const safeVal=val||100000;primaNeta=safeVal*rates.tasa;}
     const itbmsAmt=primaNeta*rates.itbms;
     const primaTotal=primaNeta+itbmsAmt;
     const com=primaNeta*rates.com;
@@ -6337,17 +6467,14 @@ function cotpCalcAll(){
   });
   if(cotpResults.length===0){toast('Sin resultados. Verifica los datos ingresados','err');return;}
   cotpResults.sort((a,b)=>a.primaTotal-b.primaTotal);
-  // Update result header
   const R=COTP_RAMOS.find(r=>r.id===ramo);
   const nombre=document.getElementById('cotp-nombre')?.value||'';
   const title=document.getElementById('cotp-res-title');
   if(title)title.textContent=`${R?R.icon+' ':''} Comparativo ${R?R.label:ramo}`;
   const sub2=document.getElementById('cotp-res-sub');
   if(sub2)sub2.textContent=`${nombre?nombre+' · ':''}${cotpResults.length} opciones • Ordenado por precio`;
-  // Pre-fill save fields
   const saveNom=document.getElementById('cotp-save-nom');if(saveNom&&nombre)saveNom.value=nombre;
   const saveAseg=document.getElementById('cotp-save-aseg');if(saveAseg&&cotpResults[0])saveAseg.value=cotpResults[0].aseg.nombre;
-  // Render
   cotpSortField='prima';cotpRenderPodium();cotpRenderCards();cotpRenderTable();cotpUpdateSortBtns();
   cotpGoStep(4);
 }
