@@ -1994,11 +1994,16 @@ function loadS(){
       if(!p.metas)p.metas={mensual:0,anual:0};
       if(!p.darkMode)p.darkMode=false;
       if(!p.vcReglas)p.vcReglas=JSON.parse(JSON.stringify(D.vcReglas));
-      p.clientes.forEach(c=>{if(!c.historialWA)c.historialWA=[];if(!c.etiquetas)c.etiquetas=[];if(!c.archivos)c.archivos=[];});
+      p.clientes.forEach(c=>{if(!c.historialWA)c.historialWA=[];if(!c.historialComms)c.historialComms=[];if(!c.etiquetas)c.etiquetas=[];if(!c.archivos)c.archivos=[];});
       p.prospectos.forEach(pr=>{if(!pr.historial)pr.historial=[];if(!pr.archivos)pr.archivos=[];if(!pr.etiquetas)pr.etiquetas=[];});
       return p;
     }
   }catch(e){console.error('loadS:',e);}
+  // Fallback: fresh default data
+  const n=JSON.parse(JSON.stringify(D));
+  n.pagos=[];n.plantillas=[];n.metas={mensual:0,anual:0};n.darkMode=false;
+  n.vcReglas=JSON.parse(JSON.stringify(D.vcReglas||[]));
+  return n;
 }
 
 // ─── Global Error Shield ─────────────────────────────────────────
@@ -2015,12 +2020,16 @@ window.addEventListener('error',function(ev){
 window.addEventListener('unhandledrejection',function(ev){
   console.warn('[JAC CRM Promise]',ev.reason);
   ev.preventDefault();
-
-  const n=JSON.parse(JSON.stringify(D));
-  n.pagos=[];n.plantillas=[];n.metas={mensual:0,anual:0};n.darkMode=false;
-  return n;
-}
+});
 let S=loadS();
+// Safety: ensure S always has all required fields
+if(!S||typeof S!=='object'||!Array.isArray(S.clientes)){
+  try{localStorage.removeItem('jacv10');}catch(e){}
+  const _n=JSON.parse(JSON.stringify(D));
+  _n.pagos=[];_n.plantillas=[];_n.metas={mensual:0,anual:0};_n.darkMode=false;
+  _n.vcReglas=JSON.parse(JSON.stringify(D.vcReglas||[]));
+  S=_n;
+}
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
 
