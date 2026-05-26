@@ -5301,7 +5301,7 @@ function deleteDoc(clienteId,idx){
 
 // Inject docs section into client detail view when it opens
 const _origOC=window.OC;
-function OC(id){
+window.OC=function(id){
   if(typeof _origOC==='function')_origOC(id);
   setTimeout(()=>{
     // Find the historial section in the client panel and inject docs before it
@@ -5327,7 +5327,7 @@ function OC(id){
       panel.appendChild(wrap);
     }
   },200);
-}
+};
 
 // ── DASHBOARD: inject Notas alert panel ───────────────────────────────────
 // Add a <div id="dash-notas-alert"> at end of dashboard after existing cards
