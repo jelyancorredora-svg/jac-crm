@@ -1813,7 +1813,7 @@ ${rows.map((r,i)=>`<tr style="background:${i===0?'#F0FDF4':'#fff'};border-bottom
 <td style="padding:5px 4px;text-align:right;color:#D97706">${fM2(r.com)}</td>
 </tr>`).join('')}
 </tbody></table></div>
-<div style="font-size:9px;color:#8B5CF6;margin-top:6px;text-align:center">📊 Tarifas de referencia mercado panameño 2026 (fuentes: eprezto.com, SSRP, aseguradoras). Prima final la confirma cada compañía con el formulario oficial. ITBMS 7% autos/daños, 5% salud/AP, 0% vida/fianzas.</div>`;
+<div style="font-size:9px;color:#8B5CF6;margin-top:6px;text-align:center">📊 Tarifas de referencia mercado panameño 2026 (fuentes: mercado panameño, SSRP, aseguradoras). Prima final la confirma cada compañía con el formulario oficial. ITBMS 7% autos/daños, 5% salud/AP, 0% vida/fianzas.</div>`;
   document.getElementById('cotz-multi-result').innerHTML=tbl;
 }
 
@@ -4038,16 +4038,15 @@ document.addEventListener('DOMContentLoaded',()=>{
         </div>
       </div>
       <!-- Podium top 3 -->
-      <div id="cotp-lideres-banner" style="display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:12px;padding:12px 16px;margin-bottom:14px;flex-wrap:wrap">
-  <div style="font-size:24px">🌐</div>
-  <div style="flex:1;min-width:200px">
-    <div style="font-size:11px;font-weight:800;color:#93C5FD;text-transform:uppercase;letter-spacing:1px">Portal Líderes en Seguros</div>
-    <div style="font-size:12px;color:#CBD5E1;margin-top:2px">Cotizá <span class="cotp-lideres-ramo" style="color:#FCD34D;font-weight:700"></span> directamente en el portal oficial de aseguradoras de Panamá</div>
+      <div id="cotp-actions-bar" style="display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:12px;padding:12px 16px;margin-bottom:14px;flex-wrap:wrap;border:1px solid #1E40AF">
+  <div style="font-size:26px">&#128203;</div>
+  <div style="flex:1;min-width:180px">
+    <div style="font-size:11px;font-weight:800;color:#FCD34D;text-transform:uppercase;letter-spacing:1px">JAC Seguros &#8212; Cotizaci&#243;n Lista</div>
+    <div style="font-size:12px;color:#CBD5E1;margin-top:2px">Seguro de <span class="cotp-actions-ramo" style="color:#FCD34D;font-weight:700"></span> &#8226; <span class="cotp-actions-count" style="color:#93C5FD"></span></div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button onclick="window.open('https://portal.lideresenseguros.com/cotizadores','_blank')" style="background:#3B82F6;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔗 Abrir portal</button>
-    <button onclick="window.open('https://eprezto.com/','_blank')" style="background:#7C3AED;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">⚡ Eprezto.com</button>
-    <button onclick="window.open('https://comparalatam.com/pa/seguro/','_blank')" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">📊 ComparaLatam</button>
+    <button onclick="cotpGeneratePDF()" style="background:#DC2626;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Generar PDF</button>
+    <button onclick="cotpSendWhatsApp()" style="background:#16A34A;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Enviar por WA</button>
   </div>
 </div>
 <div id="cotp-podium" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
@@ -6285,7 +6284,7 @@ const COTP_ASEG = [
   {id:'BG',         nombre:'BG Seguros (Banco General)',    rating:'A',   sfp:'Muy buena', logo:'⬛', color:'#1B1B1B', activos:'$410M', anios:30},
 ];
 const COTP_RATES = {
-  // ── AUTOS ── Fuentes: eprezto.com, comparalatam.com, anuariolatamseguros.com (2026)
+  // ── AUTOS ── Fuentes: mercado panameño 2026
   autos:{
     // TODO RIESGO: tasa % del valor del vehículo/año (2.5%-3.8% mercado panameño)
     cobertura_completa:{
@@ -6308,13 +6307,13 @@ const COTP_RATES = {
       UNIVIVIR:  {tasa:0.0258,itbms:0.06,com:0.12,deducible:'2% mín. B/.200',cobertura:'Todo riesgo básico, RC hasta B/.30,000 — Univivir'},
       ASSITCARD: {tasa:0.0280,itbms:0.06,com:0.13,deducible:'1.5% mín. B/.150',cobertura:'Todo riesgo, RC hasta B/.50,000, asistencia 24h — ASSIT CARD'},
     },
-    // TERCEROS/RC: precio fijo anual (NO % valor). Fuente: eprezto.com 2026
+    // TERCEROS/RC: precio fijo anual (NO % valor). Tarifa 2026
     danos_terceros:{
-      LAREGIONAL:{fijo:137.0, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales+corporales B/.40,000 — Fuente: eprezto.com 2026'},
-      ASSA:      {fijo:132.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños materiales B/.60,000, lesiones B/.15,000, ambulancia. Fuente: eprezto.com 2026'},
-      IS:        {fijo:145.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.50,000, grúa, asistencia vial, ambulancia. Fuente: eprezto.com 2026'},
-      SURA:      {fijo:149.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, revisado gratis incluido, asistencia vial. Fuente: eprezto.com 2026'},
-      FEDPA:     {fijo:108.0, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales B/.40,000 — Fuente: eprezto.com 2026'},
+      LAREGIONAL:{fijo:137.0, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales+corporales B/.40,000 — Tarifa 2026'},
+      ASSA:      {fijo:132.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños materiales B/.60,000, lesiones B/.15,000, ambulancia. Tarifa 2026'},
+      IS:        {fijo:145.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.50,000, grúa, asistencia vial, ambulancia. Tarifa 2026'},
+      SURA:      {fijo:149.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, revisado gratis incluido, asistencia vial. Tarifa 2026'},
+      FEDPA:     {fijo:108.0, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales B/.40,000 — Tarifa 2026'},
       ANCON:     {fijo:94.50, itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC daños materiales B/.50,000'},
       ACERTA:    {fijo:98.00, itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC daños B/.50,000, asistencia en carretera'},
       MAPFRE:    {fijo:108.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.75,000, gastos médicos terceros B/.2,000'},
@@ -6745,34 +6744,57 @@ function cotpInit(){
   cotpBuildRamoGrid();
 
 // ── URLs de cotizadores reales por aseguradora y ramo (2026) ──
-const COTP_URLS = {
-  ASSA:      { autos:'https://calculadora.assanet.com/', salud:'https://www.assanet.com/salud', vida:'https://www.assanet.com/vida', hogar:'https://www.assanet.com/', viaje:'https://www.assanet.com/', ap:'https://www.assanet.com/', soat:'https://www.assanet.com/', _web:'https://www.assanet.com/' },
-  SURA:      { autos:'https://segurossura.com.pa/cotizador/seguro-de-autos/', salud:'https://segurossura.com.pa/cotizador/seguro-de-salud/', vida:'https://segurossura.com.pa/personas/seguros-de-vida/', hogar:'https://segurossura.com.pa/', viaje:'https://segurossura.com.pa/', ap:'https://segurossura.com.pa/', soat:'https://segurossura.com.pa/', _web:'https://segurossura.com.pa/' },
-  MAPFRE:    { autos:'https://www.mapfre.com.pa/seguros-auto/', salud:'https://www.mapfre.com.pa/', vida:'https://segurosvida.mapfre.com.pa/seguro-vida/', hogar:'https://www.mapfre.com.pa/seguros-generales/seguro-hogar/', viaje:'https://www.mapfre.com.pa/', ap:'https://www.mapfre.com.pa/', soat:'https://www.mapfre.com.pa/', _web:'https://www.mapfre.com.pa/' },
-  IS:        { autos:'https://www.iseguros.com/emisorauto/frmcotizarcc.aspx', salud:'https://www.iseguros.com/salud.html', vida:'https://www.iseguros.com/', hogar:'https://www.iseguros.com/', viaje:'https://www.iseguros.com/', ap:'https://www.iseguros.com/', soat:'https://eprezto.com/', _web:'https://www.iseguros.com/' },
-  PALIG:     { autos:'https://palig.com/es/pa', salud:'https://palig.com/es/panama/individuals-and-families/health', vida:'https://palig.com/es/pa/seguro-de-vida', hogar:'https://palig.com/es/pa', viaje:'https://palig.com/es/pa', ap:'https://palig.com/es/pa', soat:'https://palig.com/es/pa', _web:'https://palig.com/es/pa' },
-  FEDPA:     { autos:'https://sfcpanama.com/seguro-auto-danos-a-terceros-seguros-fedpa/', salud:'https://sfcpanama.com/', vida:'https://sfcpanama.com/', hogar:'https://sfcpanama.com/', viaje:'https://sfcpanama.com/', ap:'https://sfcpanama.com/', soat:'https://eprezto.com/', _web:'https://sfcpanama.com/' },
-  ACERTA:    { autos:'https://acertaseguros.com/', salud:'https://acertaseguros.com/', vida:'https://acertaseguros.com/seguro-de-vida/', hogar:'https://acertaseguros.com/', viaje:'https://acertaseguros.com/', ap:'https://acertaseguros.com/', soat:'https://acertaseguros.com/', _web:'https://acertaseguros.com/' },
-  GENERALI:  { autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores', _web:'https://portal.lideresenseguros.com/cotizadores' },
-  CHUBB:     { autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores', _web:'https://portal.lideresenseguros.com/cotizadores' },
-  LAREGIONAL:{ autos:'https://www.laregionaldeseguros.com/lrds/poliza-de-automovil-particular/', salud:'https://www.laregionaldeseguros.com/', vida:'https://www.laregionaldeseguros.com/', hogar:'https://www.laregionaldeseguros.com/', viaje:'https://www.laregionaldeseguros.com/', ap:'https://www.laregionaldeseguros.com/', soat:'https://eprezto.com/', _web:'https://www.laregionaldeseguros.com/' },
-  ANCON:     { autos:'https://comparalatam.com/pa/seguro/particular/auto/simu/', salud:'https://comparalatam.com/pa/seguro/particular/salud/simu/', vida:'https://comparalatam.com/pa/seguro/particular/vida/simu/', hogar:'https://comparalatam.com/pa/seguro/particular/hogar/simu/', viaje:'https://comparalatam.com/pa/seguro/particular/viaje/simu/', ap:'https://comparalatam.com/pa/seguro/particular/accidentes/simu/', soat:'https://eprezto.com/', _web:'https://comparalatam.com/pa/seguro/' },
-  WWMED:     { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
-  ALIADOS:   { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
-  GENERAL:   { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
-  VUMI:      { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
-  UNIVIVIR:  { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
-  ASSITCARD: { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
-  BG:        { _web:'https://mercantilbanco.com.pa/seguros', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://www.mercantilseguros.com.pa/productos/personas/salud', vida:'https://mercantilbanco.com.pa/seguros', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
-  _COMPARADOR: 'https://comparalatam.com/pa/seguro/',
-  _EPREZTO:    'https://eprezto.com/',
-  _LIDERES:    'https://portal.lideresenseguros.com/cotizadores',
-};
-function cotpGetUrl(asegId, ramo){
-  const asegUrls = COTP_URLS[asegId];
-  if(!asegUrls) return COTP_URLS._LIDERES;
-  return asegUrls[ramo] || asegUrls._web || COTP_URLS._LIDERES;
+function cotpGeneratePDF(filterAsegId){
+  var res = filterAsegId ? cotpResults.filter(function(r){return r.asegId===filterAsegId;}) : cotpResults;
+  if(!res.length){alert('No hay resultados para generar PDF.');return;}
+  var nombre = (document.getElementById('cotp-nombre')||{}).value||'Cliente';
+  var ramo = cotpSelectedRamo;
+  var ramoObj = COTP_RAMOS.find(function(r){return r.id===ramo;});
+  var ramoLabel = ramoObj ? ramoObj.label : ramo;
+  var sumaRaw = (document.getElementById('cotp-suma')||{}).value||'';
+  var sumaFmt = sumaRaw ? '$'+parseFloat(sumaRaw).toLocaleString('es-PA') : '---';
+  var fecha = new Date().toLocaleDateString('es-PA',{year:'numeric',month:'long',day:'numeric'});
+  var rows = res.map(function(r,i){
+    return '<tr style="background:'+(i%2===0?'#F8FAFC':'#FFFFFF')+'"><td style="padding:10px 14px;font-weight:700;color:#1E3A5F;border-bottom:1px solid #E2E8F0">'+(i+1)+'. '+r.aseg.nombre+'</td><td style="padding:10px 14px;text-align:center;border-bottom:1px solid #E2E8F0;color:#64748B">'+r.aseg.rating+'/5</td><td style="padding:10px 14px;text-align:right;font-weight:800;color:#1E3A5F;font-size:16px;border-bottom:1px solid #E2E8F0">$'+r.total.toFixed(2)+'/ano</td><td style="padding:10px 14px;text-align:right;color:#64748B;border-bottom:1px solid #E2E8F0">$'+r.neta.toFixed(2)+'</td><td style="padding:10px 14px;font-size:12px;color:#475569;border-bottom:1px solid #E2E8F0">'+(r.cobertura||'---')+'</td><td style="padding:10px 14px;text-align:center;font-size:12px;color:#64748B;border-bottom:1px solid #E2E8F0">'+(r.deducible||'---')+'</td></tr>';
+  }).join('');
+  var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Cotizacion '+ramoLabel+' - JAC Seguros<\/title>'
+    +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:\'Segoe UI\',Helvetica,Arial,sans-serif;color:#1E293B;font-size:13px;background:#fff}.hdr{background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 100%);color:#fff;padding:24px 32px;display:flex;justify-content:space-between;align-items:center}.hdr-logo{font-size:24px;font-weight:900;letter-spacing:2px;color:#FCD34D;font-family:Georgia,serif}.hdr-sub{font-size:11px;color:#93C5FD;margin-top:3px;letter-spacing:1px;text-transform:uppercase}.hdr-contact{text-align:right;font-size:11px;color:#CBD5E1;line-height:2}.body{padding:28px 32px}.qtitle{font-size:22px;font-weight:900;color:#0F172A;margin-bottom:4px}.qsub{font-size:12px;color:#64748B;margin-bottom:20px}.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;background:#F1F5F9;border-radius:10px;padding:16px 20px;margin-bottom:22px}.info-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#64748B;font-weight:700}.info-val{font-size:15px;font-weight:800;color:#0F172A;margin-top:4px}table{width:100%;border-collapse:collapse;margin-bottom:20px;border-radius:8px;overflow:hidden}thead tr{background:linear-gradient(90deg,#1E3A5F,#1E40AF);color:#fff}thead th{padding:11px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700}.nota{background:#EFF6FF;border-left:4px solid #3B82F6;border-radius:0 8px 8px 0;padding:12px 16px;font-size:11px;color:#1E40AF;line-height:1.7;margin-bottom:20px}.ftr{border-top:2px solid #E2E8F0;padding:14px 32px;font-size:10px;color:#94A3B8;display:flex;justify-content:space-between;background:#F8FAFC}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{margin:10mm;size:A4}}<\/style><\/head><body>'
+    +'<div class="hdr"><div><div class="hdr-logo">JAC SEGUROS<\/div><div class="hdr-sub">Jely An Castro Perez &middot; Agente Autorizado de Seguros<\/div><\/div><div class="hdr-contact">+507 6292-6010<br>jcastro@jacsegurospa.com<br>jacsegurospa.com<\/div><\/div>'
+    +'<div class="body"><div class="qtitle">Cotizacion Comparativa &mdash; '+ramoLabel+'<\/div><div class="qsub">Generado el '+fecha+' &middot; '+res.length+' aseguradora'+( res.length!==1?'s':'')+' analizadas &middot; Tarifas mercado panameno 2026<\/div>'
+    +'<div class="info-grid"><div><div class="info-lbl">Cliente<\/div><div class="info-val">'+nombre+'<\/div><\/div><div><div class="info-lbl">Ramo asegurado<\/div><div class="info-val">'+ramoLabel+'<\/div><\/div><div><div class="info-lbl">Suma asegurada<\/div><div class="info-val">'+sumaFmt+'<\/div><\/div><\/div>'
+    +'<table><thead><tr><th>Aseguradora<\/th><th>Rating<\/th><th style="text-align:right">Prima Total \/ ano<\/th><th style="text-align:right">Prima Neta<\/th><th>Cobertura incluida<\/th><th style="text-align:center">Deducible<\/th><\/tr><\/thead><tbody>'+rows+'<\/tbody><\/table>'
+    +'<div class="nota"><strong>Nota importante:<\/strong> Las primas son estimadas con base en tarifas de referencia del mercado panameno 2026. La prima final puede variar segun evaluacion de cada aseguradora. Esta cotizacion es orientativa y no constituye un contrato de seguro. Para formalizar tu poliza contactame directamente.<\/div><\/div>'
+    +'<div class="ftr"><div>JAC Seguros &middot; Jely An Castro Perez &middot; Agente Autorizado &middot; Republica de Panama<\/div><div>+507 6292-6010 &middot; jcastro@jacsegurospa.com &middot; jacsegurospa.com<\/div><\/div>'
+    +'<script>window.onload=function(){setTimeout(function(){window.print();},400);}<\/script><\/body><\/html>';
+  var w = window.open('','_blank','width=960,height=720');
+  if(w){w.document.write(html);w.document.close();}
+  else{alert('Habilita las ventanas emergentes para generar el PDF.');}
 }
+
+function cotpSendWhatsApp(filterAsegId){
+  var res = filterAsegId ? cotpResults.filter(function(r){return r.asegId===filterAsegId;}) : cotpResults.slice(0,3);
+  if(!res.length){alert('No hay resultados para enviar.');return;}
+  var nombre = (document.getElementById('cotp-nombre')||{}).value||'Estimado/a cliente';
+  var ramoObj = COTP_RAMOS.find(function(r){return r.id===cotpSelectedRamo;});
+  var ramoLabel = ramoObj ? ramoObj.label : cotpSelectedRamo;
+  var fecha = new Date().toLocaleDateString('es-PA',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var msg = '*Cotizacion de '+ramoLabel+' - JAC Seguros*\n';
+  msg += fecha+' | Jely An Castro\n\n';
+  msg += 'Hola *'+nombre+'*, te comparto las mejores opciones:\n\n';
+  res.forEach(function(r,i){
+    msg += '*'+(i+1)+'. '+r.aseg.nombre+'*\n';
+    msg += 'Prima anual: *$'+r.total.toFixed(2)+'*\n';
+    if(r.cobertura) msg += r.cobertura+'\n';
+    if(r.deducible) msg += 'Deducible: '+r.deducible+'\n';
+    msg += '\n';
+  });
+  msg += 'Para formalizar tu seguro:\n';
+  msg += '+507 6292-6010\n';
+  msg += 'jcastro@jacsegurospa.com\n';
+  msg += 'jacsegurospa.com';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
 
   const n=document.getElementById('cotp-save-nom');
   const nombre=document.getElementById('cotp-nombre')?.value||'';
@@ -7253,12 +7275,13 @@ function cotpCalcAll(){
   if(title)title.textContent=`${R?R.icon+' ':''} Comparativo ${R?R.label:ramo}`;
   const sub2=document.getElementById('cotp-res-sub');
   if(sub2)sub2.textContent=`${nombre?nombre+' · ':''}${cotpResults.length} opciones • Ordenado por precio`;
-  // ── Líderes en Seguros portal banner ──
-  const _lideresEl=document.getElementById('cotp-lideres-banner');
-  if(_lideresEl){
-    const _rN=COTP_RAMOS.find(r=>r.id===ramo);
-    _lideresEl.style.display='flex';
-    _lideresEl.querySelector('.cotp-lideres-ramo').textContent=_rN?_rN.label:ramo;
+    // -- JAC Seguros -- barra de acciones --
+  var _actBar=document.getElementById('cotp-actions-bar');
+  if(_actBar){
+    var _rNA=COTP_RAMOS.find(function(r){return r.id===ramo;});
+    _actBar.style.display='flex';
+    _actBar.querySelector('.cotp-actions-ramo').textContent=_rNA?_rNA.label:ramo;
+    _actBar.querySelector('.cotp-actions-count').textContent=cotpResults.length+' opci'+(cotpResults.length!==1?'ones':'on');
   }
   const saveNom=document.getElementById('cotp-save-nom');if(saveNom&&nombre)saveNom.value=nombre;
   const saveAseg=document.getElementById('cotp-save-aseg');
@@ -7378,7 +7401,8 @@ function cotpRenderCards(){
       <div style="display:flex;gap:6px">
         <button onclick="cotpSelectResult('${r.asegId}')" style="flex:1;background:${i===0?'#15803D':i===1?'#2563EB':'#475569'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">Seleccionar</button>
         <button onclick="cotpWAResult('${r.asegId}')" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer">💬</button>
-        <button onclick="window.open(cotpGetUrl('${r.asegId}',cotpSelectedRamo),'_blank')" title="Cotizar online en ${r.aseg.nombre}" style="background:#0EA5E9;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer">🌐</button>
+        <button onclick="cotpGeneratePDF('${r.asegId}')" title="Generar PDF" style="background:#DC2626;color:#fff;border:none;border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer;font-weight:700">PDF</button>
+        <button onclick="cotpSendWhatsApp('${r.asegId}')" title="Enviar por WhatsApp" style="background:#16A34A;color:#fff;border:none;border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer;font-weight:700">WA</button>
       </div>
     </div>
   </div>`).join('');
