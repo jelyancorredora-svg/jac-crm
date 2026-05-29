@@ -2722,7 +2722,12 @@ function showCliDP(id){
   const c=GC(id);if(!c.id){toast('Cliente no encontrado','err');return;};
   const ps=polsByC(id),ec=c.estadoComercial||'activo';
   const wa=waBtnC(c);
-  let h=`<div class="dsec">Identificación</div>
+  // Quick-action bar — cotizar, WA, email, nueva póliza
+  const _qaWA=c.cel||c.tel?`<a href="https://wa.me/${typeof fmtWANum==='function'?fmtWANum(c.cel||c.tel,'507'):(c.cel||c.tel).replace(/\D/g,'')}" target="_blank" class="btn bwa" style="font-size:11px;padding:5px 12px">💬 WhatsApp</a>`:'';
+  const _qaEmail=c.email?`<button onclick="openEmailForClient('${id}')" class="btn bin" style="font-size:11px;padding:5px 12px">📧 Email</button>`:'';
+  const _qaCotz=`<button onclick="CM('mcotp');setTimeout(()=>cotpLoadClient('${id}','cliente'),300)" class="btn" style="font-size:11px;padding:5px 12px;background:#7C3AED;color:#fff;border-color:#7C3AED">🧮 Cotizar</button>`;
+  const _qaNewPol=`<button onclick="OP();setTimeout(()=>{const _cs=document.getElementById('p-cl');if(_cs)_cs.value='${id}';},200)" class="btn bp" style="font-size:11px;padding:5px 12px">📋 Nueva Póliza</button>`;
+  let h=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;background:linear-gradient(90deg,#F0F9FF,#EFF6FF);border-radius:10px;border:1px solid #BFDBFE">${_qaCotz}${_qaWA}${_qaEmail}${_qaNewPol}</div><div class="dsec">Identificación</div>
 <div class="drow"><label>Nombre</label><div class="dv" style="font-weight:700;font-size:14px">${esc(c.nombre)}</div></div>
 ${c.alias?`<div class="drow"><label>Alias</label><div class="dv">"${esc(c.alias)}"</div></div>`:''}
 <div class="drow"><label>Tipo</label><div class="dv">${b(c.tipo==='Empresa'?'bbl':'bgr',c.tipo||'Personal')} ${b('bgr',c.tipoDoc||'')}</div></div>
@@ -2777,6 +2782,14 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
 <div style="display:flex;gap:4px;margin-top:5px;flex-wrap:wrap"><span class="b bgr">${fmtM(p.prima)}</span>${waBtnsP(p,c)}<button class="btn bsm bgn" onclick="event.stopPropagation();openRen('${p.id}')">🔄</button></div></div>`;
   });
   if(!ps.length)h+=`<div style="font-size:12px;color:var(--mu);text-align:center;padding:12px">Sin pólizas.<br><button class="btn bsm bp" onclick="OP_forClient('${id}')" style="margin-top:6px">+ Nueva Póliza</button></div>`;
+  // Cotizaciones history from Cotizador Pro
+  const cotizHist=(c.historial||[]).filter(hx=>hx.tipo==='cotizacion');
+  if(cotizHist.length){
+    h+=`<div class="dsec" style="display:flex;align-items:center;justify-content:space-between"><span>🧮 Cotizaciones (${cotizHist.length})</span><button class="btn bsm" onclick="CM('mcotp');setTimeout(()=>cotpLoadClient('${id}','cliente'),300)" style="font-size:10px;padding:2px 10px;background:#7C3AED;color:#fff;border-color:#7C3AED">+ Nueva cotización</button></div>`;
+    cotizHist.slice(0,5).forEach(hx=>{
+      h+=`<div style="background:#F0F9FF;border-radius:6px;padding:7px 10px;margin-bottom:5px;border-left:3px solid #2563EB"><div style="font-size:10px;color:var(--mu)">${fmt(hx.fecha)}</div><div style="font-size:12px;font-weight:600">${esc(hx.accion)}</div>${hx.resultado?`<div style="font-size:11px;color:var(--mu)">${esc(hx.resultado)}</div>`:''}</div>`;
+    });
+  }
   if((c.archivos||[]).length)h+=`<div class="dsec">Archivos (${c.archivos.length})</div><div style="padding:4px 0">${renderFLFull(c.archivos,id,'cliente')}</div>${renderFL(c.archivos,id,'cliente')}`;
   const allComms=[...(c.historialComms||[]),...(c.historialWA||[]).filter(w=>!(c.historialComms||[]).some(x=>x.id&&x.id===w.id)),...(c.historialEmail||[]).filter(e=>!(c.historialComms||[]).some(x=>x.id&&x.id===e.id))];
   if(allComms.length){h+=`<div class="dsec" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
@@ -4828,40 +4841,66 @@ function renderDashBirthdays() {
   el.innerHTML = h;
 }
 
-function renderDashReminders() {
-  const pols30 = get30DayRenewals();
-  const el = document.getElementById('dash-reminders');
-  if (!el) return;
-  if (!pols30.length) { el.style.display = 'none'; return; }
-  el.style.display = 'block';
-  let h = `<div class="ch" style="background:linear-gradient(90deg,#FFF7ED,#FEF3C7)">
-    <h3>⚠️ Recordatorios de Renovación (30 días)</h3>
-    <span style="font-size:11px;color:#B45309">${pols30.length} póliza${pols30.length!==1?'s':''}</span>
+function renderDashReminders(){
+  const all30=get30DayRenewals();
+  const el=document.getElementById('dash-reminders');
+  if(!el)return;
+  if(!all30.length){el.style.display='none';return;}
+  el.style.display='block';
+  // Group by urgency tier
+  const g7 =all30.filter(p=>dFrom(p.fechaFin)<=7);
+  const g15=all30.filter(p=>dFrom(p.fechaFin)>7&&dFrom(p.fechaFin)<=15);
+  const g30=all30.filter(p=>dFrom(p.fechaFin)>15);
+  const tiers=[
+    {label:'🔴 URGENTE — vencen en ≤7 días',color:'#DC2626',bg:'#FEF2F2',border:'#FCA5A5',list:g7},
+    {label:'🟡 PRONTO — vencen en 8–15 días', color:'#D97706',bg:'#FFFBEB',border:'#FCD34D',list:g15},
+    {label:'🔵 PRÓXIMO — vencen en 16–30 días',color:'#2563EB',bg:'#EFF6FF',border:'#93C5FD',list:g30},
+  ];
+  function buildBulkWAMsg(list){
+    if(!list.length)return null;
+    let lines=list.map(p=>{
+      const cl=GC(p.clienteId);
+      const nom=(cl.nombre||p.nombreCliente||'cliente').split(' ')[0];
+      return `• ${nom}: ${p.ramo} / ${p.aseg} — vence ${fmt(p.fechaFin)}`;
+    }).join('\n');
+    return `⚠️ *JAC Seguros* | Recordatorio de Renovación\n\nEstimado/a cliente,\n\nTe recordamos que las siguientes pólizas están próximas a vencer:\n\n${lines}\n\nComunícate con nosotros para renovar:\n📞 +507 6292-6010\n📧 jcastro@jacsegurospa.com\n🌐 jacsegurospa.com`;
+  }
+  let h=`<div class="ch" style="background:linear-gradient(90deg,#FFF7ED,#FEF3C7)">
+    <h3>⚠️ Renovaciones Próximas</h3>
+    <span style="font-size:11px;color:#B45309;font-weight:700">${all30.length} póliza${all30.length!==1?'s':''} · próx. 30 días</span>
   </div>`;
-  pols30.forEach(p => {
-    const cl = (typeof GC === 'function' ? GC(p.clienteId) : {}) || {};
-    const dias = typeof dFrom === 'function' ? dFrom(p.fechaFin) : '—';
-    const nombre = (cl.nombre || p.nombreCliente || '—').split(' ').slice(0,3).join(' ');
-    const tel = cl.cel || cl.tel || p.celCliente || '';
-    const hasEmail = !!(cl.email || p.emailCliente);
-    const waMsg = `⚠️ Hola ${(cl.nombre||p.nombreCliente||'Cliente').split(' ')[0]} 👋🏼
-
-Te recordamos desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) que tu póliza de *${p.ramo}* con *${p.aseg}* vence el *${typeof fmt==='function'?fmt(p.fechaFin):p.fechaFin}*. Para renovarla y continuar protegido/a, contáctame lo antes posible. — JAC Seguros Lic. #6175`;
-    const waUrl = tel ? `https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}` : null;
-    const col = dias === 0 ? '#DC2626' : dias <= 7 ? '#DC2626' : dias <= 15 ? '#D97706' : '#2563EB';
-    h += `<div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #EEF2F8">
-      <div style="width:36px;height:36px;border-radius:50%;background:${col}18;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:${col};flex-shrink:0">${dias}d</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:700;font-size:12px">${nombre}</div>
-        <div style="font-size:10px;color:var(--mu)">${p.ramo||''} · ${p.aseg||''} · ${p.polNum||p.id||''}</div>
-      </div>
-      <div style="display:flex;gap:4px;flex-shrink:0">
-        ${waUrl ? `<a href="${waUrl}" target="_blank" class="btn bwa bsm" title="WhatsApp recordatorio">💬</a>` : ''}
-        ${hasEmail ? `<button class="btn bsm bin" title="Email recordatorio" onclick="sendRenewalEmail(S.polizas.find(x=>x.id==='${p.id}')||{},${JSON.stringify({id:cl.id||'',nombre:cl.nombre||p.nombreCliente||'',email:cl.email||p.emailCliente||''}).replace(/"/g,'&quot;')})">📧</button>` : ''}
-      </div>
-    </div>`;
+  tiers.forEach(tier=>{
+    if(!tier.list.length)return;
+    const bulkMsg=buildBulkWAMsg(tier.list);
+    const bulkUrl=bulkMsg?`https://wa.me/?text=${encodeURIComponent(bulkMsg)}`:null;
+    h+=`<div style="margin:8px 0;border-radius:10px;border:1px solid ${tier.border};overflow:hidden">
+      <div style="background:${tier.bg};padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid ${tier.border}">
+        <span style="font-size:11px;font-weight:800;color:${tier.color}">${tier.label} (${tier.list.length})</span>
+        ${bulkUrl?`<a href="${bulkUrl}" target="_blank" class="btn bwa bsm" style="font-size:10px;padding:3px 10px">📤 WA masivo</a>`:''}
+      </div>`;
+    tier.list.forEach(p=>{
+      const cl=GC(p.clienteId);
+      const dias=dFrom(p.fechaFin);
+      const nom=(cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' ');
+      const tel=cl.cel||cl.tel||p.celCliente||'';
+      const waMsg=`⚠️ Hola ${(cl.nombre||p.nombreCliente||'Cliente').split(' ')[0]} 👋🏼\n\nTe recordamos desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) que tu póliza de *${p.ramo}* con *${p.aseg}* vence el *${fmt(p.fechaFin)}*. Para renovarla y continuar protegido/a, contáctame lo antes posible.\n\n📞 +507 6292-6010\n📧 jcastro@jacsegurospa.com\n🌐 jacsegurospa.com`;
+      const waUrl=tel?`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}`:null;
+      h+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #EEF2F8;background:#fff">
+        <div style="width:34px;height:34px;border-radius:50%;background:${tier.color}18;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:${tier.color};flex-shrink:0">${dias===0?'HOY':dias+'d'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(nom)}</div>
+          <div style="font-size:10px;color:var(--mu)">${esc(p.ramo||'')} · ${esc(p.aseg||'')} · ${esc(p.num||p.id||'')}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          ${waUrl?`<a href="${waUrl}" target="_blank" class="btn bwa bsm" title="WA renovación" style="padding:4px 8px;font-size:11px">💬</a>`:''}
+          <button class="btn bsm" onclick="openRen('${p.id}')" title="Registrar renovación" style="padding:4px 8px;font-size:11px">🔄</button>
+          <button class="btn bsm bic" onclick="showPolDP('${p.id}')" title="Ver póliza" style="padding:4px 8px;font-size:11px">👁</button>
+        </div>
+      </div>`;
+    });
+    h+='</div>';
   });
-  el.innerHTML = h;
+  el.innerHTML=h;
 }
 
 // ── ENHANCED POLICY STATUS CARDS ──────────────────────────────
@@ -7469,9 +7508,61 @@ function cotpRenderCards(){
         <button onclick="cotpWAResult('${r.asegId}')" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer">💬</button>
         <button onclick="cotpGeneratePDF('${r.asegId}')" title="Generar PDF" style="background:#DC2626;color:#fff;border:none;border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer;font-weight:700">PDF</button>
         <button onclick="cotpSendWhatsApp('${r.asegId}')" title="Enviar por WhatsApp" style="background:#16A34A;color:#fff;border:none;border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer;font-weight:700">WA</button>
+        <button onclick="cotpCrearPolizaDesdeResult('${r.asegId}')" title="Crear póliza desde esta cotización" style="background:#1D4ED8;color:#fff;border:none;border-radius:7px;padding:6px 9px;font-size:11px;cursor:pointer;font-weight:700">📋</button>
       </div>
     </div>
   </div>`).join('');
+}
+
+// ─── Crear Póliza desde resultado de cotización ────────────────────────────
+function cotpCrearPolizaDesdeResult(asegId){
+  const r=cotpResults.find(x=>x.asegId===asegId)||cotpResults[0];
+  if(!r){toast('Sin resultados para crear póliza','err');return;}
+  const ramoLabel=COTP_RAMOS.find(x=>x.id===cotpSelectedRamo)?.label||cotpSelectedRamo||'';
+  const nombre=document.getElementById('cotp-nombre')?.value||'';
+  const cedula=document.getElementById('cotp-cedula')?.value||'';
+  const tel=document.getElementById('cotp-tel')?.value||'';
+  const email=document.getElementById('cotp-email')?.value||'';
+  // Save cotización snapshot to linked client/prospecto
+  if(cotpLinkedId){
+    const _src=[...(S.clientes||[]),...(S.prospectos||[])];
+    const _lnk=_src.find(x=>x.id===cotpLinkedId);
+    if(_lnk){
+      if(!_lnk.historial)_lnk.historial=[];
+      _lnk.historial.unshift({id:'H'+uid(),fecha:TODAY.toISOString().split('T')[0],
+        accion:`📋 Cotización ${ramoLabel} — ${r.aseg.nombre} ${fM(r.primaTotal)}/año`,
+        tipo:'cotizacion',resultado:'Pendiente — se creará póliza'});
+      save();
+    }
+  }
+  // Close cotizador
+  CM('mcotp');
+  setTimeout(()=>{
+    // Open fresh policy modal
+    OP();
+    // Pre-fill with cotización data
+    const sv=(id,val)=>{const e=document.getElementById(id);if(e&&val!==undefined&&val!==null)e.value=val;};
+    sv('p-as',r.aseg.nombre);
+    // Match ramo in dropdown
+    const rSel=document.getElementById('p-ra');
+    if(rSel){const ru=ramoLabel.toUpperCase();for(const o of rSel.options){if(o.value.toUpperCase().includes(ru.split(' ')[0].substring(0,5))){rSel.value=o.value;break;}}}
+    sv('p-pr',r.primaNeta.toFixed(2));
+    sv('p-it','6');
+    sv('p-ib',r.itbmsAmt.toFixed(2));
+    sv('p-tot',r.primaTotal.toFixed(2));
+    sv('p-cb',r.rates?.com?String(Math.round(r.rates.com*100)):'');
+    sv('p-co',r.com.toFixed(2));
+    sv('p-nas',nombre);
+    sv('p-das',cedula);
+    // Link client
+    if(cotpLinkedId){const cSel=document.getElementById('p-cl');if(cSel&&cSel.querySelector(`option[value="${cotpLinkedId}"]`))cSel.value=cotpLinkedId;}
+    // fechaInicio = hoy, fechaFin = +1 año
+    const hoy=new Date();const fin=new Date(hoy);fin.setFullYear(fin.getFullYear()+1);
+    const d2=d=>d.toISOString().split('T')[0];
+    sv('p-fi',d2(hoy));sv('p-ff',d2(fin));
+    sv('p-es','Vigente');
+    toast('Póliza pre-llenada desde cotización ✓','ok');
+  },300);
 }
 function cotpSelectResult(id){
   const r=cotpResults.find(x=>x.asegId===id);if(!r)return;
@@ -7540,6 +7631,8 @@ function cotpLoadClient(id,tipo){
   SVal('cotp-nombre',c.nombre||'');SVal('cotp-cedula',c.cedula||'');SVal('cotp-tel',c.cel||c.tel||'');SVal('cotp-email',c.email||'');
   if(c.fechaNac){const dobEl=document.getElementById('cotp-dob');if(dobEl)dobEl.value=c.fechaNac;cotpCalcEdad();}
   cotpLinkedId=id;
+  // Auto-fill paso 4 save form with client name
+  const _saveNom=document.getElementById('cotp-save-nom');if(_saveNom&&!_saveNom.value)_saveNom.value=c.nombre||'';
   document.getElementById('cotp-buscar-res').innerHTML='';document.getElementById('cotp-buscar').value='';
   const d=document.getElementById('cotp-link-display');if(d)d.textContent=`✅ Vinculado: ${c.nombre}`;
   toast('Cliente cargado ✓','ok');
@@ -7695,7 +7788,18 @@ function cotpSaveProspe(){
     historial:[{id:'H'+uid(),fecha:TODAY.toISOString().split('T')[0],
       accion:accionDesc,tipo:'cotizacion',resultado:'Pendiente respuesta'}]};
   if(!S.prospectos)S.prospectos=[];
-  S.prospectos.unshift(np);save();cotpLinkedId=np.id;
+  S.prospectos.unshift(np);save();
+  // Also log cotización in the linked existing client record (if any)
+  if(cotpLinkedId&&cotpLinkedId!==np.id){
+    const _existCli=S.clientes?.find(x=>x.id===cotpLinkedId);
+    if(_existCli){
+      if(!_existCli.historial)_existCli.historial=[];
+      _existCli.historial.unshift({id:'H'+uid(),fecha:TODAY.toISOString().split('T')[0],
+        accion:accionDesc,tipo:'cotizacion',resultado:'Cotización generada desde Cotizador Pro'});
+      save();
+    }
+  }
+  cotpLinkedId=np.id;
   // Refresh prospecto list if visible
   if(typeof renderPros==='function')renderPros();
   // Show success with navigation option
