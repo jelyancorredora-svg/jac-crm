@@ -1769,7 +1769,7 @@ function cotzCompararAll(){
   sel.forEach(aseg=>{
     const rd=COTP_RATES[ramoKey];if(!rd)return;
     let rate;
-    if(ramoKey==='autos')rate=rd.todo_riesgo?rd.todo_riesgo[aseg]:null;
+    if(ramoKey==='autos')rate=rd.cobertura_completa?rd.cobertura_completa[aseg]:null;
     else if(ramoKey==='salud')rate=rd.individual?rd.individual[aseg]:null;
     else rate=rd[aseg];
     if(!rate)return;
@@ -4038,7 +4038,19 @@ document.addEventListener('DOMContentLoaded',()=>{
         </div>
       </div>
       <!-- Podium top 3 -->
-      <div id="cotp-podium" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
+      <div id="cotp-lideres-banner" style="display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:12px;padding:12px 16px;margin-bottom:14px;flex-wrap:wrap">
+  <div style="font-size:24px">🌐</div>
+  <div style="flex:1;min-width:200px">
+    <div style="font-size:11px;font-weight:800;color:#93C5FD;text-transform:uppercase;letter-spacing:1px">Portal Líderes en Seguros</div>
+    <div style="font-size:12px;color:#CBD5E1;margin-top:2px">Cotizá <span class="cotp-lideres-ramo" style="color:#FCD34D;font-weight:700"></span> directamente en el portal oficial de aseguradoras de Panamá</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="window.open('https://portal.lideresenseguros.com/cotizadores','_blank')" style="background:#3B82F6;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔗 Abrir portal</button>
+    <button onclick="window.open('https://eprezto.com/','_blank')" style="background:#7C3AED;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">⚡ Eprezto.com</button>
+    <button onclick="window.open('https://comparalatam.com/pa/seguro/','_blank')" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">📊 ComparaLatam</button>
+  </div>
+</div>
+<div id="cotp-podium" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
       <!-- Sort controls -->
       <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #E2E8F0;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-size:11px;color:#64748B;font-weight:700">ORDENAR:</span>
@@ -6276,7 +6288,7 @@ const COTP_RATES = {
   // ── AUTOS ── Fuentes: eprezto.com, comparalatam.com, anuariolatamseguros.com (2026)
   autos:{
     // TODO RIESGO: tasa % del valor del vehículo/año (2.5%-3.8% mercado panameño)
-    todo_riesgo:{
+    cobertura_completa:{
       ASSA:      {tasa:0.0320,itbms:0.06,com:0.15,deducible:'1% mín. B/.150',cobertura:'Todo riesgo (daños propios, colisión, volcadura), robo total, RC hasta B/.60,000, asistencia vial 24h'},
       SURA:      {tasa:0.0295,itbms:0.06,com:0.15,deducible:'1% mín. B/.175',cobertura:'Todo riesgo, robo total y parcial, cristales, asistencia vial 24h, revisado gratis'},
       MAPFRE:    {tasa:0.0285,itbms:0.06,com:0.15,deducible:'2% mín. B/.200',cobertura:'Todo riesgo, robo total, RC hasta B/.75,000, grúa'},
@@ -6297,12 +6309,12 @@ const COTP_RATES = {
       ASSITCARD: {tasa:0.0280,itbms:0.06,com:0.13,deducible:'1.5% mín. B/.150',cobertura:'Todo riesgo, RC hasta B/.50,000, asistencia 24h — ASSIT CARD'},
     },
     // TERCEROS/RC: precio fijo anual (NO % valor). Fuente: eprezto.com 2026
-    terceros:{
-      LAREGIONAL:{fijo:92.45, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales B/.40,000 — sin gastos médicos. Fuente: eprezto.com'},
-      ASSA:      {fijo:93.75, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños materiales B/.60,000, lesiones B/.15,000, ambulancia. Fuente: eprezto.com'},
-      IS:        {fijo:96.24, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.50,000, grúa, asistencia vial, ambulancia. Fuente: eprezto.com'},
-      SURA:      {fijo:97.59, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, revisado gratis incluido, asistencia vial. Fuente: eprezto.com'},
-      FEDPA:     {fijo:88.00, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales B/.40,000'},
+    danos_terceros:{
+      LAREGIONAL:{fijo:137.0, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales+corporales B/.40,000 — Fuente: eprezto.com 2026'},
+      ASSA:      {fijo:132.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños materiales B/.60,000, lesiones B/.15,000, ambulancia. Fuente: eprezto.com 2026'},
+      IS:        {fijo:145.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.50,000, grúa, asistencia vial, ambulancia. Fuente: eprezto.com 2026'},
+      SURA:      {fijo:149.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.60,000, revisado gratis incluido, asistencia vial. Fuente: eprezto.com 2026'},
+      FEDPA:     {fijo:108.0, itbms:0.06,com:0.12,deducible:'N/A',cobertura:'RC daños materiales B/.40,000 — Fuente: eprezto.com 2026'},
       ANCON:     {fijo:94.50, itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC daños materiales B/.50,000'},
       ACERTA:    {fijo:98.00, itbms:0.06,com:0.14,deducible:'N/A',cobertura:'RC daños B/.50,000, asistencia en carretera'},
       MAPFRE:    {fijo:108.0, itbms:0.06,com:0.15,deducible:'N/A',cobertura:'RC daños B/.75,000, gastos médicos terceros B/.2,000'},
@@ -6338,7 +6350,26 @@ const COTP_RATES = {
       GENERALI:{base:108,edad_factor:0.060,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.100,000 — hospitalización, cirugías, especialistas, maternidad opt.'},
       CHUBB:   {base:145,edad_factor:0.080,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Suma B/.1,000,000 — cobertura internacional premium, 0 red, reembolso al 100%'},
       VUMI:    {base:100,edad_factor:0.055,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.100,000 + cobertura internacional VUMI — hospitalización, cirugías'},
-      BG:      {base:102,edad_factor:0.056,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.100,000 — hospitalización, quirúrgico, laboratorio, red Banistmo'},
+      BG:      {base:102,edad_factor:0.056,itbms:0.05,com:0.10,deducible:'B/.300/año',cobertura:'Suma B/.100,000 — hospitalización, quirúrgico, laboratorio, red Banistmo'},    },
+    familiar:{
+      ASSA:      {base:82, edad_factor:0.048,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Plan familiar B/.75,000 — hospitalización, quirúrgico, urgencias, pediatría. Red: Clínica Paitilla, Nacional'},
+      SURA:      {base:78, edad_factor:0.046,itbms:0.05,com:0.10,deducible:'B/.700/año',cobertura:'Plan familiar B/.75,000 — hospitalización, cirugías, urgencias, laboratorio, pediatría, revisado gratis'},
+      MAPFRE:    {base:75, edad_factor:0.044,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Plan familiar B/.60,000 — hospitalización, quirúrgico, laboratorio, pediatría, maternidad opt.'},
+      IS:        {base:72, edad_factor:0.042,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Plan familiar B/.50,000 — hospitalización, quirúrgico, urgencias, pediatría'},
+      PALIG:     {base:98, edad_factor:0.060,itbms:0.05,com:0.10,deducible:'B/.700/año',cobertura:'Plan familiar B/.1,000,000 — cobertura internacional, pediatría, especialistas PALIG'},
+      WWMED:     {base:88, edad_factor:0.052,itbms:0.05,com:0.10,deducible:'B/.400/año',cobertura:'Plan familiar B/.100,000 — hospitalización, pediatría, laboratorio, especialistas'},
+      ASSITCARD: {base:58, edad_factor:0.038,itbms:0.05,com:0.15,deducible:'B/.300/año',cobertura:'Plan asistencia familiar + emergencias internacionales ASSIT CARD'},
+      ANCON:     {base:65, edad_factor:0.040,itbms:0.05,com:0.10,deducible:'B/.400/año',cobertura:'Plan familiar: hospitalización, cirugía, laboratorio, pediatría, red Ancón'},
+      ALIADOS:   {base:55, edad_factor:0.035,itbms:0.05,com:0.10,deducible:'B/.400/año',cobertura:'Plan familiar básico: hospitalización, cirugía, emergencias'},
+      GENERAL:   {base:62, edad_factor:0.040,itbms:0.05,com:0.10,deducible:'B/.400/año',cobertura:'Plan familiar: hospitalización, cirugía, consultas, laboratorio, pediatría'},
+      UNIVIVIR:  {base:50, edad_factor:0.032,itbms:0.05,com:0.12,deducible:'B/.300/año',cobertura:'Plan familiar básico — hospitalización, emergencias, cobertura complementaria'},
+      LAREGIONAL:{base:48, edad_factor:0.030,itbms:0.05,com:0.10,deducible:'B/.400/año',cobertura:'Plan familiar básico hospitalización — red provincial'},
+      FEDPA:     {base:62, edad_factor:0.038,itbms:0.05,com:0.08,deducible:'B/.500/año',cobertura:'Plan familiar B/.30,000 — hospitalización básica, quirúrgico, pediatría'},
+      ACERTA:    {base:68, edad_factor:0.042,itbms:0.05,com:0.09,deducible:'B/.500/año',cobertura:'Plan familiar B/.50,000 — hospitalización, quirúrgico, urgencias, pediatría'},
+      GENERALI:  {base:92, edad_factor:0.055,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Plan familiar B/.100,000 — hospitalización, cirugías, especialistas, pediatría, maternidad opt.'},
+      CHUBB:     {base:122,edad_factor:0.072,itbms:0.05,com:0.10,deducible:'B/.700/año',cobertura:'Plan familiar premium B/.1,000,000 — cobertura internacional, 0 red, reembolso 100%'},
+      VUMI:      {base:85, edad_factor:0.050,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Plan familiar B/.100,000 + cobertura internacional VUMI — hospitalización, pediatría'},
+      BG:        {base:86, edad_factor:0.050,itbms:0.05,com:0.10,deducible:'B/.500/año',cobertura:'Plan familiar B/.100,000 — hospitalización, quirúrgico, laboratorio, pediatría, red Banistmo'},
     }
   },
   // ── VIDA ── tasa base sobre suma asegurada; la función cotpCalcAll aplica multiplicador de edad
@@ -6712,6 +6743,37 @@ function fM(n){return typeof n==='number'?'$'+n.toFixed(2).replace(/\B(?=(\d{3})
 // ─── Init ──────────────────────────────────────────────────────────────────
 function cotpInit(){
   cotpBuildRamoGrid();
+
+// ── URLs de cotizadores reales por aseguradora y ramo (2026) ──
+const COTP_URLS = {
+  ASSA:      { autos:'https://calculadora.assanet.com/', salud:'https://www.assanet.com/salud', vida:'https://www.assanet.com/vida', hogar:'https://www.assanet.com/', viaje:'https://www.assanet.com/', ap:'https://www.assanet.com/', soat:'https://www.assanet.com/', _web:'https://www.assanet.com/' },
+  SURA:      { autos:'https://segurossura.com.pa/cotizador/seguro-de-autos/', salud:'https://segurossura.com.pa/cotizador/seguro-de-salud/', vida:'https://segurossura.com.pa/personas/seguros-de-vida/', hogar:'https://segurossura.com.pa/', viaje:'https://segurossura.com.pa/', ap:'https://segurossura.com.pa/', soat:'https://segurossura.com.pa/', _web:'https://segurossura.com.pa/' },
+  MAPFRE:    { autos:'https://www.mapfre.com.pa/seguros-auto/', salud:'https://www.mapfre.com.pa/', vida:'https://segurosvida.mapfre.com.pa/seguro-vida/', hogar:'https://www.mapfre.com.pa/seguros-generales/seguro-hogar/', viaje:'https://www.mapfre.com.pa/', ap:'https://www.mapfre.com.pa/', soat:'https://www.mapfre.com.pa/', _web:'https://www.mapfre.com.pa/' },
+  IS:        { autos:'https://www.iseguros.com/emisorauto/frmcotizarcc.aspx', salud:'https://www.iseguros.com/salud.html', vida:'https://www.iseguros.com/', hogar:'https://www.iseguros.com/', viaje:'https://www.iseguros.com/', ap:'https://www.iseguros.com/', soat:'https://eprezto.com/', _web:'https://www.iseguros.com/' },
+  PALIG:     { autos:'https://palig.com/es/pa', salud:'https://palig.com/es/panama/individuals-and-families/health', vida:'https://palig.com/es/pa/seguro-de-vida', hogar:'https://palig.com/es/pa', viaje:'https://palig.com/es/pa', ap:'https://palig.com/es/pa', soat:'https://palig.com/es/pa', _web:'https://palig.com/es/pa' },
+  FEDPA:     { autos:'https://sfcpanama.com/seguro-auto-danos-a-terceros-seguros-fedpa/', salud:'https://sfcpanama.com/', vida:'https://sfcpanama.com/', hogar:'https://sfcpanama.com/', viaje:'https://sfcpanama.com/', ap:'https://sfcpanama.com/', soat:'https://eprezto.com/', _web:'https://sfcpanama.com/' },
+  ACERTA:    { autos:'https://acertaseguros.com/', salud:'https://acertaseguros.com/', vida:'https://acertaseguros.com/seguro-de-vida/', hogar:'https://acertaseguros.com/', viaje:'https://acertaseguros.com/', ap:'https://acertaseguros.com/', soat:'https://acertaseguros.com/', _web:'https://acertaseguros.com/' },
+  GENERALI:  { autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores', _web:'https://portal.lideresenseguros.com/cotizadores' },
+  CHUBB:     { autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores', _web:'https://portal.lideresenseguros.com/cotizadores' },
+  LAREGIONAL:{ autos:'https://www.laregionaldeseguros.com/lrds/poliza-de-automovil-particular/', salud:'https://www.laregionaldeseguros.com/', vida:'https://www.laregionaldeseguros.com/', hogar:'https://www.laregionaldeseguros.com/', viaje:'https://www.laregionaldeseguros.com/', ap:'https://www.laregionaldeseguros.com/', soat:'https://eprezto.com/', _web:'https://www.laregionaldeseguros.com/' },
+  ANCON:     { autos:'https://comparalatam.com/pa/seguro/particular/auto/simu/', salud:'https://comparalatam.com/pa/seguro/particular/salud/simu/', vida:'https://comparalatam.com/pa/seguro/particular/vida/simu/', hogar:'https://comparalatam.com/pa/seguro/particular/hogar/simu/', viaje:'https://comparalatam.com/pa/seguro/particular/viaje/simu/', ap:'https://comparalatam.com/pa/seguro/particular/accidentes/simu/', soat:'https://eprezto.com/', _web:'https://comparalatam.com/pa/seguro/' },
+  WWMED:     { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
+  ALIADOS:   { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
+  GENERAL:   { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
+  VUMI:      { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
+  UNIVIVIR:  { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
+  ASSITCARD: { _web:'https://portal.lideresenseguros.com/cotizadores', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://portal.lideresenseguros.com/cotizadores', vida:'https://portal.lideresenseguros.com/cotizadores', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
+  BG:        { _web:'https://mercantilbanco.com.pa/seguros', autos:'https://portal.lideresenseguros.com/cotizadores', salud:'https://www.mercantilseguros.com.pa/productos/personas/salud', vida:'https://mercantilbanco.com.pa/seguros', hogar:'https://portal.lideresenseguros.com/cotizadores', viaje:'https://portal.lideresenseguros.com/cotizadores', ap:'https://portal.lideresenseguros.com/cotizadores', soat:'https://portal.lideresenseguros.com/cotizadores' },
+  _COMPARADOR: 'https://comparalatam.com/pa/seguro/',
+  _EPREZTO:    'https://eprezto.com/',
+  _LIDERES:    'https://portal.lideresenseguros.com/cotizadores',
+};
+function cotpGetUrl(asegId, ramo){
+  const asegUrls = COTP_URLS[asegId];
+  if(!asegUrls) return COTP_URLS._LIDERES;
+  return asegUrls[ramo] || asegUrls._web || COTP_URLS._LIDERES;
+}
+
   const n=document.getElementById('cotp-save-nom');
   const nombre=document.getElementById('cotp-nombre')?.value||'';
   if(n&&nombre)n.value=nombre;
@@ -6860,8 +6922,8 @@ function cotpBuildRamoFields(ramo){
     html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="fl ff"><label style="font-size:11px">Tipo de cobertura</label>
         <select class="fc" id="cotp-sub" onchange="cotpSelectedSub=this.value" style="font-size:12px">
-          <option value="todo_riesgo">Todo riesgo</option>
-          <option value="terceros">Terceros</option>
+          <option value="cobertura_completa">Cobertura Completa</option>
+          <option value="danos_terceros">Daños a Terceros</option>
         </select>
       </div>
       <div class="fl ff"><label style="font-size:11px">Marca</label>
@@ -6913,7 +6975,7 @@ function cotpBuildRamoFields(ramo){
       <div class="fl ff"><label style="font-size:11px">Suma asegurada (USD)</label><input class="fc" id="cotp-val" type="number" placeholder="100000" style="font-size:12px"></div>
       <div class="fl ff"><label style="font-size:11px">Edad del asegurado</label><input class="fc" id="cotp-edad-man" type="number" placeholder="35" min="18" max="70" style="font-size:12px" onchange="cotpShowVidaNote()"></div>
       <div class="fl ff"><label style="font-size:11px">Plazo (años)</label>
-        <select class="fc" id="cotp-sub" style="font-size:12px">
+        <select class="fc" id="cotp-sub" onchange="cotpSelectedSub=this.value" style="font-size:12px">
           <option value="temporal_10">Temporal 10 años</option>
           <option value="temporal_20" selected>Temporal 20 años</option>
           <option value="temporal_30">Temporal 30 años</option>
@@ -7030,7 +7092,7 @@ function cotpBuildAsegGrid(){
   // Find available insurers for this ramo
   const rateMap=COTP_RATES[ramo]||{};
   let asegIds=[];
-  // Check sub-ramo first (like autos.todo_riesgo), else top level
+  // Check sub-ramo first (like autos.cobertura_completa), else top level
   const sub=document.getElementById('cotp-sub')?.value||null;
   if(sub&&rateMap[sub]){asegIds=Object.keys(rateMap[sub]);}
   else{
@@ -7145,13 +7207,27 @@ function cotpCalcAll(){
     }else if(rates.tasa){
       const safeVal=val||50000;
       if(ramo==='vida'){
-        // VIDA: suma × tasa_base × factor_edad (actuarial)
+        // VIDA: suma × tasa_base × factor_edad × multiplicador de plazo
         const edadV=parseInt(document.getElementById('cotp-edad-man')?.value)||35;
-        primaNeta=safeVal*rates.tasa*_ageMultVida(edadV);
+        const _plazMult={'temporal_10':0.78,'temporal_20':1.0,'temporal_30':1.22,'vitalicio':2.0};
+        const _plazM=_plazMult[sub]||1.0;
+        primaNeta=safeVal*rates.tasa*_ageMultVida(edadV)*_plazM;
       }else if(ramo==='ap'){
         // AP: suma × tasa_base × factor_ocupación
         const ocuF=_apOcuFact[sub]||1.0;
         primaNeta=safeVal*rates.tasa*ocuF;
+      }else if(ramo==='hogar'){
+        // HOGAR: tasa × valor × factor tipo propiedad
+        const _hogarMult={'casa':1.0,'apartamento':0.85,'comercial':1.35};
+        primaNeta=safeVal*rates.tasa*(_hogarMult[sub]||1.0);
+      }else if(ramo==='rc'){
+        // RC: tasa × valor × factor tipo cobertura
+        const _rcMult={'comercial':1.0,'profesional':1.3,'personal':0.65};
+        primaNeta=safeVal*rates.tasa*(_rcMult[sub]||1.0);
+      }else if(ramo==='cyb'){
+        // CYBER: tasa × valor × factor tamaño empresa
+        const _cybMult={'pyme':0.65,'mediana':1.0,'grande':1.8};
+        primaNeta=safeVal*rates.tasa*(_cybMult[sub]||1.0);
       }else{
         // Default: valor × tasa
         primaNeta=safeVal*rates.tasa;
@@ -7177,6 +7253,13 @@ function cotpCalcAll(){
   if(title)title.textContent=`${R?R.icon+' ':''} Comparativo ${R?R.label:ramo}`;
   const sub2=document.getElementById('cotp-res-sub');
   if(sub2)sub2.textContent=`${nombre?nombre+' · ':''}${cotpResults.length} opciones • Ordenado por precio`;
+  // ── Líderes en Seguros portal banner ──
+  const _lideresEl=document.getElementById('cotp-lideres-banner');
+  if(_lideresEl){
+    const _rN=COTP_RAMOS.find(r=>r.id===ramo);
+    _lideresEl.style.display='flex';
+    _lideresEl.querySelector('.cotp-lideres-ramo').textContent=_rN?_rN.label:ramo;
+  }
   const saveNom=document.getElementById('cotp-save-nom');if(saveNom&&nombre)saveNom.value=nombre;
   const saveAseg=document.getElementById('cotp-save-aseg');
   if(saveAseg){
@@ -7295,6 +7378,7 @@ function cotpRenderCards(){
       <div style="display:flex;gap:6px">
         <button onclick="cotpSelectResult('${r.asegId}')" style="flex:1;background:${i===0?'#15803D':i===1?'#2563EB':'#475569'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer">Seleccionar</button>
         <button onclick="cotpWAResult('${r.asegId}')" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer">💬</button>
+        <button onclick="window.open(cotpGetUrl('${r.asegId}',cotpSelectedRamo),'_blank')" title="Cotizar online en ${r.aseg.nombre}" style="background:#0EA5E9;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer">🌐</button>
       </div>
     </div>
   </div>`).join('');
@@ -7500,7 +7584,6 @@ function cotpSaveProspe(){
   const nombreCliente=document.getElementById('cotp-nombre')?.value.trim()||'';
   const nombre=nombreSave||nombreCliente;
   if(!nombre){toast('Completa el nombre del prospecto','err');document.getElementById('cotp-save-nom')?.focus();return;}
-  if(cotpLinkedId){toast('Ya está vinculado a un cliente existente','ok');return;}
   // Get selected aseguradora
   const asegSel=document.getElementById('cotp-save-aseg');
   const asegId=asegSel?.value||'';
