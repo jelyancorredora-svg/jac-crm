@@ -6805,6 +6805,8 @@ function fM(n){return typeof n==='number'?'$'+n.toFixed(2).replace(/\B(?=(\d{3})
 // ─── Init ──────────────────────────────────────────────────────────────────
 function cotpInit(){
   cotpBuildRamoGrid();
+  const _sfb=document.getElementById('cotp-save-feedback');if(_sfb){_sfb.style.display='none';_sfb.innerHTML='';}
+}
 
 // ── URLs de cotizadores reales por aseguradora y ramo (2026) ──
 function cotpGeneratePDF(filterAsegId){
@@ -6859,10 +6861,6 @@ function cotpSendWhatsApp(filterAsegId){
 }
 
 
-  const n=document.getElementById('cotp-save-nom');
-  const nombre=document.getElementById('cotp-nombre')?.value||'';
-  if(n&&nombre)n.value=nombre;
-}
 
 // ─── Reset ─────────────────────────────────────────────────────────────────
 function cotpReset(){
@@ -6875,6 +6873,7 @@ function cotpReset(){
   const hs=document.getElementById('cotp-hijo-sec');if(hs)hs.style.display='none';
   cotpGoStep(1,true);
   cotpBuildRamoGrid();
+  const _sfb=document.getElementById('cotp-save-feedback');if(_sfb){_sfb.style.display='none';_sfb.innerHTML='';}
   toast('Nueva cotización iniciada','ok');
 }
 
