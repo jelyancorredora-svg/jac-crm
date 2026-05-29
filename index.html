@@ -357,6 +357,14 @@ body.dark .mu{color:var(--dark-mu);}
         <button onclick="setPV('kr',this)">Ramo</button>
       </div>
       <button class="btn bp" onclick="OP()">+ Póliza</button>
+      <button class="btn bsm" onclick="exportPolCSV()" title="Exportar a CSV" style="background:#f0fdf4;border:1px solid #86efac;color:#15803d">📥 CSV</button>
+    </div>
+    <div id="vf-btns" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 0 2px 0">
+      <button class="btn bsm on" onclick="setVF('',this)">Todas</button>
+      <button class="btn bsm" onclick="setVF('vencidas',this)" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5">🔴 Vencidas</button>
+      <button class="btn bsm" onclick="setVF('7',this)" style="background:#fff7ed;color:#c2410c;border-color:#fdba74">🚨 ≤7 días</button>
+      <button class="btn bsm" onclick="setVF('30',this)" style="background:#fefce8;color:#854d0e;border-color:#fde047">⚠️ ≤30 días</button>
+      <button class="btn bsm" onclick="setVF('60',this)" style="background:#eff6ff;color:#1d4ed8;border-color:#93c5fd">📅 ≤60 días</button>
     </div>
   </div>
   <div id="pol-view"></div>
@@ -2043,7 +2051,7 @@ if(!S||typeof S!=='object'||!Array.isArray(S.clientes)){
   _n.vcReglas=JSON.parse(JSON.stringify(D.vcReglas||[]));
   S=_n;
 }
-let EID=null,CFN=null,SA_=false,PV='table',TV='k',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
+let EID=null,CFN=null,SA_=false,PV='table',TV='k',VF='',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
 
 function save(){try{localStorage.setItem('jacv10',JSON.stringify(S));}catch(e){toast('Almacenamiento lleno — exporta datos','err');}}
@@ -2645,7 +2653,8 @@ function RD(){
     <div class="st"><em>Mis Comisiones</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tC)}</div></div>
     <div class="st" onclick="SH('com')" style="cursor:pointer"><em>Por Cobrar</em><div class="n" style="color:#B45309;font-size:14px">${fmtM(tCom)}</div></div>
     <div class="st" onclick="SH('vc')" style="cursor:pointer"><em>Venta Cruzada</em><div class="n" style="color:#EA580C">${vcOpps}</div><div class="sv">oportunidades</div></div>
-    <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div>${(()=>{const h=TODAY.toISOString().split('T')[0];const t=(S.tareas||[]).filter(x=>x.fechaLimite===h&&x.etapaTarea!=='Hecho').length;return t?`<div class="sv" style="color:#DC2626;font-weight:700">🔴 ${t} hoy</div>`:''})()}</div>`;
+    <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div>${(()=>{const h=TODAY.toISOString().split('T')[0];const t=(S.tareas||[]).filter(x=>x.fechaLimite===h&&x.etapaTarea!=='Hecho').length;return t?`<div class="sv" style="color:#DC2626;font-weight:700">🔴 ${t} hoy</div>`:''})()}</div>
+    ${(()=>{const tot=S.clientes.length+(S.prospectos||[]).length;const rate=tot>0?Math.round(S.clientes.length/tot*100):0;return`<div class="st" onclick="SH('cli')" style="cursor:pointer"><em>Conversión</em><div class="n" style="color:#0891B2;font-size:16px">${rate}%</div><div class="sv">${S.clientes.length} clientes de ${tot}</div></div>`;})()}`;
   let al='';if(p30)al+=b('bwn',`⚠️ ${p30} por vencer`)+' ';if(vv)al+=b('bdg',`🔴 ${vv} vencidas`);
   const ha=document.getElementById('ha');if(ha)ha.innerHTML=al+`<button class="btn bsm" onclick="doLogout()">🚪</button>`;
   const prox=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=60&&p.estado!=='Cancelada';}).sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
@@ -3371,8 +3380,24 @@ function filtPol(){
       const est=p.estado==='Cancelada'?'Cancelada':d<0?'Vencida':'Vigente';
       if(est!==fe&&(p.estado||'')!==fe)return false;
     }
+    // Filtro rápido por vencimiento
+    if(VF){
+      const dv=dFrom(p.fechaFin);
+      if(VF==='vencidas'&&dv>=0)return false;
+      if(VF==='7'&&(dv<0||dv>7))return false;
+      if(VF==='30'&&(dv<0||dv>30))return false;
+      if(VF==='60'&&(dv<0||dv>60))return false;
+    }
     return true;
   });
+}
+function setVF(v,el){VF=v;document.querySelectorAll('#vf-btns button').forEach(b=>b.classList.remove('on'));el.classList.add('on');RP();}
+function exportPolCSV(){
+  const fil=filtPol();
+  const rows=[['Nro Póliza','Cliente','Aseguradora','Ramo','Estado','Prima Total','Comisión','Inicio','Vencimiento','Forma Pago']];
+  fil.forEach(p=>{const cl=GC(p.clienteId);rows.push([p.num||'',cl.nombre||p.nombreCliente||'',p.aseg||'',p.ramo||'',p.estado||'',p.total||p.prima||0,p.comision||0,p.fechaInicio||'',p.fechaFin||'',p.formaPago||'']);});
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);a.download='polizas-jac-'+new Date().toISOString().split('T')[0]+'.csv';a.click();toast('📥 CSV descargado ('+fil.length+' pólizas)');
 }
 function setPV(v,el){PV=v;document.querySelectorAll('.vtog button').forEach(b=>b.classList.remove('on'));el.classList.add('on');RP();}
 function RP(){
@@ -3518,7 +3543,7 @@ function SP(){
   const phc=document.getElementById('p-hc');const hcc=phc?phc.checked:false;const cId=V('p-cl');
   const d={clienteId:cId,nombreCliente:GC(cId).nombre||'',num,numAnexo:V('p-na'),tipo:V('p-tp'),aseg,ramo:V('p-ra'),subramo:V('p-sr').trim(),nueva:V('p-nr'),estado:V('p-es'),etapa:V('p-et'),riesgo:V('p-ri').trim(),valorRiesgo:GF('p-vr'),cobertura:V('p-cob'),tipoPol:V('p-tpo'),prima:GF('p-pr'),itbmsPct:GF('p-it'),itbms:GF('p-ib'),gastosExp:GF('p-ge'),valorFinanciacion:GF('p-vf'),total:GF('p-tot'),cuotaMensual:GF('p-cmes'),cuotaTrimestral:GF('p-ctri'),cuotaSemestral:GF('p-csem'),cuotaAnual:GF('p-canu'),comPct:GF('p-cb'),participacion:GF('p-pa')||100,comision:GF('p-co'),nombreAsegurado:V('p-nas'),docAsegurado:V('p-das'),tomador:V('p-nto'),docTomador:V('p-dto'),beneficiario:V('p-ben'),cedBeneficiario:V('p-cben'),fechaExpedicion:V('p-fex'),fechaRecepcion:V('p-fre'),fechaInicio:V('p-fi'),fechaFin:V('p-ff'),fechaCancelada:V('p-fca'),formaPago:V('p-fp'),periodo:V('p-pe'),medio:V('p-me'),banco:V('p-ban'),moneda:V('p-mon')||'USD',vendedor:V('p-ven').trim(),obs:V('p-ob').trim(),obsInt:V('p-oi').trim(),coCor:hcc?V('p-cc'):'',coCorPart:hcc?GF('p-cp'):0,coCorCom:hcc?GF('p-cc2'):0};
   if(EID){const i=S.polizas.findIndex(p=>p.id===EID);if(i>=0){if(!S.polizas[i].archivos)S.polizas[i].archivos=[];S.polizas[i].archivos.push(..._pf);S.polizas[i]={...S.polizas[i],...d};}toast('✓ Póliza actualizada');}
-  else{S.polizas.push({id:'P'+uid(),...d,asegurados:[],archivos:[..._pf]});toast('✓ Póliza guardada');}
+  else{const _newPolId='P'+uid();const _newPol={id:_newPolId,...d,asegurados:[],archivos:[..._pf]};S.polizas.push(_newPol);if((_newPol.comision||0)>0){if(!S.comisiones)S.comisiones=[];const _mes=(_newPol.fechaInicio||TODAY.toISOString().split('T')[0]).substring(0,7);S.comisiones.push({id:'COM'+uid(),aseg:_newPol.aseg,mes:_mes,monto:_newPol.comision,estado:'pendiente',polizaId:_newPolId,polizaNum:_newPol.num,ramo:_newPol.ramo,clienteId:_newPol.clienteId,auto:true});if(typeof RCom==='function')RCom();}toast('✓ Póliza guardada · Comisión registrada automáticamente');}
   // Auto-promote prospecto to cliente when policy is created
   if(cId){
     const _pros=S.prospectos?.find(x=>x.id===cId);
@@ -4166,6 +4191,7 @@ document.addEventListener('DOMContentLoaded',()=>{
           <div class="fl ff"><label style="font-size:11px">Aseguradora elegida</label><select class="fc" id="cotp-save-aseg" style="font-size:12px"><option value="">— Seleccionar —</option></select></div>
           <button class="cotp-btn-primary" onclick="cotpSaveProspe()" style="padding:10px 20px">💾 Guardar en CRM</button>
           <button onclick="cotpCrearPolizaDesdeResult(document.getElementById('cotp-save-aseg')?.value||'')" style="background:#1D4ED8;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📋 Crear Póliza</button>
+          <button onclick="cotpShareWA()" style="background:#25D366;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">💬 WhatsApp</button>
         <div id="cotp-save-feedback" style="display:none;margin-top:10px"></div>
         </div>
       </div>
@@ -7574,6 +7600,31 @@ function cotpRenderCards(){
 }
 
 // ─── Crear Póliza desde resultado de cotización ────────────────────────────
+function cotpShareWA(){
+  if(!cotpResults||!cotpResults.length){toast('Primero genera una cotización','err');return;}
+  const asegSel=document.getElementById('cotp-save-aseg');
+  const asegId=asegSel?.value||'';
+  const r=asegId?cotpResults.find(x=>x.asegId===asegId)||cotpResults[0]:cotpResults[0];
+  const ramoLabel=COTP_RAMOS.find(x=>x.id===cotpSelectedRamo)?.label||cotpSelectedRamo||'Seguro';
+  const nom=document.getElementById('cotp-save-nom')?.value.trim()||document.getElementById('cotp-nombre')?.value.trim()||'';
+  const fM2=v=>v!=null?'$'+Number(v).toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  let msg=`🛡️ *Cotización JAC Seguros*\n`;
+  msg+=`📋 Ramo: ${ramoLabel}\n`;
+  if(nom)msg+=`👤 Nombre: ${nom}\n`;
+  msg+=`\n`;
+  cotpResults.slice(0,5).forEach((res,i)=>{
+    msg+=`*${i+1}. ${res.aseg?.nombre||res.aseg||''}*\n`;
+    msg+=`   💰 Prima Total: ${fM2(res.primaTotal)}/año\n`;
+    if(res.cuota&&res.cuotasNum>1)msg+=`   📅 ${res.cuotasNum} cuotas de ${fM2(res.cuota)}\n`;
+    if(res.deducible)msg+=`   🔒 Deducible: ${res.deducible}\n`;
+    msg+=`\n`;
+  });
+  msg+=`✅ _Cotización válida por 30 días_\n`;
+  msg+=`📞 JAC Seguros · +507 6292-6010\n`;
+  msg+=`🌐 jacsegurospa.com`;
+  const url='https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+}
 function cotpCrearPolizaDesdeResult(asegId){
   const r=cotpResults.find(x=>x.asegId===asegId)||cotpResults[0];
   if(!r){toast('Sin resultados para crear póliza','err');return;}
