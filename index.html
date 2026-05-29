@@ -1833,12 +1833,23 @@ function cotpBuildAsegGrid(){
   const grid=document.getElementById('cotp-aseg-grid');
   if(!grid)return;
   if(typeof COTP_ASEG==='undefined')return;
-  grid.innerHTML=COTP_ASEG.map(a=>`
-    <div class="aseg-card sel" id="aseg-card-${a.id}" onclick="cotpToggleAseg('${a.id}')" style="background:#EDE9FE;border:2px solid #7C3AED;border-radius:10px;padding:10px;cursor:pointer;text-align:center;font-size:11px;font-weight:600;transition:all .15s">
+  grid.innerHTML=COTP_ASEG.map(a=>{
+    const sel=cotpSelectedIds.has(a.id);
+    const bg=sel?'#EDE9FE':'#F8FAFC';
+    const border=sel?'2px solid #7C3AED':'2px solid #CBD5E1';
+    const op=sel?'1':'0.5';
+    const nameC=sel?'#1e293b':'#94A3B8';
+    const checkMark=sel?'<div style="position:absolute;top:4px;right:4px;background:#7C3AED;color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:900">✓</div>':'';
+    return`<div class="aseg-card${sel?' sel':''}" id="aseg-card-${a.id}" onclick="cotpToggleAseg('${a.id}')"
+      style="position:relative;background:${bg};border:${border};border-radius:10px;padding:10px;cursor:pointer;text-align:center;font-size:11px;font-weight:600;transition:all .15s;opacity:${op}">
+      ${checkMark}
       <div style="font-size:16px;margin-bottom:4px">${a.logo}</div>
-      <div style="color:#1e293b;font-size:10px;font-weight:700">${a.id}</div>
+      <div style="color:${nameC};font-size:10px;font-weight:700">${a.id}</div>
       <div style="font-size:9px;color:#64748b;margin-top:2px">${a.rating}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+  const cnt=document.getElementById('cotp-sel-count');
+  if(cnt)cnt.textContent=cotpSelectedIds.size+' aseguradora'+(cotpSelectedIds.size!==1?'s':'')+' seleccionada'+(cotpSelectedIds.size!==1?'s':'');
 }
 function cotpShowVidaNote(){
   const e=parseInt(document.getElementById('cotp-edad-man')?.value)||0;
@@ -2341,39 +2352,49 @@ function renderCommsHistory(entries,maxShow){
   if(!entries||!entries.length)return'<div style="font-size:11px;color:var(--mu);text-align:center;padding:10px">Sin comunicaciones registradas</div>';
   const sorted=entries.slice().sort((a,z)=>new Date(z.fecha||'2000-01-01')-new Date(a.fecha||'2000-01-01'));
   const shown=maxShow?sorted.slice(0,maxShow):sorted;
-  return shown.map((e,idx)=>{
+  const total=sorted.length;
+  const hasMore=maxShow&&total>maxShow;
+  const html=shown.map((e,idx)=>{
     const isWA=e.tipo==='whatsapp'||(!e.tipo&&(e.msgType==='WhatsApp'||e.msgType==='Manual'));
     const bg=isWA?'#E7F8EE':'#EEF4FF';
     const bc=isWA?'#25D366':'#1D4ED8';
+    const bgDark=isWA?'rgba(37,211,102,0.12)':'rgba(29,78,216,0.1)';
     const icon=isWA?'💬':'📧';
     const tipo=isWA?'WhatsApp':'Email';
     const titulo=e.accion||e.msgType||e.asunto||e.subject||tipo;
-    const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||'';
+    const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||e.texto||'';
+    const dest=e.resultado||e.para||e.to||e.destinatario||'';
     const uid2='ch_'+(e.id||idx)+'_'+Math.random().toString(36).slice(2,6);
-    return`<div id="${uid2}" style="background:${bg};border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid ${bc}">
-      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px" onclick="toggleCommDetail('${uid2}')">
-        <div style="font-size:11px;font-weight:700;color:${bc}">${icon} ${esc(titulo)}</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:10px;color:var(--mu)">${fmt(e.fecha)||e.fecha||''}</span>
-          <span style="font-size:11px;color:${bc}" id="${uid2}_arr">▼</span>
+    const preview=cuerpo?(cuerpo.length>80?cuerpo.slice(0,80)+'…':cuerpo):'';
+    return`<div id="${uid2}" style="background:${bg};border-radius:8px;padding:0;margin-bottom:6px;border-left:3px solid ${bc};overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer;padding:8px 10px;gap:8px;user-select:none" onclick="toggleCommDetail('${uid2}')">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:700;color:${bc};margin-bottom:2px">${icon} ${esc(titulo)}</div>
+          ${dest?'<div style="font-size:10px;color:#64748B">Para: '+esc(dest)+'</div>':''}
+          ${preview?'<div style="font-size:10px;color:#475569;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(preview)+'</div>':''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+          <span style="font-size:10px;color:var(--mu);white-space:nowrap">${fmt(e.fecha)||e.fecha||''}</span>
+          <span style="font-size:13px;color:${bc};font-weight:900" id="${uid2}_arr">▼</span>
         </div>
       </div>
-      ${e.resultado?'<div style="font-size:10px;color:var(--mu);margin-top:2px">Para: '+esc(e.resultado)+'</div>':''} 
-      <div id="${uid2}_body" style="display:none;margin-top:6px;font-size:11px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,0.7);border-radius:4px;padding:6px;max-height:350px;overflow-y:auto">${cuerpo?esc(cuerpo):'<em style="color:var(--mu)">(sin contenido registrado)</em>'}</div>
+      <div id="${uid2}_body" style="display:none;border-top:1px solid ${bgDark};padding:10px 12px;background:rgba(255,255,255,0.85)">
+        ${dest?'<div style="font-size:10px;color:#64748B;margin-bottom:6px;font-weight:600">Para: <span style=\'color:#1e293b\'>'+esc(dest)+'</span></div>':''}
+        <div style="font-size:11px;color:#1a1a1a;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;line-height:1.6">${cuerpo?esc(cuerpo):'<em style="color:var(--mu)">(sin contenido de mensaje registrado)</em>'}</div>
+        ${e.adjuntos&&e.adjuntos.length?'<div style="margin-top:6px;font-size:10px;color:#64748B">📎 '+e.adjuntos.length+' adjunto(s)</div>':''}
+      </div>
     </div>`;
   }).join('');
+  const moreHtml=hasMore?`<div style="text-align:center;padding:8px"><button style="background:none;border:1px solid var(--bd);border-radius:6px;padding:5px 14px;font-size:11px;cursor:pointer;color:var(--mu)">Ver ${total-maxShow} más en historial completo</button></div>`:'';
+  return html+moreHtml;
 }
 function toggleCommDetail(id){
   const body=document.getElementById(id+'_body');
-  const btn=document.getElementById(id+'_btn');
+  const arr=document.getElementById(id+'_arr');
   if(!body)return;
   const open=body.style.display==='block';
   body.style.display=open?'none':'block';
-  if(btn){
-    const cur=btn.textContent;
-    if(open){btn.textContent=cur.replace('▲','▼').replace('Ocultar','Ver mensaje');}
-    else{btn.textContent=cur.replace('▼','▲').replace('Ver mensaje','Ocultar');}
-  }
+  if(arr){arr.textContent=open?'▼':'▲';}
 }
 function openWAForPolCli(polId,cliId,msgType){
   const pol=GP(polId);const cl=GC(cliId);
@@ -4072,7 +4093,8 @@ document.addEventListener('DOMContentLoaded',()=>{
         <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
           <div class="fl ff"><label style="font-size:11px">Nombre prospecto</label><input class="fc" id="cotp-save-nom" style="font-size:12px"></div>
           <div class="fl ff"><label style="font-size:11px">Aseguradora elegida</label><select class="fc" id="cotp-save-aseg" style="font-size:12px"><option value="">— Seleccionar —</option></select></div>
-          <button class="cotp-btn-primary" onclick="cotpSaveProspe()" style="padding:10px 20px">💾 Guardar</button>
+          <button class="cotp-btn-primary" onclick="cotpSaveProspe()" style="padding:10px 20px">💾 Guardar en CRM</button>
+        <div id="cotp-save-feedback" style="display:none;margin-top:10px"></div>
         </div>
       </div>
     </div>
@@ -6393,6 +6415,47 @@ const COTP_RATES = {
     GENERAL: {tasa:0.00350,itbms:0,com:0.13,deducible:'N/A',cobertura:'Muerte natural y accidental, DIPO — General de Seguros'},
     ASSITCARD:{tasa:0.00380,itbms:0,com:0.12,deducible:'N/A',cobertura:'Muerte accidental con asistencia médica 24h — ASSIT CARD'},
   },
+
+  // ── VIDA UNIVERSAL ── Prima anual % suma asegurada (acumula valor en efectivo)
+  // Productos reales del mercado panameño — planes de prima flexible con valor de rescate
+  vida_universal:{
+    ASSA:    {tasa:0.00520,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'ASSA Vida Universal — Muerte natural/accidental + valor en efectivo acumulable + DIPO B/.5,000/mes + exoneración de primas por invalidez. Prima flexible. Suma mín. B/.50,000'},
+    SURA:    {tasa:0.00490,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'SURA Vida Universal — Muerte + acumulación de valor en efectivo + cobertura enfermedades graves + DIPO. Rescate parcial disponible desde año 5'},
+    MAPFRE:  {tasa:0.00510,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'MAPFRE Vida Universal — Muerte + valor de rescate + exoneración de primas + DIPO. Flexible en frecuencia y monto de prima. Suma mín. B/.25,000'},
+    IS:      {tasa:0.00480,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'IS Vida Universal — Muerte natural/accidental + valor en efectivo + DIPO + asistencia funeraria incluida. Prima ajustable anualmente'},
+    PALIG:   {tasa:0.00460,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'PALIG Universal Life Premium — Muerte + valor en efectivo garantizado + riders disponibles (LTD, enf. graves, hospitalización). Uno de los mejores en Panamá. Suma mín. USD 50,000'},
+    GENERALI:{tasa:0.00530,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'Generali Vita Universal — Muerte + fondo de inversión (unit-linked) + enfermedades graves + DIPO. Cobertura internacional incluida'},
+    CHUBB:   {tasa:0.00580,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'Chubb Universal Life — Muerte + valor de acumulación premium + cobertura internacional + riders múltiples. Mercado ejecutivo/alta dirección'},
+    UNIVIVIR:{tasa:0.00420,itbms:0,com:0.12,deducible:'N/A',
+      cobertura:'UNIVIVIR Vida Universal — Plan especializado en vida universal con valor en efectivo. Muerte + DIPO + rescate desde año 3. Suma mín. B/.20,000'},
+    VUMI:    {tasa:0.00500,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'VUMI Universal Life — Muerte + acumulación de valor en efectivo + cobertura médica complementaria VUMI. Ideal para expatriados y ejecutivos regionales'},
+    BG:      {tasa:0.00495,itbms:0,com:0.15,deducible:'N/A',
+      cobertura:'BG Seguros Vida Universal — Muerte + valor de rescate + DIPO + asistencia funeraria. Vinculado a Banco General. Prima semestral o anual'},
+    ACERTA:  {tasa:0.00470,itbms:0,com:0.14,deducible:'N/A',
+      cobertura:'ACERTA Vida Universal — Muerte + valor en efectivo acumulable + DIPO. Acceso a rescate parcial. Suma mín. B/.30,000'},
+    WWMED:   {tasa:0.00475,itbms:0,com:0.14,deducible:'N/A',
+      cobertura:'WW Medical Vida Universal — Muerte + fondo de inversión + enfermedades graves. Cobertura combinada vida+salud con valor en efectivo'},
+    ANCON:   {tasa:0.00455,itbms:0,com:0.13,deducible:'N/A',
+      cobertura:'Ancón Vida Universal — Muerte + valor de rescate + DIPO básico. Prima anual flexible. Suma mín. B/.20,000'},
+    ALIADOS: {tasa:0.00440,itbms:0,com:0.12,deducible:'N/A',
+      cobertura:'Seguros Aliados Vida Universal — Muerte natural/accidental + valor en efectivo + DIPO. Cobertura básica universal'},
+    LAREGIONAL:{tasa:0.00450,itbms:0,com:0.13,deducible:'N/A',
+      cobertura:'La Regional Vida Universal — Muerte + acumulación valor en efectivo + DIPO. Rescate disponible. Prima semestral o anual'},
+    GENERAL: {tasa:0.00465,itbms:0,com:0.13,deducible:'N/A',
+      cobertura:'General de Seguros Vida Universal — Muerte + valor de rescate + DIPO. Plan flexible para mercado masivo panameño'},
+    FEDPA:   {tasa:0.00410,itbms:0,com:0.12,deducible:'N/A',
+      cobertura:'FEDPA Vida Universal — Muerte + valor en efectivo básico. Plan accesible para empleados de cooperativas y entidades financieras'},
+    ASSITCARD:{tasa:0.00390,itbms:0,com:0.12,deducible:'N/A',
+      cobertura:'ASSIT CARD Vida Universal — Muerte accidental + asistencia médica 24h + valor de acumulación básico'},
+  },
   // ── HOGAR/INCENDIO ── tasa % valor asegurado/año
   hogar:{
     ASSA:    {tasa:0.00220,itbms:0.06,com:0.15,deducible:'B/.300',cobertura:'Incendio, rayo, explosión, robo, daños por agua, RC vecinos — valor comercial'},
@@ -7002,6 +7065,7 @@ function cotpBuildRamoFields(ramo){
           <option value="temporal_20" selected>Temporal 20 años</option>
           <option value="temporal_30">Temporal 30 años</option>
           <option value="vitalicio">Vitalicio</option>
+          <option value="vida_universal">Vida Universal (valor en efectivo)</option>
         </select>
       </div>
     </div>
@@ -7231,9 +7295,12 @@ function cotpCalcAll(){
       if(ramo==='vida'){
         // VIDA: suma × tasa_base × factor_edad × multiplicador de plazo
         const edadV=parseInt(document.getElementById('cotp-edad-man')?.value)||35;
-        const _plazMult={'temporal_10':0.78,'temporal_20':1.0,'temporal_30':1.22,'vitalicio':2.0};
+        const _plazMult={'temporal_10':0.78,'temporal_20':1.0,'temporal_30':1.22,'vitalicio':2.0,'vida_universal':2.8};
         const _plazM=_plazMult[sub]||1.0;
-        primaNeta=safeVal*rates.tasa*_ageMultVida(edadV)*_plazM;
+        // Vida Universal: tasa diferente si aseguradora ofrece plan universal
+        const _rateVU=COTP_RATES.vida_universal&&COTP_RATES.vida_universal[asegId];
+        const _tasaVida=(_rateVU&&sub==='vida_universal')?_rateVU.tasa:rates.tasa;
+        primaNeta=safeVal*_tasaVida*_ageMultVida(edadV)*_plazM;
       }else if(ramo==='ap'){
         // AP: suma × tasa_base × factor_ocupación
         const ocuF=_apOcuFact[sub]||1.0;
@@ -7630,7 +7697,21 @@ function cotpSaveProspe(){
       accion:accionDesc,tipo:'cotizacion',resultado:'Pendiente respuesta'}]};
   if(!S.prospectos)S.prospectos=[];
   S.prospectos.unshift(np);save();cotpLinkedId=np.id;
-  toast(`✅ ${nombre} guardado como prospecto en el CRM`,'ok');
+  // Refresh prospecto list if visible
+  if(typeof renderPros==='function')renderPros();
+  // Show success with navigation option
+  const savedId=np.id;
+  const savedNom=np.nombre;
+  toast(`✅ ${savedNom} guardado como prospecto`,'ok');
+  // Show navigation button in save area
+  const saveArea=document.getElementById('cotp-save-feedback');
+  if(saveArea){
+    saveArea.style.display='block';
+    saveArea.innerHTML=`<div style="background:#DCFCE7;border:1px solid #16A34A;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="color:#15803D;font-weight:700;font-size:12px">✅ ${savedNom} guardado en Prospectos</span>
+      <button onclick="showPg('pg-pros');CM('mcotp')" style="background:#16A34A;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:700">Ver en Prospectos →</button>
+    </div>`;
+  }
 }
 
 // ─── Calendario de vencimientos ────────────────────────────────────────────
