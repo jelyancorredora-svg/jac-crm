@@ -30,16 +30,16 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-s
 .lerr{color:var(--dg);font-size:12px;text-align:center;margin-bottom:12px;display:none;background:var(--dgl);padding:8px;border-radius:6px}
 .lhint{font-size:10px;color:var(--mu);text-align:center;margin-top:10px}
 #app{display:none}
-#hdr{background:var(--wh);border-bottom:2px solid var(--bl);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(26,58,107,.1)}
+#hdr{background:#1A3A6B;border-bottom:3px solid #C8102E;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.35)}
 .hi{display:flex;align-items:center;gap:8px;padding:0 16px;height:50px;max-width:1800px;margin:0 auto}
 .lg2{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .lt b{font-size:12px;font-weight:900;color:var(--bl);letter-spacing:1.5px;display:block}
 .lt small{font-size:8.5px;color:var(--mu);display:block}
 nav{display:flex;gap:1px;flex-wrap:nowrap;margin-left:8px;overflow-x:auto;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
-nav a{padding:5px 9px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:transparent;color:var(--mu);white-space:nowrap;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:2px;flex-shrink:0}
-nav a:hover{background:#EEF2FF;color:var(--bl)}
-nav a.on{background:var(--bl);color:#fff;font-weight:700}
+nav a{padding:5px 9px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:transparent;color:rgba(255,255,255,.75);white-space:nowrap;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:2px;flex-shrink:0}
+nav a:hover{background:rgba(255,255,255,.18);color:#fff}
+nav a.on{background:#C8102E;color:#fff;font-weight:700}
 .ha{margin-left:auto;display:flex;gap:5px;align-items:center;flex-shrink:0}
 main{padding:14px 16px;max-width:1800px;margin:0 auto;padding-bottom:80px}
 .pg{display:none}.pg.on{display:block}
@@ -234,10 +234,10 @@ body.dark .mu{color:var(--dark-mu);}
 <div id="hdr"><div class="hi">
   <div class="lg2">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" height="50" aria-label="JAC Seguros">
-      <line x1="6" y1="14" x2="254" y2="14" stroke="#1A3A6B" stroke-width="2.5" opacity="0.35"/>
-      <line x1="6" y1="76" x2="254" y2="76" stroke="#1A3A6B" stroke-width="2.5" opacity="0.35"/>
-      <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#1A3A6B" letter-spacing="6">JAC</text>
-      <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="400" font-size="12" fill="#1D4ED8" letter-spacing="8">SEGUROS</text>
+      <line x1="6" y1="14" x2="254" y2="14" stroke="#ffffff" stroke-width="2.5" opacity="0.4"/>
+      <line x1="6" y1="76" x2="254" y2="76" stroke="#ffffff" stroke-width="2.5" opacity="0.4"/>
+      <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#FFFFFF" letter-spacing="6">JAC</text>
+      <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="400" font-size="12" fill="#FFD700" letter-spacing="8">SEGUROS</text>
     </svg>
   </div>
   <nav>
@@ -265,7 +265,7 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="ha" id="ha">
   <div id="gsearch-wrap" style="position:relative">
     <input id="gsearch-inp" class="fc" placeholder="🔍 Buscar..." 
-      style="width:180px;font-size:11px;padding:4px 10px;border-radius:20px;background:#EEF4FF;border-color:#BFDBFE"
+      style="width:180px;font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff"
       oninput="gsearchLive(this.value)" onblur="setTimeout(()=>gsearchHide(),200)" autocomplete="off">
     <div id="gsearch-results" style="display:none;position:absolute;top:32px;right:0;background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;max-height:400px;overflow-y:auto;min-width:340px"></div>
   </div>
@@ -1363,7 +1363,7 @@ body.dark .mu{color:var(--dark-mu);}
 <div class="mb"><div class="fg">
   <div class="fl"><label>Aseguradora <span>*</span></label><select class="fc" id="cm-as" onchange="comAutoRate()"></select></div>
   <div class="fl"><label>Ramo / Producto</label><select class="fc" id="cm-ra" onchange="comAutoRate()"><option value="">— Seleccionar —</option><option>Automóvil</option><option>Vida</option><option>Salud</option><option>Hogar</option><option>SOAT</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Transporte</option><option>Cumplimiento</option><option>Multiriesgo</option><option>Fianzas</option><option>Rentas</option><option>Otro</option></select></div>
-  <div class="fl"><label>Fecha de Registro <span style="font-size:9px;color:#64748b;font-weight:400">(opcional)</span></label><input class="fc" id="cm-fe" type="date"></div>
+  <div class="fl"><label>Fecha de Registro <span style="font-size:9px;color:#64748b;font-weight:400">(opcional)</span></label><div style="display:flex;gap:4px"><select class="fc" id="cm-fe-d" style="flex:0 0 70px"><option value="">Día</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option></select><select class="fc" id="cm-fe-m" style="flex:1"><option value="">Mes</option><option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option><option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option><option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option></select><select class="fc" id="cm-fe-y" style="flex:0 0 82px"><option value="">Año</option><option>2020</option><option>2021</option><option>2022</option><option>2023</option><option>2024</option><option>2025</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option><option>2030</option></select></div></div>
   <div class="fl"><label>% Comisión <span style="font-size:9px;color:#64748b;font-weight:400">auto o manual</span></label><input class="fc" id="cm-pc" type="number" step="0.1" min="0" max="100" placeholder="15" inputmode="decimal" title="Se auto-rellena según la tasa configurada por aseguradora/ramo"></div>
   <div class="fl"><label>Monto ($) <span>*</span></label><input class="fc" id="cm-mo" type="number" step="0.01" inputmode="decimal"></div>
   <div class="fl"><label>Estado</label><select class="fc" id="cm-es"><option value="pendiente">Pendiente</option><option value="cobrada">Cobrada</option></select></div>
@@ -1377,7 +1377,7 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="fl ff"><label>Título <span>*</span></label><input class="fc" id="t-ti"></div>
   <div class="fl"><label>Tipo</label><select class="fc" id="t-tp"><option>Renovación</option><option>Cobro</option><option>Siniestro</option><option>Seguimiento</option><option>Cotización</option><option>Llamada</option><option>WhatsApp</option><option>Documento</option><option>Venta Cruzada</option><option>Otro</option></select></div>
   <div class="fl"><label>Prioridad</label><select class="fc" id="t-pr"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
-  <div class="fl"><label>Etapa</label><select class="fc" id="t-et"><option>Por Hacer</option><option>En Proceso</option><option>Hecho</option></select></div>
+  <div class="fl"><label>Etapa</label><select class="fc" id="t-et"><option>Por Hacer</option><option>Normal</option><option>En Proceso</option><option>En Seguimiento</option><option>Delegado</option><option>Reenviado</option><option>Completado</option><option>Realizado</option><option>Finalizado</option><option>Hecho</option><option>Cancelada</option></select></div>
   <div class="fl"><label>Fecha límite</label><input class="fc" id="t-fl" type="date"></div>
   <div class="fl"><label>Relacionar con</label><select class="fc" id="t-rel" onchange="updTRelSel(this.value,'')"><option value="">— Tipo —</option><option value="cliente">Cliente</option><option value="prospecto">Prospecto</option><option value="poliza">Póliza</option></select></div>
   <div class="fl"><label>Seleccionar</label><select class="fc" id="t-relid"><option value="">— Seleccionar —</option></select></div>
@@ -2066,6 +2066,7 @@ if(!S||typeof S!=='object'||!Array.isArray(S.clientes)){
 }
 // Ensure comRates exists on S
 if(!S.comRates)S.comRates=[];
+if(!S.actDone)S.actDone=[];
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',VF='',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
 
@@ -3773,17 +3774,18 @@ function markCob(id){const i=S.comisiones.findIndex(c=>c.id===id);if(i>=0)S.comi
 function OCom(){
   const asel=document.getElementById('cm-as');
   if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}
-  SVal('cm-fe','');SVal('cm-ra','');SVal('cm-pc','');SVal('cm-mo','');SVal('cm-es','pendiente');
+  SVal('cm-fe-d','');SVal('cm-fe-m','');SVal('cm-fe-y','');SVal('cm-ra','');SVal('cm-pc','');SVal('cm-mo','');SVal('cm-es','pendiente');
   OM('mcom');
 }
 function SCom(){
   const aseg=V('cm-as'),monto=GF('cm-mo');
   if(!aseg||!monto){toast('Aseguradora y monto obligatorios','err');return;}
   const pct=parseFloat(V('cm-pc'))||null;
-  const fecha=V('cm-fe')||'';
+  const fd=V('cm-fe-d'),fm=V('cm-fe-m'),fy=V('cm-fe-y');
+  const fecha=(fy&&fm)?(fy+'-'+fm+(fd?'-'+String(fd).padStart(2,'0'):'')):(fy&&!fm&&!fd?fy:'');
   const ramo=V('cm-ra')||'';
   // build mes label from fecha for backward compat display
-  let mes='';if(fecha){const d=new Date(fecha+'T00:00:00');if(!isNaN(d))mes=d.toLocaleDateString('es-PA',{month:'long',year:'numeric'});}
+  let mes='';if(fecha){const d=new Date(fecha.length===4?fecha+'-01-01':fecha.length===7?fecha+'-01':fecha);if(!isNaN(d))mes=d.toLocaleDateString('es-PA',{month:'long',year:'numeric'});}
   S.comisiones.push({id:'COM'+uid(),aseg,fecha,mes,ramo,pct,monto,estado:V('cm-es')});
   save();CM('mcom');RCom();toast('✓ Registrada');
 }
@@ -3834,19 +3836,26 @@ ${wu?waBtn(wu,t.tipoRel||'',t.relId||'','Tarea: '+t.titulo,relNom,'💬','bwa bs
   });
   const tv=document.getElementById('tar-view');if(tv)tv.innerHTML=h+'</div>';
 }
+const TAR_STATUS_CLR={'Por Hacer':'#1D4ED8','Normal':'#64748B','En Proceso':'#D97706','En Seguimiento':'#7E22CE','Delegado':'#0891B2','Reenviado':'#B45309','Completado':'#15803D','Realizado':'#15803D','Finalizado':'#15803D','Hecho':'#15803D','Cancelada':'#B91C1C'};
+const TAR_DONE_STATES=new Set(['Completado','Realizado','Finalizado','Hecho','Cancelada']);
 function renderTarL(){
   const sorted=[...S.tareas].sort((a,z)=>({'Alta':0,'Media':1,'Baja':2}[a.prioridad]||1)-({'Alta':0,'Media':1,'Baja':2}[z.prioridad]||1));
-  let h='<div class="card"><div class="tw"><table><thead><tr><th>Prior.</th><th>Título</th><th>Tipo</th><th>Etapa</th><th>Relacionado</th><th>Fecha</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
+  const allEtapas=['Por Hacer','Normal','En Proceso','En Seguimiento','Delegado','Reenviado','Completado','Realizado','Finalizado','Hecho','Cancelada'];
+  let h='<div class="card"><div class="tw"><table><thead><tr><th>Prior.</th><th>Título</th><th>Tipo</th><th>Estado ▾</th><th>Relacionado</th><th>Fecha</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
   sorted.forEach(t=>{
-    const pc2=pcol(t.prioridad);const atrasada=t.fechaLimite&&dAgo(t.fechaLimite)>0&&t.etapaTarea!=='Hecho';
+    const isDone=TAR_DONE_STATES.has(t.etapaTarea);
+    const pc2=pcol(t.prioridad);const atrasada=t.fechaLimite&&dAgo(t.fechaLimite)>0&&!isDone;
     const relNom=t.tipoRel==='cliente'?(GC(t.relId||'').nombre||''):t.tipoRel==='prospecto'?(GPros(t.relId||'').nombre||''):'';
     const relTel=t.tipoRel==='cliente'?(GC(t.relId||'').cel||''):t.tipoRel==='prospecto'?(GPros(t.relId||'').cel||''):'';
     const wu=relTel?waL(relTel,`Hola ${relNom.split(' ')[0]}, te contacto de JAC Seguros: ${t.titulo}`):null;
-    h+=`<tr style="${atrasada?'background:#FEF2F2':''}"><td><span style="color:${pc2};font-weight:700;font-size:11px">● ${t.prioridad||'—'}</span></td><td style="font-weight:600">${esc(t.titulo)}</td><td>${b('bgr',t.tipo||'')}</td><td>${b(t.etapaTarea==='Hecho'?'bok':t.etapaTarea==='En Proceso'?'bwn':'bin',t.etapaTarea)}</td><td style="font-size:11px">${esc(relNom||'—')}</td><td style="font-size:11px;color:${atrasada?'#DC2626':'inherit'}">${fmt(t.fechaLimite)}</td><td>${wu?waBtn(wu,t.tipoRel||'',t.relId||'','Tarea',relNom,'💬','bwa bsm'):'—'}</td><td><div class="ab">${t.etapaTarea!=='Hecho'?`<button class="btn bsm bgn" onclick="advTask('${t.id}')">→</button>`:''}<button class="btn bsm bic" onclick="OT_open('${t.id}')">✏️</button><button class="btn bsm bic" onclick="DTar('${t.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+    const stClr=TAR_STATUS_CLR[t.etapaTarea]||'#1D4ED8';
+    const stOpts=allEtapas.map(e=>`<option${e===t.etapaTarea?' selected':''}>${e}</option>`).join('');
+    h+=`<tr style="${atrasada?'background:#FEF2F2':''}${isDone?'opacity:.7':''}"><td><span style="color:${pc2};font-weight:700;font-size:11px">● ${t.prioridad||'—'}</span></td><td style="font-weight:600">${esc(t.titulo)}</td><td>${b('bgr',t.tipo||'')}</td><td><select style="border:none;border-radius:12px;padding:2px 6px;font-size:10px;font-weight:700;background:${stClr}18;color:${stClr};cursor:pointer;outline:none" onchange="setTarEtapa('${t.id}',this.value)">${stOpts}</select></td><td style="font-size:11px">${esc(relNom||'—')}</td><td style="font-size:11px;color:${atrasada?'#DC2626':'inherit'}">${fmt(t.fechaLimite)}</td><td>${wu?waBtn(wu,t.tipoRel||'',t.relId||'','Tarea',relNom,'💬','bwa bsm'):'—'}</td><td><div class="ab"><button class="btn bsm bic" onclick="OT_open('${t.id}')">✏️</button><button class="btn bsm bic" onclick="DTar('${t.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
   });
   const tv=document.getElementById('tar-view');if(tv)tv.innerHTML=h+'</tbody></table></div></div>';
 }
-function advTask(id){const t=S.tareas.find(x=>x.id===id);if(!t)return;const n={'Por Hacer':'En Proceso','En Proceso':'Hecho'}[t.etapaTarea];if(n)t.etapaTarea=n;if(n==='Hecho')t.estado='completada';save();RTar();toast('✓ Avanzada');}
+function advTask(id){const t=S.tareas.find(x=>x.id===id);if(!t)return;const n={'Por Hacer':'En Proceso','Normal':'En Proceso','En Proceso':'Hecho','En Seguimiento':'Hecho','Delegado':'Hecho','Reenviado':'Hecho'}[t.etapaTarea]||'Hecho';t.etapaTarea=n;if(TAR_DONE_STATES.has(n))t.estado='completada';save();RTar();toast('✓ Avanzada');}
+function setTarEtapa(id,etapa){const t=S.tareas.find(x=>x.id===id);if(!t)return;t.etapaTarea=etapa;if(TAR_DONE_STATES.has(etapa))t.estado='completada';else t.estado='pendiente';save();RTar();toast('✓ Estado: '+etapa);}
 function OT_open(id,tipoRel,relId){
   EID=id||null;const t=id?S.tareas.find(x=>x.id===id)||{}:{};
   const mtt=document.getElementById('mtt');if(mtt)mtt.textContent=id?'Editar Tarea':'Nueva Tarea';
@@ -4799,6 +4808,8 @@ function get30DayRenewals() {
 function renderBirthdayCard(c, daysUntil) {
   const age = c.fNac ? (new Date().getFullYear() - new Date(c.fNac).getFullYear()) : null;
   const tel = c.cel || c.tel || '';
+  const yr = new Date().getFullYear();
+  const isDone = (S.actDone||[]).some(x=>x.type==='bday'&&x.id===c.id&&x.yr===yr);
   const waMsg = `🎂 ¡Feliz Cumpleaños, ${(c.nombre||'').split(' ')[0]}! 🎉
 
 Desde *JAC Seguros* | *Jely An Castro* (Lic. #6175) te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟
@@ -4808,18 +4819,28 @@ Jely An Castro Pérez
 JAC Seguros · jcastro@jacsegurospa.com_`;
   const waUrl = tel ? `https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}` : null;
   return `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #EEF2F8">
-      <div style="font-size:22px">🎂</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #EEF2F8;${isDone?'opacity:.55;background:#F0FDF4':''}">
+      <div style="font-size:22px">${isDone?'✅':'🎂'}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-weight:700;font-size:13px">${(c.nombre||'').split(' ').slice(0,3).join(' ')}</div>
-        <div style="font-size:11px;color:var(--mu)">${daysUntil === 0 ? '¡HOY es su cumpleaños!' : `En ${daysUntil} día${daysUntil!==1?'s':''}`}${age ? ` · ${age} años` : ''}</div>
+        <div style="font-weight:700;font-size:13px${isDone?';text-decoration:line-through;color:var(--mu)':''}">${(c.nombre||'').split(' ').slice(0,3).join(' ')}</div>
+        <div style="font-size:11px;color:var(--mu)">${isDone?'✓ Felicitación enviada':daysUntil === 0 ? '¡HOY es su cumpleaños!' : `En ${daysUntil} día${daysUntil!==1?'s':''}`}${age ? ` · ${age} años` : ''}</div>
         ${c.email ? `<div style="font-size:10px;color:var(--mu)">${c.email}</div>` : ''}
       </div>
       <div style="display:flex;gap:4px;flex-shrink:0">
+        ${isDone ? `<span style="font-size:10px;color:#15803D;font-weight:700;padding:3px 7px;background:#D1FAE5;border-radius:10px">✓ Listo</span>` : `
         ${waUrl ? `<a href="${waUrl}" target="_blank" class="btn bwa bsm">💬</a>` : ''}
         ${c.email ? `<button class="btn bsm bgn" onclick="sendBirthdayEmail(${JSON.stringify({id:c.id,nombre:c.nombre,email:c.email}).replace(/"/g,'&quot;')})">📧</button>` : ''}
+        <button class="btn bsm" style="background:#D1FAE5;color:#15803D;border-color:#86EFAC" onclick="markBdayDone('${c.id}')" title="Marcar como realizado">✓ Realizado</button>`}
       </div>
     </div>`;
+}
+function markBdayDone(id){
+  if(!S.actDone)S.actDone=[];
+  const yr=new Date().getFullYear();
+  if(!S.actDone.find(x=>x.type==='bday'&&x.id===id&&x.yr===yr)){
+    S.actDone.push({type:'bday',id,yr});
+    save();renderDashBirthdays();toast('✓ Cumpleaños registrado como realizado');
+  }
 }
 
 
@@ -5364,7 +5385,14 @@ function RNot(){
           </div>
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0">
-          ${!n.done?`<button class="btn bsm bgn" title="Marcar hecha" onclick="doneNota('${n.id}')">✓</button>`:''}
+          <select title="Estado" style="border:1px solid var(--bd);border-radius:12px;padding:2px 6px;font-size:10px;font-weight:600;cursor:pointer;outline:none;background:${n.done?'#D1FAE5':n.estado==='En Seguimiento'?'#EDE9FE':n.estado==='Delegado'?'#CFFAFE':n.estado==='Cancelada'?'#FEE2E2':'#EEF2FF'};color:${n.done?'#15803D':n.estado==='En Seguimiento'?'#7E22CE':n.estado==='Delegado'?'#0891B2':n.estado==='Cancelada'?'#B91C1C':'#1D4ED8'}" onchange="setNotaEstado('${n.id}',this.value)">
+            <option value="pendiente"${!n.done&&(!n.estado||n.estado==='pendiente')?' selected':''}>● Normal</option>
+            <option value="en_seguimiento"${n.estado==='en_seguimiento'?' selected':''}>🔍 En Seguimiento</option>
+            <option value="delegado"${n.estado==='delegado'?' selected':''}>→ Delegado</option>
+            <option value="reenviado"${n.estado==='reenviado'?' selected':''}>↩ Reenviado</option>
+            <option value="completado"${n.done&&n.estado!=='cancelada'?' selected':''}>✓ Completado</option>
+            <option value="cancelada"${n.estado==='cancelada'?' selected':''}>✗ Cancelada</option>
+          </select>
           <button class="btn bsm bic" title="Editar" onclick="openAddNota('${n.id}')">✏️</button>
           <button class="btn bsm bic" title="Eliminar" style="color:var(--rd)" onclick="deleteNota('${n.id}')">🗑</button>
         </div>
@@ -5445,7 +5473,8 @@ function saveNota(id){
   save();CM('mnota');RNot();renderDashNotasAlert();toast('✅ Nota guardada','ok');
 }
 
-function doneNota(id){const i=S.notas.findIndex(n=>n.id===id);if(i>=0){S.notas[i].done=true;save();RNot();renderDashNotasAlert();toast('✓ Nota marcada como hecha');}}
+function doneNota(id){const i=S.notas.findIndex(n=>n.id===id);if(i>=0){S.notas[i].done=true;S.notas[i].estado='completado';save();RNot();renderDashNotasAlert();toast('✓ Nota marcada como hecha');}}
+function setNotaEstado(id,est){const i=S.notas.findIndex(n=>n.id===id);if(i<0)return;S.notas[i].estado=est;S.notas[i].done=(est==='completado'||est==='cancelada');save();RNot();renderDashNotasAlert();toast('✓ Estado: '+est);}
 function deleteNota(id){confirm2('¿Eliminar esta nota?',()=>{S.notas=S.notas.filter(n=>n.id!==id);save();RNot();renderDashNotasAlert();toast('Nota eliminada');});}
 
 function renderDashNotasAlert(){
@@ -7394,7 +7423,7 @@ function cotpBuildAsegGrid(){
     }
   }
   cotpAvailableAsegIds=asegIds;
-  if(cotpSelectedIds.size===0)cotpSelectedIds=new Set(asegIds);
+  if(cotpSelectedIds.size===0&&!cotpUserDeselectedAll)cotpSelectedIds=new Set(asegIds);
   const ratingScore={A:3,'A-':2,'BBB+':1.5,'BBB':1};
   const ratingColor=r=>r.startsWith('A++')||r==='A++'?'#15803D':r==='A+'?'#2563EB':r.startsWith('A')?'#7C3AED':'#D97706';
   el.innerHTML=asegIds.map(id=>{
@@ -7422,12 +7451,14 @@ function cotpBuildAsegGrid(){
   cotpUpdateSelCount();
 }
 
+let cotpUserDeselectedAll=false;
 function cotpToggleAll(select){
-  if(select){cotpSelectedIds=new Set(cotpAvailableAsegIds);}
-  else{cotpSelectedIds=new Set();}
+  if(select){cotpSelectedIds=new Set(cotpAvailableAsegIds);cotpUserDeselectedAll=false;}
+  else{cotpSelectedIds=new Set();cotpUserDeselectedAll=true;}
   cotpBuildAsegGrid();
 }
 function cotpToggleAseg(id){
+  cotpUserDeselectedAll=false;
   if(cotpSelectedIds.has(id))cotpSelectedIds.delete(id);
   else cotpSelectedIds.add(id);
   cotpBuildAsegGrid();
