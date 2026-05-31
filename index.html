@@ -1363,7 +1363,7 @@ body.dark .mu{color:var(--dark-mu);}
 <div class="mb"><div class="fg">
   <div class="fl"><label>Aseguradora <span>*</span></label><select class="fc" id="cm-as" onchange="comAutoRate()"></select></div>
   <div class="fl"><label>Ramo / Producto</label><select class="fc" id="cm-ra" onchange="comAutoRate()"><option value="">— Seleccionar —</option><option>Automóvil</option><option>Vida</option><option>Salud</option><option>Hogar</option><option>SOAT</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Transporte</option><option>Cumplimiento</option><option>Multiriesgo</option><option>Fianzas</option><option>Rentas</option><option>Otro</option></select></div>
-  <div class="fl"><label>Fecha de Registro</label><input class="fc" id="cm-fe" type="date"></div>
+  <div class="fl"><label>Fecha de Registro <span style="font-size:9px;color:#64748b;font-weight:400">(opcional)</span></label><input class="fc" id="cm-fe" type="date"></div>
   <div class="fl"><label>% Comisión <span style="font-size:9px;color:#64748b;font-weight:400">auto o manual</span></label><input class="fc" id="cm-pc" type="number" step="0.1" min="0" max="100" placeholder="15" inputmode="decimal" title="Se auto-rellena según la tasa configurada por aseguradora/ramo"></div>
   <div class="fl"><label>Monto ($) <span>*</span></label><input class="fc" id="cm-mo" type="number" step="0.01" inputmode="decimal"></div>
   <div class="fl"><label>Estado</label><select class="fc" id="cm-es"><option value="pendiente">Pendiente</option><option value="cobrada">Cobrada</option></select></div>
@@ -3773,9 +3773,7 @@ function markCob(id){const i=S.comisiones.findIndex(c=>c.id===id);if(i>=0)S.comi
 function OCom(){
   const asel=document.getElementById('cm-as');
   if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}
-  // default date = today
-  const todayStr=TODAY.toISOString().split('T')[0];
-  SVal('cm-fe',todayStr);SVal('cm-ra','');SVal('cm-pc','');SVal('cm-mo','');SVal('cm-es','pendiente');
+  SVal('cm-fe','');SVal('cm-ra','');SVal('cm-pc','');SVal('cm-mo','');SVal('cm-es','pendiente');
   OM('mcom');
 }
 function SCom(){
