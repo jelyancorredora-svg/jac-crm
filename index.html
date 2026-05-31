@@ -203,11 +203,11 @@ body.dark .mu{color:var(--dark-mu);}
 <div id="ls">
 <div class="lbox">
   <div class="llogo">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" width="200" aria-label="JAC Seguros">
-      <line x1="6" y1="14" x2="254" y2="14" stroke="#9B9589" stroke-width="2.5"/>
-      <line x1="6" y1="76" x2="254" y2="76" stroke="#9B9589" stroke-width="2.5"/>
-      <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#1A3A6B" letter-spacing="6">JAC</text>
-      <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="300" font-size="12" fill="#1A6FC4" letter-spacing="8">SEGUROS</text>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" width="210" aria-label="JAC Seguros">
+      <line x1="6" y1="14" x2="254" y2="14" stroke="#9B9589" stroke-width="3"/>
+      <line x1="6" y1="76" x2="254" y2="76" stroke="#9B9589" stroke-width="3"/>
+      <text x="130" y="59" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="44" fill="#0F172A" letter-spacing="6">JAC</text>
+      <text x="130" y="73" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="400" font-size="13" fill="#1D4ED8" letter-spacing="9">SEGUROS</text>
     </svg>
     <p style="margin-top:8px;font-size:11px;color:#6B7280">Sistema CRM · Lic. #6175 · Panamá</p>
   </div>
@@ -233,11 +233,11 @@ body.dark .mu{color:var(--dark-mu);}
 <div id="app">
 <div id="hdr"><div class="hi">
   <div class="lg2">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 76" height="44" aria-label="JAC Seguros">
-      <line x1="5" y1="12" x2="215" y2="12" stroke="#C4B89A" stroke-width="2"/>
-      <line x1="5" y1="64" x2="215" y2="64" stroke="#C4B89A" stroke-width="2"/>
-      <text x="110" y="49" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="36" fill="#FFFFFF" letter-spacing="5">JAC</text>
-      <text x="110" y="61" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="300" font-size="10" fill="#5BA4F5" letter-spacing="7">SEGUROS</text>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" height="50" aria-label="JAC Seguros">
+      <line x1="6" y1="14" x2="254" y2="14" stroke="#9B9589" stroke-width="2.5"/>
+      <line x1="6" y1="76" x2="254" y2="76" stroke="#9B9589" stroke-width="2.5"/>
+      <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#FFFFFF" letter-spacing="6">JAC</text>
+      <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="300" font-size="12" fill="#93C5FD" letter-spacing="8">SEGUROS</text>
     </svg>
   </div>
   <nav>
@@ -1655,7 +1655,7 @@ function cotzCalc(){
   } else {prima=valor*rates.tasa;}
   const itbmsRate=rates.itbms||0;
   const total=prima*(1+itbmsRate);   // anual con ITBMS
-  const com=prima*(rates.com||.15);
+  const _cotpComPct=parseFloat(document.getElementById('cotp-com-pct')?.value||0)/100||(rates.com||.15);const com=prima*_cotpComPct;
   // Breakdowns
   const mensual=total/12;
   const trimestral=total/4;
@@ -2058,10 +2058,10 @@ function save(){try{localStorage.setItem('jacv10',JSON.stringify(S));}catch(e){t
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5).toUpperCase();}
 
 // ── UTILS ──
-function fmt(d){if(!d||d==='NaT'||d==='None')return'—';try{const x=new Date(d.length>10?d:d+'T00:00:00');if(isNaN(x))return d;return`${x.getDate()} ${MON[x.getMonth()]} ${x.getFullYear()}`;}catch{return d||'—';}}
+function fmt(d){if(!d||d==='NaT'||d==='None'||d===''||String(d).length<8)return(d&&String(d).length===4?String(d):'—');try{const x=new Date(d.length>10?d:d+'T00:00:00');if(isNaN(x))return d;return`${x.getDate()} ${MON[x.getMonth()]} ${x.getFullYear()}`;}catch{return d||'—';}}
 function fmtM(n){return'$'+(parseFloat(n)||0).toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmt2(n){return(parseFloat(n)||0).toLocaleString('es-PA',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function dFrom(d){if(!d)return 9999;try{return Math.ceil((new Date(d+'T00:00:00')-TODAY)/864e5);}catch{return 9999;}}
+function dFrom(d){if(!d||d.length<8)return 9999;try{const dt=new Date(d.slice(0,10)+'T00:00:00');if(isNaN(dt))return 9999;return Math.ceil((dt-TODAY)/864e5);}catch{return 9999;}}
 function dAgo(d){if(!d)return-1;try{return Math.floor((TODAY-new Date(d+'T00:00:00'))/864e5);}catch{return-1;}}
 // ─── Auto-update pólizas vencidas ──────────────────────────────────────────
 function autoUpdatePolizasStatus(){
@@ -3414,7 +3414,7 @@ function renderPT(fil){
   fil.forEach(p=>{
     const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
     const primaTot=p.total||p.prima||0;
-    h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num||p.numero||'')}</td><td style="cursor:pointer" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(primaTot)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px"><div style="display:flex;flex-direction:column;gap:2px">${fmt(p.fechaFin)}\${(()=>{const d=dFrom(p.fechaFin);const col=d<0?'#DC2626':d<=7?'#DC2626':d<=30?'#D97706':d<=60?'#2563EB':'#15803D';const label=d<0?'Vencida':(d===0?'HOY':d+'d');return \`<span style="font-size:9px;font-weight:800;color:\${col};background:\${col}18;padding:1px 5px;border-radius:10px;width:fit-content">\${label}</span>\`;})()}</div></td><td onclick="event.stopPropagation()"><div class="ab">${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+    h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num||p.numero||'')}</td><td style="cursor:pointer" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(primaTot)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px"><div style="display:flex;flex-direction:column;gap:2px">${fmt(p.fechaFin)}${(()=>{const d=dFrom(p.fechaFin);const col=d<0?'#DC2626':d<=7?'#DC2626':d<=30?'#D97706':d<=60?'#2563EB':'#15803D';const label=d<0?'Vencida':(d===0?'HOY':d+'d');return '<span style="font-size:9px;font-weight:800;color:'+col+';background:'+col+'18;padding:1px 5px;border-radius:10px;width:fit-content">'+label+'</span>';})()}</div></td><td onclick="event.stopPropagation()"><div class="ab">${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
   });
   if(!h)h='<tr><td colspan="9" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
   const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=`<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima Total</th><th>Comisión JAC</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${h}</tbody></table></div></div>`;
@@ -3457,7 +3457,7 @@ function showPolDP(id){
   const cl=GC(p.clienteId),wb=waBtnsP(p,cl);
   let h=`<div class="dsec">Póliza</div>
 <div class="drow"><label>Nro.</label><div class="dv" style="font-family:monospace;font-weight:700;font-size:13px">${esc(p.num)}</div></div>
-<div class="drow"><label>Estado</label><div class="dv">${statusB(p)} ${b('bgr',p.etapa||'—')} \${(()=>{const d=dFrom(p.fechaFin);if(d<0)return '<span style="font-size:10px;color:#DC2626;font-weight:800">Venció hace '+ Math.abs(d)+' días</span>';if(d===0)return '<span style="font-size:10px;color:#DC2626;font-weight:800">⚠️ Vence HOY</span>';if(d<=30)return '<span style="font-size:10px;color:#D97706;font-weight:700">⏳ '+d+' días restantes</span>';return '<span style="font-size:10px;color:#15803D">'+d+' días restantes</span>';})()}</div></div>
+<div class="drow"><label>Estado</label><div class="dv">${statusB(p)} ${b('bgr',p.etapa||'—')} ${(()=>{const d=dFrom(p.fechaFin);if(d<0)return '<span style="font-size:10px;color:#DC2626;font-weight:800">Venció hace '+ Math.abs(d)+' días</span>';if(d===0)return '<span style="font-size:10px;color:#DC2626;font-weight:800">⚠️ Vence HOY</span>';if(d<=30)return '<span style="font-size:10px;color:#D97706;font-weight:700">⏳ '+d+' días restantes</span>';return '<span style="font-size:10px;color:#15803D">'+d+' días restantes</span>';})()}</div></div>
 <div class="drow"><label>Cliente</label><div class="dv"><span onclick="closeDP();setTimeout(()=>showCliDP('${p.clienteId}'),80)" style="cursor:pointer;color:var(--bl);font-weight:600">${esc(cl.nombre||p.nombreCliente||'—')} ↗</span></div></div>
 ${(cl.cel||cl.tel)?`<div class="drow"><label>Celular</label><div class="dv" style="display:flex;align-items:center;gap:8px"><a href="tel:${esc(cl.cel||cl.tel)}" style="color:var(--bl);font-weight:600">${esc(cl.cel||cl.tel)}</a><button onclick="openWAForPolCli('${p.id}','${p.clienteId}','Renovación')" class="btn bsm bwa" style="padding:2px 8px;font-size:11px">💬 Renovación</button><button onclick="openWAForPolCli('${p.id}','${p.clienteId}','Cobro')" class="btn bsm bwa2" style="padding:2px 8px;font-size:11px">💬 Cobro</button></div></div>`:''}
 ${(cl.email||p.emailCliente)?`<div class="drow"><label>Email</label><div class="dv" style="display:flex;align-items:center;gap:8px"><a href="mailto:${esc(cl.email||p.emailCliente)}" style="color:var(--bl);font-size:11px">${esc(cl.email||p.emailCliente)}</a><button onclick="openEmailForPol('${p.id}')" class="btn bsm bin" style="padding:2px 8px;font-size:11px">📧 Email</button></div></div>`:''}
@@ -4177,7 +4177,13 @@ document.addEventListener('DOMContentLoaded',()=>{
       </div>
       <!-- Cards view -->
       <div id="cotp-cards-view">
-        <div id="cotp-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px"></div>
+        <div style="display:flex;align-items:center;gap:12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;padding:10px 16px;margin-bottom:12px">
+  <span style="font-size:13px;font-weight:700;color:#15803D">💰 % Comisión JAC:</span>
+  <input id="cotp-com-pct" type="number" step="0.5" min="0" max="50" value="15" style="width:80px;padding:6px 10px;border:2px solid #86EFAC;border-radius:8px;font-size:14px;font-weight:800;color:#15803D;text-align:center" oninput="cotpRecalcCom()" title="Modificar % de comisión para esta cotización">
+  <span style="font-size:12px;color:#374151">sobre prima neta — editable por cotización</span>
+  <span id="cotp-com-total" style="margin-left:auto;font-size:13px;font-weight:800;color:#059669"></span>
+</div>
+<div id="cotp-cards-grid"  style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px"></div>
       </div>
       <!-- Table view (hidden by default) -->
       <div id="cotp-table-view" style="display:none;background:#fff;border-radius:16px;border:1px solid #E2E8F0;overflow:hidden">
@@ -7479,7 +7485,7 @@ function cotpCalcAll(){
     saveAseg.innerHTML='<option value="">— Seleccionar —</option>'+cotpResults.map(r=>`<option value="${r.aseg.id}">${r.aseg.nombre} — ${fM(r.primaTotal)}/año</option>`).join('');
     if(cotpResults[0])saveAseg.value=cotpResults[0].aseg.id;
   }
-  cotpSortField='prima';cotpRenderPodium();cotpRenderCards();cotpRenderTable();cotpUpdateSortBtns();
+  cotpSortField='prima';cotpRenderPodium();cotpRenderCards();cotpRenderTable();cotpUpdateSortBtns();setTimeout(cotpRecalcCom,50);
   cotpGoStep(4);
 }
 
@@ -7546,6 +7552,15 @@ function cotpRenderPodium(){
 }
 
 // ─── Cards View ────────────────────────────────────────────────────────────
+function cotpRecalcCom(){
+  const pct=parseFloat(document.getElementById('cotp-com-pct')?.value||15)/100;
+  cotpResults.forEach(r=>{r.com=r.primaNeta*pct;});
+  cotpRenderCards();cotpRenderTable();
+  // Update total display
+  const total=cotpResults.reduce((s,r)=>s+r.com,0);
+  const el=document.getElementById('cotp-com-total');
+  if(el)el.textContent='Total com.: $'+total.toFixed(2);
+}
 function cotpRenderCards(){
   const el=document.getElementById('cotp-cards-grid');if(!el)return;
   const ratingColor=r=>r==='A++'?'#15803D':r==='A+'?'#2563EB':r.startsWith('A')?'#7C3AED':'#D97706';
@@ -7585,7 +7600,7 @@ function cotpRenderCards(){
       <!-- Details row -->
       <div style="display:flex;justify-content:space-between;font-size:10px;color:#64748B;margin-bottom:10px">
         <span>Deducible: <strong style="color:#0F172A">${r.deducible}</strong></span>
-        <span>Comisión JAC: <strong style="color:#059669">${fM(r.com)}</strong></span>
+        <span>Comisión JAC: <strong style="color:#059669">${fM(r.com)}</strong> <span style="font-size:9px;color:#64748B">(${((r.com/r.primaNeta)*100||0).toFixed(1)}%)</span></span>
       </div>
       <!-- Action -->
       <div style="display:flex;gap:6px">
@@ -7753,6 +7768,7 @@ function cotpGenReport(){
   if(cotpResults.length===0){toast('Genera una cotización primero','err');return;}
   const selected=cotpResults;
   const ramo=cotpSelectedRamo;const R=COTP_RAMOS.find(r=>r.id===ramo);
+  const _comPct=parseFloat(document.getElementById('cotp-com-pct')?.value||15);
   const nombre=document.getElementById('cotp-nombre')?.value||'Cliente';
   const cedula=document.getElementById('cotp-cedula')?.value||'';
   const tel=document.getElementById('cotp-tel')?.value||'';
@@ -7771,9 +7787,19 @@ function cotpGenReport(){
     <div style="background:linear-gradient(135deg,#0F172A 0%,#1D4ED8 50%,#7C3AED 100%);padding:28px 32px;color:#fff">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <div style="font-size:26px;font-weight:900;letter-spacing:-1px">JAC SEGUROS</div>
-          <div style="font-size:11px;opacity:.75;margin-top:2px">Jely An Castro Pérez · Lic. SSRP N° 6175</div>
-          <div style="font-size:11px;opacity:.75">📞 +507 6292-6010 · jcastro@jacsegurospa.com · jacsegurospa.com</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" width="140" aria-label="JAC Seguros">
+              <line x1="6" y1="14" x2="254" y2="14" stroke="#C4B89A" stroke-width="2.5"/>
+              <line x1="6" y1="76" x2="254" y2="76" stroke="#C4B89A" stroke-width="2.5"/>
+              <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#FFFFFF" letter-spacing="6">JAC</text>
+              <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="300" font-size="12" fill="#93C5FD" letter-spacing="8">SEGUROS</text>
+            </svg>
+            <div>
+              <div style="font-size:11px;opacity:.75;margin-top:2px">Jely An Castro Pérez · Lic. SSRP N° 6175</div>
+              <div style="font-size:11px;opacity:.75">📞 +507 6292-6010 · jcastro@jacsegurospa.com</div>
+              <div style="font-size:11px;opacity:.75">🌐 jacsegurospa.com</div>
+            </div>
+          </div>
         </div>
         <div style="text-align:right">
           <div style="font-size:10px;opacity:.65;letter-spacing:1px">COTIZACIÓN N°</div>
