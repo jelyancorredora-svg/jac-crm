@@ -234,10 +234,10 @@ body.dark .mu{color:var(--dark-mu);}
 <div id="hdr"><div class="hi">
   <div class="lg2">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" height="50" aria-label="JAC Seguros">
-      <line x1="6" y1="14" x2="254" y2="14" stroke="#9B9589" stroke-width="2.5"/>
-      <line x1="6" y1="76" x2="254" y2="76" stroke="#9B9589" stroke-width="2.5"/>
-      <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#FFFFFF" letter-spacing="6">JAC</text>
-      <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="300" font-size="12" fill="#93C5FD" letter-spacing="8">SEGUROS</text>
+      <line x1="6" y1="14" x2="254" y2="14" stroke="#1A3A6B" stroke-width="2.5" opacity="0.35"/>
+      <line x1="6" y1="76" x2="254" y2="76" stroke="#1A3A6B" stroke-width="2.5" opacity="0.35"/>
+      <text x="130" y="58" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="42" fill="#1A3A6B" letter-spacing="6">JAC</text>
+      <text x="130" y="72" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="400" font-size="12" fill="#1D4ED8" letter-spacing="8">SEGUROS</text>
     </svg>
   </div>
   <nav>
@@ -515,6 +515,17 @@ body.dark .mu{color:var(--dark-mu);}
     </div>
   </div>
     <div class="tw"><table><thead><tr><th>Cliente</th><th>Ramo</th><th>Aseg.</th><th>Prima</th><th>%Com.</th><th>Part.%</th><th>Mi Comisión</th><th>Co-Corredor</th><th>Com.CoCor</th></tr></thead><tbody id="tcomd"></tbody></table></div>
+  </div>
+  <!-- TASAS DE COMISIÓN POR ASEGURADORA / RAMO -->
+  <div class="card" style="margin-top:10px">
+    <div class="ch"><h3>⚙️ Tasas de Comisión por Aseguradora/Ramo</h3></div>
+    <div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;border-bottom:1px solid var(--bd)">
+      <div class="fl" style="margin:0;flex:1;min-width:140px"><label style="font-size:10px;font-weight:700;color:var(--mu)">ASEGURADORA</label><select class="fc" id="crt-as" style="margin-top:3px"><option value="">— Seleccionar —</option></select></div>
+      <div class="fl" style="margin:0;flex:1;min-width:120px"><label style="font-size:10px;font-weight:700;color:var(--mu)">RAMO (opcional)</label><select class="fc" id="crt-ra" style="margin-top:3px"><option value="">Todos los ramos</option><option>Automóvil</option><option>Vida</option><option>Salud</option><option>Hogar</option><option>SOAT</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Transporte</option><option>Cumplimiento</option><option>Multiriesgo</option><option>Fianzas</option><option>Rentas</option><option>Otro</option></select></div>
+      <div class="fl" style="margin:0;width:90px"><label style="font-size:10px;font-weight:700;color:var(--mu)">% COMISIÓN</label><input class="fc" id="crt-pc" type="number" step="0.1" min="0" max="100" placeholder="15" style="margin-top:3px"></div>
+      <button class="btn bp" onclick="saveComRate()" style="margin-bottom:1px">💾 Guardar Tasa</button>
+    </div>
+    <div class="tw" style="max-height:200px;overflow-y:auto"><table><thead><tr><th>Aseguradora</th><th>Ramo</th><th>% Comisión</th><th></th></tr></thead><tbody id="com-rates-body"></tbody></table></div>
   </div>
 </div>
 
@@ -1233,7 +1244,7 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="fl"><label>Cuota Anual c/ITBMS ($)</label><input class="fc ro" id="p-canu" type="number" readonly style="color:#1D4ED8;font-weight:700"></div>
   <div class="fl"><label>% Comisión (sobre Prima Neta)</label><input class="fc" id="p-cb" type="number" step="0.1" oninput="CT()" inputmode="decimal"></div>
   <div class="fl"><label>Participación JAC (%)</label><input class="fc" id="p-pa" type="number" step="0.1" value="100" oninput="CT()" inputmode="decimal"></div>
-  <div class="fl"><label>Comisión JAC ($)</label><input class="fc ro" id="p-co" type="number" readonly style="font-weight:700;color:#15803D"></div>
+  <div class="fl"><label>Comisión JAC ($) <span style="font-size:9px;color:#64748b;font-weight:400">editable</span></label><input class="fc" id="p-co" type="number" step="0.01" inputmode="decimal" style="font-weight:700;color:#15803D" title="Auto-calculada. Puedes editarla manualmente."></div>
   <span class="sl">🤝 CO-CORRETAJE</span>
   <div style="grid-column:1/-1" id="ccrow">
     <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--bl);cursor:pointer">
@@ -1350,8 +1361,10 @@ body.dark .mu{color:var(--dark-mu);}
 <!-- MODAL COMISIÓN -->
 <div class="mo" id="mcom"><div class="md mdsm"><div class="mh"><h2>Registrar Comisión</h2><button class="btn bgh" onclick="CM('mcom')">✕</button></div>
 <div class="mb"><div class="fg">
-  <div class="fl"><label>Aseguradora <span>*</span></label><select class="fc" id="cm-as"></select></div>
-  <div class="fl"><label>Mes</label><input class="fc" id="cm-me" placeholder="Mayo 2026"></div>
+  <div class="fl"><label>Aseguradora <span>*</span></label><select class="fc" id="cm-as" onchange="comAutoRate()"></select></div>
+  <div class="fl"><label>Ramo / Producto</label><select class="fc" id="cm-ra" onchange="comAutoRate()"><option value="">— Seleccionar —</option><option>Automóvil</option><option>Vida</option><option>Salud</option><option>Hogar</option><option>SOAT</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Transporte</option><option>Cumplimiento</option><option>Multiriesgo</option><option>Fianzas</option><option>Rentas</option><option>Otro</option></select></div>
+  <div class="fl"><label>Fecha de Registro</label><input class="fc" id="cm-fe" type="date"></div>
+  <div class="fl"><label>% Comisión <span style="font-size:9px;color:#64748b;font-weight:400">auto o manual</span></label><input class="fc" id="cm-pc" type="number" step="0.1" min="0" max="100" placeholder="15" inputmode="decimal" title="Se auto-rellena según la tasa configurada por aseguradora/ramo"></div>
   <div class="fl"><label>Monto ($) <span>*</span></label><input class="fc" id="cm-mo" type="number" step="0.01" inputmode="decimal"></div>
   <div class="fl"><label>Estado</label><select class="fc" id="cm-es"><option value="pendiente">Pendiente</option><option value="cobrada">Cobrada</option></select></div>
 </div></div>
@@ -2051,6 +2064,8 @@ if(!S||typeof S!=='object'||!Array.isArray(S.clientes)){
   _n.vcReglas=JSON.parse(JSON.stringify(D.vcReglas||[]));
   S=_n;
 }
+// Ensure comRates exists on S
+if(!S.comRates)S.comRates=[];
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',VF='',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
 
@@ -3709,25 +3724,83 @@ function SVeh(){
 function DVeh(id){confirm2('¿Eliminar?',()=>{S.vehiculos=S.vehiculos.filter(v=>v.id!==id);save();RV();toast('Eliminado');});}
 
 // ── COMISIONES ──
+// S.comRates: [{aseg, ramo, pct}] — tasas configurables por aseguradora/ramo
+function getComRate(aseg,ramo){
+  // exact match aseg+ramo first
+  let r=(S.comRates||[]).find(x=>x.aseg===aseg&&x.ramo===ramo);
+  if(r)return r.pct;
+  // aseg only (any ramo)
+  r=(S.comRates||[]).find(x=>x.aseg===aseg&&(!x.ramo||x.ramo===''));
+  if(r)return r.pct;
+  return null;
+}
+function comAutoRate(){
+  const aseg=V('cm-as'),ramo=V('cm-ra');
+  const pct=getComRate(aseg,ramo);
+  if(pct!==null)SVal('cm-pc',pct);
+}
 function RCom(){
   const pend=S.comisiones.filter(c=>c.estado==='pendiente'),cob=S.comisiones.filter(c=>c.estado==='cobrada');
   const tP=pend.reduce((s,c)=>s+(c.monto||0),0),tC=cob.reduce((s,c)=>s+(c.monto||0),0),tK=S.polizas.reduce((s,p)=>s+(p.comision||0),0);
-  const csg=document.getElementById('comsg');if(csg)csg.innerHTML=`<div class="st"><em>Por Cobrar</em><div class="n" style="color:#B45309;font-size:14px">${fmtM(tP)}</div><div class="sv">${pend.length} aseg.</div></div><div class="st"><em>Cobradas</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tC)}</div></div><div class="st"><em>Mi Com. Cartera</em><div class="n" style="font-size:14px">${fmtM(tK)}</div></div>`;
-  let hp='';pend.forEach(c=>{hp+=`<div style="padding:10px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(ac(c.aseg))}<div style="flex:1"><div style="font-weight:600">${esc(c.aseg)}</div><div style="font-size:10px;color:var(--mu)">${esc(c.mes)}</div></div><span style="font-weight:700;color:#B45309">${fmtM(c.monto)}</span><button class="btn bsm" onclick="markCob('${c.id}')">✓ Cobrada</button><button class="btn bsm bic" onclick="DCom('${c.id}')" style="color:var(--rd)">🗑</button></div>`;});
+  const csg=document.getElementById('comsg');if(csg)csg.innerHTML=`<div class="st"><em>Por Cobrar</em><div class="n" style="color:#B45309;font-size:14px">${fmtM(tP)}</div><div class="sv">${pend.length} registros</div></div><div class="st"><em>Cobradas</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tC)}</div></div><div class="st"><em>Mi Com. Cartera</em><div class="n" style="font-size:14px">${fmtM(tK)}</div></div>`;
+  const comRow=c=>{
+    const fechaDisp=c.fecha?fmt(c.fecha):(c.mes||'—');
+    const ramoDisp=c.ramo?`<span style="background:#EEF2F8;border-radius:4px;padding:1px 5px;font-size:9px">${esc(c.ramo)}</span> `:'';
+    const pctDisp=c.pct?`<span style="color:#1D4ED8;font-size:10px">${c.pct}%</span> `:'';
+    return `<div style="padding:10px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(ac(c.aseg))}<div style="flex:1"><div style="font-weight:600">${esc(c.aseg)}</div><div style="font-size:10px;color:var(--mu)">${ramoDisp}${pctDisp}${fechaDisp}</div></div>`;
+  };
+  let hp='';pend.forEach(c=>{hp+=comRow(c)+`<span style="font-weight:700;color:#B45309">${fmtM(c.monto)}</span><button class="btn bsm" onclick="markCob('${c.id}')">✓ Cobrada</button><button class="btn bsm bic" onclick="DCom('${c.id}')" style="color:var(--rd)">🗑</button></div>`;});
   if(!hp)hp='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Todas cobradas ✓</div>';
-  const cp=document.getElementById('compend');if(cp)cp.innerHTML=hp;
-  let hc='';cob.forEach(c=>{hc+=`<div style="padding:10px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(ac(c.aseg))}<div style="flex:1"><div style="font-weight:600">${esc(c.aseg)}</div><div style="font-size:10px;color:var(--mu)">${esc(c.mes)}</div></div><span style="font-weight:700;color:#15803D">${fmtM(c.monto)}</span>${b('bok','✓')}<button class="btn bsm bic" onclick="DCom('${c.id}')" style="color:var(--rd)">🗑</button></div>`;});
+  const cpEl=document.getElementById('compend');if(cpEl)cpEl.innerHTML=hp;
+  let hc='';cob.forEach(c=>{hc+=comRow(c)+`<span style="font-weight:700;color:#15803D">${fmtM(c.monto)}</span>${b('bok','✓')}<button class="btn bsm bic" onclick="DCom('${c.id}')" style="color:var(--rd)">🗑</button></div>`;});
   if(!hc)hc='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin cobradas</div>';
   const cc2=document.getElementById('comcob');if(cc2)cc2.innerHTML=hc;
   let hd='';S.polizas.forEach(p=>{const cl=GC(p.clienteId);hd+=`<tr><td style="font-weight:600;font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</td><td style="font-size:11px">${esc(p.ramo)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td>${fmtM(p.prima)}</td><td>${p.comPct||0}%</td><td>${p.participacion||100}%</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px">${esc(p.coCor||'—')}</td><td style="font-size:11px">${p.coCorCom?fmtM(p.coCorCom):'—'}</td></tr>`;});
   hd+=`<tr style="background:#FAFBFD;border-top:2px solid var(--bd)"><td colspan="6" style="padding:9px 10px;font-weight:700;color:var(--mu);font-size:11px">TOTAL MI COMISIÓN</td><td style="padding:9px 10px;font-weight:800;font-size:14px;color:#15803D">${fmtM(tK)}</td><td colspan="2"></td></tr>`;
   if(!S.polizas.length)hd='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
   const tcd=document.getElementById('tcomd');if(tcd)tcd.innerHTML=hd;
+  // Populate crt-as select (rates config aseg picker)
+  const crtAs=document.getElementById('crt-as');
+  if(crtAs){crtAs.innerHTML='<option value="">— Seleccionar —</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;crtAs.add(o);});}
+  // Render comRates config table
+  const ratesEl=document.getElementById('com-rates-body');
+  if(ratesEl){
+    let rh='';(S.comRates||[]).forEach((r,i)=>{rh+=`<tr><td style="padding:6px 10px">${esc(r.aseg)}</td><td style="padding:6px 10px">${esc(r.ramo||'Todos')}</td><td style="padding:6px 10px;font-weight:700;color:#1D4ED8">${r.pct}%</td><td style="padding:6px 10px"><button class="btn bsm bic" onclick="delComRate(${i})" style="color:var(--rd)">🗑</button></td></tr>`;});
+    ratesEl.innerHTML=rh||'<tr><td colspan="4" style="padding:12px;text-align:center;color:var(--mu);font-size:11px">Sin tasas configuradas</td></tr>';
+  }
 }
 function markCob(id){const i=S.comisiones.findIndex(c=>c.id===id);if(i>=0)S.comisiones[i].estado='cobrada';save();RCom();RD();toast('✓ Cobrada');}
-function OCom(){const asel=document.getElementById('cm-as');if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}SVal('cm-me','');SVal('cm-mo','');SVal('cm-es','pendiente');OM('mcom');}
-function SCom(){const aseg=V('cm-as'),monto=GF('cm-mo');if(!aseg||!monto){toast('Aseguradora y monto obligatorios','err');return;}S.comisiones.push({id:'COM'+uid(),aseg,mes:V('cm-me').trim(),monto,estado:V('cm-es')});save();CM('mcom');RCom();toast('✓ Registrada');}
+function OCom(){
+  const asel=document.getElementById('cm-as');
+  if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;asel.add(o);});}
+  // default date = today
+  const todayStr=TODAY.toISOString().split('T')[0];
+  SVal('cm-fe',todayStr);SVal('cm-ra','');SVal('cm-pc','');SVal('cm-mo','');SVal('cm-es','pendiente');
+  OM('mcom');
+}
+function SCom(){
+  const aseg=V('cm-as'),monto=GF('cm-mo');
+  if(!aseg||!monto){toast('Aseguradora y monto obligatorios','err');return;}
+  const pct=parseFloat(V('cm-pc'))||null;
+  const fecha=V('cm-fe')||'';
+  const ramo=V('cm-ra')||'';
+  // build mes label from fecha for backward compat display
+  let mes='';if(fecha){const d=new Date(fecha+'T00:00:00');if(!isNaN(d))mes=d.toLocaleDateString('es-PA',{month:'long',year:'numeric'});}
+  S.comisiones.push({id:'COM'+uid(),aseg,fecha,mes,ramo,pct,monto,estado:V('cm-es')});
+  save();CM('mcom');RCom();toast('✓ Registrada');
+}
 function DCom(id){confirm2('¿Eliminar?',()=>{S.comisiones=S.comisiones.filter(c=>c.id!==id);save();RCom();toast('Eliminada');});}
+// ── Tasas de Comisión por Aseguradora/Ramo ──
+function saveComRate(){
+  const aseg=V('crt-as'),ramo=V('crt-ra'),pct=parseFloat(V('crt-pc'));
+  if(!aseg||!pct){toast('Aseguradora y % son obligatorios','err');return;}
+  if(!S.comRates)S.comRates=[];
+  // update or add
+  const idx=S.comRates.findIndex(r=>r.aseg===aseg&&r.ramo===(ramo||''));
+  if(idx>=0)S.comRates[idx].pct=pct;else S.comRates.push({aseg,ramo:ramo||'',pct});
+  save();RCom();toast('✓ Tasa guardada');SVal('crt-as','');SVal('crt-ra','');SVal('crt-pc','');
+}
+function delComRate(i){confirm2('¿Eliminar tasa?',()=>{S.comRates.splice(i,1);save();RCom();toast('Tasa eliminada');});}
 
 // ── TAREAS ──
 function setTV(v,el){TV=v;document.querySelectorAll('.vtog button').forEach(b=>b.classList.remove('on'));el.classList.add('on');RTar();}
