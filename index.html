@@ -258,6 +258,7 @@ body.dark .mu{color:var(--dark-mu);}
     <a onclick="SH('aseg')">🏛 Aseg.</a>
     <a onclick="SH('wam')">📣 WA Masivo</a>
     <a onclick="SH('not')">📝 Notas</a>
+    <a onclick="SH('men')">📦 Mensajero</a>
     <a onclick="SH('inf')">📊 Informes</a>
     <a onclick="SH('cotp')" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border-radius:8px;font-weight:700">🧮 Cotizador Pro</a>
     <a onclick="SH('cfg')">⚙️</a>
@@ -820,6 +821,30 @@ body.dark .mu{color:var(--dark-mu);}
   </div>
 </div>
 
+<!-- MENSAJERO -->
+<div class="pg" id="pg-men">
+  <div class="ph">
+    <div>
+      <h2>📦 Mensajero</h2>
+      <small>Gestión de encomiendas y asignaciones</small>
+    </div>
+    <div class="tb" style="gap:8px;align-items:center">
+      <div style="display:flex;align-items:center;gap:6px;background:#EEF4FF;border:1px solid #C7D7FF;border-radius:8px;padding:5px 10px">
+        <span style="font-size:12px;color:var(--mu);font-weight:600">👤 Mensajero:</span>
+        <input id="mens-nombre-inp" class="si" style="border:none;background:transparent;font-weight:700;color:var(--bl);padding:0;width:160px;font-size:12px" value="Francisco Flores" onblur="saveMensajeroNombre(this.value)" onkeydown="if(event.key==='Enter')this.blur()">
+      </div>
+      <div class="vtog">
+        <button class="on" id="men-v-kan" onclick="setMenView('k',this)">🗂 Kanban</button>
+        <button id="men-v-lst" onclick="setMenView('l',this)">☰ Lista</button>
+      </div>
+      <button class="btn bp" onclick="OMens()">+ Nueva Asignación</button>
+    </div>
+  </div>
+  <div class="sg" id="mensg" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"></div>
+  <div id="men-kanban" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:10px"></div>
+  <div id="men-list" style="display:none"></div>
+</div>
+
 </main>
 
 <!-- PANEL LATERAL DE DETALLE -->
@@ -847,6 +872,7 @@ body.dark .mu{color:var(--dark-mu);}
   <a onclick="SH('com');closeBnMore()"><span style="font-size:16px">💰</span>Comisiones</a>
   <a onclick="SH('wam');closeBnMore()"><span style="font-size:16px">📣</span>WA Masivo</a>
   <a onclick="SH('not');closeBnMore()"><span style="font-size:16px">📝</span>Notas</a>
+  <a onclick="SH('men');closeBnMore()"><span style="font-size:16px">📦</span>Mensajero</a>
   <a onclick="SH('tar');closeBnMore()"><span style="font-size:16px">✅</span>Tareas</a>
   <a onclick="SH('emp');closeBnMore()"><span style="font-size:16px">🏢</span>Empresas</a>
   <a onclick="SH('aseg');closeBnMore()"><span style="font-size:16px">🏛</span>Aseg.</a>
@@ -856,6 +882,77 @@ body.dark .mu{color:var(--dark-mu);}
 <a href="https://wa.me/50762926010" target="_blank" rel="noopener" class="waf" title="JAC Seguros WhatsApp">💬</a>
 
 <!-- ═══ MODALS ═══ -->
+
+<!-- CALENDAR DAY DETAIL -->
+<div class="mo" id="mcalday"><div class="md mdsm" style="max-width:600px">
+  <div class="mh"><h2 id="mcalday-title">📅 Eventos del día</h2><button class="btn bgh" onclick="CM('mcalday')">✕</button></div>
+  <div style="padding:14px;max-height:70vh;overflow-y:auto" id="mcalday-body"></div>
+  <div class="mf"><button class="btn" onclick="CM('mcalday')">Cerrar</button></div>
+</div></div>
+
+<!-- MENSAJERÍA FORM -->
+<div class="mo" id="mmens"><div class="md mdsm" style="max-width:560px">
+  <div class="mh"><h2 id="mmens-title">📦 Nueva Asignación</h2><button class="btn bgh" onclick="CM('mmens')">✕</button></div>
+  <div style="padding:14px;max-height:75vh;overflow-y:auto">
+    <input type="hidden" id="mens-id">
+    <div class="fl" style="margin-bottom:9px">
+      <label>TIPO DE TAREA <span style="color:var(--rd)">*</span></label>
+      <select class="fc" id="mens-tipo" onchange="onMensTipoChange()">
+        <option value="">— Seleccionar —</option>
+        <option value="buscar-poliza">📋 Buscar póliza en compañía de seguros</option>
+        <option value="buscar-docs">📂 Buscar documentos en compañía de seguros</option>
+        <option value="llevar-docs">🚶 Llevar documentos a cliente</option>
+        <option value="llevar-poliza">🚶 Llevar póliza/documentos a cliente</option>
+        <option value="libre">✏️ Tarea libre</option>
+      </select>
+    </div>
+    <div class="fl" style="margin-bottom:9px">
+      <label>CLIENTE</label>
+      <select class="fc" id="mens-cli" onchange="onMensCliChange()">
+        <option value="">— Sin cliente —</option>
+      </select>
+    </div>
+    <div class="fl" style="margin-bottom:9px" id="mens-pol-row">
+      <label>PÓLIZA</label>
+      <select class="fc" id="mens-pol">
+        <option value="">— Sin póliza —</option>
+      </select>
+    </div>
+    <div class="fl" style="margin-bottom:9px" id="mens-comp-row">
+      <label>COMPAÑÍA DE SEGUROS</label>
+      <input class="fc" id="mens-comp" placeholder="ej: ASSA, SURA, MAPFRE...">
+    </div>
+    <div class="fl" style="margin-bottom:9px">
+      <label>DESCRIPCIÓN / DETALLE <span style="color:var(--rd)">*</span></label>
+      <textarea class="fc" id="mens-desc" rows="2" placeholder="Detalle de la tarea..."></textarea>
+    </div>
+    <div class="fl" style="margin-bottom:9px">
+      <label>TELÉFONO DEL MENSAJERO</label>
+      <input class="fc" id="mens-tel" placeholder="+507 6000-0000">
+    </div>
+    <div class="fl" style="margin-bottom:9px">
+      <label>OBSERVACIONES</label>
+      <textarea class="fc" id="mens-obs" rows="2" placeholder="Instrucciones adicionales..."></textarea>
+    </div>
+    <div class="fl" style="margin-bottom:9px">
+      <label>ADJUNTO (opcional)</label>
+      <input type="file" id="mens-file" class="fc" style="padding:6px" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+    </div>
+    <div class="fl" style="margin-bottom:9px">
+      <label>ESTADO</label>
+      <select class="fc" id="mens-estado">
+        <option value="Pendiente">🟡 Pendiente</option>
+        <option value="En Camino">🚶 En Camino</option>
+        <option value="Entregado">✅ Entregado</option>
+        <option value="Completado">🟢 Completado</option>
+      </select>
+    </div>
+  </div>
+  <div class="mf" style="gap:8px">
+    <button class="btn" onclick="CM('mmens')">Cancelar</button>
+    <button class="btn bgn" onclick="saveMens()">💾 Guardar</button>
+  </div>
+</div></div>
 
 <!-- MODAL VISOR DE ARCHIVOS -->
 <div class="mo" id="mfv"><div class="md mdsm" style="max-width:680px">
@@ -1924,19 +2021,39 @@ function setRenView(v,btn){
   document.getElementById('rcal').style.display=v==='cal'?'':'none';
   if(v==='cal')RRenCal();
 }
+let selYear=new Date().getFullYear(),selMonth=new Date().getMonth();
 function RRenCal(){
   const now=new Date();
-  let selYear=now.getFullYear(),selMonth=now.getMonth();
+  selYear=now.getFullYear();selMonth=now.getMonth();
   renderCalMonth(selYear,selMonth);
 }
 function renderCalMonth(year,month){
   const rcal=document.getElementById('rcal');if(!rcal)return;
+  selYear=year;selMonth=month;
   const pol=S.polizas.filter(p=>p.estado!=='Cancelada'&&p.fechaFin);
-  // Build map: "YYYY-MM-DD" → [polizas]
+  // Build map: "YYYY-MM-DD" → {pols:[], tareas:[], bdays:[]}
   const map={};
+  const ensureDay=k=>{if(!map[k])map[k]={pols:[],tareas:[],bdays:[]};};
   pol.forEach(p=>{
     const k=p.fechaFin.slice(0,10);
-    if(!map[k])map[k]=[];map[k].push(p);
+    ensureDay(k);map[k].pols.push(p);
+  });
+  // Add tareas by fechaVencimiento
+  (S.tareas||[]).filter(t=>t.fechaVencimiento&&t.estado!=='completada').forEach(t=>{
+    const k=t.fechaVencimiento.slice(0,10);
+    ensureDay(k);map[k].tareas.push(t);
+  });
+  // Add birthdays (match month/day this year)
+  (S.clientes||[]).forEach(c=>{
+    if(!c.fNac)return;
+    try{
+      const d=new Date(c.fNac+'T00:00:00');
+      const bm=d.getMonth();const bd=d.getDate();
+      if(bm===month){
+        const k=`${year}-${String(month+1).padStart(2,'0')}-${String(bd).padStart(2,'0')}`;
+        ensureDay(k);map[k].bdays.push(c);
+      }
+    }catch(e){}
   });
   const first=new Date(year,month,1);
   const last=new Date(year,month+1,0);
@@ -1944,9 +2061,9 @@ function renderCalMonth(year,month){
   const MON2=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   let h=`<div class="card" style="padding:14px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <button class="btn bsm" onclick="renderCalMonth(${month===0?year-1:year},${month===0?11:month-1})">‹ Anterior</button>
+      <button class="btn bsm" onclick="selYear=${month===0?year-1:year};selMonth=${month===0?11:month-1};renderCalMonth(selYear,selMonth)">‹ Anterior</button>
       <span style="font-weight:700;font-size:15px">${MON2[month]} ${year}</span>
-      <button class="btn bsm" onclick="renderCalMonth(${month===11?year+1:year},${month===11?0:month+1})">Siguiente ›</button>
+      <button class="btn bsm" onclick="selYear=${month===11?year+1:year};selMonth=${month===11?0:month+1};renderCalMonth(selYear,selMonth)">Siguiente ›</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center">`;
   ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d=>{h+=`<div style="font-size:10px;font-weight:700;color:var(--mu);padding:4px">${d}</div>`;});
@@ -1955,33 +2072,132 @@ function renderCalMonth(year,month){
   for(let d=1;d<=last.getDate();d++){
     const dd=String(d).padStart(2,'0');const mm=String(month+1).padStart(2,'0');
     const key=`${year}-${mm}-${dd}`;
-    const dayPols=map[key]||[];
+    const dayData=map[key]||{pols:[],tareas:[],bdays:[]};
+    const totalEvents=dayData.pols.length+dayData.tareas.length+dayData.bdays.length;
     const isToday=new Date(year,month,d).getTime()===today.getTime();
     const isPast=new Date(year,month,d)<today;
-    const dotColor=dayPols.length?isPast?'#DC2626':'#1D4ED8':'';
-    h+=`<div style="padding:5px 2px;border-radius:6px;cursor:${dayPols.length?'pointer':'default'};background:${isToday?'#1D4ED8':'transparent'};border:${dayPols.length?'1px solid '+(isPast?'#FCA5A5':'#BFDBFE'):'1px solid transparent'}" 
-      ${dayPols.length?`onclick="showCalDay('${key}',${JSON.stringify(dayPols.map(p=>p.id)).replace(/"/g,"'")})"`:''}>
+    const dotColor=dayData.pols.length?(isPast?'#DC2626':'#1D4ED8'):dayData.tareas.length?'#D97706':dayData.bdays.length?'#EC4899':'';
+    h+=`<div style="padding:5px 2px;border-radius:6px;cursor:${totalEvents?'pointer':'default'};background:${isToday?'#1D4ED8':'transparent'};border:${totalEvents?'1px solid '+(isPast&&dayData.pols.length?'#FCA5A5':dayData.bdays.length?'#FBCFE8':'#BFDBFE'):'1px solid transparent'}"
+      ${totalEvents?`onclick="showCalDay('${key}',${JSON.stringify(dayData.pols.map(p=>p.id)).replace(/"/g,"'")},${JSON.stringify(dayData.tareas.map(t=>t.id)).replace(/"/g,"'")},${JSON.stringify(dayData.bdays.map(c=>c.id)).replace(/"/g,"'")})"`:''}>
       <div style="font-size:12px;font-weight:${isToday?700:400};color:${isToday?'#fff':isPast?'var(--mu)':'inherit'}">${d}</div>
-      ${dayPols.length?`<div style="width:6px;height:6px;border-radius:50%;background:${dotColor};margin:2px auto 0"></div>`:''}
-      ${dayPols.length>1?`<div style="font-size:9px;color:${isToday?'#fff':dotColor};font-weight:700">${dayPols.length}</div>`:''}
+      ${dayData.bdays.length?`<div style="font-size:9px">🎂</div>`:''}
+      ${dayData.pols.length?`<div style="width:6px;height:6px;border-radius:50%;background:${isPast?'#DC2626':'#1D4ED8'};margin:1px auto 0"></div>`:''}
+      ${dayData.tareas.length?`<div style="width:6px;height:6px;border-radius:50%;background:#D97706;margin:1px auto 0"></div>`:''}
+      ${totalEvents>1?`<div style="font-size:9px;color:${isToday?'#fff':dotColor};font-weight:700">${totalEvents}</div>`:''}
     </div>`;
   }
   h+=`</div>`;
   // Legend
-  h+=`<div style="display:flex;gap:12px;margin-top:10px;font-size:11px;justify-content:center">
-    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1D4ED8;margin-right:4px"></span>Próximas</span>
+  h+=`<div style="display:flex;gap:10px;margin-top:10px;font-size:11px;justify-content:center;flex-wrap:wrap">
+    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1D4ED8;margin-right:4px"></span>Pólizas próx.</span>
     <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#DC2626;margin-right:4px"></span>Vencidas</span>
+    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D97706;margin-right:4px"></span>Tareas</span>
+    <span>🎂 Cumpleaños</span>
   </div></div>`;
   rcal.innerHTML=h;
 }
-function showCalDay(fecha,ids){
-  const pols=ids.map(id=>S.polizas.find(p=>p.id===id)).filter(Boolean);
-  if(!pols.length)return;
-  let h=`<b>${fmt(fecha)} — ${pols.length} póliza(s)</b><br><br>`;
-  pols.forEach(p=>{const cl=GC(p.clienteId);h+=`• <b>${esc(cl.nombre||p.nombreCliente||'—')}</b> · ${esc(p.ramo)} · <span style="color:${ac(p.aseg)};font-weight:700">${esc(p.aseg)}</span> · ${fmtM(p.prima)}<br>`;});
-  toast(h.replace(/<[^>]+>/g,'').slice(0,200),'ok');
-  // Open first as detail
-  if(pols.length===1)setTimeout(()=>showPolDP(pols[0].id),200);
+const CAL_ESTADOS={Realizado:'#15803D',Pospuesto:'#D97706',Cancelado:'#B91C1C','En Seguimiento':'#7E22CE'};
+function showCalDay(fecha,polIds,tarIds,bdayIds){
+  polIds=polIds||[];tarIds=tarIds||[];bdayIds=bdayIds||[];
+  const pols=polIds.map(id=>S.polizas.find(p=>p.id===id)).filter(Boolean);
+  const tars=tarIds.map(id=>(S.tareas||[]).find(t=>t.id===id)).filter(Boolean);
+  const bdays=bdayIds.map(id=>(S.clientes||[]).find(c=>c.id===id)).filter(Boolean);
+  const total=pols.length+tars.length+bdays.length;
+  if(!total)return;
+  const t=document.getElementById('mcalday-title');
+  if(t)t.textContent=`📅 ${fmt(fecha)} — ${total} evento(s)`;
+  let h='';
+
+  // Pólizas
+  if(pols.length){
+    h+=`<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--bd)">📋 Pólizas que vencen</div>`;
+    pols.forEach(p=>{
+      const cl=GC(p.clienteId);
+      const nombre=cl.nombre||p.nombreCliente||'—';
+      const isPast=new Date(p.fechaFin)<new Date();
+      const est=p.calEstado||'';
+      h+=`<div style="background:${isPast?'#FEF2F2':'#EFF6FF'};border:1px solid ${isPast?'#FCA5A5':'#BFDBFE'};border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div>
+            <div style="font-weight:700;font-size:13px">${esc(nombre)}</div>
+            <div style="font-size:11px;color:var(--mu);margin-top:2px">${esc(p.ramo)} · <span style="color:${ac(p.aseg)};font-weight:700">${esc(p.aseg)}</span> · ${fmtM(p.prima)}</div>
+            <div style="font-size:11px;color:${isPast?'#DC2626':'#1D4ED8'};font-weight:700;margin-top:3px">${isPast?'⚠️ Vencida':'📅 Vence'}: ${fmt(p.fechaFin)}</div>
+            ${est?`<div style="font-size:11px;margin-top:4px;padding:2px 8px;background:${CAL_ESTADOS[est]||'#64748B'};color:#fff;border-radius:12px;display:inline-block">${est}</div>`:''}
+          </div>
+          <button class="btn bsm bin" onclick="showPolDP('${p.id}');CM('mcalday')" style="font-size:10px;white-space:nowrap">Ver póliza</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+          ${Object.keys(CAL_ESTADOS).map(e=>`<button class="btn bsm" onclick="setCalPolEstado('${p.id}','${e}')" style="font-size:10px;background:${est===e?CAL_ESTADOS[e]:'#F1F5F9'};color:${est===e?'#fff':'inherit'};padding:3px 9px">${e}</button>`).join('')}
+          <button class="btn bsm brd2" onclick="DPol('${p.id}');CM('mcalday')" style="font-size:10px;padding:3px 9px">🗑 Eliminar</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Tareas
+  if(tars.length){
+    h+=`<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:${pols.length?12:0}px;padding-bottom:4px;border-bottom:1px solid var(--bd)">✅ Tareas</div>`;
+    tars.forEach(t=>{
+      const est=t.calEstado||t.etapaTarea||'';
+      h+=`<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-weight:700;font-size:13px">${esc(t.desc||t.titulo||'Tarea')}</div>
+            ${t.clienteNombre?`<div style="font-size:11px;color:var(--mu)">👤 ${esc(t.clienteNombre)}</div>`:''}
+            ${est?`<div style="font-size:11px;margin-top:4px;padding:2px 8px;background:${CAL_ESTADOS[est]||'#64748B'};color:#fff;border-radius:12px;display:inline-block">${est}</div>`:''}
+          </div>
+          <button class="btn bsm" onclick="OT('${t.id}');CM('mcalday')" style="font-size:10px">Editar</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+          ${Object.keys(CAL_ESTADOS).map(e=>`<button class="btn bsm" onclick="setCalTarEstado('${t.id}','${e}')" style="font-size:10px;background:${est===e?CAL_ESTADOS[e]:'#F1F5F9'};color:${est===e?'#fff':'inherit'};padding:3px 9px">${e}</button>`).join('')}
+          <button class="btn bsm brd2" onclick="DTar('${t.id}');CM('mcalday')" style="font-size:10px;padding:3px 9px">🗑 Eliminar</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Cumpleaños
+  if(bdays.length){
+    h+=`<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:${(pols.length||tars.length)?12:0}px;padding-bottom:4px;border-bottom:1px solid var(--bd)">🎂 Cumpleaños</div>`;
+    bdays.forEach(c=>{
+      const tel=c.cel||c.tel||'';
+      const waMsg=encodeURIComponent(`🎂 ¡Feliz Cumpleaños, ${(c.nombre||'').split(' ')[0]}! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* (Lic. #6175) te deseamos un maravilloso día. ¡Que cumplas muchos más! 🌟\n\n_Jely An Castro · +507 6292-6010_`);
+      h+=`<div style="background:#FDF4FF;border:1px solid #E9D5FF;border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700;font-size:13px">🎂 ${esc(c.nombre||'—')}</div>
+            ${tel?`<div style="font-size:11px;color:var(--mu)">${esc(tel)}</div>`:''}
+          </div>
+          <div style="display:flex;gap:6px">
+            ${tel?`<button class="btn bsm bwa" onclick="window.open('https://wa.me/507${tel.replace(/[^0-9]/g,'')}?text=${waMsg}','_blank')" style="font-size:10px">💬 WA</button>`:''}
+            ${c.email?`<button class="btn bsm bin" onclick="sendBirthdayEmail(${JSON.stringify({id:c.id,nombre:c.nombre,email:c.email}).replace(/"/g,'&quot;')})" style="font-size:10px">📧 Email</button>`:''}
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+
+  const body=document.getElementById('mcalday-body');
+  if(body)body.innerHTML=h;
+  OM('mcalday');
+}
+function setCalPolEstado(polId,estado){
+  const p=S.polizas.find(x=>x.id===polId);if(!p)return;
+  p.calEstado=estado;
+  if(estado==='Cancelado')p.estado='Cancelada';
+  if(estado==='Pospuesto'&&p.fechaFin){
+    const nf=new Date(p.fechaFin+'T00:00:00');
+    nf.setDate(nf.getDate()+30);
+    p.fechaFin=nf.toISOString().slice(0,10);
+  }
+  save();renderCalMonth(selYear,selMonth);toast('✓ '+estado);
+}
+function setCalTarEstado(tarId,estado){
+  const t=(S.tareas||[]).find(x=>x.id===tarId);if(!t)return;
+  t.calEstado=estado;
+  if(estado==='Realizado'||estado==='Cancelado')t.estado='completada';
+  else if(estado==='En Seguimiento')t.estado='pendiente';
+  save();RTar();renderCalMonth(selYear,selMonth);toast('✓ '+estado);
 }
 
 function clearData(){if(!confirm('¿BORRAR TODO? Irreversible.'))return;localStorage.removeItem('jacv10');toast('Datos borrados');setTimeout(()=>location.reload(),1500);}
@@ -2028,6 +2244,9 @@ function loadS(){
       if(!p.metas)p.metas={mensual:0,anual:0};
       if(!p.darkMode)p.darkMode=false;
       if(!p.vcReglas)p.vcReglas=JSON.parse(JSON.stringify(D.vcReglas));
+      if(!p.encomiendas)p.encomiendas=[];
+      if(!p.mensajero)p.mensajero='Francisco Flores';
+      if(!p.mensajeroTel)p.mensajeroTel='';
       p.clientes.forEach(c=>{if(!c.historialWA)c.historialWA=[];if(!c.historialComms)c.historialComms=[];if(!c.etiquetas)c.etiquetas=[];if(!c.archivos)c.archivos=[];});
       p.prospectos.forEach(pr=>{if(!pr.historial)pr.historial=[];if(!pr.archivos)pr.archivos=[];if(!pr.etiquetas)pr.etiquetas=[];});
       return p;
@@ -2067,6 +2286,9 @@ if(!S||typeof S!=='object'||!Array.isArray(S.clientes)){
 // Ensure comRates exists on S
 if(!S.comRates)S.comRates=[];
 if(!S.actDone)S.actDone=[];
+if(!S.encomiendas)S.encomiendas=[];
+if(!S.mensajero)S.mensajero='Francisco Flores';
+if(!S.mensajeroTel)S.mensajeroTel='';
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',VF='',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
 
@@ -4698,11 +4920,18 @@ async function sendEmailJS(templateId, params) {
 }
 
 async function sendBirthdayEmail(client) {
+  if (!client.email) { toast('El cliente no tiene email registrado','warn'); return; }
+  const nombre = client.nombre ? client.nombre.split(' ')[0] : 'estimado/a cliente';
   const cfg = JSON.parse(localStorage.getItem('jac_ejs_cfg') || '{}');
   const tpl = cfg['ejs-tpl-bday'];
-  if (!tpl) { toast('Configura EmailJS en Configuración primero','warn'); return; }
-  if (!client.email) { toast('El cliente no tiene email registrado','warn'); return; }
-  const nombre = client.nombre ? client.nombre.split(' ')[0] : 'estimado cliente';
+  // Fallback: open compose modal if EmailJS not configured
+  if (!tpl || !cfg['ejs-pub'] || !cfg['ejs-svc'] || !window.emailjs) {
+    openComposeEmail(client.email, client.nombre,
+      `🎂 ¡Feliz Cumpleaños, ${nombre}!`,
+      `Estimado/a ${client.nombre},\n\n¡En este día tan especial, todo el equipo de JAC Seguros te deseamos un maravilloso cumpleaños lleno de salud, felicidad y bendiciones! 🎂🎉\n\nGracias por confiar en nosotros para proteger lo que más valoras. ¡Que cumplas muchos más! 🌟\n\nCon cariño,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\n📞 +507 6292-6010\n📧 jcastro@jacsegurospa.com`,
+      'cliente', client.id);
+    return;
+  }
   const ok = await sendEmailJS(tpl, {
     to_name: client.nombre || 'Cliente',
     to_email: client.email,
@@ -4724,19 +4953,34 @@ async function sendBirthdayEmail(client) {
       if (typeof save === 'function') save();
     }
   } else {
-    toast('Error enviando email. Verifica configuración EmailJS','err');
+    // Fallback to compose modal
+    const nombre2 = client.nombre ? client.nombre.split(' ')[0] : 'estimado/a cliente';
+    openComposeEmail(client.email, client.nombre,
+      `🎂 ¡Feliz Cumpleaños, ${nombre2}!`,
+      `Estimado/a ${client.nombre},\n\n¡En este día tan especial, todo el equipo de JAC Seguros te deseamos un maravilloso cumpleaños lleno de salud, felicidad y bendiciones! 🎂🎉\n\nGracias por confiar en nosotros para proteger lo que más valoras. ¡Que cumplas muchos más! 🌟\n\nCon cariño,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\n📞 +507 6292-6010`,
+      'cliente', client.id);
   }
 }
 
 async function sendRenewalEmail(pol, client) {
   const cfg = JSON.parse(localStorage.getItem('jac_ejs_cfg') || '{}');
   const tpl = cfg['ejs-tpl-ren'];
-  if (!tpl) { toast('Configura EmailJS en Configuración primero','warn'); return; }
   const email = client.email || pol.emailCliente;
   if (!email) { toast('El cliente no tiene email registrado','warn'); return; }
   const nombre = (client.nombre || pol.nombreCliente || 'Cliente').split(' ')[0];
   const diasRestantes = typeof dFrom === 'function' ? dFrom(pol.fechaFin) : '—';
-  const fechaFmt = typeof fmt === 'function' ? fmt(pol.fechaFin) : pol.fechaFin;
+  const fechaFmt2 = typeof fmt === 'function' ? fmt(pol.fechaFin) : pol.fechaFin;
+  // Fallback: open compose modal if EmailJS not configured
+  if (!tpl || !cfg['ejs-pub'] || !cfg['ejs-svc'] || !window.emailjs) {
+    const sub2 = diasRestantes >= 0 ? `⚠️ Tu póliza ${pol.ramo} vence en ${diasRestantes} días — JAC Seguros` : `Renovación póliza ${pol.ramo} — JAC Seguros`;
+    openComposeEmail(email, client.nombre || pol.nombreCliente || '',
+      sub2,
+      `Hola ${nombre} 👋\n\nTe contacto desde *JAC Seguros* para recordarte que tu póliza de *${pol.ramo}* con *${pol.aseg}* (N° ${pol.polNum || pol.id}) vence el *${fechaFmt2}*.\n${diasRestantes >= 0 ? `⚠️ Faltan solo ${diasRestantes} días para vencer.` : '⚠️ Tu póliza ya venció.'}\n\nPara renovarla y mantener tu cobertura sin interrupciones, contáctame de inmediato.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros · Lic. #6175\n📞 +507 6292-6010`,
+      'poliza', pol.id);
+    return;
+  }
+  // Continue with EmailJS path
+  const fechaFmt = fechaFmt2;
   const ok = await sendEmailJS(tpl, {
     to_name: client.nombre || 'Cliente',
     to_email: email,
@@ -4762,7 +5006,11 @@ async function sendRenewalEmail(pol, client) {
       if (typeof save === 'function') save();
     }
   } else {
-    toast('Error enviando email. Verifica configuración EmailJS','err');
+    // Fallback: open compose modal
+    openComposeEmail(email, client.nombre || pol.nombreCliente || '',
+      `⚠️ Tu póliza ${pol.ramo} vence pronto — JAC Seguros`,
+      `Hola ${nombre} 👋\n\nTe contacto desde JAC Seguros para recordarte que tu póliza de ${pol.ramo} con ${pol.aseg} vence el ${fechaFmt}.\n\nPara renovarla, contáctame:\nJely An Castro Pérez · +507 6292-6010`,
+      'poliza', pol.id);
   }
 }
 
@@ -8067,6 +8315,286 @@ function cotpSaveProspe(){
 }
 
 // ─── Calendario de vencimientos ────────────────────────────────────────────
+
+// ════════════════════════════════════════════════════════════════
+// ── MÓDULO MENSAJERÍA / MENSAJERO ────────────────────────────────
+// ════════════════════════════════════════════════════════════════
+
+const MENS_TIPOS={
+  'buscar-poliza':'📋 Buscar póliza en compañía de seguros',
+  'buscar-docs':'📂 Buscar documentos en compañía de seguros',
+  'llevar-docs':'🚶 Llevar documentos a cliente',
+  'llevar-poliza':'🚶 Llevar póliza/documentos a cliente',
+  'libre':'✏️ Tarea libre'
+};
+const MENS_ESTADOS=['Pendiente','En Camino','Entregado','Completado'];
+const MENS_ESTADO_CLR={Pendiente:'#D97706','En Camino':'#1D4ED8',Entregado:'#7E22CE',Completado:'#15803D'};
+
+let mensView='k'; // 'k'=kanban 'l'=list
+
+function initMensajero(){
+  if(!S.mensajero)S.mensajero='Francisco Flores';
+  if(!S.mensajeroTel)S.mensajeroTel='';
+  if(!S.encomiendas)S.encomiendas=[];
+  const inp=document.getElementById('mens-nombre-inp');
+  if(inp)inp.value=S.mensajero;
+}
+
+function saveMensajeroNombre(val){
+  if(!val.trim())return;
+  S.mensajero=val.trim();
+  save();toast('✓ Nombre del mensajero actualizado');
+}
+
+function setMenView(v,el){
+  mensView=v;
+  document.querySelectorAll('#men-v-kan,#men-v-lst').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.getElementById('men-kanban').style.display=v==='k'?'flex':'none';
+  document.getElementById('men-list').style.display=v==='l'?'block':'none';
+  RMen();
+}
+
+function getMensWAMsg(enc){
+  const nombre=S.mensajero||'Francisco';
+  const cliente=enc.nombreCliente||'el cliente';
+  const pol=enc.nombrePoliza||enc.polizaId||'—';
+  const comp=enc.compania||'—';
+  const obs=enc.observaciones||'Ninguna';
+  const desc=enc.descripcion||'';
+  const firma=`\n\n_JAC Seguros | Jely An Castro · +507 6292-6010_`;
+  switch(enc.tipo){
+    case 'buscar-poliza':return `Hola *${nombre}* 👋\n\nTe asigno la siguiente tarea:\n\n*📋 Buscar póliza en compañía de seguros*\n\n👤 Cliente: ${cliente}\n🏛 Compañía: ${comp}\n📄 Póliza: ${pol}\n📝 Obs: ${obs}${firma}`;
+    case 'buscar-docs':return `Hola *${nombre}* 👋\n\nTe asigno la siguiente tarea:\n\n*📂 Buscar documentos en compañía de seguros*\n\n👤 Cliente: ${cliente}\n🏛 Compañía: ${comp}\n📝 Descripción: ${desc}\n📝 Obs: ${obs}${firma}`;
+    case 'llevar-docs':return `Hola *${nombre}* 👋\n\nTe asigno la siguiente tarea:\n\n*📂 Llevar documentos a cliente*\n\n👤 Cliente: ${cliente}\n📝 Detalle: ${desc}\n📝 Obs: ${obs}\n\n🙏 Confirma cuando entregues.${firma}`;
+    case 'llevar-poliza':return `Hola *${nombre}* 👋\n\nTe asigno la siguiente tarea:\n\n*📋 Llevar póliza/documentos a cliente*\n\n👤 Cliente: ${cliente}\n📄 Póliza: ${pol}\n📝 Obs: ${obs}\n\n🙏 Confirma cuando entregues.${firma}`;
+    default:return `Hola *${nombre}* 👋\n\nTe asigno la siguiente tarea:\n\n${desc||MENS_TIPOS[enc.tipo]||'Tarea'}\n\n👤 Cliente: ${cliente}\n📝 Obs: ${obs}${firma}`;
+  }
+}
+
+function getMensEmailSubj(enc){
+  return `[JAC Seguros] Asignación: ${MENS_TIPOS[enc.tipo]||enc.tipo} — ${enc.nombreCliente||'Cliente'}`;
+}
+function getMensEmailBody(enc){
+  const nombre=S.mensajero||'Francisco';
+  const msg=getMensWAMsg(enc).replace(/\*/g,'').replace(/_/g,'');
+  return `${nombre},\n\n${msg.replace(/_/g,'')}\n\nFecha asignación: ${enc.fecha||''}\n\nJAC Seguros · Lic. #6175\nJely An Castro Pérez · +507 6292-6010`;
+}
+
+function OMens(id){
+  SVal('mens-id',id||'');
+  // Fill cliente select
+  const csel=document.getElementById('mens-cli');
+  csel.innerHTML='<option value="">— Sin cliente —</option>'+(S.clientes||[]).map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
+  SVal('mens-pol','');
+  document.getElementById('mens-pol').innerHTML='<option value="">— Sin póliza —</option>';
+  if(id){
+    const enc=(S.encomiendas||[]).find(e=>e.id===id);
+    if(enc){
+      SVal('mens-tipo',enc.tipo||'');
+      SVal('mens-cli',enc.clienteId||'');
+      onMensCliChange();
+      SVal('mens-pol',enc.polizaId||'');
+      SVal('mens-comp',enc.compania||'');
+      SVal('mens-desc',enc.descripcion||'');
+      SVal('mens-tel',enc.telefono||S.mensajeroTel||'');
+      SVal('mens-obs',enc.observaciones||'');
+      SVal('mens-estado',enc.estado||'Pendiente');
+      const title=document.getElementById('mmens-title');
+      if(title)title.textContent='📦 Editar Asignación';
+    }
+  } else {
+    SVal('mens-tipo','');
+    SVal('mens-cli','');
+    SVal('mens-comp','');
+    SVal('mens-desc','');
+    SVal('mens-tel',S.mensajeroTel||'');
+    SVal('mens-obs','');
+    SVal('mens-estado','Pendiente');
+    const title=document.getElementById('mmens-title');
+    if(title)title.textContent='📦 Nueva Asignación';
+    onMensTipoChange();
+  }
+  OM('mmens');
+}
+
+function onMensCliChange(){
+  const cid=V('mens-cli');
+  const psel=document.getElementById('mens-pol');
+  if(!cid){psel.innerHTML='<option value="">— Sin póliza —</option>';return;}
+  const pols=(S.polizas||[]).filter(p=>p.clienteId===cid&&p.estado!=='Cancelada');
+  psel.innerHTML='<option value="">— Sin póliza —</option>'+pols.map(p=>`<option value="${p.id}">${esc(p.ramo+' · '+p.aseg+(p.num?' ('+p.num+')':''))}</option>`).join('');
+}
+
+function onMensTipoChange(){
+  const tipo=V('mens-tipo');
+  const compRow=document.getElementById('mens-comp-row');
+  const polRow=document.getElementById('mens-pol-row');
+  if(compRow)compRow.style.display=(tipo==='buscar-poliza'||tipo==='buscar-docs')?'block':'none';
+  if(polRow)polRow.style.display=(tipo==='buscar-poliza'||tipo==='llevar-poliza')?'block':'none';
+}
+
+function saveMens(){
+  const tipo=V('mens-tipo');
+  if(!tipo){toast('Selecciona el tipo de tarea','err');return;}
+  const desc=V('mens-desc').trim();
+  if(!desc&&tipo==='libre'){toast('Escribe la descripción de la tarea','err');return;}
+  const id=V('mens-id')||('ENC'+uid());
+  const cid=V('mens-cli');
+  const cl=cid?GC(cid):null;
+  const pid=V('mens-pol');
+  const pol=pid?(S.polizas||[]).find(p=>p.id===pid):null;
+  const tel=V('mens-tel').trim();
+  if(tel)S.mensajeroTel=tel; // remember tel
+  const enc={
+    id,fecha:TODAY.toISOString().slice(0,10),tipo,
+    clienteId:cid,nombreCliente:cl?cl.nombre:'',
+    polizaId:pid,nombrePoliza:pol?(pol.ramo+' '+(pol.num||'')):'',
+    compania:V('mens-comp').trim(),
+    descripcion:desc||MENS_TIPOS[tipo]||tipo,
+    telefono:tel,
+    observaciones:V('mens-obs').trim(),
+    adjunto:document.getElementById('mens-file')?.files[0]?.name||'',
+    estado:V('mens-estado')||'Pendiente',
+    historial:[]
+  };
+  if(!S.encomiendas)S.encomiendas=[];
+  const idx=S.encomiendas.findIndex(e=>e.id===id);
+  if(idx>=0)S.encomiendas[idx]=enc;else S.encomiendas.push(enc);
+  save();CM('mmens');RMen();renderMenStats();toast('✓ Asignación guardada');
+}
+
+function delMens(id){
+  confirm2('¿Eliminar esta asignación?',()=>{
+    S.encomiendas=(S.encomiendas||[]).filter(e=>e.id!==id);
+    save();RMen();renderMenStats();toast('✓ Eliminada');
+  });
+}
+
+function setMensEstado(id,estado){
+  const enc=(S.encomiendas||[]).find(e=>e.id===id);if(!enc)return;
+  enc.estado=estado;
+  enc.historial=enc.historial||[];
+  enc.historial.push({fecha:new Date().toISOString().split('T')[0],accion:'Estado → '+estado});
+  save();RMen();renderMenStats();toast('✓ Estado: '+estado);
+}
+
+function sendMensWA(id){
+  const enc=(S.encomiendas||[]).find(e=>e.id===id);if(!enc)return;
+  const tel=(enc.telefono||S.mensajeroTel||'').replace(/[^0-9]/g,'');
+  if(!tel){toast('El mensajero no tiene teléfono registrado. Agrégalo en la asignación.','err');return;}
+  const msg=getMensWAMsg(enc);
+  window.open(`https://wa.me/507${tel}?text=${encodeURIComponent(msg)}`,'_blank');
+  enc.historial=enc.historial||[];
+  enc.historial.push({fecha:new Date().toISOString().split('T')[0],accion:'WhatsApp enviado'});
+  save();toast('📱 Abriendo WhatsApp...');
+}
+
+function sendMensEmail(id){
+  const enc=(S.encomiendas||[]).find(e=>e.id===id);if(!enc)return;
+  // Get mensajero email if stored
+  const mensEmail=S.mensajeroEmail||'';
+  openComposeEmail(mensEmail,'',getMensEmailSubj(enc),getMensEmailBody(enc));
+}
+
+function RMen(){
+  if(mensView==='k')renderMenKanban();
+  else renderMenList();
+}
+
+function renderMenKanban(){
+  const kb=document.getElementById('men-kanban');if(!kb)return;
+  const encs=S.encomiendas||[];
+  kb.innerHTML=MENS_ESTADOS.map(est=>{
+    const cards=encs.filter(e=>e.estado===est);
+    const clr=MENS_ESTADO_CLR[est]||'#64748B';
+    return `<div style="min-width:240px;flex:1;background:var(--bg);border-radius:12px;border:1px solid var(--bd);padding:12px">
+      <div style="font-weight:700;font-size:12px;color:#fff;background:${clr};border-radius:8px;padding:5px 12px;margin-bottom:10px;text-align:center">${est} <span style="opacity:.8">(${cards.length})</span></div>
+      ${cards.length===0?`<div style="text-align:center;color:var(--mu);font-size:11px;padding:16px">Sin asignaciones</div>`:''}
+      ${cards.map(e=>renderMensCard(e)).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderMensCard(e){
+  const tipoLabel=MENS_TIPOS[e.tipo]||e.tipo||'Tarea';
+  const clr=MENS_ESTADO_CLR[e.estado]||'#64748B';
+  return `<div style="background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:10px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+    <div style="font-size:10px;font-weight:700;color:${clr};margin-bottom:4px;text-transform:uppercase">${tipoLabel}</div>
+    ${e.nombreCliente?`<div style="font-size:12px;font-weight:700;margin-bottom:2px">👤 ${esc(e.nombreCliente)}</div>`:''}
+    ${e.compania?`<div style="font-size:11px;color:var(--mu)">🏛 ${esc(e.compania)}</div>`:''}
+    ${e.nombrePoliza?`<div style="font-size:11px;color:var(--mu)">📄 ${esc(e.nombrePoliza)}</div>`:''}
+    ${e.descripcion?`<div style="font-size:11px;margin-top:4px;color:var(--tx)">${esc(e.descripcion.slice(0,80))}${e.descripcion.length>80?'…':''}</div>`:''}
+    <div style="font-size:10px;color:var(--mu);margin-top:4px">📅 ${e.fecha||''}</div>
+    <div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn bsm bwa" onclick="sendMensWA('${e.id}')" style="font-size:10px;padding:3px 7px">💬 WA</button>
+      <button class="btn bsm bin" onclick="sendMensEmail('${e.id}')" style="font-size:10px;padding:3px 7px">📧</button>
+      <button class="btn bsm" onclick="OMens('${e.id}')" style="font-size:10px;padding:3px 7px">✏️</button>
+      <button class="btn bsm brd2" onclick="delMens('${e.id}')" style="font-size:10px;padding:3px 7px">🗑</button>
+    </div>
+    <div style="display:flex;gap:3px;margin-top:6px;flex-wrap:wrap">
+      ${MENS_ESTADOS.filter(s=>s!==e.estado).map(s=>`<button class="btn bsm" onclick="setMensEstado('${e.id}','${s}')" style="font-size:9px;padding:2px 6px;background:${MENS_ESTADO_CLR[s]};color:#fff;border-color:${MENS_ESTADO_CLR[s]}">${s}</button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderMenList(){
+  const list=document.getElementById('men-list');if(!list)return;
+  const encs=S.encomiendas||[];
+  if(!encs.length){list.innerHTML='<div class="card" style="text-align:center;padding:32px;color:var(--mu)">Sin asignaciones. Usa "+ Nueva Asignación" para empezar.</div>';return;}
+  list.innerHTML=`<div class="card"><div class="tw"><table>
+    <thead><tr><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Compañía</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr></thead>
+    <tbody>${encs.map(e=>{
+      const clr=MENS_ESTADO_CLR[e.estado]||'#64748B';
+      return `<tr>
+        <td style="font-size:11px">${e.fecha||''}</td>
+        <td style="font-size:11px">${MENS_TIPOS[e.tipo]||e.tipo||''}</td>
+        <td style="font-size:11px;font-weight:700">${esc(e.nombreCliente||'—')}</td>
+        <td style="font-size:11px">${esc(e.compania||'—')}</td>
+        <td style="font-size:11px;max-width:180px">${esc((e.descripcion||'').slice(0,60))}</td>
+        <td><select class="fc si" style="font-size:10px;padding:2px 4px;border-color:${clr};color:${clr};font-weight:700" onchange="setMensEstado('${e.id}',this.value)">
+          ${MENS_ESTADOS.map(s=>`<option value="${s}" ${e.estado===s?'selected':''}>${s}</option>`).join('')}
+        </select></td>
+        <td style="white-space:nowrap">
+          <button class="btn bsm bwa" onclick="sendMensWA('${e.id}')" style="font-size:10px;padding:2px 6px">💬</button>
+          <button class="btn bsm bin" onclick="sendMensEmail('${e.id}')" style="font-size:10px;padding:2px 6px">📧</button>
+          <button class="btn bsm" onclick="OMens('${e.id}')" style="font-size:10px;padding:2px 6px">✏️</button>
+          <button class="btn bsm brd2" onclick="delMens('${e.id}')" style="font-size:10px;padding:2px 6px">🗑</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div></div>`;
+}
+
+function renderMenStats(){
+  const sg=document.getElementById('mensg');if(!sg)return;
+  const encs=S.encomiendas||[];
+  const stats=MENS_ESTADOS.map(s=>({est:s,n:encs.filter(e=>e.estado===s).length,clr:MENS_ESTADO_CLR[s]}));
+  sg.innerHTML=stats.map(({est,n,clr})=>`<div class="st" style="min-width:110px;border-top:3px solid ${clr};cursor:pointer" onclick="setMensFilter('${est}')">
+    <div class="sv" style="color:${clr}">${n}</div><div class="sl">${est}</div>
+  </div>`).join('');
+}
+
+let mensFilter='';
+function setMensFilter(f){
+  mensFilter=f===mensFilter?'':f;
+  RMen();
+}
+
+// Init mensajería when page loads
+function initMenPage(){
+  initMensajero();
+  onMensTipoChange();
+  renderMenStats();
+  RMen();
+}
+
+// Hook into SH
+const _origSH=SH;
+SH=function(pg){
+  _origSH(pg);
+  if(pg==='men')setTimeout(initMenPage,50);
+};
 
 
 </script>
