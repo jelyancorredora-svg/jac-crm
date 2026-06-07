@@ -1247,9 +1247,37 @@ body.dark .mu{color:var(--dark-mu);}
   <div class="ff"><div class="file-area" onclick="document.getElementById('c-file-inp').click()">📎 Toca para adjuntar archivos (máx. 2.5MB c/u)</div>
   <input type="file" id="c-file-inp" multiple style="display:none" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.txt">
   <div class="flist" id="c-file-pending"></div></div>
+
+  <!-- ── HISTORIAL WA ── -->
+  <span class="sl" style="display:flex;justify-content:space-between;align-items:center">
+    <span>💬 Historial de WhatsApp</span>
+    <button id="c-hist-wa-full-btn" onclick="" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:3px 12px;font-size:11px;font-weight:700;cursor:pointer;display:none">Ver todos →</button>
+  </span>
+  <div class="ff" id="c-hist-wa-container" style="min-height:40px"></div>
+
+  <!-- ── HISTORIAL EMAIL ── -->
+  <span class="sl" style="display:flex;justify-content:space-between;align-items:center">
+    <span>📧 Historial de Correo</span>
+    <button id="c-hist-em-full-btn" onclick="" style="background:#1D4ED8;color:#fff;border:none;border-radius:8px;padding:3px 12px;font-size:11px;font-weight:700;cursor:pointer;display:none">Ver todos →</button>
+  </span>
+  <div class="ff" id="c-hist-email-container" style="min-height:40px"></div>
+
 </div></div>
 <div class="mf"><button class="btn" onclick="CM('mc')">Cancelar</button><button class="btn bp" onclick="SC()">💾 Guardar Cliente</button></div>
 </div></div>
+
+<!-- ══ MODAL VISOR MENSAJE COMPLETO (full-screen) ══ -->
+<div class="mo" id="m-msg-viewer" style="z-index:10000">
+  <div class="md" style="width:min(700px,96vw);max-height:92vh;display:flex;flex-direction:column">
+    <div class="mh" id="mmv-header" style="background:#1D4ED8">
+      <h2 id="mmv-title" style="color:#fff;font-size:15px">Mensaje</h2>
+      <button class="btn" onclick="CM('m-msg-viewer')" style="color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.15)">✕ Cerrar</button>
+    </div>
+    <div style="padding:10px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b" id="mmv-meta"></div>
+    <div class="mb" id="mmv-body" style="flex:1;overflow-y:auto;padding:20px;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:break-word;background:#fff"></div>
+    <div class="mf" id="mmv-footer" style="gap:8px"></div>
+  </div>
+</div>
 
 <!-- MODAL PROSPECTO -->
 <div class="mo" id="mpros"><div class="md mdl"><div class="mh"><h2 id="mprost">Nuevo Prospecto</h2><button class="btn bgh" onclick="CM('mpros')">✕</button></div>
@@ -3202,6 +3230,12 @@ function OC(id){
   renderTagSel('c-tag-sel',c.etiquetas||[]);
   const fl=document.getElementById('c-file-list');if(fl)fl.innerHTML=renderFL(c.archivos||[],id||'','cliente');
   OM('mc');initFileInp('c-file-inp','c-file-pending');
+  // Populate WA + Email history sections
+  if(id) setTimeout(()=>renderClientHistSections(id),120);
+  else {
+    const wa=document.getElementById('c-hist-wa-container');if(wa)wa.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:8px">Guarda el cliente para ver el historial.</div>';
+    const em=document.getElementById('c-hist-email-container');if(em)em.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:8px">Guarda el cliente para ver el historial.</div>';
+  }
 }
 function OP_forClient(cid){OP();setTimeout(()=>SVal('p-cl',cid),150);}
 function SC(){
@@ -6380,7 +6414,127 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // ─── Full Communications History Modal ────────────────────────────────────
 let ehistCid=null,ehistCname='',ehistFilter='all',ehistData=[];
-function openFullHistory(cid){
+// ═══ HISTORIAL EN FORMULARIO CLIENTE ════════════════════════════════════════
+function renderClientHistSections(cid){
+  const c=GC(cid);if(!c)return;
+
+  // Collect ALL communications and split by type
+  const allComms=[
+    ...(c.historialComms||[]),
+    ...(c.historialWA||[]).filter(w=>!(c.historialComms||[]).some(x=>x.id&&x.id===w.id)),
+    ...(c.historial||[]).filter(h=>!['whatsapp','email'].includes(h.tipo)?false:true)
+  ].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+
+  const waItems=allComms.filter(e=>{
+    const t=(e.tipo||'').toLowerCase();
+    const mt=(e.msgType||'').toLowerCase();
+    return t==='whatsapp'||mt==='whatsapp'||mt==='manual'||(e.historialWA&&!t&&!mt);
+  });
+  const emailItems=allComms.filter(e=>{
+    const t=(e.tipo||'').toLowerCase();
+    const mt=(e.msgType||'').toLowerCase();
+    return t==='email'||mt==='email';
+  });
+
+  // Render WA section
+  const waC=document.getElementById('c-hist-wa-container');
+  const waBtn=document.getElementById('c-hist-wa-full-btn');
+  if(waC){
+    if(!waItems.length){
+      waC.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:8px 0">Sin mensajes de WhatsApp registrados.</div>';
+    } else {
+      const preview=waItems.slice(0,3);
+      waC.innerHTML=preview.map(e=>renderHistCard(e,'wa',cid)).join('');
+      if(waBtn){waBtn.style.display='';waBtn.onclick=()=>openFullHistory(cid,'wa');}
+    }
+  }
+
+  // Render Email section
+  const emC=document.getElementById('c-hist-email-container');
+  const emBtn=document.getElementById('c-hist-em-full-btn');
+  if(emC){
+    if(!emailItems.length){
+      emC.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:8px 0">Sin correos registrados.</div>';
+    } else {
+      const preview=emailItems.slice(0,3);
+      emC.innerHTML=preview.map(e=>renderHistCard(e,'email',cid)).join('');
+      if(emBtn){emBtn.style.display='';emBtn.onclick=()=>openFullHistory(cid,'email');}
+    }
+  }
+}
+
+function renderHistCard(e,type,cid){
+  const isWA=type==='wa';
+  const bg=isWA?'#E7F8EE':'#EEF4FF';
+  const bc=isWA?'#25D366':'#1D4ED8';
+  const icon=isWA?'💬':'📧';
+  const titulo=esc(e.accion||e.subject||e.msgType||(isWA?'WhatsApp':'Email'));
+  const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||'';
+  const preview=cuerpo?esc(cuerpo.substring(0,90))+(cuerpo.length>90?'…':''):'Sin contenido';
+  const fecha=fmt(e.fecha)||e.fecha||'';
+  const dest=esc(e.resultado||e.para||'');
+  const eData=JSON.stringify(e).replace(/"/g,'&quot;');
+  return`<div style="background:${bg};border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:4px solid ${bc};cursor:pointer;transition:box-shadow .15s" onclick="openMsgViewer(${eData},'${type}','${esc(cid||'')}')" title="Clic para ver mensaje completo">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:12px;color:${bc};margin-bottom:2px">${icon} ${titulo}${dest?' → <span style="font-weight:400;color:#64748b">'+dest+'</span>':''}</div>
+        <div style="font-size:11px;color:#475569;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${preview}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:10px;color:#94a3b8">${fecha}</div>
+        <div style="font-size:10px;color:${bc};font-weight:600;margin-top:4px">Abrir ↗</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function openMsgViewer(e,type,cid){
+  const isWA=type==='wa';
+  const hdr=document.getElementById('mmv-header');
+  const title=document.getElementById('mmv-title');
+  const meta=document.getElementById('mmv-meta');
+  const body=document.getElementById('mmv-body');
+  const footer=document.getElementById('mmv-footer');
+  if(!body)return;
+
+  const icon=isWA?'💬':'📧';
+  const color=isWA?'#128C7E':'#1D4ED8';
+  const titulo=e.accion||e.subject||e.msgType||(isWA?'WhatsApp':'Email');
+  const cuerpo=e.mensaje||e.body||e.cuerpo||e.preview||e.notas||'(Sin contenido registrado)';
+  const fecha=fmt(e.fecha)||e.fecha||'';
+  const dest=e.resultado||e.para||'';
+
+  if(hdr)hdr.style.background=color;
+  if(title)title.textContent=icon+' '+titulo;
+  if(meta){
+    meta.innerHTML=`<strong>Fecha:</strong> ${fecha||'—'}${dest?' &nbsp;|&nbsp; <strong>Para:</strong> '+esc(dest):''}${e.de?' &nbsp;|&nbsp; <strong>De:</strong> '+esc(e.de):''}`;
+  }
+  body.textContent=cuerpo;
+
+  // Footer buttons
+  let btns='<button class="btn" onclick="CM(\'m-msg-viewer\')" style="color:#666">Cerrar</button>';
+  if(isWA){
+    const c=cid?GC(cid):null;
+    const tel=c?(c.cel||c.tel||'').replace(/\D/g,''):'';
+    const codPais=c&&c.codPais?c.codPais:'507';
+    const waMsg=encodeURIComponent(cuerpo);
+    if(tel)btns+=`<a href="https://wa.me/${codPais}${tel}?text=${waMsg}" target="_blank" class="btn" style="background:#25D366;color:#fff;border-color:#25D366;text-decoration:none">📲 Abrir en WhatsApp</a>`;
+  } else {
+    const c=cid?GC(cid):null;
+    const email=c?c.email:'';
+    if(email){
+      const sub=encodeURIComponent(titulo);
+      const bd=encodeURIComponent(cuerpo);
+      btns+=`<a href="mailto:${email}?subject=${sub}&body=${bd}" class="btn" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8;text-decoration:none">📨 Responder por correo</a>`;
+    }
+  }
+  if(cid)btns+=`<button class="btn bsm" onclick="CM('m-msg-viewer');openFullHistory('${cid}')" style="background:#F1F5F9">📬 Ver todo el historial</button>`;
+  if(footer)footer.innerHTML=btns;
+
+  OM('m-msg-viewer');
+}
+
+function openFullHistory(cid, preFilter){
   const c=GC(cid);if(!c||!c.id)return;
   ehistCid=cid;ehistCname=c.nombre||'';
   const histComms=c.historialComms||[];
@@ -6389,10 +6543,17 @@ function openFullHistory(cid){
   const seenIds=new Set([...histComms,...histWA].map(x=>x.id).filter(Boolean));
   const extras=histOld.filter(h=>!seenIds.has(h.id));
   ehistData=[...histComms,...histWA.filter(w=>!histComms.some(x=>x.id&&x.id===w.id)),...extras].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  ehistFilter='all';
+  // Apply pre-filter if coming from WA or Email section
+  if(preFilter==='wa')ehistFilter='whatsapp';
+  else if(preFilter==='email')ehistFilter='email';
+  else ehistFilter='all';
   const nm=document.getElementById('ehist-name');if(nm)nm.textContent=c.nombre||'';
   const waBtn=document.getElementById('ehist-wa-btn');if(waBtn)waBtn.style.display=c.cel||c.tel?'':'none';
   const emBtn=document.getElementById('ehist-em-btn');if(emBtn)emBtn.style.display=c.email?'':'none';
+  // Sync filter buttons visually
+  ['all','email','wa'].forEach(x=>{const b=document.getElementById('ehist-f-'+x);if(b){b.style.background='';b.style.color='';b.style.borderColor='';}});
+  const active=document.getElementById('ehist-f-'+ehistFilter);
+  if(active){active.style.background='#1D4ED8';active.style.color='#fff';active.style.borderColor='#1D4ED8';}
   renderEHist();
   OM('mEmailHist');
 }
