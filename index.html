@@ -217,7 +217,7 @@ body.dark .mu{color:var(--dark-mu);}
   </div>
   <div id="lerr" class="lerr"></div>
   <div class="lform on" id="lf-pwd">
-    <div class="lfld"><label>USUARIO</label><input type="text" id="lu" placeholder="jacseguros" autocomplete="username" spellcheck="false"></div>
+    <div class="lfld"><label>USUARIO</label><input type="text" id="lu" placeholder="Usuario" autocomplete="username" spellcheck="false"></div>
     <div class="lfld"><label>CONTRASEÑA</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="lbtn" onclick="doLogin()">Ingresar →</button>
     <div style="text-align:center;margin-top:10px"><button onclick="resetLoginEmergency()" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer;text-decoration:underline">🔓 ¿No puedes entrar? Restablecer acceso</button></div>
@@ -1562,12 +1562,87 @@ function startSession(){
   // Auto-update policy statuses on every login
   try{autoUpdatePolizasStatus();}catch(e){}
   SH('dash');
+  // Auto-check birthdays on every login (sends emails + shows WA alerts)
+  setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
+}
+
+// ── AUTO BIRTHDAY CHECK — runs on every login ──────────────────────────────
+async function autoBirthdayCheck(){
+  if(!S||!S.clientes||!S.clientes.length)return;
+  const today=new Date();
+  const mm=String(today.getMonth()+1).padStart(2,'0');
+  const dd=String(today.getDate()).padStart(2,'0');
+  const yr=today.getFullYear();
+  const todayKey=`${yr}-${mm}-${dd}`;
+
+  // Find clients with birthday TODAY
+  const bdayClients=S.clientes.filter(c=>{
+    if(!c.fechaNac||c.tipo==='Empresa')return false;
+    const parts=c.fechaNac.split('-');
+    return parts[1]===mm && parts[2]===dd;
+  });
+  if(!bdayClients.length)return;
+
+  // Filter out ones already processed today
+  if(!S.actDone)S.actDone=[];
+  const pending=bdayClients.filter(c=>!S.actDone.find(x=>x.type==='bday'&&x.id===c.id&&x.yr===yr&&x.autoDate===todayKey));
+  if(!pending.length)return;
+
+  // Send birthday emails automatically via EmailJS
+  const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
+  const ejsReady=cfg['ejs-pub']&&cfg['ejs-svc']&&cfg['ejs-tpl-bday']&&window.emailjs;
+  if(ejsReady){emailjs.init({publicKey:cfg['ejs-pub']});}
+
+  for(const c of pending){
+    const nombre=(c.nombre||'').split(' ')[0]||'cliente';
+    // Auto-send email if EmailJS is configured and client has email
+    if(ejsReady&&c.email){
+      try{
+        await emailjs.send(cfg['ejs-svc'],cfg['ejs-tpl-bday'],{
+          to_name:c.nombre||'Cliente',to_email:c.email,client_name:nombre,
+          from_name:'Desde JAC Seguros | Jely An Castro',from_email:'jcastro@jacsegurospa.com',
+          subject:`🎂 ¡Feliz Cumpleaños, ${nombre}!`,
+          message:'En este día tan especial, todo el equipo de JAC Seguros te desea un maravilloso cumpleaños lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🎉',
+          company:'JAC Seguros · Lic. #6175',phone:'+507 6292-6010'
+        });
+        if(!c.historial)c.historial=[];
+        c.historial.push({fecha:todayKey,tipo:'Email',nota:`🎂 Email de cumpleaños enviado automáticamente a ${c.email}`});
+      }catch(e){console.warn('[AutoBday]',e);}
+    }
+    // Mark as auto-done today
+    S.actDone.push({type:'bday',id:c.id,yr,autoDate:todayKey});
+  }
+  save();
+
+  // Show birthday alert modal with WhatsApp buttons
+  const waRows=pending.map(c=>{
+    const nombre=(c.nombre||'').split(' ')[0];
+    const tel=(c.telefono||'').replace(/\D/g,'');
+    const waMsg=encodeURIComponent(`🎂 ¡Feliz Cumpleaños, ${nombre}! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* (Lic. #6175) te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟\n\n_Jely An Castro · +507 6292-6010_`);
+    const waLink=tel?`<a href="https://wa.me/507${tel}?text=${waMsg}" target="_blank" style="display:inline-block;margin-top:4px;padding:5px 12px;background:#25D366;color:#fff;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">📲 WhatsApp a ${c.nombre}</a>`:`<span style="font-size:11px;color:#94a3b8">Sin teléfono registrado</span>`;
+    const emailOk=ejsReady&&c.email;
+    return `<div style="padding:10px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div><div style="font-weight:700;color:#1e293b">🎂 ${esc(c.nombre)}</div><div style="font-size:11px;color:#64748b">${emailOk?'✅ Email enviado automáticamente':'⚠️ Sin email — configura EmailJS'}</div></div>
+      <div>${waLink}</div></div>`;
+  }).join('');
+
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`<div style="background:#fff;border-radius:16px;width:min(480px,94vw);max-height:80vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:linear-gradient(135deg,#ec4899,#f97316);padding:18px 20px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center">
+      <div style="color:#fff;font-weight:800;font-size:16px">🎂 Cumpleaños de Hoy</div>
+      <button onclick="this.closest('[style]').remove()" style="background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;line-height:1">×</button>
+    </div>
+    <div style="padding:0">${waRows}</div>
+    <div style="padding:12px 16px;background:#f8fafc;border-radius:0 0 16px 16px;font-size:11px;color:#94a3b8;text-align:center">Los emails se enviaron automáticamente. Haz clic en WhatsApp para enviar tu mensaje de felicitación.</div>
+  </div>`;
+  document.body.appendChild(modal);
 }
 function resetLoginEmergency(){
-  if(!confirm('¿Restablecer acceso a valores por defecto?\n\nUsuario: jacseguros\nContraseña: jac2024\nPIN: 6175'))return;
+  if(!confirm('¿Restablecer acceso a valores por defecto?\n\nEsto restaurará las credenciales originales del sistema.'))return;
   localStorage.removeItem('jac_auth');
   sessionStorage.clear();
-  alert('✅ Acceso restablecido.\n\nUsa:\nUsuario: jacseguros\nContraseña: jac2024');
+  alert('✅ Acceso restablecido. Usa las credenciales originales del sistema.');
   location.reload();
 }
 function doLogout(){
@@ -4547,7 +4622,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const luInput = document.getElementById('lu');
     if (luInput) {
       luInput.type        = 'text';
-      luInput.placeholder = 'jacseguros  ó  tu@email.com';
+      luInput.placeholder = 'Usuario o email';
       luInput.autocomplete = 'username';
     }
 
@@ -4634,7 +4709,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     if (pin !== storedPin) {
       setLoading('lbtn-pin', false);
-      showErr('PIN incorrecto. Por defecto: 6175');
+      showErr('PIN incorrecto.');
       return;
     }
 
