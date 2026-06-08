@@ -2385,7 +2385,7 @@ window.addEventListener('error',function(ev){
  console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
  // Only show toast for user-visible errors
  if(msg.includes('cannot read')||msg.includes('is not a function')||msg.includes('is not defined')){
- if(typeof toast==='function')toast('⚠️ Error recuperado — recarga si persiste','err');
+  // errores solo en consola
  }
 });
 window.addEventListener('unhandledrejection',function(ev){
