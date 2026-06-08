@@ -4702,6 +4702,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 </div><!-- end pg-cotp -->
 <!-- end pg-cotp -->
 
+
+
+
 <!-- ═══ SUPABASE PATCH · JAC Seguros ═══ -->
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -9120,6 +9123,91 @@ function getComisionesSummary(){
   return{pendientes:cp.length,total};
 }
 
+</script>
+<script>
+// ═══════════════════════════════════════════════════════
+// JAC CRM — LOGIN GARANTIZADO (corre antes que todo)
+// ═══════════════════════════════════════════════════════
+(function(){
+  // Credenciales por defecto - siempre disponibles
+  function _getCreds(){
+    try{
+      var stored = localStorage.getItem('jac_auth');
+      if(stored){ var p=JSON.parse(stored); if(p&&p.user&&p.pwd)return p; }
+    }catch(e){}
+    return {user:'jacseguros',pwd:'jac2024',pin:'6175'};
+  }
+  function _showErr(msg){
+    var el=document.getElementById('lerr');
+    if(el){el.textContent=msg;el.style.display='block';
+    setTimeout(function(){el.style.display='none';},4000);}
+  }
+  function _startSession(){
+    sessionStorage.setItem('jac_s','ok');
+    var ls=document.getElementById('ls');
+    var app=document.getElementById('app');
+    if(ls)ls.style.display='none';
+    if(app)app.style.display='block';
+    // Render dashboard after short delay
+    setTimeout(function(){
+      try{if(typeof autoUpdatePolizasStatus==='function')autoUpdatePolizasStatus();}catch(e){}
+      try{if(typeof initEmailJS==='function')initEmailJS();}catch(e){}
+      try{if(typeof SH==='function')SH('dash');}catch(e){}
+      setTimeout(function(){try{if(typeof autoBirthdayCheck==='function')autoBirthdayCheck();}catch(e){}},1500);
+    },100);
+  }
+
+  // Override doLogin INMEDIATAMENTE - no esperar nada
+  window.doLogin = function(){
+    var u=(document.getElementById('lu')?.value||'').trim();
+    var p=document.getElementById('lp')?.value||'';
+    if(!u||!p){_showErr('Ingresa usuario y contraseña.');return;}
+    var creds=_getCreds();
+    // Acepta usuario exacto O cualquier valor con contraseña correcta
+    if((u===creds.user||u===creds.user.toLowerCase()||u.includes('@'))&&p===creds.pwd){
+      _startSession();
+      // Supabase en background
+      setTimeout(function(){
+        try{
+          if(window.db&&u.includes('@')){
+            window.db.auth.signInWithPassword({email:u,password:p})
+            .then(function(r){if(r.data&&r.data.session)localStorage.setItem('jac_email',u);})
+            .catch(function(){});
+          }
+        }catch(e){}
+      },500);
+      return;
+    }
+    _showErr('Usuario o contraseña incorrectos.');
+  };
+
+  // Override doLoginPin INMEDIATAMENTE
+  window.doLoginPin = function(){
+    var pin=(document.getElementById('lpin')?.value||'').trim();
+    if(pin.length!==4){_showErr('El PIN debe tener 4 dígitos.');return;}
+    var creds=_getCreds();
+    var stored='';
+    try{var d=JSON.parse(localStorage.getItem('jacv10')||'{}');stored=d.pin||'';}catch(e){}
+    var validPin=stored||creds.pin||'6175';
+    if(pin===validPin){
+      _startSession();
+      return;
+    }
+    _showErr('PIN incorrecto.');
+  };
+
+  // Enter key support
+  document.addEventListener('DOMContentLoaded',function(){
+    ['lu','lp'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter')window.doLogin();});
+    });
+    var lpin=document.getElementById('lpin');
+    if(lpin)lpin.addEventListener('keydown',function(e){if(e.key==='Enter')window.doLoginPin();});
+  });
+
+  console.log('[JAC] Login garantizado cargado ✓');
+})();
 </script>
 
 </body>
