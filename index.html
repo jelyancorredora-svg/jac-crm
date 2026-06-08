@@ -1600,19 +1600,13 @@ function showErr(msg){
 }
 function startSession(){
  sessionStorage.setItem('jac_s','ok');
- // Force app visible with maximum priority
- const _ls=document.getElementById('ls');
- const _app=document.getElementById('app');
- if(_ls) _ls.setAttribute('style','display:none!important');
- if(_app) _app.setAttribute('style','display:block!important;visibility:visible!important;opacity:1!important;');
+ document.getElementById('ls').style.display='none';
+ document.getElementById('app').style.display='block';
  // Auto-update policy statuses on every login
  try{autoUpdatePolizasStatus();}catch(e){}
- // Show dashboard
- setTimeout(function(){
-   try{SH('dash');}catch(e){console.warn('[JAC] SH dash error:',e);}
- },100);
- // Auto-check birthdays
- setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1500);
+ SH('dash');
+ // Auto-check birthdays on every login (sends emails + shows WA alerts)
+ setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
 }
 
 // ── AUTO BIRTHDAY CHECK — runs on every login ──────────────────────────────
@@ -2391,7 +2385,7 @@ window.addEventListener('error',function(ev){
  console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
  // Only show toast for user-visible errors
  if(msg.includes('cannot read')||msg.includes('is not a function')||msg.includes('is not defined')){
-  // errores solo en consola
+ if(typeof toast==='function')toast('⚠️ Error recuperado — recarga si persiste','err');
  }
 });
 window.addEventListener('unhandledrejection',function(ev){
@@ -2938,7 +2932,7 @@ function SH(id){
  closeDP();
  // Use small delay to avoid blank flicker
  requestAnimationFrame(()=>{
- const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,not:RNot,inf:renderInformes}[id];
+ const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg}[id];
  if(typeof fn==='function')try{fn();}catch(e){console.warn('[SH]',id,e);}
  });
 }
@@ -4920,43 +4914,44 @@ document.addEventListener('DOMContentLoaded',()=>{
  sessionStorage.setItem('jac_s', 'ok');
 
  // 3. Mostrar la app
-    const _ls2=document.getElementById('ls');if(_ls2)_ls2.style.display='none';
-    const _app2=document.getElementById('app');if(_app2){_app2.style.display='block';_app2.style.visibility='visible';}
-    // 4. Renderizar dashboard
-    if (typeof SH === 'function') setTimeout(()=>SH('dash'),100);
+ document.getElementById('ls').style.display = 'none';
+ document.getElementById('app').style.display = 'block';
+
+ // 4. Renderizar dashboard
+ if (typeof RDash === 'function') RDash();
+ if (typeof RC === 'function') RC();
+ if (typeof RP === 'function') RP();
+ if (typeof SH === 'function') SH('dash');
  }
 
  // ── INICIO: verificar sesión existente al cargar la página ──
 
  (async function checkSession() {
-  // Wait for DOM before touching elements
-  await new Promise(r => { if(document.readyState !== 'loading') r(); else document.addEventListener('DOMContentLoaded', r); });
-  // If already logged in locally, don't interfere
-  if (sessionStorage.getItem('jac_s') === 'ok') return;
-  try {
-   const { data: { session } } = await db.auth.getSession();
-   if (session) {
-    await initAfterLogin(session);
-   } else {
-    if (sessionStorage.getItem('jac_s') !== 'ok') {
-     document.getElementById('ls').style.display = 'flex';
-     document.getElementById('app').style.display = 'none';
-    }
-   }
-  } catch (err) {
-   console.warn('[JAC session check]', err);
-   if (sessionStorage.getItem('jac_s') !== 'ok') {
-    document.getElementById('ls').style.display = 'flex';
-    document.getElementById('app').style.display = 'none';
-   }
-  }
-  db.auth.onAuthStateChange(async (event, session) => {
-   if (event === 'SIGNED_OUT') {
-    sessionStorage.removeItem('jac_s');
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('ls').style.display = 'flex';
-   }
-  });
+ try {
+ const { data: { session } } = await db.auth.getSession();
+
+ if (session) {
+ // Sesión activa → mostrar app directamente (sin re-login)
+ await initAfterLogin(session);
+ } else {
+ // Sin sesión → mostrar pantalla de login
+ document.getElementById('ls').style.display = 'flex';
+ document.getElementById('app').style.display = 'none';
+ }
+ } catch (err) {
+ console.error('[JAC session check]', err);
+ document.getElementById('ls').style.display = 'flex';
+ document.getElementById('app').style.display = 'none';
+ }
+
+ // Escuchar cambios de estado de autenticación
+ db.auth.onAuthStateChange(async (event, session) => {
+ if (event === 'SIGNED_OUT') {
+ sessionStorage.removeItem('jac_s');
+ document.getElementById('app').style.display = 'none';
+ document.getElementById('ls').style.display = 'flex';
+ }
+ });
  })();
 
  // ── OVERRIDE: clearData() — también limpia Supabase ─────
