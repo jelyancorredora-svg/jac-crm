@@ -230,7 +230,7 @@ body.dark .mu{color:var(--dark-mu);}
 </div>
 
 <!-- ═══ APP ═══ -->
-<div id="app" style="display:none">
+<div id="app">
 <div id="hdr"><div class="hi">
  <div class="lg2">
  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" height="50" aria-label="JAC Seguros">
@@ -1600,13 +1600,19 @@ function showErr(msg){
 }
 function startSession(){
  sessionStorage.setItem('jac_s','ok');
- const _ls=document.getElementById('ls');if(_ls)_ls.style.display='none';
- const _app=document.getElementById('app');if(_app){_app.style.display='block';_app.style.visibility='visible';_app.style.opacity='1';}
+ // Force app visible with maximum priority
+ const _ls=document.getElementById('ls');
+ const _app=document.getElementById('app');
+ if(_ls) _ls.setAttribute('style','display:none!important');
+ if(_app) _app.setAttribute('style','display:block!important;visibility:visible!important;opacity:1!important;');
  // Auto-update policy statuses on every login
  try{autoUpdatePolizasStatus();}catch(e){}
- setTimeout(function(){SH('dash');},50);
- // Auto-check birthdays on every login (sends emails + shows WA alerts)
- setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
+ // Show dashboard
+ setTimeout(function(){
+   try{SH('dash');}catch(e){console.warn('[JAC] SH dash error:',e);}
+ },100);
+ // Auto-check birthdays
+ setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1500);
 }
 
 // ── AUTO BIRTHDAY CHECK — runs on every login ──────────────────────────────
