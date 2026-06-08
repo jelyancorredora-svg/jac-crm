@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#1A3A6B">
-<title>JAC Seguros CRM</title>
+<title>JAC Seguros CRM · Lic. #6175</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -209,7 +209,7 @@ body.dark .mu{color:var(--dark-mu);}
  <text x="130" y="59" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="44" fill="#0F172A" letter-spacing="6">JAC</text>
  <text x="130" y="73" text-anchor="middle" font-family="Outfit,Montserrat,Arial,sans-serif" font-weight="400" font-size="13" fill="#1D4ED8" letter-spacing="9">SEGUROS</text>
  </svg>
-    <p style="margin-top:8px;font-size:11px;color:#6B7280">Sistema CRM · Panamá</p>
+    <p style="margin-top:8px;font-size:11px;color:#6B7280">Sistema CRM · Lic. #6175 · Panamá</p>
  </div>
  <div class="ltabs">
  <button class="on" onclick="switchLT('pwd',this)">🔐 Contraseña</button>
@@ -2330,7 +2330,7 @@ function delEtiqueta(id){confirm2('¿Eliminar etiqueta?',()=>{S.etiquetas=S.etiq
 // ── CONSTANTS ──
 // RAMOS NORMALIZADOS: SALUD/MÉDICOS (unificado), VIDA (unificado), MOTOS (renombrado de OTROS)
 const GENERALES=new Set(['AUTOS/VEHÍCULOS','MOTOS','INCENDIO Y LÍNEAS ALIADAS','HOGAR','FIANZAS/ROBO/SUSTRACCIÓN','RESPONSABILIDAD CIVIL','SOAT','MULTIRIESGO','TODO RIESGO','CUMPLIMIENTO','VIAJES/TURISMO']);
-const TODAY=new Date();
+const TODAY=new Date('2026-05-15');
 const MON=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const ACOL={ASSA:'#005F9E',SURA:'#E85D04',IS:'#1A3A6B',MAPFRE:'#C8102E',PALIG:'#2D6A4F',UNIVIVIR:'#7B2D8B',FEDPA:'#8B5E00',Ancón:'#3D405B','WW Medical':'#0D7377',Acerta:'#5C4033',Generali:'#C62828',Chubb:'#2E7D32',Aliados:'#0277BD','La Regional':'#E65100',General:'#4E342E',VUMI:'#00548B','VUMI-LA REGIONAL DE SEGUROS':'#00548B'};
 // PIPELINE CORREGIDO: Contacto primero
@@ -2384,7 +2384,9 @@ window.addEventListener('error',function(ev){
  if(msg.includes('script error')||msg.includes('resizeobserver'))return;
  console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
  // Only show toast for user-visible errors
- // JS errors silenciados
+ if(msg.includes('cannot read')||msg.includes('is not a function')||msg.includes('is not defined')){
+ if(typeof toast==='function')toast('⚠️ Error recuperado — recarga si persiste','err');
+ }
 });
 window.addEventListener('unhandledrejection',function(ev){
  console.warn('[JAC CRM Promise]',ev.reason);
@@ -2930,7 +2932,7 @@ function SH(id){
  closeDP();
  // Use small delay to avoid blank flicker
  requestAnimationFrame(()=>{
- const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,not:RNot,inf:renderInformes}[id];
+ const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg}[id];
  if(typeof fn==='function')try{fn();}catch(e){console.warn('[SH]',id,e);}
  });
 }
@@ -3200,7 +3202,7 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
  </div>
  <div style="max-height:600px;overflow-y:auto">${renderCommsHistory(allComms)}</div>`;}
  openDP(h,c.nombre);
- }catch(e){console.error('showCliDP error:',e);}
+ }catch(e){console.error('showCliDP error:',e);toast('Error al abrir cliente: '+e.message,'err');}
 }
 function setClientStatus(clientId,status){
  const i=S.clientes.findIndex(c=>c.id===clientId);if(i<0)return;
@@ -4916,7 +4918,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.getElementById('app').style.display = 'block';
 
  // 4. Renderizar dashboard
-    if (typeof RD === 'function') RD();
+ if (typeof RDash === 'function') RDash();
  if (typeof RC === 'function') RC();
  if (typeof RP === 'function') RP();
  if (typeof SH === 'function') SH('dash');
