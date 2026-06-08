@@ -230,7 +230,7 @@ body.dark .mu{color:var(--dark-mu);}
 </div>
 
 <!-- ═══ APP ═══ -->
-<div id="app">
+<div id="app" style="display:none">
 <div id="hdr"><div class="hi">
  <div class="lg2">
  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" height="50" aria-label="JAC Seguros">
@@ -4774,63 +4774,10 @@ document.addEventListener('DOMContentLoaded',()=>{
  // ── AUTENTICACIÓN ─────────────────────────────────────────
 
  /** doLogin — LOCAL PRIMERO (nunca bloquea), Supabase como bonus */
- window.doLogin = async function () {
-  try{hideErr();}catch(e){}
-  const raw = (document.getElementById('lu')?.value || '').trim();
-  const pwd = document.getElementById('lp')?.value || '';
-  if (!raw || !pwd) { try{showErr('Ingresa usuario/email y contraseña.');}catch(e){}return; }
-
-  // LOCAL primero — siempre funciona
-  const a = getAuth();
-  const localOk = (raw === a.user || raw.includes('@')) && pwd === a.pwd;
-  if (localOk) {
-   if (raw.includes('@')) {
-    try{db.auth.signInWithPassword({email:raw,password:pwd})
-     .then(({data})=>{if(data?.session)localStorage.setItem('jac_email',raw);})
-     .catch(()=>{});}catch(e){}
-   }
-   startSession();
-   return;
-  }
-
-  // Supabase si es email
-  if (raw.includes('@')) {
-   try {
-    const { data, error } = await db.auth.signInWithPassword({ email: raw, password: pwd });
-    if (!error && data?.session) {
-     localStorage.setItem('jac_email', raw);
-     const a2 = getAuth(); a2.user = raw; a2.pwd = pwd; saveAuth(a2);
-     await initAfterLogin(data.session);
-     return;
-    }
-   } catch(e) {}
-  }
-
-  try{showErr('Usuario o contraseña incorrectos.');}catch(e){}
- }
+ // doLogin handled by nuclear login module (see below)
 
  /** doLoginPin — SIEMPRE funciona con PIN local (sin necesitar Supabase) */
- window.doLoginPin = async function () {
-  try{hideErr();}catch(e){}
-  const pin = (document.getElementById('lpin')?.value || '').trim();
-  if (pin.length !== 4) { try{showErr('El PIN debe tener 4 dígitos.');}catch(e){}return; }
-
-  // PIN local - siempre funciona
-  const localData = (()=>{try{return JSON.parse(localStorage.getItem('jacv10')||'{}');}catch{return{};}})();
-  const aAuth = getAuth();
-  const storedPin = localData.pin || aAuth.pin || '6175';
-
-  if (pin !== storedPin) {
-   try{showErr('PIN incorrecto.');}catch(e){}
-   return;
-  }
-
-  // PIN correcto - entrar
-  try{db.auth.getSession().then(({data:{session}})=>{
-   if(session)initAfterLogin(session).catch(()=>{});
-  }).catch(()=>{});}catch(e){}
-  startSession();
- }
+ // doLoginPin handled by nuclear login module (see below)
 
  /** Reemplaza doLogout() — cierra sesión en Supabase */
  window.doLogout = async function () {
@@ -4977,28 +4924,28 @@ document.addEventListener('DOMContentLoaded',()=>{
  // ── INICIO: verificar sesión existente al cargar la página ──
 
  (async function checkSession() {
- // Esperar DOM antes de manipular elementos
  await new Promise(r=>{if(document.readyState!=='loading')r();else document.addEventListener('DOMContentLoaded',r);});
+ // Si ya hay sesión local activa, no interferir
+ if(sessionStorage.getItem('jac_s')==='ok')return;
  try {
   const { data: { session } } = await db.auth.getSession();
   if (session) {
-   await initAfterLogin(session);
-  } else {
-   const ls=document.getElementById('ls');const app=document.getElementById('app');
-   if(ls)ls.style.display='flex';if(app)app.style.display='none';
+   // Solo auto-login si NO hay sesión local ya activa
+   if(sessionStorage.getItem('jac_s')!=='ok'){
+    await initAfterLogin(session);
+   }
   }
+  // No ocultar nada - el HTML ya tiene el estado correcto por defecto
  } catch (err) {
   console.warn('[JAC session]',err);
-  const ls=document.getElementById('ls');const app=document.getElementById('app');
-  if(ls)ls.style.display='flex';if(app)app.style.display='none';
  }
- db.auth.onAuthStateChange(async (event, session) => {
+ try{db.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_OUT') {
    sessionStorage.removeItem('jac_s');
    const app=document.getElementById('app');const ls=document.getElementById('ls');
    if(app)app.style.display='none';if(ls)ls.style.display='flex';
   }
- });
+ });}catch(e){}
 })();
 
  // ── OVERRIDE: clearData() — también limpia Supabase ─────
