@@ -4927,31 +4927,34 @@ document.addEventListener('DOMContentLoaded',()=>{
  // ── INICIO: verificar sesión existente al cargar la página ──
 
  (async function checkSession() {
- try {
- const { data: { session } } = await db.auth.getSession();
-
- if (session) {
- // Sesión activa → mostrar app directamente (sin re-login)
- await initAfterLogin(session);
- } else {
- // Sin sesión → mostrar pantalla de login
- document.getElementById('ls').style.display = 'flex';
- document.getElementById('app').style.display = 'none';
- }
- } catch (err) {
- console.error('[JAC session check]', err);
- document.getElementById('ls').style.display = 'flex';
- document.getElementById('app').style.display = 'none';
- }
-
- // Escuchar cambios de estado de autenticación
- db.auth.onAuthStateChange(async (event, session) => {
- if (event === 'SIGNED_OUT') {
- sessionStorage.removeItem('jac_s');
- document.getElementById('app').style.display = 'none';
- document.getElementById('ls').style.display = 'flex';
- }
- });
+  // Wait for DOM before touching elements
+  await new Promise(r => { if(document.readyState !== 'loading') r(); else document.addEventListener('DOMContentLoaded', r); });
+  // If already logged in locally, don't interfere
+  if (sessionStorage.getItem('jac_s') === 'ok') return;
+  try {
+   const { data: { session } } = await db.auth.getSession();
+   if (session) {
+    await initAfterLogin(session);
+   } else {
+    if (sessionStorage.getItem('jac_s') !== 'ok') {
+     document.getElementById('ls').style.display = 'flex';
+     document.getElementById('app').style.display = 'none';
+    }
+   }
+  } catch (err) {
+   console.warn('[JAC session check]', err);
+   if (sessionStorage.getItem('jac_s') !== 'ok') {
+    document.getElementById('ls').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+   }
+  }
+  db.auth.onAuthStateChange(async (event, session) => {
+   if (event === 'SIGNED_OUT') {
+    sessionStorage.removeItem('jac_s');
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('ls').style.display = 'flex';
+   }
+  });
  })();
 
  // ── OVERRIDE: clearData() — también limpia Supabase ─────
