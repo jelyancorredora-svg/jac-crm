@@ -230,7 +230,7 @@ body.dark .mu{color:var(--dark-mu);}
 </div>
 
 <!-- ═══ APP ═══ -->
-<div id="app" style="display:none">
+<div id="app">
 <div id="hdr"><div class="hi">
  <div class="lg2">
  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 90" height="50" aria-label="JAC Seguros">
@@ -249,7 +249,6 @@ body.dark .mu{color:var(--dark-mu);}
  <a onclick="SH('pipe')">📈 Pipeline</a>
  <a onclick="SH('vc')">🔄 Venta Cruzada</a>
  <a onclick="SH('ren')">🔔 Renovaciones</a>
-   <a onclick="SH('cal')">📅 Calendario</a>
  <a onclick="SH('pag')">💳 Pagos</a>
  <a onclick="SH('sin')">🚑 Siniestros</a>
  <a onclick="SH('veh')">🚗 Autos/Motos</a>
@@ -290,8 +289,6 @@ body.dark .mu{color:var(--dark-mu);}
  <button class="btn" onclick="SH('inf')" style="background:#1E3A8A;color:#fff;border-color:#1E3A8A;display:inline-flex;align-items:center;gap:5px">📊 Informes</button>
  <button class="btn" onclick="openCotizador()" style="background:#7C3AED;color:#fff;border-color:#7C3AED;display:inline-flex;align-items:center;gap:5px">🧮 Cotizar</button>
  <button class="btn" onclick="SH('not')" style="background:#D97706;color:#fff;border-color:#D97706;display:inline-flex;align-items:center;gap:5px">📝 Notas</button>
- <button class="btn" onclick="openComposeEmail('','','','')" style="background:#059669;color:#fff;border-color:#059669;display:inline-flex;align-items:center;gap:5px">📧 Correo</button>
- <button class="btn" onclick="SH('com')" style="background:#B45309;color:#fff;border-color:#B45309;display:inline-flex;align-items:center;gap:5px">💰 Comisiones</button>
  </div>
  <div id="dash-agenda" style="display:none;margin-bottom:10px"></div>
  <!-- BIRTHDAY ALERTS -->
@@ -299,20 +296,11 @@ body.dark .mu{color:var(--dark-mu);}
  <!-- 30-DAY REMINDER ALERTS -->
  <div class="card" id="dash-reminders" style="margin-bottom:10px;display:none"></div>
 
- <!-- EMAIL QUICK COMPOSE -->
- <div id="dash-email-bar" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-   <span style="font-weight:700;font-size:12px;color:#1D4ED8;white-space:nowrap">📧 Correo rápido:</span>
-   <input class="fc" id="dash-email-to" type="email" placeholder="email@cliente.com" style="flex:2;min-width:160px;font-size:12px">
-   <input class="fc" id="dash-email-sub" placeholder="Asunto" style="flex:3;min-width:160px;font-size:12px">
-   <button class="btn bp" onclick="dashQuickEmail()" style="white-space:nowrap;font-size:12px">📧 Redactar</button>
- </div>
- <!-- CALENDARIO MINI + RENOVACIONES -->
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:10px">
-   <div class="card" id="dren"></div>
-   <div class="card" id="dash-cal-widget" style="padding:0"></div>
+ <div class="card" id="dren"></div><div class="card" id="dcom"></div>
  </div>
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
-   <div class="card" id="dtar"></div><div class="card" id="dven"></div>
+ <div class="card" id="dtar"></div><div class="card" id="dven"></div>
  </div>
 </div>
 
@@ -432,26 +420,6 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="sg" id="rsg"></div>
  <div id="rcon"></div>
  <div id="rcal" style="display:none"></div>
-</div>
-
-<!-- CALENDARIO COMPLETO -->
-<div class="pg" id="pg-cal">
- <div class="ph"><div><h2>📅 Calendario</h2><small>Vencimientos · Tareas · Cumpleaños</small></div>
-  <div class="tb">
-   <button class="btn bsm" onclick="renderCalMonth(selYear,(selMonth===0?11:selMonth-1));selMonth=(selMonth===0?11:selMonth-1);if(selMonth===11)selYear--">‹ Mes anterior</button>
-   <button class="btn bp" onclick="renderCalMonthNow()">Hoy</button>
-   <button class="btn bsm" onclick="renderCalMonth(selYear,(selMonth===11?0:selMonth+1));selMonth=(selMonth===11?0:selMonth+1);if(selMonth===0)selYear++">Siguiente ›</button>
-   <button class="btn bsm" onclick="SH('ren')">🔔 Renovaciones</button>
-  </div>
- </div>
- <!-- Leyenda rápida -->
- <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;font-size:11px;padding:0 4px">
-  <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#1D4ED8;display:inline-block"></span>Pólizas próximas</span>
-  <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block"></span>Vencidas</span>
-  <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block"></span>Tareas</span>
-  <span>🎂 Cumpleaños</span>
- </div>
- <div id="rcal" style="min-height:400px"></div>
 </div>
 
 <!-- PAGOS -->
@@ -895,8 +863,7 @@ body.dark .mu{color:var(--dark-mu);}
 </div></div>
 <div class="bmm" id="bmm">
  <a onclick="SH('pipe');closeBnMore()"><span style="font-size:16px">📈</span>Pipeline</a>
- <a onclick="SH('cal');closeBnMore()" id="bn-cal"><span style="font-size:16px">📅</span>Calendario</a>
-    <a onclick="SH('vc');closeBnMore()"><span style="font-size:16px">🔄</span>V.Cruzada</a>
+ <a onclick="SH('vc');closeBnMore()"><span style="font-size:16px">🔄</span>V.Cruzada</a>
  <a onclick="SH('ren');closeBnMore()"><span style="font-size:16px">🔔</span>Renovar</a>
  <a onclick="SH('pag');closeBnMore()"><span style="font-size:16px">💳</span>Pagos</a>
  <a onclick="SH('sin');closeBnMore()"><span style="font-size:16px">🚑</span>Siniestros</a>
@@ -1637,15 +1604,9 @@ function startSession(){
  document.getElementById('app').style.display='block';
  // Auto-update policy statuses on every login
  try{autoUpdatePolizasStatus();}catch(e){}
- // Init EmailJS every time session starts
- try{initEmailJS();loadEmailJSConfig();}catch(e){}
- // Init Mensajero
- try{if(typeof initMensajero==='function')initMensajero();}catch(e){}
  SH('dash');
  // Auto-check birthdays on every login (sends emails + shows WA alerts)
  setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
- // Auto-check renewals and send reminder emails
- setTimeout(()=>{try{autoRenewalCheck();}catch(e){}},2000);
 }
 
 // ── AUTO BIRTHDAY CHECK — runs on every login ──────────────────────────────
@@ -2423,7 +2384,9 @@ window.addEventListener('error',function(ev){
  if(msg.includes('script error')||msg.includes('resizeobserver'))return;
  console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
  // Only show toast for user-visible errors
- // errors logged silently
+ if(msg.includes('cannot read')||msg.includes('is not a function')||msg.includes('is not defined')){
+ if(typeof toast==='function')toast('⚠️ Error recuperado — recarga si persiste','err');
+ }
 });
 window.addEventListener('unhandledrejection',function(ev){
  console.warn('[JAC CRM Promise]',ev.reason);
@@ -2446,7 +2409,6 @@ if(!S.mensajero)S.mensajero='Francisco Flores';
 if(!S.mensajeroTel)S.mensajeroTel='';
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',VF='',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
-let selYear=new Date().getFullYear(),selMonth=new Date().getMonth();
 
 function save(){try{localStorage.setItem('jacv10',JSON.stringify(S));}catch(e){toast('Almacenamiento lleno — exporta datos','err');}}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5).toUpperCase();}
@@ -2889,13 +2851,7 @@ function logEmailSent(){
  if(cemEntityType==='poliza'&&dpOn){const pol=GP(cemEntityId);if(pol)setTimeout(()=>showPolDP(cemEntityId),200);}
 }
 function openEmailForClient(cid){
- const c=GC(cid);
- if(!c.email){
-   // Open compose with empty To so user can fill it
-   openComposeEmail('',c.nombre||'','JAC Seguros — '+(c.nombre||''),
-     'Estimado/a '+(c.nombre||'')+',\n\nEspero que se encuentre muy bien.\n\nMe pongo en contacto desde JAC Seguros.\n\n\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010','cliente',cid);
-   toast('⚠️ Cliente sin email — completa el campo Para:','warn');return;
- }
+ const c=GC(cid);if(!c.email){toast('Cliente sin email registrado','err');return;}
  const fn=(c.nombre||'').split(' ')[0];
  const sub=`JAC Seguros — Hola ${fn}`;
  const body=`Estimado/a ${c.nombre},\n\nEspero que se encuentre muy bien.\n\nMe pongo en contacto desde JAC Seguros.\n\n\n\nQuedo atenta a su respuesta.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
@@ -2911,12 +2867,7 @@ function openEmailForPros(pid){
 }
 function openEmailForPol(pid){
  const p=GP(pid);const cl=GC(p.clienteId);
- const email=cl.email||p.emailCliente;
- if(!email){
-   openComposeEmail('',cl.nombre||p.nombreCliente||'','JAC Seguros — Póliza '+(p.num||''),
-     'Estimado/a '+(cl.nombre||p.nombreCliente||'')+',\n\nEspero que se encuentre muy bien.\n\nMe comunico respecto a su póliza de '+( p.ramo||'seguros')+'.\n\n\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010','poliza',pid);
-   toast('⚠️ Sin email registrado — completa el campo Para:','warn');return;
- }
+ const email=cl.email||p.emailCliente;if(!email){toast('Sin email registrado','err');return;}
  const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];
  const d=dFrom(p.fechaFin);
  const sub=d>=0?`⚠️ Tu póliza ${p.ramo} vence en ${d} días — JAC Seguros`:`Renovación póliza ${p.ramo} — JAC Seguros`;
@@ -2981,7 +2932,7 @@ function SH(id){
  closeDP();
  // Use small delay to avoid blank flicker
  requestAnimationFrame(()=>{
- const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,cal:RCal,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg}[id];
+ const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg}[id];
  if(typeof fn==='function')try{fn();}catch(e){console.warn('[SH]',id,e);}
  });
 }
@@ -3079,9 +3030,11 @@ function RD(){
  rh+=`<div class="renew-row">${dot(col)}<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom)}</div><div style="font-size:10px;color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div></div><span class="b" style="background:${col}18;color:${col}">${d===0?'HOY':d+'d'}</span>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm'):''}`;
  rh+='</div>';});rh+='</div>';}
  const dren=document.getElementById('dren');if(dren)dren.innerHTML=rh;
- // Comisiones movidas al módulo de Comisiones (no dashboard)
- // Render mini calendar widget
- try{renderDashCalWidget();}catch(e){}
+ let ch=`<div class="ch"><h3>💰 Com. Pendientes</h3><button class="btn bsm" onclick="SH('com')">Ver →</button></div>`;
+ if(!cp.length)ch+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Todas cobradas ✓</div>';
+ else{ch+='<div>';cp.forEach(c=>{ch+=`<div style="padding:9px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(ac(c.aseg))}<div style="flex:1"><div style="font-weight:600;font-size:12px">${esc(c.aseg)}</div><div style="font-size:10px;color:var(--mu)">${esc(c.mes)}</div></div><span style="font-weight:700;color:#B45309">${fmtM(c.monto)}</span><button class="btn bsm" onclick="markCob('${c.id}')">✓</button></div>`;});
+ ch+=`<div style="padding:8px 13px;background:#FAFBFD;display:flex;justify-content:space-between"><span style="font-weight:700;font-size:11px;color:var(--mu)">TOTAL</span><span style="font-weight:800;color:#B45309">${fmtM(tCom)}</span></div></div>`;}
+ const dcom=document.getElementById('dcom');if(dcom)dcom.innerHTML=ch;
  const pTar=S.tareas.filter(t=>t.etapaTarea!=='Hecho');
  let th=`<div class="ch"><h3>✅ Tareas</h3><button class="btn bsm" onclick="SH('tar')">Ver →</button></div>`;
  if(!pTar.length)th+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin tareas pendientes ✓</div>';
@@ -3095,18 +3048,6 @@ function RD(){
  // Auto-run alert panels
  try{renderDashReminders();}catch(e){}
  try{if(typeof renderDashBirthdays==='function')renderDashBirthdays();}catch(e){}
- // Calendar mini widget
- try{if(typeof renderDashCalWidget==='function')renderDashCalWidget();}catch(e){}
- // Comisiones badge in header
- try{
-   const _cs=getComisionesSummary();
-   const _cba=document.getElementById('ha');
-   if(_cba&&_cs.pendientes>0){
-     let _existing=document.getElementById('com-badge-dash');
-     if(!_existing){_existing=document.createElement('button');_existing.id='com-badge-dash';_existing.className='btn';_existing.style.cssText='background:#FEF3C7;color:#B45309;border-color:#FDE68A;font-size:11px;font-weight:700';_existing.onclick=()=>SH('com');_cba.insertBefore(_existing,_cba.firstChild);}
-     _existing.textContent=`💰 ${_cs.pendientes} com. pend. — ${fmtM(_cs.total)}`;
-   }else{const _b=document.getElementById('com-badge-dash');if(_b)_b.remove();}
- }catch(e){}
  // "Tareas de hoy" quick banner
  try{
  const _hoy=TODAY.toISOString().split('T')[0];
@@ -3173,7 +3114,7 @@ function RC(){
  <td style="max-width:130px">${renderTags(c.etiquetas||[])}</td>
  <td>${ps.length?`<button class="btn bsm bok" onclick="showCliDP('${c.id}')">${ps.length} →</button>`:'—'}</td>
  <td onclick="event.stopPropagation()">${wa||'<span style="color:var(--mu);font-size:10px">Sin tel.</span>'}</td>
- <td onclick="event.stopPropagation()"><button class="btn bsm bin" onclick="openEmailForClient('${c.id}')" title="${c.email?'Enviar correo':'Sin email — podrás completarlo'}">📧${c.email?'':' ⚠️'}</button></td>
+ <td onclick="event.stopPropagation()">${c.email?`<button class="btn bsm bin" onclick="openEmailForClient('${c.id}')" title="Enviar correo">📧 Email</button>`:'<span style="color:var(--mu);font-size:10px">—</span>'}</td>
  <td onclick="event.stopPropagation()"><div class="ab"><button class="btn bsm bic" onclick="OC('${c.id}')">✏️</button><button class="btn bsm bic" onclick="DC('${c.id}')" style="color:var(--rd)">🗑</button></div></td>
  </tr>`;
  });
@@ -4977,11 +4918,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.getElementById('app').style.display = 'block';
 
  // 4. Renderizar dashboard
-    if (typeof initEmailJS === 'function') initEmailJS();
-    if (typeof loadEmailJSConfig === 'function') loadEmailJSConfig();
     if (typeof RD === 'function') RD();
-    if (typeof RC === 'function') RC();
-    if (typeof RP === 'function') RP();
+ if (typeof RC === 'function') RC();
+ if (typeof RP === 'function') RP();
  if (typeof SH === 'function') SH('dash');
  }
 
@@ -5099,30 +5038,7 @@ function testEmailJS() {
 }
 function initEmailJS() {
  const cfg = JSON.parse(localStorage.getItem('jac_ejs_cfg') || '{}');
- if (!cfg['ejs-pub']) {
-   // Set defaults if not configured yet
-   localStorage.setItem('jac_ejs_cfg', JSON.stringify({
-     'ejs-pub': 'yC5ilFgG5B8ZTKZT6',
-     'ejs-svc': 'service_7r3bcxn',
-     'ejs-tpl-general': 'template_5a4dzys',
-     'ejs-tpl-ren': 'template_mvubwhd',
-     'ejs-tpl-bday': 'template_b3p5nu7'
-   }));
- }
- const cfg2 = JSON.parse(localStorage.getItem('jac_ejs_cfg') || '{}');
- if (cfg2['ejs-pub']) {
-   if (window.emailjs) {
-     emailjs.init({ publicKey: cfg2['ejs-pub'] });
-   } else {
-     // Load emailjs if not loaded
-     if (!document.querySelector('script[src*="emailjs"]')) {
-       const s = document.createElement('script');
-       s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-       s.onload = () => { if(window.emailjs) emailjs.init({ publicKey: cfg2['ejs-pub'] }); };
-       document.head.appendChild(s);
-     }
-   }
- }
+ if (cfg['ejs-pub'] && window.emailjs) emailjs.init({ publicKey: cfg['ejs-pub'] });
 }
 
 // ── EMAIL SENDING FUNCTIONS ────────────────────────────────────
@@ -5597,10 +5513,9 @@ function renderDashStatusCards() {
 const _origRD = window.RD;
 window.RD = function() {
  if (typeof _origRD === 'function') _origRD();
- try{renderDashStatusCards();}catch(e){}
- try{renderDashBirthdays();}catch(e){}
- try{renderDashReminders();}catch(e){}
- try{if(typeof renderDashCalWidget==='function')renderDashCalWidget();}catch(e){}
+ renderDashStatusCards();
+ renderDashBirthdays();
+ renderDashReminders();
 };
 
 // ── BIRTHDAY CARD GENERATOR (visual HTML card) ─────────────────
@@ -9003,136 +8918,10 @@ const _origSH=SH;
 SH=function(pg){
  _origSH(pg);
  if(pg==='men')setTimeout(initMenPage,50);
- if(pg==='cal')setTimeout(RCal,50);
 };
 
-// ═══════════════════════════════════════════════════════════════
-// JAC CRM — NUEVAS FUNCIONES INTEGRADAS v9
-// ═══════════════════════════════════════════════════════════════
-
-// ── CALENDARIO (página completa) ─────────────────────────────────────────────
-function RCal(){
-  // Ensure selYear/selMonth are set
-  if(!window.selYear){const n=new Date();window.selYear=n.getFullYear();window.selMonth=n.getMonth();}
-  renderCalMonth(window.selYear,window.selMonth);
-}
-function renderCalMonthNow(){
-  const n=new Date();window.selYear=n.getFullYear();window.selMonth=n.getMonth();
-  renderCalMonth(window.selYear,window.selMonth);
-}
-
-// ── DASHBOARD CALENDAR MINI WIDGET ──────────────────────────────────────────
-function renderDashCalWidget(){
-  const el=document.getElementById('dash-cal-widget');if(!el)return;
-  const now=new Date();
-  const year=now.getFullYear();const month=now.getMonth();
-  const pol=S.polizas.filter(p=>p.estado!=='Cancelada'&&p.fechaFin);
-  const map={};
-  const ensureDay=k=>{if(!map[k])map[k]={pols:[],tareas:[],bdays:[]};};
-  pol.forEach(p=>{const k=(p.fechaFin||'').slice(0,10);if(k)ensureDay(k);if(map[k])map[k].pols.push(p);});
-  (S.tareas||[]).filter(t=>t.fechaVencimiento&&t.etapaTarea!=='Hecho').forEach(t=>{const k=t.fechaVencimiento.slice(0,10);ensureDay(k);map[k].tareas.push(t);});
-  (S.clientes||[]).forEach(c=>{
-    if(!c.fechaNac||c.tipo==='Empresa')return;
-    try{const d=new Date(c.fechaNac+'T00:00:00');if(d.getMonth()===month){const k=`${year}-${String(month+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;ensureDay(k);map[k].bdays.push(c);}}catch(e){}
-  });
-  const first=new Date(year,month,1);const last=new Date(year,month+1,0);
-  const startDow=first.getDay();
-  const MON=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  let h=`<div style="padding:12px"><div class="ch" style="margin-bottom:8px"><h3>📅 ${MON[month]} ${year}</h3><button class="btn bsm" onclick="SH('cal')">Ver completo →</button></div>`;
-  h+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center">`;
-  ['D','L','M','X','J','V','S'].forEach(d=>{h+=`<div style="font-size:9px;font-weight:700;color:var(--mu);padding:2px">${d}</div>`;});
-  for(let i=0;i<startDow;i++)h+=`<div></div>`;
-  const today=new Date();today.setHours(0,0,0,0);
-  for(let d=1;d<=last.getDate();d++){
-    const dd=String(d).padStart(2,'0');const mm=String(month+1).padStart(2,'0');
-    const key=`${year}-${mm}-${dd}`;
-    const dayData=map[key]||{pols:[],tareas:[],bdays:[]};
-    const totalEvents=dayData.pols.length+dayData.tareas.length+dayData.bdays.length;
-    const isToday=new Date(year,month,d).getTime()===today.getTime();
-    const isPast=new Date(year,month,d)<today;
-    const bg=isToday?'#1D4ED8':totalEvents?'#EFF6FF':'transparent';
-    const border=isToday?'none':totalEvents?'1px solid #BFDBFE':'1px solid transparent';
-    const color=isToday?'#fff':isPast?'var(--mu)':'inherit';
-    h+=`<div style="padding:3px 1px;border-radius:4px;cursor:${totalEvents?'pointer':'default'};background:${bg};border:${border}"
-      ${totalEvents?`onclick="SH('cal');setTimeout(()=>showCalDay('${key}',${JSON.stringify(dayData.pols.map(p=>p.id)).replace(/"/g,"'")},${JSON.stringify(dayData.tareas.map(t=>t.id)).replace(/"/g,"'")},${JSON.stringify(dayData.bdays.map(c=>c.id)).replace(/"/g,"'")}),100)"`:''}>
-      <div style="font-size:10px;font-weight:${isToday?700:400};color:${color}">${d}</div>
-      ${dayData.bdays.length?'<div style="font-size:7px">🎂</div>':''}
-      ${dayData.pols.length?`<div style="width:4px;height:4px;border-radius:50%;background:${isPast?'#DC2626':'#1D4ED8'};margin:0 auto"></div>`:''}
-      ${dayData.tareas.length?`<div style="width:4px;height:4px;border-radius:50%;background:#D97706;margin:0 auto"></div>`:''}
-    </div>`;
-  }
-  h+=`</div>`;
-  // Next 5 events
-  const upcoming=[];
-  pol.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30;}).sort((a,b)=>dFrom(a.fechaFin)-dFrom(b.fechaFin)).slice(0,3).forEach(p=>{const cl=GC(p.clienteId);upcoming.push({label:`📋 ${(cl.nombre||p.nombreCliente||'').split(' ').slice(0,2).join(' ')} — ${p.ramo}`,date:p.fechaFin,days:dFrom(p.fechaFin),color:dFrom(p.fechaFin)<=7?'#DC2626':'#1D4ED8'});});
-  (S.tareas||[]).filter(t=>t.fechaLimite&&t.etapaTarea!=='Hecho').sort((a,b)=>a.fechaLimite.localeCompare(b.fechaLimite)).slice(0,2).forEach(t=>{upcoming.push({label:`✅ ${(t.titulo||'').slice(0,30)}`,date:t.fechaLimite,days:Math.round((new Date(t.fechaLimite+'T00:00:00')-today)/86400000),color:'#D97706'});});
-  if(upcoming.length){
-    h+=`<div style="margin-top:10px;border-top:1px solid var(--bd);padding-top:8px">`;
-    upcoming.sort((a,b)=>a.days-b.days).slice(0,4).forEach(ev=>{
-      h+=`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px">
-        <span style="font-weight:700;color:${ev.color};min-width:28px;text-align:center">${ev.days===0?'HOY':ev.days+'d'}</span>
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(ev.label)}</span>
-      </div>`;
-    });
-    h+=`</div>`;
-  }
-  h+=`</div>`;
-  el.innerHTML=h;
-}
-
-// ── DASHBOARD QUICK EMAIL ────────────────────────────────────────────────────
-function dashQuickEmail(){
-  const to=document.getElementById('dash-email-to')?.value||'';
-  const sub=document.getElementById('dash-email-sub')?.value||'';
-  openComposeEmail(to,'',sub,'','','');
-  document.getElementById('dash-email-to').value='';
-  document.getElementById('dash-email-sub').value='';
-}
-
-// ── AUTO RENEWAL EMAIL CHECK ─────────────────────────────────────────────────
-async function autoRenewalCheck(){
-  if(!S||!S.polizas||!S.polizas.length)return;
-  const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
-  const ejsReady=cfg['ejs-pub']&&cfg['ejs-svc']&&cfg['ejs-tpl-ren']&&window.emailjs;
-  if(!ejsReady)return;
-  if(!S.actDone)S.actDone=[];
-  const today=TODAY.toISOString().split('T')[0];
-  const due30=S.polizas.filter(p=>{
-    const d=dFrom(p.fechaFin);
-    return d>=0&&d<=30&&p.estado!=='Cancelada';
-  });
-  for(const p of due30){
-    const doneKey='renEmail_'+p.id+'_'+today.slice(0,7); // once per month per policy
-    if(S.actDone.find(x=>x.key===doneKey))continue;
-    const cl=GC(p.clienteId);
-    const email=cl.email||p.emailCliente;
-    if(!email)continue;
-    const days=dFrom(p.fechaFin);
-    try{
-      await sendRenewalEmail(p,cl);
-      S.actDone.push({key:doneKey,date:today,type:'renEmail',polId:p.id});
-      save();
-      console.info('[JAC] Renovación enviada a',email,'para póliza',p.num||p.id);
-    }catch(e){console.warn('[JAC autoRenewalCheck]',e);}
-  }
-}
-
-// ── EMAIL IN CLIENTES — ensure button always accessible ──────────────────────
-function openEmailFromSearch(email,nombre){
-  if(!email){toast('Sin email registrado','err');return;}
-  openComposeEmail(email,nombre,'JAC Seguros — '+nombre,'Estimado/a '+nombre+',\n\nEspero que se encuentre muy bien.\n\nMe pongo en contacto desde JAC Seguros.\n\n\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010','cliente','');
-}
-
-// ── COMISIONES SUMMARY for Dashboard (compact, shown in Com module header) ──
-function getComisionesSummary(){
-  const cp=(S.comisiones||[]).filter(c=>c.estado==='pendiente');
-  const total=cp.reduce((s,c)=>s+(c.monto||0),0);
-  return{pendientes:cp.length,total};
-}
 
 </script>
 
 </body>
-</htmlawait initAfterLogin(session);
-   }
-   // checkSession: no hide UI if local session active>
+</html>
