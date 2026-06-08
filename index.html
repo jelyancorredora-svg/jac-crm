@@ -2369,7 +2369,7 @@ function delEtiqueta(id){confirm2('¿Eliminar etiqueta?',()=>{S.etiquetas=S.etiq
 // ── CONSTANTS ──
 // RAMOS NORMALIZADOS: SALUD/MÉDICOS (unificado), VIDA (unificado), MOTOS (renombrado de OTROS)
 const GENERALES=new Set(['AUTOS/VEHÍCULOS','MOTOS','INCENDIO Y LÍNEAS ALIADAS','HOGAR','FIANZAS/ROBO/SUSTRACCIÓN','RESPONSABILIDAD CIVIL','SOAT','MULTIRIESGO','TODO RIESGO','CUMPLIMIENTO','VIAJES/TURISMO']);
-const TODAY=new Date('2026-05-15');
+const TODAY=new Date(); // always current date
 const MON=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const ACOL={ASSA:'#005F9E',SURA:'#E85D04',IS:'#1A3A6B',MAPFRE:'#C8102E',PALIG:'#2D6A4F',UNIVIVIR:'#7B2D8B',FEDPA:'#8B5E00',Ancón:'#3D405B','WW Medical':'#0D7377',Acerta:'#5C4033',Generali:'#C62828',Chubb:'#2E7D32',Aliados:'#0277BD','La Regional':'#E65100',General:'#4E342E',VUMI:'#00548B','VUMI-LA REGIONAL DE SEGUROS':'#00548B'};
 // PIPELINE CORREGIDO: Contacto primero
@@ -2418,14 +2418,10 @@ function loadS(){
 
 // ─── Global Error Shield ─────────────────────────────────────────
 window.addEventListener('error',function(ev){
+ // Log errors silently — never show toast to user for recoverable JS errors
  const msg=(ev.message||'').toLowerCase();
- // Suppress known non-critical errors
  if(msg.includes('script error')||msg.includes('resizeobserver'))return;
- console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
- // Only show toast for user-visible errors
- if(msg.includes('cannot read')||msg.includes('is not a function')||msg.includes('is not defined')){
- if(typeof toast==='function')toast('⚠️ Error recuperado — recarga si persiste','err');
- }
+ console.warn('[JAC CRM]',ev.message,'@',ev.filename+':'+ev.lineno);
 });
 window.addEventListener('unhandledrejection',function(ev){
  console.warn('[JAC CRM Promise]',ev.reason);
@@ -5193,14 +5189,10 @@ async function sendRenewalEmail(pol, client) {
  const nombre = (client.nombre || pol.nombreCliente || 'Cliente').split(' ')[0];
  const diasRestantes = typeof dFrom === 'function' ? dFrom(pol.fechaFin) : '—';
  const fechaFmt2 = typeof fmt === 'function' ? fmt(pol.fechaFin) : pol.fechaFin;
- // Fallback: open compose modal if EmailJS not configured
+ // Si EmailJS no configurado: retorna silenciosamente (no abrir modal automático)
  if (!tpl || !cfg['ejs-pub'] || !cfg['ejs-svc'] || !window.emailjs) {
- const sub2 = diasRestantes >= 0 ? `⚠️ Tu póliza ${pol.ramo} vence en ${diasRestantes} días — JAC Seguros` : `Renovación póliza ${pol.ramo} — JAC Seguros`;
- openComposeEmail(email, client.nombre || pol.nombreCliente || '',
- sub2,
- `Hola ${nombre} 👋\n\nTe contacto desde *JAC Seguros* para recordarte que tu póliza de *${pol.ramo}* con *${pol.aseg}* (N° ${pol.polNum || pol.id}) vence el *${fechaFmt2}*.\n${diasRestantes >= 0 ? `⚠️ Faltan solo ${diasRestantes} días para vencer.` : '⚠️ Tu póliza ya venció.'}\n\nPara renovarla y mantener tu cobertura sin interrupciones, contáctame de inmediato.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`,
- 'poliza', pol.id);
- return;
+  console.info('[JAC] sendRenewalEmail: EmailJS no listo, omitiendo envío automático');
+  return;
  }
  // Continue with EmailJS path
  const fechaFmt = fechaFmt2;
@@ -5229,14 +5221,9 @@ async function sendRenewalEmail(pol, client) {
  if (typeof save === 'function') save();
  }
  } else {
- // Fallback: open compose modal
- openComposeEmail(email, client.nombre || pol.nombreCliente || '',
- `⚠️ Tu póliza ${pol.ramo} vence pronto — JAC Seguros`,
- `Hola ${nombre} 👋\n\nTe contacto desde JAC Seguros para recordarte que tu póliza de ${pol.ramo} con ${pol.aseg} vence el ${fechaFmt}.\n\nPara renovarla, contáctame:\nJely An Castro Pérez · +507 6292-6010`,
- 'poliza', pol.id);
- }
+    console.warn('[JAC] fallo envío renovación',email);
+   }
 }
-
 // ── BIRTHDAY & REMINDER DASHBOARD ─────────────────────────────
 function getTodayBirthdays() {
  const today = new Date();
@@ -9026,6 +9013,7 @@ function renderCalMonthNow(){
 // ── DASHBOARD CALENDAR MINI WIDGET ──────────────────────────────────────────
 function renderDashCalWidget(){
   const el=document.getElementById('dash-cal-widget');if(!el)return;
+  if(!S||!S.polizas)return; // guard: wait until data is loaded
   const now=new Date();
   const year=now.getFullYear();const month=now.getMonth();
   const pol=S.polizas.filter(p=>p.estado!=='Cancelada'&&p.fechaFin);
@@ -9093,28 +9081,43 @@ function dashQuickEmail(){
 
 // ── AUTO RENEWAL EMAIL CHECK ─────────────────────────────────────────────────
 async function autoRenewalCheck(){
+  // Solo envía emails silenciosamente — NUNCA abre modales automáticamente
   if(!S||!S.polizas||!S.polizas.length)return;
   const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
+  // Solo ejecuta si EmailJS está completamente configurado
   const ejsReady=cfg['ejs-pub']&&cfg['ejs-svc']&&cfg['ejs-tpl-ren']&&window.emailjs;
-  if(!ejsReady)return;
+  if(!ejsReady)return; // sin EmailJS no hace nada - nunca abre modales
   if(!S.actDone)S.actDone=[];
-  const today=TODAY.toISOString().split('T')[0];
+  const today=new Date().toISOString().split('T')[0];
   const due30=S.polizas.filter(p=>{
     const d=dFrom(p.fechaFin);
     return d>=0&&d<=30&&p.estado!=='Cancelada';
   });
   for(const p of due30){
-    const doneKey='renEmail_'+p.id+'_'+today.slice(0,7); // once per month per policy
+    const doneKey='renEmail_'+p.id+'_'+today.slice(0,7);
     if(S.actDone.find(x=>x.key===doneKey))continue;
     const cl=GC(p.clienteId);
     const email=cl.email||p.emailCliente;
     if(!email)continue;
-    const days=dFrom(p.fechaFin);
     try{
-      await sendRenewalEmail(p,cl);
-      S.actDone.push({key:doneKey,date:today,type:'renEmail',polId:p.id});
-      save();
-      console.info('[JAC] Renovación enviada a',email,'para póliza',p.num||p.id);
+      // Envío directo vía EmailJS — sin abrir modal
+      const tpl=cfg['ejs-tpl-ren'];
+      const dias=dFrom(p.fechaFin);
+      const ok=await sendEmailJS(tpl,{
+        to_name:cl.nombre||'Cliente',to_email:email,
+        client_name:(cl.nombre||'Cliente').split(' ')[0],
+        from_name:'JAC Seguros | Jely An Castro',from_email:'jcastro@jacsegurospa.com',
+        subject:`⚠️ Tu póliza vence en ${dias} días — JAC Seguros`,
+        policy_number:p.num||p.id,policy_ramo:p.ramo||'',policy_aseg:p.aseg||'',
+        policy_vence:fmt(p.fechaFin),dias_restantes:dias,
+        message:`Tu póliza de ${p.ramo} con ${p.aseg} vence el ${fmt(p.fechaFin)}.`,
+        company:'JAC Seguros',phone:'+507 6292-6010'
+      });
+      if(ok){
+        S.actDone.push({key:doneKey,date:today,type:'renEmail',polId:p.id});
+        save();
+        console.info('[JAC] Email renovación enviado:',email,p.num||p.id);
+      }
     }catch(e){console.warn('[JAC autoRenewalCheck]',e);}
   }
 }
