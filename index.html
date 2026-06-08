@@ -1600,11 +1600,11 @@ function showErr(msg){
 }
 function startSession(){
  sessionStorage.setItem('jac_s','ok');
- document.getElementById('ls').style.display='none';
- document.getElementById('app').style.display='block';
+ const _ls=document.getElementById('ls');if(_ls)_ls.style.display='none';
+ const _app=document.getElementById('app');if(_app){_app.style.display='block';_app.style.visibility='visible';_app.style.opacity='1';}
  // Auto-update policy statuses on every login
  try{autoUpdatePolizasStatus();}catch(e){}
- SH('dash');
+ setTimeout(function(){SH('dash');},50);
  // Auto-check birthdays on every login (sends emails + shows WA alerts)
  setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
 }
@@ -4914,14 +4914,10 @@ document.addEventListener('DOMContentLoaded',()=>{
  sessionStorage.setItem('jac_s', 'ok');
 
  // 3. Mostrar la app
- document.getElementById('ls').style.display = 'none';
- document.getElementById('app').style.display = 'block';
-
- // 4. Renderizar dashboard
- if (typeof RDash === 'function') RDash();
- if (typeof RC === 'function') RC();
- if (typeof RP === 'function') RP();
- if (typeof SH === 'function') SH('dash');
+    const _ls2=document.getElementById('ls');if(_ls2)_ls2.style.display='none';
+    const _app2=document.getElementById('app');if(_app2){_app2.style.display='block';_app2.style.visibility='visible';}
+    // 4. Renderizar dashboard
+    if (typeof SH === 'function') setTimeout(()=>SH('dash'),100);
  }
 
  // ── INICIO: verificar sesión existente al cargar la página ──
