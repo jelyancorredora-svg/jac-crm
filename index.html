@@ -2930,7 +2930,7 @@ function SH(id){
  closeDP();
  // Use small delay to avoid blank flicker
  requestAnimationFrame(()=>{
- const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg}[id];
+ const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,not:RNot,inf:renderInformes}[id];
  if(typeof fn==='function')try{fn();}catch(e){console.warn('[SH]',id,e);}
  });
 }
