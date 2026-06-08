@@ -5808,6 +5808,7 @@ function RNot(){
 function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];}
 
 function openAddNota(id){
+ if(!S.notas)S.notas=[];
  const n=id?S.notas.find(x=>x.id===id):null;
  const clOpts=S.clientes.map(c=>`<option value="${c.id}"${n&&n.clienteId===c.id?' selected':''}>${esc(c.nombre)}</option>`).join('');
  const html=`
