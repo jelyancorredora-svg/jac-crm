@@ -2384,9 +2384,7 @@ window.addEventListener('error',function(ev){
  if(msg.includes('script error')||msg.includes('resizeobserver'))return;
  console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
  // Only show toast for user-visible errors
- if(msg.includes('cannot read')||msg.includes('is not a function')||msg.includes('is not defined')){
- if(typeof toast==='function')toast('⚠️ Error recuperado — recarga si persiste','err');
- }
+ // JS errors silenciados
 });
 window.addEventListener('unhandledrejection',function(ev){
  console.warn('[JAC CRM Promise]',ev.reason);
