@@ -3200,7 +3200,7 @@ ${p.riesgo?`<div style="font-size:10px;color:var(--mu);overflow:hidden;text-over
  </div>
  <div style="max-height:600px;overflow-y:auto">${renderCommsHistory(allComms)}</div>`;}
  openDP(h,c.nombre);
- }catch(e){console.error('showCliDP error:',e);toast('Error al abrir cliente: '+e.message,'err');}
+ }catch(e){console.error('showCliDP error:',e);}
 }
 function setClientStatus(clientId,status){
  const i=S.clientes.findIndex(c=>c.id===clientId);if(i<0)return;
