@@ -2369,7 +2369,7 @@ function delEtiqueta(id){confirm2('¿Eliminar etiqueta?',()=>{S.etiquetas=S.etiq
 // ── CONSTANTS ──
 // RAMOS NORMALIZADOS: SALUD/MÉDICOS (unificado), VIDA (unificado), MOTOS (renombrado de OTROS)
 const GENERALES=new Set(['AUTOS/VEHÍCULOS','MOTOS','INCENDIO Y LÍNEAS ALIADAS','HOGAR','FIANZAS/ROBO/SUSTRACCIÓN','RESPONSABILIDAD CIVIL','SOAT','MULTIRIESGO','TODO RIESGO','CUMPLIMIENTO','VIAJES/TURISMO']);
-const TODAY=new Date(); // always current date
+const TODAY=new Date();
 const MON=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const ACOL={ASSA:'#005F9E',SURA:'#E85D04',IS:'#1A3A6B',MAPFRE:'#C8102E',PALIG:'#2D6A4F',UNIVIVIR:'#7B2D8B',FEDPA:'#8B5E00',Ancón:'#3D405B','WW Medical':'#0D7377',Acerta:'#5C4033',Generali:'#C62828',Chubb:'#2E7D32',Aliados:'#0277BD','La Regional':'#E65100',General:'#4E342E',VUMI:'#00548B','VUMI-LA REGIONAL DE SEGUROS':'#00548B'};
 // PIPELINE CORREGIDO: Contacto primero
@@ -2418,10 +2418,12 @@ function loadS(){
 
 // ─── Global Error Shield ─────────────────────────────────────────
 window.addEventListener('error',function(ev){
- // Log errors silently — never show toast to user for recoverable JS errors
  const msg=(ev.message||'').toLowerCase();
+ // Suppress known non-critical errors
  if(msg.includes('script error')||msg.includes('resizeobserver'))return;
- console.warn('[JAC CRM]',ev.message,'@',ev.filename+':'+ev.lineno);
+ console.warn('[JAC CRM Error]',ev.message,'@',ev.filename,ev.lineno);
+ // Only show toast for user-visible errors
+ // errors logged silently
 });
 window.addEventListener('unhandledrejection',function(ev){
  console.warn('[JAC CRM Promise]',ev.reason);
@@ -4702,9 +4704,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 </div><!-- end pg-cotp -->
 <!-- end pg-cotp -->
 
-
-
-
 <!-- ═══ SUPABASE PATCH · JAC Seguros ═══ -->
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -4774,10 +4773,75 @@ document.addEventListener('DOMContentLoaded',()=>{
  // ── AUTENTICACIÓN ─────────────────────────────────────────
 
  /** doLogin — LOCAL PRIMERO (nunca bloquea), Supabase como bonus */
- // doLogin handled by nuclear login module (see below)
+ window.doLogin = async function () {
+ hideErr();
+ const raw = (document.getElementById('lu')?.value || '').trim();
+ const pwd = document.getElementById('lp')?.value || '';
+ if (!raw || !pwd) { showErr('Ingresa usuario/email y contraseña.'); return; }
+ setLoading('lbtn-pwd', true);
+
+ // ── 1. Intentar auth LOCAL primero (siempre funciona) ──
+ const a = getAuth();
+ const localOk = (raw === a.user || raw.includes('@')) && pwd === a.pwd;
+ if (localOk) {
+ // Auth local exitoso → intentar Supabase en background (no bloquea)
+ if (raw.includes('@')) {
+ db.auth.signInWithPassword({ email: raw, password: pwd })
+ .then(({ data }) => { if (data?.session) localStorage.setItem('jac_email', raw); })
+ .catch(() => {});
+ }
+ setLoading('lbtn-pwd', false);
+ startSession();
+ return;
+ }
+
+ // ── 2. Si no coincide local, intentar Supabase ──
+ if (raw.includes('@')) {
+ try {
+ const { data, error } = await db.auth.signInWithPassword({ email: raw, password: pwd });
+ if (!error && data?.session) {
+ localStorage.setItem('jac_email', raw);
+ // Actualizar credenciales locales para próximas veces
+ const a2 = getAuth(); a2.user = raw; a2.pwd = pwd; saveAuth(a2);
+ setLoading('lbtn-pwd', false);
+ await initAfterLogin(data.session);
+ return;
+ }
+ } catch(e) {}
+ }
+
+ setLoading('lbtn-pwd', false);
+ showErr('Usuario o contraseña incorrectos.');
+ };
 
  /** doLoginPin — SIEMPRE funciona con PIN local (sin necesitar Supabase) */
- // doLoginPin handled by nuclear login module (see below)
+ window.doLoginPin = async function () {
+ hideErr();
+ const pin = document.getElementById('lpin')?.value || '';
+ if (pin.length !== 4) { showErr('El PIN debe tener 4 dígitos.'); return; }
+ setLoading('lbtn-pin', true);
+
+ // ── Verificar PIN local siempre primero ──
+ const localData = (() => {
+ try { return JSON.parse(localStorage.getItem('jacv10') || '{}'); } catch { return {}; }
+ })();
+ const aAuth = getAuth();
+ const storedPin = localData.pin || aAuth.pin || '6175';
+
+ if (pin !== storedPin) {
+ setLoading('lbtn-pin', false);
+ showErr('PIN incorrecto.');
+ return;
+ }
+
+ // PIN correcto → iniciar sesión local
+ setLoading('lbtn-pin', false);
+ // Intentar conectar Supabase en background (no bloquea)
+ db.auth.getSession().then(({ data: { session } }) => {
+ if (session) initAfterLogin(session).catch(() => {});
+ }).catch(() => {});
+ startSession();
+ };
 
  /** Reemplaza doLogout() — cierra sesión en Supabase */
  window.doLogout = async function () {
@@ -4924,29 +4988,32 @@ document.addEventListener('DOMContentLoaded',()=>{
  // ── INICIO: verificar sesión existente al cargar la página ──
 
  (async function checkSession() {
- await new Promise(r=>{if(document.readyState!=='loading')r();else document.addEventListener('DOMContentLoaded',r);});
- // Si ya hay sesión local activa, no interferir
- if(sessionStorage.getItem('jac_s')==='ok')return;
  try {
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-   // Solo auto-login si NO hay sesión local ya activa
-   if(sessionStorage.getItem('jac_s')!=='ok'){
-    await initAfterLogin(session);
-   }
-  }
-  // No ocultar nada - el HTML ya tiene el estado correcto por defecto
- } catch (err) {
-  console.warn('[JAC session]',err);
+ const { data: { session } } = await db.auth.getSession();
+
+ if (session) {
+ // Sesión activa → mostrar app directamente (sin re-login)
+ await initAfterLogin(session);
+ } else {
+ // Sin sesión → mostrar pantalla de login
+ document.getElementById('ls').style.display = 'flex';
+ document.getElementById('app').style.display = 'none';
  }
- try{db.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_OUT') {
-   sessionStorage.removeItem('jac_s');
-   const app=document.getElementById('app');const ls=document.getElementById('ls');
-   if(app)app.style.display='none';if(ls)ls.style.display='flex';
-  }
- });}catch(e){}
-})();
+ } catch (err) {
+ console.error('[JAC session check]', err);
+ document.getElementById('ls').style.display = 'flex';
+ document.getElementById('app').style.display = 'none';
+ }
+
+ // Escuchar cambios de estado de autenticación
+ db.auth.onAuthStateChange(async (event, session) => {
+ if (event === 'SIGNED_OUT') {
+ sessionStorage.removeItem('jac_s');
+ document.getElementById('app').style.display = 'none';
+ document.getElementById('ls').style.display = 'flex';
+ }
+ });
+ })();
 
  // ── OVERRIDE: clearData() — también limpia Supabase ─────
  window.clearData = async function () {
@@ -5124,10 +5191,14 @@ async function sendRenewalEmail(pol, client) {
  const nombre = (client.nombre || pol.nombreCliente || 'Cliente').split(' ')[0];
  const diasRestantes = typeof dFrom === 'function' ? dFrom(pol.fechaFin) : '—';
  const fechaFmt2 = typeof fmt === 'function' ? fmt(pol.fechaFin) : pol.fechaFin;
- // Si EmailJS no configurado: retorna silenciosamente (no abrir modal automático)
+ // Fallback: open compose modal if EmailJS not configured
  if (!tpl || !cfg['ejs-pub'] || !cfg['ejs-svc'] || !window.emailjs) {
-  console.info('[JAC] sendRenewalEmail: EmailJS no listo, omitiendo envío automático');
-  return;
+ const sub2 = diasRestantes >= 0 ? `⚠️ Tu póliza ${pol.ramo} vence en ${diasRestantes} días — JAC Seguros` : `Renovación póliza ${pol.ramo} — JAC Seguros`;
+ openComposeEmail(email, client.nombre || pol.nombreCliente || '',
+ sub2,
+ `Hola ${nombre} 👋\n\nTe contacto desde *JAC Seguros* para recordarte que tu póliza de *${pol.ramo}* con *${pol.aseg}* (N° ${pol.polNum || pol.id}) vence el *${fechaFmt2}*.\n${diasRestantes >= 0 ? `⚠️ Faltan solo ${diasRestantes} días para vencer.` : '⚠️ Tu póliza ya venció.'}\n\nPara renovarla y mantener tu cobertura sin interrupciones, contáctame de inmediato.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`,
+ 'poliza', pol.id);
+ return;
  }
  // Continue with EmailJS path
  const fechaFmt = fechaFmt2;
@@ -5156,9 +5227,14 @@ async function sendRenewalEmail(pol, client) {
  if (typeof save === 'function') save();
  }
  } else {
-    console.warn('[JAC] fallo envío renovación',email);
-   }
+ // Fallback: open compose modal
+ openComposeEmail(email, client.nombre || pol.nombreCliente || '',
+ `⚠️ Tu póliza ${pol.ramo} vence pronto — JAC Seguros`,
+ `Hola ${nombre} 👋\n\nTe contacto desde JAC Seguros para recordarte que tu póliza de ${pol.ramo} con ${pol.aseg} vence el ${fechaFmt}.\n\nPara renovarla, contáctame:\nJely An Castro Pérez · +507 6292-6010`,
+ 'poliza', pol.id);
+ }
 }
+
 // ── BIRTHDAY & REMINDER DASHBOARD ─────────────────────────────
 function getTodayBirthdays() {
  const today = new Date();
@@ -8948,7 +9024,6 @@ function renderCalMonthNow(){
 // ── DASHBOARD CALENDAR MINI WIDGET ──────────────────────────────────────────
 function renderDashCalWidget(){
   const el=document.getElementById('dash-cal-widget');if(!el)return;
-  if(!S||!S.polizas)return; // guard: wait until data is loaded
   const now=new Date();
   const year=now.getFullYear();const month=now.getMonth();
   const pol=S.polizas.filter(p=>p.estado!=='Cancelada'&&p.fechaFin);
@@ -9016,43 +9091,28 @@ function dashQuickEmail(){
 
 // ── AUTO RENEWAL EMAIL CHECK ─────────────────────────────────────────────────
 async function autoRenewalCheck(){
-  // Solo envía emails silenciosamente — NUNCA abre modales automáticamente
   if(!S||!S.polizas||!S.polizas.length)return;
   const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
-  // Solo ejecuta si EmailJS está completamente configurado
   const ejsReady=cfg['ejs-pub']&&cfg['ejs-svc']&&cfg['ejs-tpl-ren']&&window.emailjs;
-  if(!ejsReady)return; // sin EmailJS no hace nada - nunca abre modales
+  if(!ejsReady)return;
   if(!S.actDone)S.actDone=[];
-  const today=new Date().toISOString().split('T')[0];
+  const today=TODAY.toISOString().split('T')[0];
   const due30=S.polizas.filter(p=>{
     const d=dFrom(p.fechaFin);
     return d>=0&&d<=30&&p.estado!=='Cancelada';
   });
   for(const p of due30){
-    const doneKey='renEmail_'+p.id+'_'+today.slice(0,7);
+    const doneKey='renEmail_'+p.id+'_'+today.slice(0,7); // once per month per policy
     if(S.actDone.find(x=>x.key===doneKey))continue;
     const cl=GC(p.clienteId);
     const email=cl.email||p.emailCliente;
     if(!email)continue;
+    const days=dFrom(p.fechaFin);
     try{
-      // Envío directo vía EmailJS — sin abrir modal
-      const tpl=cfg['ejs-tpl-ren'];
-      const dias=dFrom(p.fechaFin);
-      const ok=await sendEmailJS(tpl,{
-        to_name:cl.nombre||'Cliente',to_email:email,
-        client_name:(cl.nombre||'Cliente').split(' ')[0],
-        from_name:'JAC Seguros | Jely An Castro',from_email:'jcastro@jacsegurospa.com',
-        subject:`⚠️ Tu póliza vence en ${dias} días — JAC Seguros`,
-        policy_number:p.num||p.id,policy_ramo:p.ramo||'',policy_aseg:p.aseg||'',
-        policy_vence:fmt(p.fechaFin),dias_restantes:dias,
-        message:`Tu póliza de ${p.ramo} con ${p.aseg} vence el ${fmt(p.fechaFin)}.`,
-        company:'JAC Seguros',phone:'+507 6292-6010'
-      });
-      if(ok){
-        S.actDone.push({key:doneKey,date:today,type:'renEmail',polId:p.id});
-        save();
-        console.info('[JAC] Email renovación enviado:',email,p.num||p.id);
-      }
+      await sendRenewalEmail(p,cl);
+      S.actDone.push({key:doneKey,date:today,type:'renEmail',polId:p.id});
+      save();
+      console.info('[JAC] Renovación enviada a',email,'para póliza',p.num||p.id);
     }catch(e){console.warn('[JAC autoRenewalCheck]',e);}
   }
 }
@@ -9071,91 +9131,8 @@ function getComisionesSummary(){
 }
 
 </script>
-<script>
-// ═══════════════════════════════════════════════════════
-// JAC CRM — LOGIN GARANTIZADO (corre antes que todo)
-// ═══════════════════════════════════════════════════════
-(function(){
-  // Credenciales por defecto - siempre disponibles
-  function _getCreds(){
-    try{
-      var stored = localStorage.getItem('jac_auth');
-      if(stored){ var p=JSON.parse(stored); if(p&&p.user&&p.pwd)return p; }
-    }catch(e){}
-    return {user:'jacseguros',pwd:'jac2024',pin:'6175'};
-  }
-  function _showErr(msg){
-    var el=document.getElementById('lerr');
-    if(el){el.textContent=msg;el.style.display='block';
-    setTimeout(function(){el.style.display='none';},4000);}
-  }
-  function _startSession(){
-    sessionStorage.setItem('jac_s','ok');
-    var ls=document.getElementById('ls');
-    var app=document.getElementById('app');
-    if(ls)ls.style.display='none';
-    if(app)app.style.display='block';
-    // Render dashboard after short delay
-    setTimeout(function(){
-      try{if(typeof autoUpdatePolizasStatus==='function')autoUpdatePolizasStatus();}catch(e){}
-      try{if(typeof initEmailJS==='function')initEmailJS();}catch(e){}
-      try{if(typeof SH==='function')SH('dash');}catch(e){}
-      setTimeout(function(){try{if(typeof autoBirthdayCheck==='function')autoBirthdayCheck();}catch(e){}},1500);
-    },100);
-  }
-
-  // Override doLogin INMEDIATAMENTE - no esperar nada
-  window.doLogin = function(){
-    var u=(document.getElementById('lu')?.value||'').trim();
-    var p=document.getElementById('lp')?.value||'';
-    if(!u||!p){_showErr('Ingresa usuario y contraseña.');return;}
-    var creds=_getCreds();
-    // Acepta usuario exacto O cualquier valor con contraseña correcta
-    if((u===creds.user||u===creds.user.toLowerCase()||u.includes('@'))&&p===creds.pwd){
-      _startSession();
-      // Supabase en background
-      setTimeout(function(){
-        try{
-          if(window.db&&u.includes('@')){
-            window.db.auth.signInWithPassword({email:u,password:p})
-            .then(function(r){if(r.data&&r.data.session)localStorage.setItem('jac_email',u);})
-            .catch(function(){});
-          }
-        }catch(e){}
-      },500);
-      return;
-    }
-    _showErr('Usuario o contraseña incorrectos.');
-  };
-
-  // Override doLoginPin INMEDIATAMENTE
-  window.doLoginPin = function(){
-    var pin=(document.getElementById('lpin')?.value||'').trim();
-    if(pin.length!==4){_showErr('El PIN debe tener 4 dígitos.');return;}
-    var creds=_getCreds();
-    var stored='';
-    try{var d=JSON.parse(localStorage.getItem('jacv10')||'{}');stored=d.pin||'';}catch(e){}
-    var validPin=stored||creds.pin||'6175';
-    if(pin===validPin){
-      _startSession();
-      return;
-    }
-    _showErr('PIN incorrecto.');
-  };
-
-  // Enter key support
-  document.addEventListener('DOMContentLoaded',function(){
-    ['lu','lp'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter')window.doLogin();});
-    });
-    var lpin=document.getElementById('lpin');
-    if(lpin)lpin.addEventListener('keydown',function(e){if(e.key==='Enter')window.doLoginPin();});
-  });
-
-  console.log('[JAC] Login garantizado cargado ✓');
-})();
-</script>
 
 </body>
-</html>
+</htmlawait initAfterLogin(session);
+   }
+   // checkSession: no hide UI if local session active>
