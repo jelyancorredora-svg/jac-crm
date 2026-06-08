@@ -297,7 +297,7 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="card" id="dash-reminders" style="margin-bottom:10px;display:none"></div>
 
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:10px">
- <div class="card" id="dren"></div><div class="card" id="dcom"></div>
+ <div class="card" id="dren"></div>
  </div>
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
  <div class="card" id="dtar"></div><div class="card" id="dven"></div>
@@ -2405,6 +2405,7 @@ if(!S||typeof S!=='object'||!Array.isArray(S.clientes)){
 if(!S.comRates)S.comRates=[];
 if(!S.actDone)S.actDone=[];
 if(!S.encomiendas)S.encomiendas=[];
+if(!S.notas)S.notas=[];
 if(!S.mensajero)S.mensajero='Francisco Flores';
 if(!S.mensajeroTel)S.mensajeroTel='';
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',VF='',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
@@ -2925,7 +2926,7 @@ function SH(id){
  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('on'));
  document.querySelectorAll('.bni').forEach(a=>a.classList.remove('on'));
  const pg=document.getElementById('pg-'+id);
- if(id==='inf'){try{renderInformes();}catch(e){}} if(id==='cotp'){try{cotpInit();}catch(e){console.warn('cotpInit:',e);}}
+ if(id==='inf'){try{renderInformes();}catch(e){}} if(id==='cotp'){try{cotpInit();}catch(e){console.warn('cotpInit:',e);}} if(id==='not'){try{if(!S.notas)S.notas=[];RNot();}catch(e){}}
  if(pg){pg.classList.add('on');}
  document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
  document.getElementById('bn-'+id)?.classList.add('on');
@@ -3013,8 +3014,7 @@ function RD(){
  <div class="st" onclick="SH('pol')" style="cursor:pointer"><em>Pólizas</em><div class="n" style="color:#15803D">${S.polizas.length}</div><div class="sv">${vp} vigentes · ${vv} vencidas</div></div>
  <div class="st" onclick="SH('ren')" style="cursor:pointer"><em>Vencen en 30d</em><div class="n" style="color:#B45309">${p30}</div></div>
  <div class="st"><em>Prima Cartera</em><div class="n" style="font-size:14px">${fmtM(tP)}</div></div>
- <div class="st"><em>Mis Comisiones</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tC)}</div></div>
- <div class="st" onclick="SH('com')" style="cursor:pointer"><em>Por Cobrar</em><div class="n" style="color:#B45309;font-size:14px">${fmtM(tCom)}</div></div>
+ <div class="st" onclick="SH('com')" style="cursor:pointer"><em>Por Cobrar</em><div class="n" style="color:#B45309;font-size:14px">${fmtM(tCom)}</div><div class="sv">${cp.length} pendientes</div></div>
  <div class="st" onclick="SH('vc')" style="cursor:pointer"><em>Venta Cruzada</em><div class="n" style="color:#EA580C">${vcOpps}</div><div class="sv">oportunidades</div></div>
  <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div>${(()=>{const h=TODAY.toISOString().split('T')[0];const t=(S.tareas||[]).filter(x=>x.fechaLimite===h&&x.etapaTarea!=='Hecho').length;return t?`<div class="sv" style="color:#DC2626;font-weight:700">🔴 ${t} hoy</div>`:''})()}</div>
  ${(()=>{const tot=S.clientes.length+(S.prospectos||[]).length;const rate=tot>0?Math.round(S.clientes.length/tot*100):0;return`<div class="st" onclick="SH('cli')" style="cursor:pointer"><em>Conversión</em><div class="n" style="color:#0891B2;font-size:16px">${rate}%</div><div class="sv">${S.clientes.length} clientes de ${tot}</div></div>`;})()}`;
@@ -3030,11 +3030,7 @@ function RD(){
  rh+=`<div class="renew-row">${dot(col)}<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom)}</div><div style="font-size:10px;color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div></div><span class="b" style="background:${col}18;color:${col}">${d===0?'HOY':d+'d'}</span>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm'):''}`;
  rh+='</div>';});rh+='</div>';}
  const dren=document.getElementById('dren');if(dren)dren.innerHTML=rh;
- let ch=`<div class="ch"><h3>💰 Com. Pendientes</h3><button class="btn bsm" onclick="SH('com')">Ver →</button></div>`;
- if(!cp.length)ch+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Todas cobradas ✓</div>';
- else{ch+='<div>';cp.forEach(c=>{ch+=`<div style="padding:9px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(ac(c.aseg))}<div style="flex:1"><div style="font-weight:600;font-size:12px">${esc(c.aseg)}</div><div style="font-size:10px;color:var(--mu)">${esc(c.mes)}</div></div><span style="font-weight:700;color:#B45309">${fmtM(c.monto)}</span><button class="btn bsm" onclick="markCob('${c.id}')">✓</button></div>`;});
- ch+=`<div style="padding:8px 13px;background:#FAFBFD;display:flex;justify-content:space-between"><span style="font-weight:700;font-size:11px;color:var(--mu)">TOTAL</span><span style="font-weight:800;color:#B45309">${fmtM(tCom)}</span></div></div>`;}
- const dcom=document.getElementById('dcom');if(dcom)dcom.innerHTML=ch;
+ // dcom removed from dashboard — commissions managed in Comisiones module
  const pTar=S.tareas.filter(t=>t.etapaTarea!=='Hecho');
  let th=`<div class="ch"><h3>✅ Tareas</h3><button class="btn bsm" onclick="SH('tar')">Ver →</button></div>`;
  if(!pTar.length)th+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin tareas pendientes ✓</div>';
@@ -4109,7 +4105,23 @@ function RCom(){
  const pctDisp=c.pct?`<span style="color:#1D4ED8;font-size:10px">${c.pct}%</span> `:'';
  return `<div style="padding:10px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(ac(c.aseg))}<div style="flex:1"><div style="font-weight:600">${esc(c.aseg)}</div><div style="font-size:10px;color:var(--mu)">${ramoDisp}${pctDisp}${fechaDisp}</div></div>`;
  };
- let hp='';pend.forEach(c=>{hp+=comRow(c)+`<span style="font-weight:700;color:#B45309">${fmtM(c.monto)}</span><button class="btn bsm" onclick="markCob('${c.id}')">✓ Cobrada</button><button class="btn bsm bic" onclick="DCom('${c.id}')" style="color:var(--rd)">🗑</button></div>`;});
+ let hp='';pend.forEach(c=>{
+ const fechaDisp2=c.fecha?fmt(c.fecha):(c.mes||'—');
+ const clienteDisp=c.clienteNom?`<span style="font-size:10px;color:#1D4ED8"> · ${esc(c.clienteNom)}</span>`:'';
+ hp+=`<div style="padding:10px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">
+  ${dot(ac(c.aseg))}
+  <div style="flex:1">
+   <div style="font-weight:600;font-size:13px">${esc(c.aseg)}${clienteDisp}</div>
+   <div style="font-size:10px;color:var(--mu)">${c.ramo?esc(c.ramo)+' · ':''} ${fechaDisp2}${c.pct?' · '+c.pct+'%':''}</div>
+  </div>
+  <span style="font-weight:800;color:#B45309;font-size:14px">${fmtM(c.monto)}</span>
+  <div style="display:flex;gap:4px">
+   <button class="btn bsm" onclick="editCom('${c.id}')" title="Editar">✏️</button>
+   <button class="btn bsm bgn" onclick="markCob('${c.id}')" title="Marcar como cobrada" style="background:#D1FAE5;color:#15803D;border-color:#86EFAC">✅ Cobrada</button>
+   <button class="btn bsm bic" onclick="DCom('${c.id}')" style="color:var(--rd)" title="Eliminar">🗑</button>
+  </div>
+ </div>`;
+});
  if(!hp)hp='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Todas cobradas ✓</div>';
  const cpEl=document.getElementById('compend');if(cpEl)cpEl.innerHTML=hp;
  let hc='';cob.forEach(c=>{hc+=comRow(c)+`<span style="font-weight:700;color:#15803D">${fmtM(c.monto)}</span>${b('bok','✓')}<button class="btn bsm bic" onclick="DCom('${c.id}')" style="color:var(--rd)">🗑</button></div>`;});
@@ -4145,10 +4157,31 @@ function SCom(){
  const ramo=V('cm-ra')||'';
  // build mes label from fecha for backward compat display
  let mes='';if(fecha){const d=new Date(fecha.length===4?fecha+'-01-01':fecha.length===7?fecha+'-01':fecha);if(!isNaN(d))mes=d.toLocaleDateString('es-PA',{month:'long',year:'numeric'});}
- S.comisiones.push({id:'COM'+uid(),aseg,fecha,mes,ramo,pct,monto,estado:V('cm-es')});
- save();CM('mcom');RCom();toast('✓ Registrada');
+ if(window._editComId){
+  const idx=S.comisiones.findIndex(x=>x.id===window._editComId);
+  if(idx>=0)S.comisiones[idx]={...S.comisiones[idx],aseg,fecha,mes,ramo,pct,monto,estado:V('cm-es')};
+  window._editComId=null;toast('✓ Actualizada');
+ } else {
+  S.comisiones.push({id:'COM'+uid(),aseg,fecha,mes,ramo,pct,monto,estado:V('cm-es')});toast('✓ Registrada');
+ }
+ save();CM('mcom');RCom();
 }
-function DCom(id){confirm2('¿Eliminar?',()=>{S.comisiones=S.comisiones.filter(c=>c.id!==id);save();RCom();toast('Eliminada');});}
+function DCom(id){confirm2('¿Eliminar?',()=>{S.comisiones=S.comisiones.filter(c=>c.id!==id);save();RCom();toast('Eliminada');});
+function editCom(id){
+ const c=S.comisiones.find(x=>x.id===id);if(!c)return;
+ const asel=document.getElementById('cm-as');
+ if(asel){asel.innerHTML='';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(a===c.aseg)o.selected=true;asel.add(o);});}
+ // parse fecha parts
+ const fp=(c.fecha||'').split('-');
+ SVal('cm-fe-y',fp[0]||'');SVal('cm-fe-m',fp[1]||'');SVal('cm-fe-d',fp[2]||'');
+ SVal('cm-ra',c.ramo||'');SVal('cm-pc',c.pct||'');SVal('cm-mo',c.monto||'');SVal('cm-es',c.estado||'pendiente');
+ // set EID to the commission id so SCom() updates instead of creates
+ window._editComId=id;
+ // Patch SCom to update
+ OM('mcom');
+ // Update save button label
+ const savBtn=document.querySelector('#mcom .btn.bp');if(savBtn)savBtn.textContent='💾 Actualizar';
+}}
 // ── Tasas de Comisión por Aseguradora/Ramo ──
 function saveComRate(){
  const aseg=V('crt-as'),ramo=V('crt-ra'),pct=parseFloat(V('crt-pc'));
@@ -5246,10 +5279,20 @@ function showInfTab(tab){
 
 function renderInformes(){
  renderInfResumen();
- // Populate year selector
+ // Populate year selector — default to most recent year with ACTUAL data
  const years=[...new Set(S.polizas.map(p=>p.fechaInicio?.slice(0,4)).filter(Boolean))].sort().reverse();
  const ys=document.getElementById('inf-prod-year');
- if(ys){const cur=new Date().getFullYear();if(!years.includes(String(cur)))years.unshift(String(cur));ys.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');}
+ if(ys){
+  const cur=String(new Date().getFullYear());
+  const allYears=[...new Set([...years,cur])].sort((a,b)=>b-a);
+  const defaultYear=years[0]||cur; // most recent year WITH data
+  ys.innerHTML=allYears.map(y=>`<option value="${y}"${y===defaultYear?' selected':''}>${y}</option>`).join('');
+ }
+ // Pre-render all tabs so they're ready when clicked
+ try{renderInfProd();}catch(e){}
+ try{renderInfRen();}catch(e){}
+ try{renderInfCli();}catch(e){}
+ try{renderInfAseg();}catch(e){}
 }
 
 function renderInfResumen(){
@@ -5280,10 +5323,11 @@ function renderInfResumen(){
  const asegMap={};pol.forEach(p=>{const a=p.aseg||'Otra';asegMap[a]=(asegMap[a]||0)+1;});
  const asegEl=document.getElementById('inf-aseg-list');
  if(asegEl)asegEl.innerHTML=Object.entries(asegMap).sort((a,b)=>b[1]-a[1]).map(([a,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${a}</span><span style="font-weight:700">${n}</span></div>`).join('');
- // Comisiones por mes
+ // Comisiones por mes — use most recent year that has actual data
  const mesMap={};
  pol.filter(p=>p.fechaInicio).forEach(p=>{const m=p.fechaInicio.slice(0,7);mesMap[m]=(mesMap[m]||0)+(+p.comision||0);});
- const year=new Date().getFullYear();
+ const _dataYears=[...new Set(pol.filter(p=>p.fechaInicio).map(p=>p.fechaInicio.slice(0,4)))].sort().reverse();
+ const year=_dataYears[0]||new Date().getFullYear();
  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
  const comEl=document.getElementById('inf-com-mes');
  if(comEl)comEl.innerHTML=meses.map((mn,i)=>{const k=year+'-'+(i+1<10?'0':'')+(i+1);const v=mesMap[k]||0;const pct=v>0?Math.min(100,v/200*100):0;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="width:32px;font-size:11px;color:var(--mu)">${mn}</span><div style="flex:1;background:#F0F4FF;border-radius:4px;height:18px"><div style="width:${pct}%;background:#1E3A8A;height:100%;border-radius:4px"></div></div><span style="width:70px;text-align:right;font-size:11px;font-weight:600">$${fmt2(v)}</span></div>`;}).join('');
@@ -5300,7 +5344,7 @@ function renderInfProd(){
  if(!tbody)return;
  const cl=id=>S.clientes.find(c=>c.id===id)||{nombre:'—'};
  tbody.innerHTML=filtered.map(p=>`<tr>
- <td>${p.numero||'—'}</td><td>${esc(cl(p.clienteId).nombre)}</td>
+ <td style="font-family:monospace;font-size:11px">${p.num||p.numero||'—'}</td><td>${esc(cl(p.clienteId).nombre)}</td>
  <td>${p.aseg||'—'}</td><td>${p.ramo||'—'}</td>
  <td>$${fmt2(p.prima||0)}</td><td style="color:#15803D;font-weight:700">$${fmt2(p.comision||0)}</td>
  <td>${p.fechaInicio||'—'}</td>
@@ -5338,10 +5382,31 @@ function renderInfCli(){
  const bdays=S.clientes.filter(c=>{if(!c.fechaNac)return false;const m=+c.fechaNac.split('-')[1];return m===mes;}).sort((a,b)=>a.fechaNac.slice(8).localeCompare(b.fechaNac.slice(8)));
  const bdEl=document.getElementById('inf-bday-list');
  if(bdEl)bdEl.innerHTML=bdays.length?bdays.map(c=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>🎂 ${esc(c.nombre)}</span><span style="color:var(--mu)">${c.fechaNac?.slice(5)||''}</span></div>`).join(''):'<div style="color:var(--mu);font-size:12px">Sin cumpleaños este mes</div>';
- // By estado
+ // By estado comercial
  const estMap={};S.clientes.forEach(c=>{const e=c.estadoComercial||'activo';estMap[e]=(estMap[e]||0)+1;});
  const estEl=document.getElementById('inf-cli-estado');
- if(estEl)estEl.innerHTML=Object.entries(estMap).map(([e,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${e}</span><span style="font-weight:700">${n}</span></div>`).join('');
+ if(estEl)estEl.innerHTML=Object.entries(estMap).sort((a,b)=>b[1]-a[1]).map(([e,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${e}</span><span style="font-weight:700;color:#1D4ED8">${n}</span></div>`).join('');
+ // Clientes nuevos por mes (usando id prefijo C + timestamp aproximado, o fechaCreacion si existe)
+ const yr=hoy.getFullYear();
+ const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+ // Count clients by creation month — use fechaCreacion field if present, or fallback to poliza's fechaInicio
+ const mesCount=new Array(12).fill(0);
+ S.clientes.forEach(c=>{
+  // try fechaCreacion
+  let fecha=c.fechaCreacion||c.createdAt||'';
+  if(!fecha){
+   // fallback: find earliest policy for this client
+   const pol=S.polizas.filter(p=>p.clienteId===c.id&&p.fechaInicio).sort((a,b)=>a.fechaInicio.localeCompare(b.fechaInicio));
+   if(pol.length)fecha=pol[0].fechaInicio;
+  }
+  if(fecha&&fecha.startsWith(yr)){
+   const m=parseInt(fecha.slice(5,7),10)-1;
+   if(m>=0&&m<12)mesCount[m]++;
+  }
+ });
+ const maxC=Math.max(...mesCount,1);
+ const nuevosEl=document.getElementById('inf-cli-nuevos');
+ if(nuevosEl)nuevosEl.innerHTML=meses.map((mn,i)=>{const v=mesCount[i];const pct=v>0?Math.min(100,v/maxC*100):0;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="width:32px;font-size:11px;color:var(--mu)">${mn}</span><div style="flex:1;background:#F0F4FF;border-radius:4px;height:18px"><div style="width:${pct}%;background:#7C3AED;height:100%;border-radius:4px"></div></div><span style="width:30px;text-align:right;font-size:11px;font-weight:600">${v}</span></div>`;}).join('');
 }
 
 function renderInfAseg(){
@@ -5808,7 +5873,6 @@ function RNot(){
 function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];}
 
 function openAddNota(id){
- if(!S.notas)S.notas=[];
  const n=id?S.notas.find(x=>x.id===id):null;
  const clOpts=S.clientes.map(c=>`<option value="${c.id}"${n&&n.clienteId===c.id?' selected':''}>${esc(c.nombre)}</option>`).join('');
  const html=`
