@@ -2839,31 +2839,41 @@ function logEmailSent(){
  if(!cemEntityType||!cemEntityId)return;
  const sub=V('cem-sub')||'Correo';
  const to=V('cem-to')||'';
+ const bodyText=V('cem-body')||'';
+ const fromEmail=V('cem-from')||'jcastro@jacsegurospa.com';
  const today=TODAY.toISOString().split('T')[0];
- const entry={id:'EM'+uid(),fecha:today,accion:`📧 Email enviado: ${sub}`,resultado:to,tipo:'email',msgType:'Email',preview:sub};
+ const trackId=window._cemTrackId||uid();window._cemTrackId=null;
+ const entry={id:'EM'+uid(),fecha:today,accion:`📧 Email enviado: ${sub}`,resultado:to,tipo:'email',msgType:'Email',
+   preview:sub,subject:sub,body:bodyText,de:fromEmail,
+   tracking:{trackId:trackId,sentAt:new Date().toISOString()}};
+ function pushToClient(idx,overrideEntry){
+   const e=overrideEntry||entry;
+   if(!S.clientes[idx].historialEmail)S.clientes[idx].historialEmail=[];
+   S.clientes[idx].historialEmail.push(e);
+   if(!S.clientes[idx].historialComms)S.clientes[idx].historialComms=[];
+   S.clientes[idx].historialComms.push(e);
+ }
  if(cemEntityType==='prospecto'){
- const i=S.prospectos.findIndex(p=>p.id===cemEntityId);
- if(i>=0){if(!S.prospectos[i].historial)S.prospectos[i].historial=[];S.prospectos[i].historial.push(entry);}
+   const i=S.prospectos.findIndex(p=>p.id===cemEntityId);
+   if(i>=0){if(!S.prospectos[i].historial)S.prospectos[i].historial=[];S.prospectos[i].historial.push(entry);}
  }else if(cemEntityType==='cliente'){
- const i=S.clientes.findIndex(c=>c.id===cemEntityId);
- if(i>=0){
- if(!S.clientes[i].historialEmail)S.clientes[i].historialEmail=[];
- S.clientes[i].historialEmail.push(entry);
- if(!S.clientes[i].historialComms)S.clientes[i].historialComms=[];
- S.clientes[i].historialComms.push(entry);
- }
+   const i=S.clientes.findIndex(c=>c.id===cemEntityId);
+   if(i>=0)pushToClient(i);
  }else if(cemEntityType==='poliza'){
- const pol=GP(cemEntityId);
- if(pol&&pol.clienteId){
- const i=S.clientes.findIndex(c=>c.id===pol.clienteId);
- if(i>=0){
- const pe={...entry,accion:`📧 Email Póliza ${pol.num||''}: ${sub}`};
- if(!S.clientes[i].historialEmail)S.clientes[i].historialEmail=[];
- S.clientes[i].historialEmail.push(pe);
- if(!S.clientes[i].historialComms)S.clientes[i].historialComms=[];
- S.clientes[i].historialComms.push(pe);
- }
- }
+   const pol=GP(cemEntityId);
+   if(pol&&pol.clienteId){
+     const i=S.clientes.findIndex(c=>c.id===pol.clienteId);
+     if(i>=0)pushToClient(i,{...entry,accion:`📧 Email Póliza ${pol.num||''}: ${sub}`});
+   }
+ }else if(cemEntityType==='tarea'){
+   const t=S.tareas.find(x=>x.id===cemEntityId);
+   if(t&&t.relId){
+     if(t.tipoRel==='cliente'){const i=S.clientes.findIndex(c=>c.id===t.relId);if(i>=0)pushToClient(i,{...entry,accion:`📧 Email Tarea: ${sub}`});}
+     else if(t.tipoRel==='prospecto'){const i=S.prospectos.findIndex(p=>p.id===t.relId);if(i>=0){if(!S.prospectos[i].historial)S.prospectos[i].historial=[];S.prospectos[i].historial.push({...entry,accion:`📧 Email Tarea: ${sub}`});}}
+   }
+ }else if(cemEntityType==='siniestro'){
+   const s=S.siniestros.find(x=>x.id===cemEntityId);
+   if(s&&s.clienteId){const i=S.clientes.findIndex(c=>c.id===s.clienteId);if(i>=0)pushToClient(i,{...entry,accion:`📧 Email Siniestro ${s.numCia||s.numSin||''}: ${sub}`});}
  }
  save();
  const dpOn=document.getElementById('dpanel').classList.contains('on');
@@ -2894,6 +2904,27 @@ function openEmailForPol(pid){
  const sub=d>=0?`⚠️ Tu póliza ${p.ramo} vence en ${d} días — JAC Seguros`:`Renovación póliza ${p.ramo} — JAC Seguros`;
  const body=`Hola ${fn} 👋\n\nTe contacto respecto a tu póliza de *${p.ramo}* con ${p.aseg} (N° ${p.num}).\n\nFecha de vencimiento: ${fmt(p.fechaFin)}\n${d>=0?`⚠️ Faltan solo ${d} días para vencer.`:'⚠️ Tu póliza ya venció.'}\n\nPara renovarla y mantener tu cobertura sin interrupciones, contáctame.\n\nSaludos,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
  openComposeEmail(email,cl.nombre||p.nombreCliente||'',sub,body,'poliza',pid);
+}
+function openEmailForTarea(tid){
+ const t=S.tareas.find(x=>x.id===tid);if(!t){toast('Tarea no encontrada','err');return;}
+ let email='',nombre='';
+ if(t.tipoRel==='cliente'){const c=GC(t.relId||'');email=c.email||'';nombre=c.nombre||'';}
+ else if(t.tipoRel==='prospecto'){const p=GPros(t.relId||'');email=p.email||'';nombre=p.nombre||'';}
+ if(!email){toast('Sin email en el contacto relacionado','err');return;}
+ const fn=(nombre||'').split(' ')[0];
+ const sub=`JAC Seguros — ${t.titulo}`;
+ const body=`Hola ${fn} 👋\n\nTe contacto respecto a: ${t.titulo}\n${t.desc?('\n'+t.desc+'\n'):''}\n\nQuedo pendiente.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
+ openComposeEmail(email,nombre,sub,body,'tarea',tid);
+}
+function openEmailForSin(sid){
+ const s=S.siniestros.find(x=>x.id===sid);if(!s){toast('Siniestro no encontrado','err');return;}
+ const cl=s.clienteId?GC(s.clienteId):{};
+ const email=cl.email||s.emailCliente||'';
+ if(!email){toast('Sin email del asegurado registrado','err');return;}
+ const fn=(cl.nombre||s.cliente||s.asegurado||'').split(' ')[0];
+ const sub=`Actualización siniestro ${s.numCia||s.numSin||''} — JAC Seguros`;
+ const body=`Hola ${fn} 👋\n\nTe enviamos una actualización sobre tu siniestro ${s.nombre?' de *'+s.nombre+'*':''} (Ref: ${s.numCia||s.numSin||'—'}).\n\nEstado actual: ${s.estado||'—'}\n${s.seguimiento||s.desc||''}\n\nAnte cualquier consulta, estamos a tu disposición.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
+ openComposeEmail(email,cl.nombre||s.cliente||s.asegurado||'',sub,body,'siniestro',sid);
 }
 function sendEmailViaMailto(){
  const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body'),cc=V('cem-cc');
@@ -4043,7 +4074,7 @@ function RSin(){
  S.siniestros.forEach(s=>{
  const cl=s.clienteId?GC(s.clienteId):{};const t=s.cel||cl.cel||cl.tel||'';
  const wu=t?waL(t,`Hola ${(cl.nombre||s.cliente||'').split(' ')[0]} 👋🏼\n\nActualización siniestro *${s.numCia||s.numSin||'—'}*.\n${s.seguimiento||s.desc||''}\n\n_JAC Seguros · 📞 +507 6292-6010_`):null;
- h+=`<tr><td>${b(ec2[s.estado]||'bgr',s.estado)}</td><td style="font-weight:700;font-family:monospace">${esc(s.numCia||s.numSin||'—')}</td><td style="font-size:11px">${esc(s.nombre)}</td><td style="font-weight:600">${esc((cl.nombre||s.cliente||s.asegurado||'—').split(' ').slice(0,3).join(' '))}</td><td><span style="color:${ac(s.aseg)};font-weight:700;font-size:11px">${esc(s.aseg)}</span></td><td style="font-family:monospace;font-size:11px">${esc(s.poliza||'—')}</td><td>${fmt(s.fechaSin)}</td><td style="font-weight:700;color:#DC2626">${s.montoReclamo?fmtM(s.montoReclamo):'—'}</td><td style="font-weight:700;color:#15803D">${s.valInd?fmtM(s.valInd):'—'}</td><td>${wu?waBtn(wu,'cliente',cl.id||'','Siniestro',cl.nombre||'','💬','bwa bsm'):'—'}</td><td><div class="ab"><button class="btn bsm bic" onclick="OS('${s.id}')">✏️</button><button class="btn bsm bic" onclick="DSin('${s.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+ h+=`<tr><td>${b(ec2[s.estado]||'bgr',s.estado)}</td><td style="font-weight:700;font-family:monospace">${esc(s.numCia||s.numSin||'—')}</td><td style="font-size:11px">${esc(s.nombre)}</td><td style="font-weight:600">${esc((cl.nombre||s.cliente||s.asegurado||'—').split(' ').slice(0,3).join(' '))}</td><td><span style="color:${ac(s.aseg)};font-weight:700;font-size:11px">${esc(s.aseg)}</span></td><td style="font-family:monospace;font-size:11px">${esc(s.poliza||'—')}</td><td>${fmt(s.fechaSin)}</td><td style="font-weight:700;color:#DC2626">${s.montoReclamo?fmtM(s.montoReclamo):'—'}</td><td style="font-weight:700;color:#15803D">${s.valInd?fmtM(s.valInd):'—'}</td><td><div class="ab">${wu?waBtn(wu,'cliente',cl.id||'','Siniestro',cl.nombre||'','💬','bwa bsm'):''}${(cl.email||s.emailCliente)?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForSin('${s.id}')">📧</button>`:'—'}</div></td><td><div class="ab"><button class="btn bsm bic" onclick="OS('${s.id}')">✏️</button><button class="btn bsm bic" onclick="DSin('${s.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
  });
  if(!h)h='<tr><td colspan="11" style="padding:24px;text-align:center;color:var(--mu)">Sin siniestros</td></tr>';
  const ts=document.getElementById('tsin');if(ts)ts.innerHTML=h;
@@ -6674,6 +6705,25 @@ function markEmailEvent(eid,cid,eventType){
   const cont=document.getElementById('c-hist-email-container')||document.getElementById('p-hist-email-container');
   if(cont)renderClientHistSections(cid);
   toast(eventType==='opened'?'✅ Marcado como abierto':'✅ Marcado como respondido');
+}
+function markEmailEventByTrackId(trackId,eventType){
+ if(!trackId)return false;
+ const now=new Date().toISOString();
+ let found=false;
+ const scanAndMark=(arr)=>{
+   if(!arr)return;
+   arr.forEach(e=>{
+     if(e.tracking&&e.tracking.trackId===trackId){
+       if(eventType==='open'&&!e.tracking.openedAt){e.tracking.openedAt=now;e.tracking.openCount=(e.tracking.openCount||0)+1;found=true;}
+       if(eventType==='click'&&!e.tracking.clickedAt){e.tracking.clickedAt=now;found=true;}
+       if(eventType==='replied'&&!e.tracking.repliedAt){e.tracking.repliedAt=now;found=true;}
+     }
+   });
+ };
+ S.clientes.forEach(c=>{scanAndMark(c.historialComms);scanAndMark(c.historialEmail);});
+ S.prospectos.forEach(p=>{scanAndMark(p.historial);});
+ if(found){save();return true;}
+ return false;
 }
 
 function openMsgViewer(e,type,cid){
