@@ -261,7 +261,8 @@ body.dark .mu{color:var(--dark-mu);}
  <a onclick="SH('men')">📦 Mensajero</a>
  <a onclick="SH('inf')">📊 Informes</a>
  <a onclick="SH('cotp')" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border-radius:8px;font-weight:700">🧮 Cotizador Pro</a>
- <a onclick="SH('cfg')">⚙️</a>
+ <a onclick="SH('uv')">🔗 UniVivir</a>
+<a onclick="SH('cfg')">⚙️</a>
  </nav>
  <div class="ha" id="ha">
  <div id="gsearch-wrap" style="position:relative">
@@ -9102,5 +9103,123 @@ SH=function(pg){
 
 </script>
 
+
+<div id="pg-uv" class="pg">
+<style>
+.uv-sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:11px;margin:14px 0 20px}
+.uv-sc{background:var(--card,#fff);border-radius:13px;padding:16px 18px;border:1.5px solid var(--border,#e2e8f0)}
+.uv-sv{font-size:21px;font-weight:700;color:var(--accent,#7C3AED)}
+.uv-sl{font-size:11px;color:var(--text2,#64748b);margin-top:3px}
+.uv-tabs{display:flex;gap:0;border-bottom:2px solid var(--border,#e2e8f0)}
+.uv-tab{padding:9px 18px;cursor:pointer;font-size:13px;color:var(--text2,#64748b);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap}
+.uv-tab.on{color:var(--accent,#7C3AED);border-bottom-color:var(--accent,#7C3AED);font-weight:600}
+.uv-tw{overflow:auto;max-height:400px}
+.uv-t{width:100%;border-collapse:collapse;font-size:12px}
+.uv-t th{background:var(--bg2,#f8fafc);padding:8px 10px;text-align:left;position:sticky;top:0;font-size:11px;color:var(--text2,#64748b);font-weight:600;border-bottom:1.5px solid var(--border,#e2e8f0);z-index:1}
+.uv-t td{padding:6px 10px;border-bottom:1px solid var(--border,#e2e8f0)}
+.uv-t tr:hover td{background:var(--bg2,#f8fafc)}
+.uv-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);color:#fff;border:none;border-radius:8px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:600;text-decoration:none}
+.uv-btn:hover{opacity:.88}
+.uv-btn-g{background:linear-gradient(135deg,#059669,#10b981)}
+.uv-bok{background:#d1fae5;color:#065f46;padding:2px 7px;border-radius:999px;font-size:10px}
+.uv-bpend{background:#fef3c7;color:#92400e;padding:2px 7px;border-radius:999px;font-size:10px}
+</style>
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+  <h2 style="margin:0">🔗 UniVivir Live Sync</h2>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span id="uv-ts" style="font-size:12px;color:var(--text2,#64748b)">Sin datos</span>
+    <button class="uv-btn" onclick="uvSyncNow()">🔄 Sincronizar</button>
+    <button class="uv-btn uv-btn-g" onclick="uvImport()">📥 Importar JSON</button>
+  </div>
+</div>
+<div id="uv-stats" class="uv-sg"></div>
+<div class="uv-sc" style="padding:0;overflow:hidden">
+  <div class="uv-tabs" id="uv-tabbar">
+    <div class="uv-tab on" onclick="uvSetTab('com',this)">💰 Comisiones</div>
+    <div class="uv-tab" onclick="uvSetTab('pag',this)">💳 Pagos</div>
+    <div class="uv-tab" onclick="uvSetTab('det',this)">📈 Detalle Producción</div>
+  </div>
+  <div id="uv-tbl" class="uv-tw" style="padding:0 14px 14px"></div>
+</div>
+<div id="uv-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--card,#fff);border-radius:16px;padding:26px;max-width:600px;width:91%;max-height:80vh;overflow-y:auto">
+    <h3 style="margin:0 0 13px" id="uv-mt"></h3>
+    <div id="uv-mb"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button onclick="document.getElementById('uv-modal').style.display='none'" style="padding:8px 16px;border:1.5px solid var(--border,#e2e8f0);background:transparent;border-radius:8px;cursor:pointer;font-size:13px">Cerrar</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+var _t='com',UV='uvSync';
+function gd(){try{return JSON.parse(localStorage.getItem(UV)||'null')}catch(e){return null}}
+function sd(d){localStorage.setItem(UV,JSON.stringify(d))}
+function $i(id){return document.getElementById(id)}
+function mn(n){return '$'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function nm(n){return (+(n||0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function stCard(v,l,c){return '<div class="uv-sc"><div class="uv-sv"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div><div class="uv-sl">'+l+'</div></div>'}
+function uvRenderStats(){
+  var el=$i('uv-stats'); if(!el)return;
+  var d=gd();
+  if(!d){el.innerHTML='<div class="uv-sc" style="grid-column:1/-1;text-align:center;padding:32px"><p style="color:var(--text2,#64748b)">Sin datos. Usa Sincronizar o Importar JSON.</p></div>';return}
+  var c=d.comisiones||[],p=d.pagos||[],det=d.detalle||[];
+  var totC=c.reduce(function(s,r){return s+parseFloat(r.comision||0)},0);
+  var totP=p.filter(function(r){return r.estatus==='Pagada'}).reduce(function(s,r){return s+(r.prima||0)},0);
+  var pp=p.filter(function(r){return r.estatus==='Por Pagar'}).length;
+  var pols={};p.forEach(function(r){pols[r.nroPol]=1});
+  var facs=det.filter(function(r){return (r.tipoMovimiento||'').indexOf('FACTURACION')>=0}).length;
+  el.innerHTML=stCard(Object.keys(pols).length,'Pólizas Activas')+stCard(mn(totC),'Comisiones Totales')+stCard(mn(totP),'Primas Recaudadas')+stCard(pp,'Por Cobrar','#f59e0b')+stCard(c.length,'Registros Comisión')+stCard(facs,'Facturaciones');
+  var ts=$i('uv-ts'); if(ts)ts.textContent='Última sync: '+(d.lastSync?new Date(d.lastSync).toLocaleString('es-PA'):'desconocida');
+}
+function uvRenderTable(){
+  var el=$i('uv-tbl'); if(!el)return;
+  var d=gd(); if(!d){el.innerHTML='<p style="padding:18px;color:var(--text2,#64748b)">Sin datos.</p>';return}
+  var h='';
+  if(_t==='com'){
+    var c=d.comisiones||[];
+    h='<table class="uv-t"><thead><tr><th>Fecha Corte</th><th>Póliza</th><th>Asegurado</th><th>Recibo</th><th>Cuota</th><th>Primas</th><th>Comisión</th></tr></thead><tbody>';
+    c.forEach(function(r){h+='<tr><td>'+r.fec_corte+'</td><td>'+r.nroPol+'</td><td>'+(r.asegurado||'').slice(0,24)+'</td><td>'+r.nroRecibo+'</td><td>'+r.cuota+'</td><td>'+nm(r.primas)+'</td><td style="color:#059669;font-weight:600">'+nm(r.comision)+'</td></tr>'});
+    h+='</tbody></table>';
+  }else if(_t==='pag'){
+    var p=d.pagos||[];
+    h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Asegurado</th><th>F.Cobro</th><th>Recibo</th><th>Prima</th><th>Comisión</th><th>Estatus</th></tr></thead><tbody>';
+    p.forEach(function(r){var b=r.estatus==='Pagada'?'<span class="uv-bok">✔</span>':'<span class="uv-bpend">⏳</span>';h+='<tr><td>'+r.nroPol+'</td><td>'+(r.asegurado||'').slice(0,24)+'</td><td>'+r.fecCobranza+'</td><td>'+r.nroRecibo+'</td><td>'+nm(r.prima)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td>'+b+' '+(r.estatus||'')+'</td></tr>'});
+    h+='</tbody></table>';
+  }else{
+    var det=d.detalle||[];
+    h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Endoso</th><th>Asegurado</th><th>Desde</th><th>Hasta</th><th>Prima</th><th>Comisión</th><th>Tipo</th></tr></thead><tbody>';
+    det.forEach(function(r){h+='<tr><td>'+r.nroPol+'</td><td>'+r.endoso+'</td><td>'+(r.asegurado||'').slice(0,21)+'</td><td>'+r.fecDesde+'</td><td>'+r.fecHasta+'</td><td>'+nm(r.primaNeta)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td style="font-size:10px">'+r.tipoMovimiento+'</td></tr>'});
+    h+='</tbody></table>';
+  }
+  el.innerHTML=h;
+}
+window.uvSetTab=function(t,el){
+  _t=t;
+  document.querySelectorAll('.uv-tab').forEach(function(e){e.classList.remove('on')});
+  if(el)el.classList.add('on');
+  uvRenderTable();
+};
+window.uvSyncNow=function(){
+  $i('uv-modal').style.display='flex';
+  $i('uv-mt').textContent='🔄 Sincronizar con UniVivir';
+  $i('uv-mb').innerHTML='<p style="margin:0 0 12px;color:var(--text2,#64748b);font-size:14px">Para obtener datos en vivo:</p><ol style="font-size:13px;line-height:1.9;padding-left:18px;color:var(--text2,#64748b)"><li>Abre el portal UniVivir en una nueva pestaña</li><li>Navega a Report/index/5 (Comisiones)</li><li>Abre consola F12 y ejecuta el script de extracción</li><li>Copia el JSON y usa el botón Importar JSON</li></ol><div style="margin-top:14px"><a href="https://www.univivir.com.pa/ConsultasOnline/Report/index/5" target="_blank" class="uv-btn">Abrir UniVivir ↗</a></div>';
+};
+window.uvImport=function(){
+  $i('uv-modal').style.display='flex';
+  $i('uv-mt').textContent='📥 Importar datos JSON';
+  $i('uv-mb').innerHTML='<p style="margin:0 0 8px;font-size:13px;color:var(--text2,#64748b)">Pega el JSON de sincronización generado desde UniVivir:</p><textarea id="uv-jin" style="width:100%;height:110px;border:1.5px solid var(--border,#e2e8f0);border-radius:8px;padding:10px;font-size:11px;font-family:monospace;resize:vertical;box-sizing:border-box" placeholder='{"comisiones":[...],"pagos":[...],"detalle":[...],"lastSync":"..."}' ></textarea><div style="margin-top:10px"><button class="uv-btn uv-btn-g" onclick="uvDoImport()">✅ Importar</button></div>';
+};
+window.uvDoImport=function(){
+  var t=$i('uv-jin'); if(!t)return;
+  try{var d=JSON.parse(t.value);if(!d.lastSync)d.lastSync=new Date().toISOString();sd(d);$i('uv-modal').style.display='none';uvRenderStats();uvRenderTable();alert('Importados: '+(d.comisiones||[]).length+' comisiones, '+(d.pagos||[]).length+' pagos, '+(d.detalle||[]).length+' movimientos.');}catch(e){alert('JSON inválido: '+e.message);}
+};
+$i('uv-modal').addEventListener('click',function(e){if(e.target===$i('uv-modal'))$i('uv-modal').style.display='none'});
+var pg=$i('pg-uv');
+if(pg)new MutationObserver(function(){if(pg.classList.contains('on')){uvRenderStats();uvRenderTable();}}).observe(pg,{attributes:true,attributeFilter:['class']});
+uvRenderStats();uvRenderTable();
+})();
+</script>
+</div>
 </body>
 </html>
