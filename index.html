@@ -9137,7 +9137,8 @@ SH=function(pg){
   <div class="uv-tabs" id="uv-tabbar">
     <div class="uv-tab on" onclick="uvSetTab('com',this)">💰 Comisiones</div>
     <div class="uv-tab" onclick="uvSetTab('pag',this)">💳 Pagos</div>
-    <div class="uv-tab" onclick="uvSetTab('det',this)">📈 Detalle Producción</div>
+    <div class="uv-tab" onclick="uvSetTab('det',this)">📈 Detalle Producción
+    <div class="uv-tab" onclick="uvSetTab('ec',this)">👥 Asegurados</div></div>
   </div>
   <div id="uv-tbl" class="uv-tw" style="padding:0 14px 14px"></div>
 </div>
@@ -9169,7 +9170,7 @@ function uvRenderStats(){
   var pp=p.filter(function(r){return r.estatus==='Por Pagar'}).length;
   var pols={};p.forEach(function(r){pols[r.nroPol]=1});
   var facs=det.filter(function(r){return (r.tipoMovimiento||'').indexOf('FACTURACION')>=0}).length;
-  el.innerHTML=stCard(Object.keys(pols).length,'Pólizas Activas')+stCard(mn(totC),'Comisiones Totales')+stCard(mn(totP),'Primas Recaudadas')+stCard(pp,'Por Cobrar','#f59e0b')+stCard(c.length,'Registros Comisión')+stCard(facs,'Facturaciones');
+  el.innerHTML=stCard(Object.keys(pols).length,'Pólizas Activas')+stCard(mn(totC),'Comisiones Totales')+stCard(mn(totP),'Primas Recaudadas')+stCard(pp,'Por Cobrar','#f59e0b')+stCard(c.length,'Registros Comisión')+stCard(facs,'Facturaciones')+stCard((d.estadosCuenta||[]).length,'Asegurados');
   var ts=$i('uv-ts'); if(ts)ts.textContent='Última sync: '+(d.lastSync?new Date(d.lastSync).toLocaleString('es-PA'):'desconocida');
 }
 function uvRenderTable(){
@@ -9181,7 +9182,7 @@ function uvRenderTable(){
     h='<table class="uv-t"><thead><tr><th>Fecha Corte</th><th>Póliza</th><th>Asegurado</th><th>Recibo</th><th>Cuota</th><th>Primas</th><th>Comisión</th></tr></thead><tbody>';
     c.forEach(function(r){h+='<tr><td>'+r.fec_corte+'</td><td>'+r.nroPol+'</td><td>'+(r.asegurado||'').slice(0,24)+'</td><td>'+r.nroRecibo+'</td><td>'+r.cuota+'</td><td>'+nm(r.primas)+'</td><td style="color:#059669;font-weight:600">'+nm(r.comision)+'</td></tr>'});
     h+='</tbody></table>';
-  }else if(_t==='pag'){
+  }else if(_t==='ec'){var ec=d.estadosCuenta||[];h='<table class="uv-t"><thead><tr><th>Cédula</th><th>Nombre</th><th>Póliza</th></tr></thead><tbody>';ec.forEach(function(r){h+='<tr><td>'+r.cedula+'</td><td>'+r.nombre+'</td><td>'+r.poliza+'</td></tr>'});h+='</tbody></table>';}}else if(_t==='pag'){
     var p=d.pagos||[];
     h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Asegurado</th><th>F.Cobro</th><th>Recibo</th><th>Prima</th><th>Comisión</th><th>Estatus</th></tr></thead><tbody>';
     p.forEach(function(r){var b=r.estatus==='Pagada'?'<span class="uv-bok">✔</span>':'<span class="uv-bpend">⏳</span>';h+='<tr><td>'+r.nroPol+'</td><td>'+(r.asegurado||'').slice(0,24)+'</td><td>'+r.fecCobranza+'</td><td>'+r.nroRecibo+'</td><td>'+nm(r.prima)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td>'+b+' '+(r.estatus||'')+'</td></tr>'});
@@ -9217,6 +9218,7 @@ window.uvDoImport=function(){
 $i('uv-modal').addEventListener('click',function(e){if(e.target===$i('uv-modal'))$i('uv-modal').style.display='none'});
 var pg=$i('pg-uv');
 if(pg)new MutationObserver(function(){if(pg.classList.contains('on')){uvRenderStats();uvRenderTable();}}).observe(pg,{attributes:true,attributeFilter:['class']});
+var _sv=gd();if(_sv&&(!_sv.estadosCuenta||!_sv.estadosCuenta.length)){_sv.estadosCuenta=[{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6663},{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6896},{"id":17074,"codPersona":20220,"nombre":"MICHELLE DENISE CAMBRA LA DUKE","cedula":"8-514-1344","poliza":6896},{"id":18510,"codPersona":21837,"nombre":"MARIA VIRGINIA TERAN GUTIERREZ","cedula":"8-715-2009","poliza":7498},{"id":22378,"codPersona":26115,"nombre":"DEYANIRA PINTO MONTERO","cedula":"4-771-1782","poliza":9640},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":10181},{"id":26330,"codPersona":30371,"nombre":"KATELEEN MISHELLE  BRINDLEY SALDANA","cedula":"PE-14-1286","poliza":11595},{"id":29962,"codPersona":34228,"nombre":"RICARDO ANDRES GONZALEZ PEIRANO","cedula":"8-748-2221","poliza":13096},{"id":30236,"codPersona":34503,"nombre":"CORINA BEATRIZ FLORES FUENTE","cedula":"8-832-2261","poliza":13096},{"id":32117,"codPersona":36470,"nombre":"MONICA HERNANDEZ PRECIADO","cedula":"A0591190","poliza":13869},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":14087},{"id":40999,"codPersona":45985,"nombre":"ADDEMAR MOISES ROMERO GONZALEZ","cedula":"8-812-1859","poliza":17375},{"id":42978,"codPersona":48076,"nombre":"JEIMMY DAGNERY URRIOLA AYALA","cedula":"4-748-1015","poliza":18009},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":18101},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":18625},{"id":49242,"codPersona":54554,"nombre":"MARUSKA MELISSA CANTORAL MONTENEGRO","cedula":"7-705-53","poliza":19545},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20457},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20618},{"id":57692,"codPersona":63252,"nombre":"ESTEFANI YAHIR RUIZ ADRIAN","cedula":"172882688","poliza":21683},{"id":58439,"codPersona":64024,"nombre":"MARIA TERESA PADILLA LAYNES","cedula":"8-820-2062","poliza":21872},{"id":61780,"codPersona":67477,"nombre":"MARGARITA GONZALEZ HERRERA","cedula":"8-895-804","poliza":22682},{"id":62780,"codPersona":68526,"nombre":"LUIS CLEMENTE GONZALEZ HERRERA","cedula":"8-907-184","poliza":22951}];sd(_sv);}
 uvRenderStats();uvRenderTable();
 })();
 </script>
