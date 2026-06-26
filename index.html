@@ -9181,10 +9181,13 @@ function uvRenderTable(){
   var h='';
   if(_t==='com'){
     var c=d.comisiones||[];
-    h='<table class="uv-t"><thead><tr><th>Fecha Corte</th><th>Póliza</th><th>Asegurado</th><th>Recibo</th><th>Cuota</th><th>Primas</th><th>Comisión</th></tr></thead><tbody>';
-    c.forEach(function(r){h+='<tr><td>'+r.fec_corte+'</td><td>'+r.nroPol+'</td><td>'+(r.asegurado||'').slice(0,24)+'</td><td>'+r.nroRecibo+'</td><td>'+r.cuota+'</td><td>'+nm(r.primas)+'</td><td style="color:#059669;font-weight:600">'+nm(r.comision)+'</td></tr>'});
+    var totC=c.reduce(function(s,r){return s+(parseFloat(r.comision)||0);},0);
+    h='<div style="padding:4px 0 8px;font-size:12px;color:#666">Registros: '+c.length+' &nbsp;|&nbsp; Total Comisiones: <strong style="color:#10b981">$'+nm(totC)+'</strong></div>';
+    h+='<table class="uv-t"><thead><tr><th>Corte</th><th>Póliza</th><th>Recibo</th><th>Endoso</th><th>Asegurado</th><th>Comisión</th></tr></thead><tbody>';
+    c.forEach(function(r){h+='<tr><td>'+r.fec_corte+'</td><td>'+r.poliza+'</td><td>'+r.recibo+'</td><td>'+r.endoso+'</td><td>'+r.asegurado+'</td><td style="font-weight:600;color:#10b981">'+nm(r.comision)+'</td></tr>';});
     h+='</tbody></table>';
-  }else if(_t==='ec'){var ec=d.estadosCuenta||[];h='<table class="uv-t"><thead><tr><th>Cédula</th><th>Nombre</th><th>Póliza</th></tr></thead><tbody>';ec.forEach(function(r){h+='<tr><td>'+r.cedula+'</td><td>'+r.nombre+'</td><td>'+r.poliza+'</td></tr>'});h+='</tbody></table>';}
+  }
+}else if(_t==='ec'){var ec=d.estadosCuenta||[];h='<table class="uv-t"><thead><tr><th>Cédula</th><th>Nombre</th><th>Póliza</th></tr></thead><tbody>';ec.forEach(function(r){h+='<tr><td>'+r.cedula+'</td><td>'+r.nombre+'</td><td>'+r.poliza+'</td></tr>'});h+='</tbody></table>';}
   else if(_t==='mor'){var mor=d.morosidad||[];h='<table class="uv-t"><thead><tr><th>Ramo</th><th>P�liza</th><th>Contratante</th><th>Conducto</th><th>0-30d</th><th>31-60d</th><th>61-90d</th><th>&gt;90d</th><th>Total</th></tr></thead><tbody>';mor.forEach(function(r){var clr=r.dias90plus>0?'color:#dc2626':r.dias31_60>0?'color:#d97706':'';h+='<tr><td>'+r.ramo+'</td><td>'+r.poliza+'</td><td>'+r.contratante+'</td><td>'+r.conducto+'</td><td>'+nm(r.dias0_30)+'</td><td>'+nm(r.dias31_60)+'</td><td>'+nm(r.dias61_90)+'</td><td>'+nm(r.dias90plus)+'</td><td style="font-weight:600;'+clr+'">'+nm(r.total)+'</td></tr>';});h+='</tbody></table>';}else if(_t==='pag'){
     var p=d.pagos||[];
     h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Asegurado</th><th>F.Cobro</th><th>Recibo</th><th>Prima</th><th>Comisión</th><th>Estatus</th></tr></thead><tbody>';
