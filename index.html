@@ -9262,11 +9262,18 @@ SH=function(pg){
 .is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
 .is-btn:hover{background:#2980b9}
 .is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
+.is-tab{background:#fff;color:#1a5276;border:2px solid #2980b9;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em;font-weight:600}
+.is-tab.on{background:#1a5276;color:#fff}
 </style>
 <div class="is-hdr">
 <h2>🏥 Internacional de Seguros / BlueCross</h2>
 <p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; Código: 117391</p>
 </div>
+<div class="is-row" style="margin-bottom:10px">
+<button class="is-tab on" id="is-tab-com" onclick="isSetTab('com',this)">💰 Comisiones</button>
+<button class="is-tab" id="is-tab-cart" onclick="isSetTab('cart',this)">📋 Cartera de Asegurados</button>
+</div>
+<div id="is-view-com">
 <div class="is-cards">
 <div class="is-card"><div class="cv" id="is-cv-corte">--</div><div class="cl">Corte Activo</div></div>
 <div class="is-card ok"><div class="cv" id="is-cv-npol">0</div><div class="cl">Pólizas</div></div>
@@ -9282,12 +9289,80 @@ SH=function(pg){
 <span id="is-sync-info" class="is-note"></span>
 </div>
 <div id="is-wrap"></div>
+</div>
+<div id="is-view-cart" style="display:none">
+<div class="is-cards">
+<div class="is-card ok"><div class="cv" id="is-cart-n">0</div><div class="cl">Asegurados BlueCross</div></div>
+<div class="is-card"><div class="cv" id="is-cart-cont">0</div><div class="cl">Contratantes</div></div>
+</div>
+<div class="is-row">
+<input type="text" id="is-cart-search" class="is-sel" placeholder="🔍 Buscar póliza, contratante o asegurado..." style="flex:1;min-width:220px" oninput="isCartRender()">
+</div>
+<div id="is-cart-wrap"></div>
+</div>
 <div style="margin-top:14px;padding-top:10px;border-top:1px solid #ddd">
-<div class="is-note">💡 Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
+<div class="is-note">💡 Para sincronizar nuevos cortes o actualizar la cartera, acceda al portal iSeguros y extraiga los datos.</div>
 <button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">🔗 Abrir Portal iSeguros</button>
 </div>
 </div>
 <script>
+var _ISCART={lastSync:'2026-06-26',source:'Consulta de Asegurados — Portal BlueCross/iSeguros',records:[
+{poliza:'16-1-28467',cert:'1',tipo:'INDIVIDUAL',contratante:'WALTER SALOMON DIAMOND FERNANDEZ',asegurado:'WALTER SALOMON DIAMOND FERNANDEZ'},
+{poliza:'16-1-33845',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS IVAN LUNA CORTEZ',asegurado:'CARLOS IVAN LUNA CORTEZ'},
+{poliza:'16-1-39266',cert:'1',tipo:'INDIVIDUAL',contratante:'KAREN YADIRA RAMIREZ ANACONA',asegurado:'KAREN YADIRA RAMIREZ ANACONA'},
+{poliza:'16-1-39266',cert:'1',tipo:'INDIVIDUAL',contratante:'KAREN YADIRA RAMIREZ ANACONA',asegurado:'MAXIMILIANO RELUZ'},
+{poliza:'16-1-53058',cert:'1',tipo:'INDIVIDUAL',contratante:'MARIA DEL CARMEN CASTRO BARRIA',asegurado:'MARIA DEL CARMEN CASTRO BARRIA'},
+{poliza:'16-1-55304',cert:'1',tipo:'INDIVIDUAL',contratante:'FRANKLIN DELANO MARTINEZ BARRIA',asegurado:'MILA MARIANA MARTINEZ'},
+{poliza:'16-1-55305',cert:'1',tipo:'INDIVIDUAL',contratante:'FRANKLIN DELANO MARTINEZ BARRIA',asegurado:'LUANA MARIANA MARTINEZ'},
+{poliza:'16-1-57417',cert:'1',tipo:'INDIVIDUAL',contratante:'LARRY JAVIER NIETO DELGADO',asegurado:'LIAM DAVID NIETO PADILLA'},
+{poliza:'16-1-57983',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS ALFREDO GONZALEZ SANCHEZ',asegurado:'SCARLETT SOLANGE KILZI ROJAS'},
+{poliza:'16-1-58406',cert:'1',tipo:'INDIVIDUAL',contratante:'BLANCA MAGALY MOLINA QUINTERO',asegurado:'BLANCA MAGALY MOLINA QUINTERO'},
+{poliza:'16-1-59254',cert:'1',tipo:'INDIVIDUAL',contratante:'FRANCY ORALIX PRINCIPAL VILLABONA',asegurado:'GRACE MARIE PIZA PRINCIPAL'},
+{poliza:'16-1-60953',cert:'1',tipo:'INDIVIDUAL',contratante:'ALEX ALVAREZ MARTINEZ',asegurado:'ALEX ALVAREZ MARTINEZ'},
+{poliza:'16-1-61930',cert:'1',tipo:'INDIVIDUAL',contratante:'MARUSKA MELISSA CANTORAL MONTENEGRO',asegurado:'SURIA LUANNE MAESTRE CANTORAL'},
+{poliza:'16-1-61931',cert:'1',tipo:'INDIVIDUAL',contratante:'MARUSKA MELISSA CANTORAL MONTENEGRO',asegurado:'HELENA DEL MAR FERRO CANTORAL'},
+{poliza:'16-1-63677',cert:'1',tipo:'INDIVIDUAL',contratante:'OLDEMAR ULISES LESCURE GILKES',asegurado:'ULISES ABRAHAM LESCURE'},
+{poliza:'16-1-64323',cert:'1',tipo:'INDIVIDUAL',contratante:'ESTEFANI YAHIR RUIZ ADRIAN',asegurado:'BIANCA ESTEFANIA RUIZ'},
+{poliza:'16-1-64359',cert:'1',tipo:'INDIVIDUAL',contratante:'ESTEFANI YAHIR RUIZ ADRIAN',asegurado:'TOMAS BOLIVAR HERRERA'},
+{poliza:'16-1-67522',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS JULIO GUERRA CASTILLO',asegurado:'DANIEL ALEJANDRO GUERRA'},
+{poliza:'16-1-67523',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS JULIO GUERRA CASTILLO',asegurado:'ALEJANDRA LUCIA GUERRA'},
+{poliza:'16-2-899',cert:'1',tipo:'INDIVIDUAL',contratante:'HELEN MELISSA DELLA SERA GUERRA',asegurado:'HELEN MELISSA DELLA SERA'},
+{poliza:'16-8-180',cert:'1',tipo:'INDIVIDUAL',contratante:'LARRY JAVIER NIETO DELGADO',asegurado:'LARRY JAVIER NIETO DELGADO'},
+{poliza:'16-12-2826',cert:'1',tipo:'INDIVIDUAL',contratante:'OLDEMAR ULISES LESCURE GILKES',asegurado:'ANDREA MICHELLE LESCURE'},
+{poliza:'16-12-3422',cert:'1',tipo:'INDIVIDUAL',contratante:'ALEX ALVAREZ MARTINEZ',asegurado:'ABRAHAM ALVAREZ MARTINEZ'},
+{poliza:'16-12-3487',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS JULIAN LUNA DOMINGUEZ',asegurado:'CARLOS JULIAN LUNA DOMINGUEZ'},
+{poliza:'16-12-3540',cert:'1',tipo:'INDIVIDUAL',contratante:'JEYMI NOHELLYS SALINAS TELLO',asegurado:'ASTON ANDREE LENNARTH'}
+]};
+function isSetTab(t,el){
+  document.querySelectorAll('.is-tab').forEach(function(b){b.classList.remove('on')});
+  if(el)el.classList.add('on');
+  document.getElementById('is-view-com').style.display=(t==='com')?'block':'none';
+  document.getElementById('is-view-cart').style.display=(t==='cart')?'block':'none';
+  if(t==='cart')isCartRender();
+}
+function isCartRender(){
+  try{var d=JSON.parse(localStorage.getItem('isCartSync'));if(d&&d.records&&d.records.length)_ISCART=d;}catch(x){}
+  var q=(document.getElementById('is-cart-search')?.value||'').toLowerCase();
+  var recs=_ISCART.records.filter(function(r){
+    if(!q)return true;
+    return (r.poliza+' '+r.contratante+' '+r.asegurado).toLowerCase().indexOf(q)>=0;
+  });
+  var nEl=document.getElementById('is-cart-n');if(nEl)nEl.textContent=_ISCART.records.length;
+  var cont={};_ISCART.records.forEach(function(r){cont[r.contratante]=1;});
+  var cEl=document.getElementById('is-cart-cont');if(cEl)cEl.textContent=Object.keys(cont).length;
+  var wrap=document.getElementById('is-cart-wrap');if(!wrap)return;
+  if(!recs.length){wrap.innerHTML='<div class="is-empty">Sin resultados<\/div>';return;}
+  var h='<div style="overflow-x:auto"><table class="is-tbl"><thead><tr>';
+  h+='<th>Póliza<\/th><th>Cert.<\/th><th>Tipo<\/th><th>Contratante<\/th><th>Asegurado<\/th><\/tr><\/thead><tbody>';
+  recs.forEach(function(r){
+    h+='<tr><td>'+r.poliza+'<\/td><td>'+r.cert+'<\/td><td>'+r.tipo+'<\/td><td>'+r.contratante+'<\/td><td>'+r.asegurado+'<\/td><\/tr>';
+  });
+  h+='<\/tbody><\/table><\/div>';
+  wrap.innerHTML=h;
+}
+</script>
+<script>
+
 var _IS={lastSync:'2026-06-25',agente:'117391',cortes:[
 {fecCorte:'2026-06-26',records:[
 {dia:'19',poliza:'OP:2396669',asegurado:'AGO DE COMISION 13 AL 19 JUN',recibo:'12915887',prima:0,pctCom:0,comNormal:0,sobreCom:0,cobranza:0,descontada:0,dbCr:-83.07,total:-83.07}
