@@ -193,8 +193,97 @@ body.dark .mu{color:var(--dark-mu);}
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWE1Mjc2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMjk4MGI5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTAiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSIzMiIgeT0iNDQiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjkwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZmZmZiIgbGV0dGVyLXNwYWNpbmc9Ii0xIj5KQUM8L3RleHQ+PC9zdmc+">
+<link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWE1Mjc2Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMjk4MGI5Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTAiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSIzMiIgeT0iNDQiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjkwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZmZmZiIgbGV0dGVyLXNwYWNpbmc9Ii0xIj5KQUM8L3RleHQ+PC9zdmc+" type="image/svg+xml">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Permissions-Policy" content="geolocation=(),microphone=(),camera=()">
 </head>
 <body>
+<style id="jac-login-css">
+#jac-login-ov{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:linear-gradient(135deg,#0a1f2e 0%,#1a5276 55%,#2980b9 100%);display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Arial,sans-serif;}
+#jac-login-ov.jac-hidden{display:none!important;}
+#jac-lbox{background:#fff;border-radius:18px;padding:42px 38px 34px;box-shadow:0 24px 64px rgba(0,0,0,.45);width:340px;max-width:88vw;text-align:center;animation:jacFadeIn .45s cubic-bezier(.22,.9,.36,1);}
+@keyframes jacFadeIn{from{opacity:0;transform:translateY(-28px)}to{opacity:1;transform:translateY(0)}}
+#jac-lbox .jac-logo{width:76px;height:76px;background:linear-gradient(135deg,#1a5276 0%,#2980b9 100%);border-radius:18px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px;box-shadow:0 6px 20px rgba(26,82,118,.45);}
+#jac-lbox h1{margin:0 0 4px;font-size:1.38em;color:#1a5276;font-weight:800;letter-spacing:-.3px}
+#jac-lbox .jac-sub{margin:0 0 26px;font-size:.78em;color:#aaa;}
+#jac-lbox label{font-size:.77em;color:#555;text-align:left;display:block;margin-bottom:6px;font-weight:700;}
+#jac-lbox input{width:100%;box-sizing:border-box;padding:11px 14px;border:2.5px solid #e8e8e8;border-radius:9px;font-size:.92em;margin-bottom:15px;outline:none;transition:border .18s,box-shadow .18s;color:#222;}
+#jac-lbox input:focus{border-color:#2980b9;box-shadow:0 0 0 3px rgba(41,128,185,.12);}
+#jac-lbox .jac-err{color:#c0392b;font-size:.77em;margin:-9px 0 11px;min-height:18px;text-align:left;}
+#jac-lbox .jac-btn{width:100%;padding:12px;background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;border:none;border-radius:9px;font-size:.96em;font-weight:800;cursor:pointer;letter-spacing:.3px;transition:opacity .18s,transform .12s;margin-top:2px;}
+#jac-lbox .jac-btn:hover{opacity:.9;transform:translateY(-1px);}
+#jac-lbox .jac-btn:active{opacity:.75;transform:none;}
+#jac-lbox .jac-sec{margin-top:18px;font-size:.68em;color:#ccc;display:flex;align-items:center;justify-content:center;gap:5px;letter-spacing:.2px;}
+#jac-lbox .jac-shake{animation:jacShake .35s ease;}
+@keyframes jacShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+</style>
+<div id="jac-login-ov">
+<div id="jac-lbox">
+<div class="jac-logo">JAC</div>
+<h1>JAC Seguros CRM</h1>
+<p class="jac-sub">Sistema Corredor &nbsp;&bull;&nbsp; Acceso Restringido</p>
+<form id="jac-lform" autocomplete="off" onsubmit="jacDoLogin(event);return false;">
+<label for="jac-lu">Usuario</label>
+<input type="text" id="jac-lu" placeholder="Ingrese su usuario" autofocus autocomplete="username">
+<label for="jac-lp">Contrase&ntilde;a</label>
+<input type="password" id="jac-lp" placeholder="Ingrese su contrase&ntilde;a" autocomplete="current-password">
+<div class="jac-err" id="jac-lerr"></div>
+<button type="submit" class="jac-btn">&#128274; Ingresar al Sistema</button>
+</form>
+<div class="jac-sec">&#128274; Conexi&oacute;n segura HTTPS &nbsp;&bull;&nbsp; Solo personal autorizado</div>
+</div>
+</div>
+<script id="jac-login-js">
+(function(){
+var _AU=[{u:"jacseguros",p:"jac2024"}];
+var _AK="jac_auth_v2";
+function jacCheckAuth(){
+  try{var s=sessionStorage.getItem(_AK);
+  if(s){var d=JSON.parse(s);if(d&&d.ok&&d.ts&&(Date.now()-d.ts)<28800000)return true;}}
+  catch(e){}
+  return false;
+}
+function jacHideLogin(){
+  var ov=document.getElementById("jac-login-ov");
+  if(ov)ov.classList.add("jac-hidden");
+  var lb=document.getElementById("jac-lbox");
+  if(lb)lb.classList.remove("jac-shake");
+}
+function jacShowLogin(){
+  var ov=document.getElementById("jac-login-ov");
+  if(ov)ov.classList.remove("jac-hidden");
+  setTimeout(function(){var el=document.getElementById("jac-lu");if(el)el.focus();},80);
+}
+window.jacDoLogin=function(e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  var u=(document.getElementById("jac-lu")||{}).value||"";
+  var p=(document.getElementById("jac-lp")||{}).value||"";
+  var ok=_AU.some(function(x){return x.u===u.trim()&&x.p===p;});
+  var err=document.getElementById("jac-lerr");
+  var lb=document.getElementById("jac-lbox");
+  if(ok){
+    try{sessionStorage.setItem(_AK,JSON.stringify({ok:true,ts:Date.now(),u:u.trim()}));}catch(x){}
+    if(lb){lb.style.transform="scale(0.95)";lb.style.opacity="0.5";}
+    setTimeout(jacHideLogin,220);
+  } else {
+    if(err){err.textContent="Usuario o contrase\u00f1a incorrectos";setTimeout(function(){err.textContent="";},3500);}
+    if(lb){lb.classList.remove("jac-shake");void lb.offsetWidth;lb.classList.add("jac-shake");}
+    var pp=document.getElementById("jac-lp");if(pp){pp.value="";pp.focus();}
+  }
+};
+if(jacCheckAuth()){jacHideLogin();}
+else{
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",jacShowLogin);
+  else jacShowLogin();
+}
+})();
+</script>
+
 
 <div id="tst"></div>
 <div id="cof"><div id="cob"><h3>⚠️ Confirmar</h3><p id="cmsg">¿Eliminar?</p><div style="display:flex;gap:9px;justify-content:center"><button class="btn" onclick="cc()">Cancelar</button><button class="btn brd2" id="cokb">Confirmar</button></div></div></div>
@@ -9203,6 +9292,7 @@ SH=function(pg){
 <div class="is-note">💡 Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
 <button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">🔗 Abrir Portal iSeguros</button>
 </div>
+</div>
 <script>
 var _IS={lastSync:'2026-06-25',agente:'117391',cortes:[
 {fecCorte:'2026-06-26',records:[
@@ -9410,9 +9500,7 @@ uvRenderStats();uvRenderTable();
   h+='</tbody></table></div>';
   wrap.innerHTML=h;
 }
-</script>
-</div>
-<script>
+
 (function(){
 var _t='com',UV='uvSync';
 function gd(){try{return JSON.parse(localStorage.getItem(UV)||'null')}catch(e){return null}}
