@@ -4558,6 +4558,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.getElementById('ls').style.display='none';
  document.getElementById('app').style.display='block';
  SH('dash');
+ if(typeof RD==='function')RD();
  // Process any pending email tracking URL params
  setTimeout(()=>{
    try{
@@ -9262,18 +9263,11 @@ SH=function(pg){
 .is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
 .is-btn:hover{background:#2980b9}
 .is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
-.is-tab{background:#fff;color:#1a5276;border:2px solid #2980b9;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em;font-weight:600}
-.is-tab.on{background:#1a5276;color:#fff}
 </style>
 <div class="is-hdr">
 <h2>🏥 Internacional de Seguros / BlueCross</h2>
 <p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; Código: 117391</p>
 </div>
-<div class="is-row" style="margin-bottom:10px">
-<button class="is-tab on" id="is-tab-com" onclick="isSetTab('com',this)">💰 Comisiones</button>
-<button class="is-tab" id="is-tab-cart" onclick="isSetTab('cart',this)">📋 Cartera de Asegurados</button>
-</div>
-<div id="is-view-com">
 <div class="is-cards">
 <div class="is-card"><div class="cv" id="is-cv-corte">--</div><div class="cl">Corte Activo</div></div>
 <div class="is-card ok"><div class="cv" id="is-cv-npol">0</div><div class="cl">Pólizas</div></div>
@@ -9289,80 +9283,12 @@ SH=function(pg){
 <span id="is-sync-info" class="is-note"></span>
 </div>
 <div id="is-wrap"></div>
-</div>
-<div id="is-view-cart" style="display:none">
-<div class="is-cards">
-<div class="is-card ok"><div class="cv" id="is-cart-n">0</div><div class="cl">Asegurados BlueCross</div></div>
-<div class="is-card"><div class="cv" id="is-cart-cont">0</div><div class="cl">Contratantes</div></div>
-</div>
-<div class="is-row">
-<input type="text" id="is-cart-search" class="is-sel" placeholder="🔍 Buscar póliza, contratante o asegurado..." style="flex:1;min-width:220px" oninput="isCartRender()">
-</div>
-<div id="is-cart-wrap"></div>
-</div>
 <div style="margin-top:14px;padding-top:10px;border-top:1px solid #ddd">
-<div class="is-note">💡 Para sincronizar nuevos cortes o actualizar la cartera, acceda al portal iSeguros y extraiga los datos.</div>
+<div class="is-note">💡 Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
 <button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">🔗 Abrir Portal iSeguros</button>
 </div>
 </div>
 <script>
-var _ISCART={lastSync:'2026-06-26',source:'Consulta de Asegurados — Portal BlueCross/iSeguros',records:[
-{poliza:'16-1-28467',cert:'1',tipo:'INDIVIDUAL',contratante:'WALTER SALOMON DIAMOND FERNANDEZ',asegurado:'WALTER SALOMON DIAMOND FERNANDEZ'},
-{poliza:'16-1-33845',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS IVAN LUNA CORTEZ',asegurado:'CARLOS IVAN LUNA CORTEZ'},
-{poliza:'16-1-39266',cert:'1',tipo:'INDIVIDUAL',contratante:'KAREN YADIRA RAMIREZ ANACONA',asegurado:'KAREN YADIRA RAMIREZ ANACONA'},
-{poliza:'16-1-39266',cert:'1',tipo:'INDIVIDUAL',contratante:'KAREN YADIRA RAMIREZ ANACONA',asegurado:'MAXIMILIANO RELUZ'},
-{poliza:'16-1-53058',cert:'1',tipo:'INDIVIDUAL',contratante:'MARIA DEL CARMEN CASTRO BARRIA',asegurado:'MARIA DEL CARMEN CASTRO BARRIA'},
-{poliza:'16-1-55304',cert:'1',tipo:'INDIVIDUAL',contratante:'FRANKLIN DELANO MARTINEZ BARRIA',asegurado:'MILA MARIANA MARTINEZ'},
-{poliza:'16-1-55305',cert:'1',tipo:'INDIVIDUAL',contratante:'FRANKLIN DELANO MARTINEZ BARRIA',asegurado:'LUANA MARIANA MARTINEZ'},
-{poliza:'16-1-57417',cert:'1',tipo:'INDIVIDUAL',contratante:'LARRY JAVIER NIETO DELGADO',asegurado:'LIAM DAVID NIETO PADILLA'},
-{poliza:'16-1-57983',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS ALFREDO GONZALEZ SANCHEZ',asegurado:'SCARLETT SOLANGE KILZI ROJAS'},
-{poliza:'16-1-58406',cert:'1',tipo:'INDIVIDUAL',contratante:'BLANCA MAGALY MOLINA QUINTERO',asegurado:'BLANCA MAGALY MOLINA QUINTERO'},
-{poliza:'16-1-59254',cert:'1',tipo:'INDIVIDUAL',contratante:'FRANCY ORALIX PRINCIPAL VILLABONA',asegurado:'GRACE MARIE PIZA PRINCIPAL'},
-{poliza:'16-1-60953',cert:'1',tipo:'INDIVIDUAL',contratante:'ALEX ALVAREZ MARTINEZ',asegurado:'ALEX ALVAREZ MARTINEZ'},
-{poliza:'16-1-61930',cert:'1',tipo:'INDIVIDUAL',contratante:'MARUSKA MELISSA CANTORAL MONTENEGRO',asegurado:'SURIA LUANNE MAESTRE CANTORAL'},
-{poliza:'16-1-61931',cert:'1',tipo:'INDIVIDUAL',contratante:'MARUSKA MELISSA CANTORAL MONTENEGRO',asegurado:'HELENA DEL MAR FERRO CANTORAL'},
-{poliza:'16-1-63677',cert:'1',tipo:'INDIVIDUAL',contratante:'OLDEMAR ULISES LESCURE GILKES',asegurado:'ULISES ABRAHAM LESCURE'},
-{poliza:'16-1-64323',cert:'1',tipo:'INDIVIDUAL',contratante:'ESTEFANI YAHIR RUIZ ADRIAN',asegurado:'BIANCA ESTEFANIA RUIZ'},
-{poliza:'16-1-64359',cert:'1',tipo:'INDIVIDUAL',contratante:'ESTEFANI YAHIR RUIZ ADRIAN',asegurado:'TOMAS BOLIVAR HERRERA'},
-{poliza:'16-1-67522',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS JULIO GUERRA CASTILLO',asegurado:'DANIEL ALEJANDRO GUERRA'},
-{poliza:'16-1-67523',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS JULIO GUERRA CASTILLO',asegurado:'ALEJANDRA LUCIA GUERRA'},
-{poliza:'16-2-899',cert:'1',tipo:'INDIVIDUAL',contratante:'HELEN MELISSA DELLA SERA GUERRA',asegurado:'HELEN MELISSA DELLA SERA'},
-{poliza:'16-8-180',cert:'1',tipo:'INDIVIDUAL',contratante:'LARRY JAVIER NIETO DELGADO',asegurado:'LARRY JAVIER NIETO DELGADO'},
-{poliza:'16-12-2826',cert:'1',tipo:'INDIVIDUAL',contratante:'OLDEMAR ULISES LESCURE GILKES',asegurado:'ANDREA MICHELLE LESCURE'},
-{poliza:'16-12-3422',cert:'1',tipo:'INDIVIDUAL',contratante:'ALEX ALVAREZ MARTINEZ',asegurado:'ABRAHAM ALVAREZ MARTINEZ'},
-{poliza:'16-12-3487',cert:'1',tipo:'INDIVIDUAL',contratante:'CARLOS JULIAN LUNA DOMINGUEZ',asegurado:'CARLOS JULIAN LUNA DOMINGUEZ'},
-{poliza:'16-12-3540',cert:'1',tipo:'INDIVIDUAL',contratante:'JEYMI NOHELLYS SALINAS TELLO',asegurado:'ASTON ANDREE LENNARTH'}
-]};
-function isSetTab(t,el){
-  document.querySelectorAll('.is-tab').forEach(function(b){b.classList.remove('on')});
-  if(el)el.classList.add('on');
-  document.getElementById('is-view-com').style.display=(t==='com')?'block':'none';
-  document.getElementById('is-view-cart').style.display=(t==='cart')?'block':'none';
-  if(t==='cart')isCartRender();
-}
-function isCartRender(){
-  try{var d=JSON.parse(localStorage.getItem('isCartSync'));if(d&&d.records&&d.records.length)_ISCART=d;}catch(x){}
-  var q=(document.getElementById('is-cart-search')?.value||'').toLowerCase();
-  var recs=_ISCART.records.filter(function(r){
-    if(!q)return true;
-    return (r.poliza+' '+r.contratante+' '+r.asegurado).toLowerCase().indexOf(q)>=0;
-  });
-  var nEl=document.getElementById('is-cart-n');if(nEl)nEl.textContent=_ISCART.records.length;
-  var cont={};_ISCART.records.forEach(function(r){cont[r.contratante]=1;});
-  var cEl=document.getElementById('is-cart-cont');if(cEl)cEl.textContent=Object.keys(cont).length;
-  var wrap=document.getElementById('is-cart-wrap');if(!wrap)return;
-  if(!recs.length){wrap.innerHTML='<div class="is-empty">Sin resultados<\/div>';return;}
-  var h='<div style="overflow-x:auto"><table class="is-tbl"><thead><tr>';
-  h+='<th>Póliza<\/th><th>Cert.<\/th><th>Tipo<\/th><th>Contratante<\/th><th>Asegurado<\/th><\/tr><\/thead><tbody>';
-  recs.forEach(function(r){
-    h+='<tr><td>'+r.poliza+'<\/td><td>'+r.cert+'<\/td><td>'+r.tipo+'<\/td><td>'+r.contratante+'<\/td><td>'+r.asegurado+'<\/td><\/tr>';
-  });
-  h+='<\/tbody><\/table><\/div>';
-  wrap.innerHTML=h;
-}
-</script>
-<script>
-
 var _IS={lastSync:'2026-06-25',agente:'117391',cortes:[
 {fecCorte:'2026-06-26',records:[
 {dia:'19',poliza:'OP:2396669',asegurado:'AGO DE COMISION 13 AL 19 JUN',recibo:'12915887',prima:0,pctCom:0,comNormal:0,sobreCom:0,cobranza:0,descontada:0,dbCr:-83.07,total:-83.07}
@@ -9495,6 +9421,7 @@ var pg=$i('pg-uv');
 if(pg)new MutationObserver(function(){if(pg.classList.contains('on')){uvRenderStats();uvRenderTable();}}).observe(pg,{attributes:true,attributeFilter:['class']});
 var _sv=gd();if(_sv&&(!_sv.estadosCuenta||!_sv.estadosCuenta.length)){_sv.estadosCuenta=[{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6663},{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6896},{"id":17074,"codPersona":20220,"nombre":"MICHELLE DENISE CAMBRA LA DUKE","cedula":"8-514-1344","poliza":6896},{"id":18510,"codPersona":21837,"nombre":"MARIA VIRGINIA TERAN GUTIERREZ","cedula":"8-715-2009","poliza":7498},{"id":22378,"codPersona":26115,"nombre":"DEYANIRA PINTO MONTERO","cedula":"4-771-1782","poliza":9640},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":10181},{"id":26330,"codPersona":30371,"nombre":"KATELEEN MISHELLE  BRINDLEY SALDANA","cedula":"PE-14-1286","poliza":11595},{"id":29962,"codPersona":34228,"nombre":"RICARDO ANDRES GONZALEZ PEIRANO","cedula":"8-748-2221","poliza":13096},{"id":30236,"codPersona":34503,"nombre":"CORINA BEATRIZ FLORES FUENTE","cedula":"8-832-2261","poliza":13096},{"id":32117,"codPersona":36470,"nombre":"MONICA HERNANDEZ PRECIADO","cedula":"A0591190","poliza":13869},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":14087},{"id":40999,"codPersona":45985,"nombre":"ADDEMAR MOISES ROMERO GONZALEZ","cedula":"8-812-1859","poliza":17375},{"id":42978,"codPersona":48076,"nombre":"JEIMMY DAGNERY URRIOLA AYALA","cedula":"4-748-1015","poliza":18009},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":18101},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":18625},{"id":49242,"codPersona":54554,"nombre":"MARUSKA MELISSA CANTORAL MONTENEGRO","cedula":"7-705-53","poliza":19545},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20457},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20618},{"id":57692,"codPersona":63252,"nombre":"ESTEFANI YAHIR RUIZ ADRIAN","cedula":"172882688","poliza":21683},{"id":58439,"codPersona":64024,"nombre":"MARIA TERESA PADILLA LAYNES","cedula":"8-820-2062","poliza":21872},{"id":61780,"codPersona":67477,"nombre":"MARGARITA GONZALEZ HERRERA","cedula":"8-895-804","poliza":22682},{"id":62780,"codPersona":68526,"nombre":"LUIS CLEMENTE GONZALEZ HERRERA","cedula":"8-907-184","poliza":22951}];sd(_sv);}
 if(_sv&&(!_sv.morosidad||!_sv.morosidad.length)){_sv.morosidad=[{"ramo":"SALUD IND.","poliza":"6663","emision":"01/05/2026","vigencia":"01/05/2026","contratante":"JELY AN CASTRO PEREZ","pagador":"JELY AN CASTRO PEREZ","conducto":"EFECTIVO","dias0_30":125.06,"dias31_60":125.06,"dias61_90":0,"dias90plus":0,"total":250.12},{"ramo":"SALUD IND.","poliza":"10181","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"JAN LUIS VALDES LLAURADO","pagador":"JAN LUIS VALDES LLAURADO","conducto":"TARJETA DE CREDITO VISA","dias0_30":80.94,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":80.94},{"ramo":"SALUD IND.","poliza":"13869","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"MONICA HERNANDEZ PRECIADO","pagador":"MONICA HERNANDEZ PRECIADO","conducto":"EFECTIVO","dias0_30":104.82,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":104.82},{"ramo":"SALUD IND.","poliza":"21872","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"MARIA PADILLA LAYNES","pagador":"MARIA PADILLA LAYNES","conducto":"ACH","dias0_30":130.29,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":130.29}];sd(_sv);}if(_sv&&(!_sv.liqComisiones||!_sv.liqComisiones.length)){_sv.liqComisiones=[{"asegurado":"CAMBRA LA DUKE MICHELLE D","poliza":"874579","recibo":"6896","endoso":"126","saldo":2.31,"comision":2.31,"nro_cuota":"009","primas":19.28,"fecha_pago":"01/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"874579","recibo":"18009","endoso":"46","saldo":17.31,"comision":17.31,"nro_cuota":"009","primas":144.21,"fecha_pago":"01/06/2026"},{"asegurado":"JURADO MOLINA GENESIS ALE","poliza":"874844","recibo":"20457","endoso":"27","saldo":13.45,"comision":13.45,"nro_cuota":"009","primas":112.1,"fecha_pago":"02/06/2026"},{"asegurado":"JURADO MOLINA GENESIS ALE","poliza":"874844","recibo":"20618","endoso":"25","saldo":14.6,"comision":14.6,"nro_cuota":"009","primas":121.63,"fecha_pago":"02/06/2026"},{"asegurado":"ROMERO GONZALEZ ADDEMAR M","poliza":"874844","recibo":"17375","endoso":"52","saldo":19.62,"comision":19.62,"nro_cuota":"009","primas":163.5,"fecha_pago":"02/06/2026"},{"asegurado":"TERAN GUTIERREZ MARIA VIR","poliza":"874844","recibo":"7498","endoso":"117","saldo":11.86,"comision":11.86,"nro_cuota":"009","primas":98.82,"fecha_pago":"02/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"874844","recibo":"18625","endoso":"40","saldo":12.37,"comision":12.37,"nro_cuota":"009","primas":103.08,"fecha_pago":"02/06/2026"},{"asegurado":"RUIZ ADRIAN ESTEFANI YAHI","poliza":"875264","recibo":"21683","endoso":"18","saldo":6.89,"comision":6.89,"nro_cuota":"009","primas":57.42,"fecha_pago":"03/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"875113","recibo":"10181","endoso":"105","saldo":4.62,"comision":4.62,"nro_cuota":"009","primas":38.5,"fecha_pago":"03/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"875113","recibo":"10181","endoso":"106","saldo":19.09,"comision":19.09,"nro_cuota":"009","primas":159.08,"fecha_pago":"03/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"876329","recibo":"18009","endoso":"46","saldo":-17.31,"comision":-17.31,"nro_cuota":"009","primas":-144.21,"fecha_pago":"09/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876668","recibo":"11595","endoso":"103","saldo":1.99,"comision":1.99,"nro_cuota":"009","primas":16.58,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876668","recibo":"11595","endoso":"104","saldo":4.65,"comision":4.65,"nro_cuota":"009","primas":38.75,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876712","recibo":"11595","endoso":"104","saldo":3.98,"comision":3.98,"nro_cuota":"009","primas":33.17,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876712","recibo":"11595","endoso":"105","saldo":8.63,"comision":8.63,"nro_cuota":"009","primas":71.92,"fecha_pago":"10/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"876667","recibo":"18009","endoso":"46","saldo":17.31,"comision":17.31,"nro_cuota":"009","primas":144.21,"fecha_pago":"10/06/2026"},{"asegurado":"GONZALEZ HERRERA LUIS CLE","poliza":"877294","recibo":"22951","endoso":"7","saldo":5.8,"comision":5.8,"nro_cuota":"048","primas":5.8,"fecha_pago":"14/06/2026"},{"asegurado":"CAMBRA LA DUKE MICHELLE D","poliza":"877389","recibo":"6896","endoso":"126","saldo":11.86,"comision":11.86,"nro_cuota":"009","primas":98.82,"fecha_pago":"15/06/2026"}];_sv.liqCorte='15/06/2026';sd(_sv);}
+if(typeof RD==='function')RD();if(typeof RCom==='function')RCom();
 uvRenderStats();uvRenderTable();
 })();
 </script>
