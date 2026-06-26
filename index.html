@@ -9207,6 +9207,7 @@ SH=function(pg){
 </div>
 </div>
 <script>
+
 var _IS={lastSync:'2026-06-25',agente:'117391',cortes:[
 {fecCorte:'2026-06-26',records:[
 {dia:'19',poliza:'OP:2396669',asegurado:'AGO DE COMISION 13 AL 19 JUN',recibo:'12915887',prima:0,pctCom:0,comNormal:0,sobreCom:0,cobranza:0,descontada:0,dbCr:-83.07,total:-83.07}
@@ -9226,53 +9227,149 @@ var _IS={lastSync:'2026-06-25',agente:'117391',cortes:[
 {dia:'15',poliza:'12-16-3487',asegurado:'CARLOS JULIAN LUNA DOMINGUEZ',recibo:'12902911',prima:81.4,pctCom:12,comNormal:9.77,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:9.77}
 ],totales:{saldoAnterior:16.56,totalPagar:83.07}}
 ]};
-function isRender(){
-  try{var d=JSON.parse(localStorage.getItem('isSync'));if(d&&d.cortes&&d.cortes.length)_IS=d;}catch(x){}
-  var sel=document.getElementById('is-sel');
-  if(sel&&!window._isInit){
-    _IS.cortes.forEach(function(c){
-      var o=document.querySelector('#is-sel option[value="'+c.fecCorte+'"]');
-      if(!o){var opt=document.createElement('option');opt.value=c.fecCorte;opt.textContent=c.fecCorte;sel.insertBefore(opt,sel.firstChild);}
-    });
-    window._isInit=true;
+<style>
+.is-tabs{display:flex;gap:5px;margin-bottom:14px;border-bottom:2px solid #2980b9;padding-bottom:6px}
+.is-tab{padding:7px 15px;border:2px solid #2980b9;border-bottom:none;border-radius:6px 6px 0 0;background:#e8f4fd;color:#1a5276;cursor:pointer;font-weight:700;font-size:.82em;transition:.15s}
+.is-tab.active{background:#2980b9;color:#fff}
+.is-tab:hover:not(.active){background:#c5e3f7}
+.is-sync-row{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+.is-sync-btn{background:#2980b9;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:.82em}
+.is-sync-btn:hover{background:#1a5276}
+.is-sync-btn.big{font-size:.95em;padding:10px 22px;margin:14px auto;display:block}
+.is-mini-card{background:#fff;border-radius:8px;padding:10px 14px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center;min-width:95px}
+.is-mini-card span{display:block;font-size:1.35em;font-weight:700;color:#1a5276}
+.is-mini-card.ok span{color:#1e8449}
+.is-mini-card.warn span{color:#c0392b}
+.is-stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.is-badge{padding:2px 8px;border-radius:4px;font-size:.73em;font-weight:600}
+.is-badge.ok{background:#d5f5e3;color:#1e8449}
+.is-badge.ven{background:#fadbd8;color:#c0392b}
+.is-bcbs-empty{text-align:center;padding:24px;background:#f0f7ff;border-radius:10px;border:2px dashed #2980b9;margin-top:8px}
+.bcbs-logo{font-size:1.2em;color:#2980b9;font-weight:700;margin-bottom:10px}
+.is-pill{background:#e8f4fd;padding:3px 10px;border-radius:4px;margin:2px 0;font-size:.79em;display:inline-block}
+.is-tbl tr.vig td{background:#f0fff4}
+.is-tbl td.neg{color:#c0392b;font-weight:600}
+.is-tbl td.pos{color:#1e8449;font-weight:600}
+.is-tab-content{overflow-x:auto}
+.is-note{font-size:.75em;color:#888}
+</style>
+var _ISPols=[{"n":"030-001-000716294-0","c":"Francy Oralix Principal Villabona","ci":"E-8-184985","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2024-11-13","ff":"2025-11-13","fp":"Fraccionado","pe":"Mensual","id":"2620136"},{"n":"030-012-000019883-000000","c":"Jose De La Paz Rodriguez Arcia","ci":"8-739-1416","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2024-05-06","ff":"2025-05-06","fp":"Fraccionado","pe":"Anual","id":"2620145"},{"n":"16-1-33845","c":"Carlos Ivan Luna Cortez","ci":"7-122-404","r":"SALUD/MÉDICOS","pr":1671.6,"es":"Vencida","et":"Vigente","fi":"2024-11-01","ff":"2025-11-01","fp":"Fraccionado","pe":"Mensual","id":"2620119"},{"n":"16-1-57983","c":"Carlos Alfredo Gonzalez Sanchez","ci":"8-846-1661","r":"SALUD/MÉDICOS","pr":567.64,"es":"Vencida","et":"Vigente","fi":"2024-11-15","ff":"2025-11-15","fp":"Fraccionado","pe":"Mensual","id":"2620164"},{"n":"030-012-000019105-000001","c":"Evelin Tatnair Barria Carrasco","ci":"8-765-1797","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2024-11-16","ff":"2025-11-16","fp":"Fraccionado","pe":"Mensual","id":"2706696"},{"n":"030-012-000021034-000000","c":"Victor Hugo Bosch Castro","ci":"8-1000-972","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2024-11-21","ff":"2025-11-21","fp":"Fraccionado","pe":"Mensual","id":"3161441"},{"n":"033-012-000000753-000000","c":"Sheril Nazareth Bohorquez Gutierrez","ci":"E-8-175981","r":"INCENDIO Y LÍNEAS ALIADAS","pr":227.58,"es":"Vencida","et":"Vigente","fi":"2024-12-01","ff":"2025-12-01","fp":"Contado","pe":"Anual","id":"2620085"},{"n":"030-012-000019151-1","c":"Jaime Alexander Castro Perez","ci":"7-701-2117","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2024-12-12","ff":"2025-12-12","fp":"Fraccionado","pe":"Mensual","id":"2620094"},{"n":"016-001-000061931-1","c":"Maruska Melissa Cantoral Montenegro","ci":"7-705-53","r":"SALUD/MÉDICOS","pr":567.61,"es":"Vencida","et":"Vigente","fi":"2024-12-15","ff":"2025-12-15","fp":"Fraccionado","pe":"Mensual","id":"2690942"},{"n":"016-001-000061930-1","c":"Maruska Melissa Cantoral Montenegro","ci":"7-705-53","r":"SALUD/MÉDICOS","pr":567.6,"es":"Vencida","et":"Vigente","fi":"2024-12-15","ff":"2025-12-15","fp":"Fraccionado","pe":"Mensual","id":"2690942"},{"n":"030-012-000019168-1","c":"Xiomara Pillips Paterson","ci":"8-305-97","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vigente","et":"Vigente","fi":"2024-12-23","ff":"2025-12-23","fp":"Contado","pe":"Anual","id":"2620316"},{"n":"030-012-000019198-1","c":"Milka Lizbeth Gonzalez Barrios","ci":"7-702-86","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2024-12-30","ff":"2025-12-30","fp":"Fraccionado","pe":"Mensual","id":"2620268"},{"n":"030-012-000019229-3","c":"Jeannette Tamara Font Mitil","ci":"8-206-1607","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2025-01-03","ff":"2026-01-03","fp":"Fraccionado","pe":"Mensual","id":"2620741"},{"n":"030-012-000017130-2","c":"Lizbeth Luisana Perea Joseph","ci":"3-712-1669","r":"AUTOS/VEHÍCULOS","pr":557.28,"es":"Vencida","et":"Vigente","fi":"2025-01-04","ff":"2026-01-04","fp":"Fraccionado","pe":"Mensual","id":"2620132"},{"n":"030-012-000021087-000000","c":"Janelly Jenice Richards Rowe","ci":"1-743-326","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vencida","et":"Vigente","fi":"2024-12-16","ff":"2025-12-16","fp":"Contado","pe":"Anual","id":"3275135"},{"n":"030-012-000021048-000000","c":"Francis Neitor Guerra Saavedra","ci":"8-843-331","r":"AUTOS/VEHÍCULOS","pr":599.84,"es":"Vencida","et":"Vigente","fi":"2024-12-05","ff":"2025-12-05","fp":"Fraccionado","pe":"Anual","id":"3277928"},{"n":"030-001-000653812-000004","c":"Eduardo Alberto Lasso Vielgo","ci":"8-745-1193","r":"AUTOS/VEHÍCULOS","pr":482.47,"es":"Vencida","et":"Vigente","fi":"2024-11-23","ff":"2025-11-23","fp":"Fraccionado","pe":"Mensual","id":"2619899"},{"n":"16-1-58406","c":"Blanca Magaly Molina Quintero","ci":"E-8-191684","r":"SALUD/MÉDICOS","pr":1286.44,"es":"Vencida","et":"Vigente","fi":"2025-01-01","ff":"2026-01-01","fp":"Fraccionado","pe":"Mensual","id":"2620125"},{"n":"030-012-000019267-1","c":"Grisel Carolina Courville Arcia","ci":"8-831-209","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vigente","et":"Vigente","fi":"2025-01-10","ff":"2026-01-10","fp":"Contado","pe":"Anual","id":"2620097"},{"n":"033-012-000000761-000000","c":"Pilar De Los Angeles Bosch Castro","ci":"7-711-1197","r":"INCENDIO Y LÍNEAS ALIADAS","pr":115.78,"es":"Vigente","et":"Vigente","fi":"2025-01-16","ff":"2026-01-16","fp":"Fraccionado","pe":"Mensual","id":"2620827"},{"n":"030-012-000019308-000003","c":"Eleanny Marlens Ureña Lopez","ci":"04-735-1324","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vigente","et":"Vigente","fi":"2025-01-19","ff":"2026-01-19","fp":"Fraccionado","pe":"Mensual","id":"2619946"},{"n":"030-012-000021218-000000","c":"Melvin Montenegro De La Rosa","ci":"8-765-927","r":"AUTOS/VEHÍCULOS","pr":172.64,"es":"Vigente","et":"Vigente","fi":"2025-01-25","ff":"2026-01-25","fp":"Fraccionado","pe":"Mensual","id":"3274110"}];
+
+function isRender(tabId){
+  try{
+    var ld=localStorage.getItem('isSync');
+    if(ld){var lp=JSON.parse(ld);if(lp&&lp.cortes)Object.assign(_IS,lp);}
+    var lp2=localStorage.getItem('isSyncPols');
+    if(lp2){var pp=JSON.parse(lp2);if(pp&&pp.length)window._ISLivePols=pp;}
+    var lb=localStorage.getItem('bcbsSync');
+    if(lb)window._BCBSData=JSON.parse(lb);
+  }catch(e){}
+  var tab=tabId||window._isTab||'cartera';
+  window._isTab=tab;
+  var el=document.getElementById('pg-is');
+  if(!el)return;
+  var hdr='<div class="is-hdr"><h2>🏥 Internacional de Seguros / BlueCross</h2><p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; Código: '+_IS.agente+'</p></div>';
+  var tabs='<div class="is-tabs"><button class="is-tab'+(tab==='cartera'?' active':'') +'" onclick="isRender('cartera')">📋 Cartera IS</button>'
+    +'<button class="is-tab'+(tab==='comis'?' active':'') +'" onclick="isRender('comis')">💰 Comisiones</button>'
+    +'<button class="is-tab'+(tab==='salud'?' active':'') +'" onclick="isRender('salud')">💙 Portal Salud</button></div>';
+  var content='';
+  if(tab==='cartera')content=isRenderCartera();
+  else if(tab==='comis')content=isRenderComisiones();
+  else content=isRenderSalud();
+  el.innerHTML=el.querySelector('style').outerHTML+hdr+tabs+'<div class="is-tab-content">'+content+'</div>';
+}
+
+function isRenderCartera(){
+  var pols=window._ISLivePols||_ISPols;
+  var vigentes=pols.filter(function(p){return p.et==='Vigente';}).length;
+  var totalPrima=pols.reduce(function(a,p){return a+(p.pr||0);},0);
+  var rows=pols.map(function(p){
+    var vig=p.et==='Vigente';
+    var ico=p.r&&p.r.includes('SALUD')?'🏥':p.r&&p.r.includes('AUTO')?'🚗':p.r&&p.r.includes('VIDA')?'❤️':'📋';
+    return '<tr class="'+(vig?'vig':'')+'"><td>'+p.n+'</td><td>'+ico+' '+(p.r||'—')+'</td><td>'+p.c+'</td><td>'+(p.ci||'—')+'</td>'
+      +'<td>$'+(p.pr||0).toFixed(2)+'</td><td>'+(p.pe||'—')+'</td>'
+      +'<td><span class="is-badge '+(vig?'ok':'ven')+'">'+(p.es||'—')+'</span></td><td>'+(p.ff||'—')+'</td></tr>';
+  }).join('');
+  return '<div class="is-stats-row">'
+    +'<div class="is-mini-card"><span>'+pols.length+'</span>Pólizas IS</div>'
+    +'<div class="is-mini-card ok"><span>'+vigentes+'</span>Vigentes</div>'
+    +'<div class="is-mini-card"><span>$'+totalPrima.toFixed(2)+'</span>Prima Total</div>'
+    +'</div>'
+    +'<div class="is-sync-row"><button class="is-sync-btn" onclick="isSyncPortalIS()">🔄 Sync Portal IS</button>'
+    +'<span class="is-note">Última sync: '+(_IS.lastSync||'—')+'</span></div>'
+    +'<table class="is-tbl"><tr><th>Póliza</th><th>Ramo</th><th>Cliente</th><th>Cédula</th><th>Prima</th><th>Período</th><th>Estado</th><th>Fin</th></tr>'
+    +rows+'</table>';
+}
+
+function isRenderComisiones(){
+  var cortes=_IS.cortes||[];
+  if(!cortes.length)return '<p>Sin datos de comisiones.</p>';
+  var selFec=window._isSelCorte||(cortes[1]?cortes[1].fecCorte:cortes[0].fecCorte);
+  var corte=cortes.find(function(c){return c.fecCorte===selFec;})||cortes[cortes.length-1];
+  var tot=corte.totales||{};
+  var rows=(corte.records||[]).map(function(r){
+    var isPos=(r.total||0)>=0;
+    return '<tr><td>'+r.dia+'</td><td>'+r.poliza+'</td><td>'+r.asegurado+'</td><td>'+r.recibo+'</td>'
+      +'<td>$'+(r.prima||0).toFixed(2)+'</td><td>'+(r.pctCom||0)+'%</td>'
+      +'<td>$'+(r.comNormal||0).toFixed(2)+'</td><td class="'+(isPos?'pos':'neg')+'">$'+(r.total||0).toFixed(2)+'</td></tr>';
+  }).join('');
+  var selOpts=cortes.map(function(c){return '<option value="'+c.fecCorte+'" '+(c.fecCorte===selFec?'selected':'')+'>'+c.fecCorte+'</option>';}).join('');
+  return '<div class="is-cards">'
+    +'<div class="is-card"><div class="cv">'+corte.fecCorte+'</div><div class="cl">Corte</div></div>'
+    +'<div class="is-card"><div class="cv">'+((corte.records||[]).length)+'</div><div class="cl">Registros</div></div>'
+    +'<div class="is-card ok"><div class="cv">$'+((tot.totalPagar)||0).toFixed(2)+'</div><div class="cl">Total a Pagar</div></div>'
+    +'<div class="is-card warn"><div class="cv">$'+((tot.saldoAnterior)||0).toFixed(2)+'</div><div class="cl">Saldo Ant.</div></div>'
+    +'</div>'
+    +'<div class="is-row"><span>Corte:</span>'
+    +'<select class="is-sel" onchange="window._isSelCorte=this.value;isRender('comis')">'+selOpts+'</select>'
+    +'<span class="is-note">Sync: '+(_IS.lastSync||'—')+'</span>'
+    +'<button class="is-sync-btn" onclick="isSyncPortalIS()">🔄 Sync IS</button></div>'
+    +'<table class="is-tbl"><tr><th>Día</th><th>Póliza</th><th>Asegurado</th><th>Recibo</th><th>Prima</th><th>%Com</th><th>Comisión</th><th>Total</th></tr>'
+    +rows+'</table>';
+}
+
+function isRenderSalud(){
+  var data=window._BCBSData;
+  var saludPols=(_ISPols||[]).filter(function(p){return p.r&&p.r.includes('SALUD');});
+  if(!data||!data.asegurados||!data.asegurados.length){
+    var pills=saludPols.map(function(p){return '<span class="is-pill">'+p.n+' — '+p.c+'</span>';}).join(' ');
+    return '<div class="is-bcbs-empty">'
+      +'<div class="bcbs-logo">💙 BlueCross BlueShield Panamá</div>'
+      +'<p>Portal Salud no sincronizado. Haga clic para extraer datos.</p>'
+      +'<button class="is-sync-btn big" onclick="isSyncPortalSalud()">🔄 Sincronizar Portal Salud BCBS</button>'
+      +'<p class="is-note">Se abrirá el Portal Salud Virtual. Si ya tiene sesión activa, los datos se cargarán automáticamente.</p>'
+      +(saludPols.length?'<div style="margin-top:16px;text-align:left"><b>Pólizas SALUD/IS en CRM ('+saludPols.length+'):</b><div style="margin-top:6px">'+pills+'</div></div>':'')
+      +'</div>';
   }
-  var val=sel?sel.value:'2026-06-19';
-  isSelectCorte(val);
-  var inf=document.getElementById('is-sync-info');
-  if(inf)inf.textContent='Última sync: '+_IS.lastSync;
+  var rows=data.asegurados.map(function(a){
+    return '<tr><td>'+(a.poliza||'—')+'</td><td>'+(a.cert||'—')+'</td><td>'+(a.tipo||'—')+'</td>'
+      +'<td>'+(a.contratante||'—')+'</td><td>'+(a.asegurado||'—')+'</td>'
+      +'<td>'+(a.doc||'—')+'</td><td>'+(a.vigencia||'—')+'</td></tr>';
+  }).join('');
+  return '<div class="is-sync-row">'
+    +'<span class="is-note">Última sync: '+(data.lastSync||'—')+' | '+data.asegurados.length+' asegurados</span>'
+    +'<button class="is-sync-btn" onclick="isSyncPortalSalud()">🔄 Re-sincronizar BCBS</button></div>'
+    +'<table class="is-tbl"><tr><th>Póliza</th><th>Cert.</th><th>Tipo</th><th>Contratante</th><th>Asegurado</th><th>Documento</th><th>Vigencia</th></tr>'
+    +rows+'</table>';
 }
-function isSelectCorte(fec){
-  var corte=null;
-  for(var i=0;i<_IS.cortes.length;i++){if(_IS.cortes[i].fecCorte===fec){corte=_IS.cortes[i];break;}}
-  if(!corte)corte=_IS.cortes[0];
-  if(!corte)return;
-  var e1=document.getElementById('is-cv-corte');if(e1)e1.textContent=corte.fecCorte;
-  var e2=document.getElementById('is-cv-npol');if(e2)e2.textContent=corte.records.length;
-  var e3=document.getElementById('is-cv-saldo');if(e3)e3.textContent='$'+corte.totales.saldoAnterior.toFixed(2);
-  var e4=document.getElementById('is-cv-pagar');
-  if(e4){e4.textContent='$'+corte.totales.totalPagar.toFixed(2);e4.parentElement.className='is-card '+(corte.totales.totalPagar>0?'ok':'warn');}
-  var wrap=document.getElementById('is-wrap');
-  if(!wrap)return;
-  if(!corte.records.length){wrap.innerHTML='<div class="is-empty">Sin registros para este corte<\/div>';return;}
-  var h,sp=0,sc=0,st=0;
-  h='<div style="overflow-x:auto"><table class="is-tbl"><thead><tr>';
-  h+='<th>D\u00eda<\/th><th>P\u00f3liza<\/th><th>Asegurado<\/th><th>Recibo<\/th>';
-  h+='<th class="n">Prima<\/th><th class="n">%Com<\/th><th class="n">Comisi\u00f3n<\/th><th class="n">Total<\/th>';
-  h+='<\/tr><\/thead><tbody>';
-  corte.records.forEach(function(r){
-    sp+=r.prima;sc+=r.comNormal;st+=r.total;
-    var neg=r.total<0?' style="color:#c0392b"':'';
-    h+='<tr><td>'+r.dia+'<\/td><td>'+r.poliza+'<\/td><td>'+r.asegurado+'<\/td><td>'+r.recibo+'<\/td>';
-    h+='<td class="n">'+r.prima.toFixed(2)+'<\/td><td class="n">'+r.pctCom+'%<\/td>';
-    h+='<td class="n">'+r.comNormal.toFixed(2)+'<\/td><td class="n"'+neg+'>'+r.total.toFixed(2)+'<\/td><\/tr>';
+
+function isSyncPortalIS(){
+  window.open('https://iseguros.com/corredor_web2/inicio.aspx','isPortal','width=1100,height=750,left=100,top=50');
+}
+
+function isSyncPortalSalud(){
+  var w=window.open('https://bcbspma.com/portalvirtual/Asegurados','bcbsPortal','width=1200,height=800,left=50,top=30');
+  window._bcbsSyncWin=w;
+  window.addEventListener('message',function handler(e){
+    if(!e.data||e.data.type!=='bcbsSync')return;
+    localStorage.setItem('bcbsSync',JSON.stringify(e.data.payload));
+    window._BCBSData=e.data.payload;
+    window.removeEventListener('message',handler);
+    isRender('salud');
   });
-  h+='<tr class="tot"><td colspan="4">TOTALES ('+corte.records.length+' registros)<\/td>';
-  h+='<td class="n">'+sp.toFixed(2)+'<\/td><td><\/td><td class="n">'+sc.toFixed(2)+'<\/td><td class="n">'+st.toFixed(2)+'<\/td><\/tr>';
-  h+='<tr class="tot"><td colspan="6">+ Saldo Anterior<\/td><td colspan="2" class="n">'+corte.totales.saldoAnterior.toFixed(2)+'<\/td><\/tr>';
-  h+='<tr class="gpay"><td colspan="6">\u2705 Total a Pagar<\/td><td colspan="2" class="n">'+corte.totales.totalPagar.toFixed(2)+'<\/td><\/tr>';
-  h+='<\/tbody><\/table><\/div>';
-  wrap.innerHTML=h;
 }
+
+function isSelectCorte(fec){window._isSelCorte=fec;isRender('comis');}
 
 (function(){
 var _t='com',UV='uvSync';
