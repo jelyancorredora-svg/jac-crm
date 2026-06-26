@@ -262,6 +262,7 @@ body.dark .mu{color:var(--dark-mu);}
  <a onclick="SH('inf')">📊 Informes</a>
  <a onclick="SH('cotp')" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border-radius:8px;font-weight:700">🧮 Cotizador Pro</a>
  <a onclick="SH('uv')">🔗 UniVivir</a>
+<a onclick="SH('is')">🏥 iSeguros</a>
 <a onclick="SH('cfg')">⚙️</a>
  </nav>
  <div class="ha" id="ha">
@@ -2990,6 +2991,7 @@ function SH(id){
  document.querySelectorAll('.bni').forEach(a=>a.classList.remove('on'));
  const pg=document.getElementById('pg-'+id);
  if(id==='inf'){try{renderInformes();}catch(e){}} if(id==='cotp'){try{cotpInit();}catch(e){console.warn('cotpInit:',e);}} if(id==='not'){try{if(!S.notas)S.notas=[];RNot();}catch(e){}}
+ if(id==='is'){try{isRender();}catch(e){}}
  if(pg){pg.classList.add('on');}
  document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
  document.getElementById('bn-'+id)?.classList.add('on');
@@ -9152,6 +9154,263 @@ SH=function(pg){
       <button onclick="document.getElementById('uv-modal').style.display='none'" style="padding:8px 16px;border:1.5px solid var(--border,#e2e8f0);background:transparent;border-radius:8px;cursor:pointer;font-size:13px">Cerrar</button>
     </div>
   </div>
+</div>
+<div id="pg-is" class="pg">
+<style>
+.is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
+.is-hdr h2{margin:0;font-size:1.1em;font-weight:700}
+.is-hdr p{margin:4px 0 0;font-size:.78em;opacity:.8}
+.is-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:14px}
+.is-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center}
+.is-card .cv{font-size:1.45em;font-weight:700;color:#1a5276;margin:4px 0}
+.is-card .cl{font-size:.7em;color:#999;text-transform:uppercase;letter-spacing:.5px}
+.is-card.ok .cv{color:#1e8449}
+.is-card.warn .cv{color:#c0392b}
+.is-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.is-sel{padding:6px 12px;border-radius:6px;border:2px solid #2980b9;color:#1a5276;background:#fff;font-weight:600;cursor:pointer}
+.is-note{font-size:.75em;color:#999}
+.is-tbl{width:100%;border-collapse:collapse;font-size:.81em}
+.is-tbl th{background:#1a5276;color:#fff;padding:6px 8px;text-align:left;white-space:nowrap}
+.is-tbl td{padding:5px 8px;border-bottom:1px solid #eee}
+.is-tbl tr:hover td{background:#ebf5fb}
+.is-tbl .n{text-align:right;font-family:monospace}
+.is-tbl .tot{background:#d6eaf8;font-weight:700}
+.is-tbl .gpay{background:#d5f5e3;font-weight:700;color:#1e8449}
+.is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
+.is-btn:hover{background:#2980b9}
+.is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
+</style>
+<div class="is-hdr">
+<h2>🏥 Internacional de Seguros / BlueCross</h2>
+<p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; Código: 117391</p>
+</div>
+<div class="is-cards">
+<div class="is-card"><div class="cv" id="is-cv-corte">--</div><div class="cl">Corte Activo</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-npol">0</div><div class="cl">Pólizas</div></div>
+<div class="is-card"><div class="cv" id="is-cv-saldo">$0.00</div><div class="cl">+ Saldo Anterior</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-pagar">$0.00</div><div class="cl">Total a Pagar</div></div>
+</div>
+<div class="is-row">
+<label style="font-weight:700;font-size:.88em;color:#1a5276">Corte:</label>
+<select class="is-sel" id="is-sel" onchange="isSelectCorte(this.value)">
+<option value="2026-06-26">2026-06-26</option>
+<option value="2026-06-19" selected>2026-06-19</option>
+</select>
+<span id="is-sync-info" class="is-note"></span>
+</div>
+<div id="is-wrap"></div>
+<div style="margin-top:14px;padding-top:10px;border-top:1px solid #ddd">
+<div class="is-note">💡 Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
+<button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">🔗 Abrir Portal iSeguros</button>
+</div>
+<script>
+var _IS={lastSync:'2026-06-25',agente:'117391',cortes:[
+{fecCorte:'2026-06-26',records:[
+{dia:'19',poliza:'OP:2396669',asegurado:'AGO DE COMISION 13 AL 19 JUN',recibo:'12915887',prima:0,pctCom:0,comNormal:0,sobreCom:0,cobranza:0,descontada:0,dbCr:-83.07,total:-83.07}
+],totales:{saldoAnterior:83.07,totalPagar:0.00}},
+{fecCorte:'2026-06-19',records:[
+{dia:'17',poliza:'1-16-53058',asegurado:'MARIA DEL CARMEN CASTRO BARRIA',recibo:'12906836',prima:93,pctCom:10,comNormal:9.3,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:9.3},
+{dia:'15',poliza:'1-16-57983',asegurado:'CARLOS ALFREDO GONZALEZ SANCHEZ',recibo:'12902008',prima:47.3,pctCom:10,comNormal:4.73,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:4.73},
+{dia:'16',poliza:'1-16-59254',asegurado:'FRANCY ORALIX PRINCIPAL VILLABONA',recibo:'12905317',prima:23.61,pctCom:10,comNormal:2.36,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:2.36},
+{dia:'15',poliza:'1-16-60953',asegurado:'ALEX ALVAREZ MARTINEZ',recibo:'12902854',prima:107.2,pctCom:10,comNormal:10.72,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:10.72},
+{dia:'15',poliza:'1-16-61930',asegurado:'MARUSKA MELISSA CANTORAL MONTENEGRO',recibo:'12902895',prima:47.3,pctCom:10,comNormal:4.73,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:4.73},
+{dia:'15',poliza:'1-16-61931',asegurado:'MARUSKA MELISSA CANTORAL MONTENEGRO',recibo:'12902895',prima:47.3,pctCom:10,comNormal:4.73,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:4.73},
+{dia:'19',poliza:'1-16-67522',asegurado:'CARLOS JULIO GUERRA CASTILLO',recibo:'12911844',prima:47.3,pctCom:10,comNormal:4.73,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:4.73},
+{dia:'19',poliza:'1-16-67523',asegurado:'CARLOS JULIO GUERRA CASTILLO',recibo:'12911844',prima:47.3,pctCom:10,comNormal:4.73,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:4.73},
+{dia:'15',poliza:'12-1-658',asegurado:'JHON JAIRO VALVERDE OSORIO',recibo:'12903119',prima:37.47,pctCom:45,comNormal:16.86,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:16.86},
+{dia:'15',poliza:'12-16-2826',asegurado:'OLDEMAR ULISES LESCURE GILKES',recibo:'12902911',prima:47.3,pctCom:10,comNormal:4.73,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:4.73},
+{dia:'15',poliza:'12-16-3422',asegurado:'ALEX ALVAREZ MARTINEZ',recibo:'12902911',prima:47.3,pctCom:12,comNormal:5.68,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:5.68},
+{dia:'15',poliza:'12-16-3487',asegurado:'CARLOS JULIAN LUNA DOMINGUEZ',recibo:'12902911',prima:81.4,pctCom:12,comNormal:9.77,sobreCom:0,cobranza:0,descontada:0,dbCr:0,total:9.77}
+],totales:{saldoAnterior:16.56,totalPagar:83.07}}
+]};
+function isRender(){
+  try{var d=JSON.parse(localStorage.getItem('isSync'));if(d&&d.cortes&&d.cortes.length)_IS=d;}catch(x){}
+  var sel=document.getElementById('is-sel');
+  if(sel&&!window._isInit){
+    _IS.cortes.forEach(function(c){
+      var o=document.querySelector('#is-sel option[value="'+c.fecCorte+'"]');
+      if(!o){var opt=document.createElement('option');opt.value=c.fecCorte;opt.textContent=c.fecCorte;sel.insertBefore(opt,sel.firstChild);}
+    });
+    window._isInit=true;
+  }
+  var val=sel?sel.value:'2026-06-19';
+  isSelectCorte(val);
+  var inf=document.getElementById('is-sync-info');
+  if(inf)inf.textContent='Última sync: '+_IS.lastSync;
+}
+function isSelectCorte(fec){
+  var corte=null;
+  for(var i=0;i<_IS.cortes.length;i++){if(_IS.cortes[i].fecCorte===fec){corte=_IS.cortes[i];break;}}
+  if(!corte)corte=_IS.cortes[0];
+  if(!corte)return;
+  var e1=document.getElementById('is-cv-corte');if(e1)e1.textContent=corte.fecCorte;
+  var e2=document.getElementById('is-cv-npol');if(e2)e2.textContent=corte.records.length;
+  var e3=document.getElementById('is-cv-saldo');if(e3)e3.textContent='{
+var _t='com',UV='uvSync';
+function gd(){try{return JSON.parse(localStorage.getItem(UV)||'null')}catch(e){return null}}
+function sd(d){localStorage.setItem(UV,JSON.stringify(d))}
+function $i(id){return document.getElementById(id)}
+function mn(n){return '$'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function nm(n){return (+(n||0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function stCard(v,l,c){return '<div class="uv-sc"><div class="uv-sv"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div><div class="uv-sl">'+l+'</div></div>'}
+function uvRenderStats(){
+  var el=$i('uv-stats'); if(!el)return;
+  var d=gd();
+  if(!d){el.innerHTML='<div class="uv-sc" style="grid-column:1/-1;text-align:center;padding:32px"><p style="color:var(--text2,#64748b)">Sin datos. Usa Sincronizar o Importar JSON.</p></div>';return}
+  var c=d.comisiones||[],p=d.pagos||[],det=d.detalle||[];
+  var totC=c.reduce(function(s,r){return s+parseFloat(r.comision||0)},0);
+  var totP=p.filter(function(r){return r.estatus==='Pagada'}).reduce(function(s,r){return s+(r.prima||0)},0);
+  var pp=p.filter(function(r){return r.estatus==='Por Pagar'}).length;
+  var pols={};p.forEach(function(r){pols[r.nroPol]=1});
+  var facs=det.filter(function(r){return (r.tipoMovimiento||'').indexOf('FACTURACION')>=0}).length;
+  el.innerHTML=stCard(Object.keys(pols).length,'Pólizas Activas')+stCard(mn(totC),'Comisiones Totales')+stCard(mn(totP),'Primas Recaudadas')+stCard(pp,'Por Cobrar','#f59e0b')+stCard(c.length,'Registros Comisión')+stCard(facs,'Facturaciones')+stCard((d.estadosCuenta||[]).length,'Asegurados')+stCard((d.morosidad||[]).length,'Morosidad','#dc2626');
+  var ts=$i('uv-ts'); if(ts)ts.textContent='Última sync: '+(d.lastSync?new Date(d.lastSync).toLocaleString('es-PA'):'desconocida');
+}
+function uvRenderTable(){
+  var el=$i('uv-tbl'); if(!el)return;
+  var d=gd(); if(!d){el.innerHTML='<p style="padding:18px;color:var(--text2,#64748b)">Sin datos.</p>';return}
+  var h='';
+  if(_t==='com'){var c=d.comisiones||[];var totC=c.reduce(function(s,r){return s+(parseFloat(r.comision)||0);},0);h='<div style="padding:4px 0 8px;font-size:12px;color:#666">Registros: '+c.length+' &nbsp;|&nbsp; Total Comisiones: <strong style="color:#10b981">$'+nm(totC)+'</strong></div>';h+='<table class="uv-t"><thead><tr><th>Corte</th><th>Póliza</th><th>Recibo</th><th>Endoso</th><th>Asegurado</th><th>Comisión</th></tr></thead><tbody>';c.forEach(function(r){h+='<tr><td>'+r.fec_corte+'</td><td>'+r.poliza+'</td><td>'+r.recibo+'</td><td>'+r.endoso+'</td><td>'+r.asegurado+'</td><td style="font-weight:600;color:#10b981">'+nm(r.comision)+'</td></tr>';});h+='</tbody></table>';}else if(_t==='ec'){var ec=d.estadosCuenta||[];h='<table class="uv-t"><thead><tr><th>Cédula</th><th>Nombre</th><th>Póliza</th></tr></thead><tbody>';ec.forEach(function(r){h+='<tr><td>'+r.cedula+'</td><td>'+r.nombre+'</td><td>'+r.poliza+'</td></tr>'});h+='</tbody></table>';}
+  else if(_t==='mor'){var mor=d.morosidad||[];h='<table class="uv-t"><thead><tr><th>Ramo</th><th>P�liza</th><th>Contratante</th><th>Conducto</th><th>0-30d</th><th>31-60d</th><th>61-90d</th><th>&gt;90d</th><th>Total</th></tr></thead><tbody>';mor.forEach(function(r){var clr=r.dias90plus>0?'color:#dc2626':r.dias31_60>0?'color:#d97706':'';h+='<tr><td>'+r.ramo+'</td><td>'+r.poliza+'</td><td>'+r.contratante+'</td><td>'+r.conducto+'</td><td>'+nm(r.dias0_30)+'</td><td>'+nm(r.dias31_60)+'</td><td>'+nm(r.dias61_90)+'</td><td>'+nm(r.dias90plus)+'</td><td style="font-weight:600;'+clr+'">'+nm(r.total)+'</td></tr>';});h+='</tbody></table>';}else if(_t==='pag'){
+    var p=d.pagos||[];
+    h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Asegurado</th><th>F.Cobro</th><th>Recibo</th><th>Prima</th><th>Comisión</th><th>Estatus</th></tr></thead><tbody>';
+    p.forEach(function(r){var b=r.estatus==='Pagada'?'<span class="uv-bok">✔</span>':'<span class="uv-bpend">⏳</span>';h+='<tr><td>'+r.nroPol+'</td><td>'+(r.asegurado||'').slice(0,24)+'</td><td>'+r.fecCobranza+'</td><td>'+r.nroRecibo+'</td><td>'+nm(r.prima)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td>'+b+' '+(r.estatus||'')+'</td></tr>'});
+    h+='</tbody></table>';
+  }else if(_t==='liq'){var liq=d.liqComisiones||[];var corte=d.liqCorte||'';var totC=liq.reduce(function(s,r){return s+r.comision;},0);h='<div style="padding:4px 0 8px;font-size:12px;color:#666">Corte: '+corte+' &nbsp;|&nbsp; Neto: <strong style="color:#10b981">$'+nm(totC)+'</strong></div>';h+='<table class="uv-t"><thead><tr><th>Asegurado</th><th>Póliza</th><th>Recibo</th><th>Cuota</th><th>Saldo</th><th>Comisión</th><th>Primas</th><th>Fecha</th></tr></thead><tbody>';liq.forEach(function(r){var clr=r.comision<0?'color:#dc2626':'';h+='<tr style="'+clr+'"><td>'+r.asegurado+'</td><td>'+r.poliza+'</td><td>'+r.recibo+'</td><td>'+r.nro_cuota+'</td><td>'+nm(r.saldo)+'</td><td>'+nm(r.comision)+'</td><td>'+nm(r.primas)+'</td><td>'+r.fecha_pago+'</td></tr>';});h+='</tbody></table>';
+  }else{
+    var det=d.detalle||[];
+    h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Endoso</th><th>Asegurado</th><th>Desde</th><th>Hasta</th><th>Prima</th><th>Comisión</th><th>Tipo</th></tr></thead><tbody>';
+    det.forEach(function(r){h+='<tr><td>'+r.nroPol+'</td><td>'+r.endoso+'</td><td>'+(r.asegurado||'').slice(0,21)+'</td><td>'+r.fecDesde+'</td><td>'+r.fecHasta+'</td><td>'+nm(r.primaNeta)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td style="font-size:10px">'+r.tipoMovimiento+'</td></tr>'});
+    h+='</tbody></table>';
+  }
+  el.innerHTML=h;
+}
+window.uvSetTab=function(t,el){
+  _t=t;
+  document.querySelectorAll('.uv-tab').forEach(function(e){e.classList.remove('on')});
+  if(el)el.classList.add('on');
+  uvRenderTable();
+};
+window.uvSyncNow=function(){
+  $i('uv-modal').style.display='flex';
+  $i('uv-mt').textContent='🔄 Sincronizar con UniVivir';
+  $i('uv-mb').innerHTML='<p style="margin:0 0 12px;color:var(--text2,#64748b);font-size:14px">Para obtener datos en vivo:</p><ol style="font-size:13px;line-height:1.9;padding-left:18px;color:var(--text2,#64748b)"><li>Abre el portal UniVivir en una nueva pestaña</li><li>Navega a Report/index/5 (Comisiones)</li><li>Abre consola F12 y ejecuta el script de extracción</li><li>Copia el JSON y usa el botón Importar JSON</li></ol><div style="margin-top:14px"><a href="https://www.univivir.com.pa/ConsultasOnline/Report/index/5" target="_blank" class="uv-btn">Abrir UniVivir ↗</a></div>';
+};
+window.uvImport=function(){
+  $i('uv-modal').style.display='flex';
+  $i('uv-mt').textContent='📥 Importar datos JSON';
+  $i('uv-mb').innerHTML='<p style="margin:0 0 8px;font-size:13px;color:var(--text2,#64748b)">Pega el JSON de sincronización generado desde UniVivir:</p><textarea id="uv-jin" style="width:100%;height:110px;border:1.5px solid var(--border,#e2e8f0);border-radius:8px;padding:10px;font-size:11px;font-family:monospace;resize:vertical;box-sizing:border-box" placeholder="Pega aqui el JSON de sincronizacion" ></textarea><div style="margin-top:10px"><button class="uv-btn uv-btn-g" onclick="uvDoImport()">✅ Importar</button></div>';
+};
+window.uvDoImport=function(){
+  var t=$i('uv-jin'); if(!t)return;
+  try{var d=JSON.parse(t.value);if(!d.lastSync)d.lastSync=new Date().toISOString();sd(d);$i('uv-modal').style.display='none';uvRenderStats();uvRenderTable();alert('Importados: '+(d.comisiones||[]).length+' comisiones, '+(d.pagos||[]).length+' pagos, '+(d.detalle||[]).length+' movimientos.');}catch(e){alert('JSON inválido: '+e.message);}
+};
+$i('uv-modal').addEventListener('click',function(e){if(e.target===$i('uv-modal'))$i('uv-modal').style.display='none'});
+var pg=$i('pg-uv');
+if(pg)new MutationObserver(function(){if(pg.classList.contains('on')){uvRenderStats();uvRenderTable();}}).observe(pg,{attributes:true,attributeFilter:['class']});
+var _sv=gd();if(_sv&&(!_sv.estadosCuenta||!_sv.estadosCuenta.length)){_sv.estadosCuenta=[{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6663},{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6896},{"id":17074,"codPersona":20220,"nombre":"MICHELLE DENISE CAMBRA LA DUKE","cedula":"8-514-1344","poliza":6896},{"id":18510,"codPersona":21837,"nombre":"MARIA VIRGINIA TERAN GUTIERREZ","cedula":"8-715-2009","poliza":7498},{"id":22378,"codPersona":26115,"nombre":"DEYANIRA PINTO MONTERO","cedula":"4-771-1782","poliza":9640},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":10181},{"id":26330,"codPersona":30371,"nombre":"KATELEEN MISHELLE  BRINDLEY SALDANA","cedula":"PE-14-1286","poliza":11595},{"id":29962,"codPersona":34228,"nombre":"RICARDO ANDRES GONZALEZ PEIRANO","cedula":"8-748-2221","poliza":13096},{"id":30236,"codPersona":34503,"nombre":"CORINA BEATRIZ FLORES FUENTE","cedula":"8-832-2261","poliza":13096},{"id":32117,"codPersona":36470,"nombre":"MONICA HERNANDEZ PRECIADO","cedula":"A0591190","poliza":13869},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":14087},{"id":40999,"codPersona":45985,"nombre":"ADDEMAR MOISES ROMERO GONZALEZ","cedula":"8-812-1859","poliza":17375},{"id":42978,"codPersona":48076,"nombre":"JEIMMY DAGNERY URRIOLA AYALA","cedula":"4-748-1015","poliza":18009},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":18101},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":18625},{"id":49242,"codPersona":54554,"nombre":"MARUSKA MELISSA CANTORAL MONTENEGRO","cedula":"7-705-53","poliza":19545},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20457},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20618},{"id":57692,"codPersona":63252,"nombre":"ESTEFANI YAHIR RUIZ ADRIAN","cedula":"172882688","poliza":21683},{"id":58439,"codPersona":64024,"nombre":"MARIA TERESA PADILLA LAYNES","cedula":"8-820-2062","poliza":21872},{"id":61780,"codPersona":67477,"nombre":"MARGARITA GONZALEZ HERRERA","cedula":"8-895-804","poliza":22682},{"id":62780,"codPersona":68526,"nombre":"LUIS CLEMENTE GONZALEZ HERRERA","cedula":"8-907-184","poliza":22951}];sd(_sv);}
+if(_sv&&(!_sv.morosidad||!_sv.morosidad.length)){_sv.morosidad=[{"ramo":"SALUD IND.","poliza":"6663","emision":"01/05/2026","vigencia":"01/05/2026","contratante":"JELY AN CASTRO PEREZ","pagador":"JELY AN CASTRO PEREZ","conducto":"EFECTIVO","dias0_30":125.06,"dias31_60":125.06,"dias61_90":0,"dias90plus":0,"total":250.12},{"ramo":"SALUD IND.","poliza":"10181","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"JAN LUIS VALDES LLAURADO","pagador":"JAN LUIS VALDES LLAURADO","conducto":"TARJETA DE CREDITO VISA","dias0_30":80.94,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":80.94},{"ramo":"SALUD IND.","poliza":"13869","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"MONICA HERNANDEZ PRECIADO","pagador":"MONICA HERNANDEZ PRECIADO","conducto":"EFECTIVO","dias0_30":104.82,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":104.82},{"ramo":"SALUD IND.","poliza":"21872","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"MARIA PADILLA LAYNES","pagador":"MARIA PADILLA LAYNES","conducto":"ACH","dias0_30":130.29,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":130.29}];sd(_sv);}if(_sv&&(!_sv.liqComisiones||!_sv.liqComisiones.length)){_sv.liqComisiones=[{"asegurado":"CAMBRA LA DUKE MICHELLE D","poliza":"874579","recibo":"6896","endoso":"126","saldo":2.31,"comision":2.31,"nro_cuota":"009","primas":19.28,"fecha_pago":"01/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"874579","recibo":"18009","endoso":"46","saldo":17.31,"comision":17.31,"nro_cuota":"009","primas":144.21,"fecha_pago":"01/06/2026"},{"asegurado":"JURADO MOLINA GENESIS ALE","poliza":"874844","recibo":"20457","endoso":"27","saldo":13.45,"comision":13.45,"nro_cuota":"009","primas":112.1,"fecha_pago":"02/06/2026"},{"asegurado":"JURADO MOLINA GENESIS ALE","poliza":"874844","recibo":"20618","endoso":"25","saldo":14.6,"comision":14.6,"nro_cuota":"009","primas":121.63,"fecha_pago":"02/06/2026"},{"asegurado":"ROMERO GONZALEZ ADDEMAR M","poliza":"874844","recibo":"17375","endoso":"52","saldo":19.62,"comision":19.62,"nro_cuota":"009","primas":163.5,"fecha_pago":"02/06/2026"},{"asegurado":"TERAN GUTIERREZ MARIA VIR","poliza":"874844","recibo":"7498","endoso":"117","saldo":11.86,"comision":11.86,"nro_cuota":"009","primas":98.82,"fecha_pago":"02/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"874844","recibo":"18625","endoso":"40","saldo":12.37,"comision":12.37,"nro_cuota":"009","primas":103.08,"fecha_pago":"02/06/2026"},{"asegurado":"RUIZ ADRIAN ESTEFANI YAHI","poliza":"875264","recibo":"21683","endoso":"18","saldo":6.89,"comision":6.89,"nro_cuota":"009","primas":57.42,"fecha_pago":"03/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"875113","recibo":"10181","endoso":"105","saldo":4.62,"comision":4.62,"nro_cuota":"009","primas":38.5,"fecha_pago":"03/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"875113","recibo":"10181","endoso":"106","saldo":19.09,"comision":19.09,"nro_cuota":"009","primas":159.08,"fecha_pago":"03/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"876329","recibo":"18009","endoso":"46","saldo":-17.31,"comision":-17.31,"nro_cuota":"009","primas":-144.21,"fecha_pago":"09/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876668","recibo":"11595","endoso":"103","saldo":1.99,"comision":1.99,"nro_cuota":"009","primas":16.58,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876668","recibo":"11595","endoso":"104","saldo":4.65,"comision":4.65,"nro_cuota":"009","primas":38.75,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876712","recibo":"11595","endoso":"104","saldo":3.98,"comision":3.98,"nro_cuota":"009","primas":33.17,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876712","recibo":"11595","endoso":"105","saldo":8.63,"comision":8.63,"nro_cuota":"009","primas":71.92,"fecha_pago":"10/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"876667","recibo":"18009","endoso":"46","saldo":17.31,"comision":17.31,"nro_cuota":"009","primas":144.21,"fecha_pago":"10/06/2026"},{"asegurado":"GONZALEZ HERRERA LUIS CLE","poliza":"877294","recibo":"22951","endoso":"7","saldo":5.8,"comision":5.8,"nro_cuota":"048","primas":5.8,"fecha_pago":"14/06/2026"},{"asegurado":"CAMBRA LA DUKE MICHELLE D","poliza":"877389","recibo":"6896","endoso":"126","saldo":11.86,"comision":11.86,"nro_cuota":"009","primas":98.82,"fecha_pago":"15/06/2026"}];_sv.liqCorte='15/06/2026';sd(_sv);}
+uvRenderStats();uvRenderTable();
+})();
+</script>
+</div>
+</body>
+</html>+corte.totales.saldoAnterior.toFixed(2);
+  var e4=document.getElementById('is-cv-pagar');
+  if(e4){e4.textContent='{
+var _t='com',UV='uvSync';
+function gd(){try{return JSON.parse(localStorage.getItem(UV)||'null')}catch(e){return null}}
+function sd(d){localStorage.setItem(UV,JSON.stringify(d))}
+function $i(id){return document.getElementById(id)}
+function mn(n){return '$'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function nm(n){return (+(n||0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function stCard(v,l,c){return '<div class="uv-sc"><div class="uv-sv"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div><div class="uv-sl">'+l+'</div></div>'}
+function uvRenderStats(){
+  var el=$i('uv-stats'); if(!el)return;
+  var d=gd();
+  if(!d){el.innerHTML='<div class="uv-sc" style="grid-column:1/-1;text-align:center;padding:32px"><p style="color:var(--text2,#64748b)">Sin datos. Usa Sincronizar o Importar JSON.</p></div>';return}
+  var c=d.comisiones||[],p=d.pagos||[],det=d.detalle||[];
+  var totC=c.reduce(function(s,r){return s+parseFloat(r.comision||0)},0);
+  var totP=p.filter(function(r){return r.estatus==='Pagada'}).reduce(function(s,r){return s+(r.prima||0)},0);
+  var pp=p.filter(function(r){return r.estatus==='Por Pagar'}).length;
+  var pols={};p.forEach(function(r){pols[r.nroPol]=1});
+  var facs=det.filter(function(r){return (r.tipoMovimiento||'').indexOf('FACTURACION')>=0}).length;
+  el.innerHTML=stCard(Object.keys(pols).length,'Pólizas Activas')+stCard(mn(totC),'Comisiones Totales')+stCard(mn(totP),'Primas Recaudadas')+stCard(pp,'Por Cobrar','#f59e0b')+stCard(c.length,'Registros Comisión')+stCard(facs,'Facturaciones')+stCard((d.estadosCuenta||[]).length,'Asegurados')+stCard((d.morosidad||[]).length,'Morosidad','#dc2626');
+  var ts=$i('uv-ts'); if(ts)ts.textContent='Última sync: '+(d.lastSync?new Date(d.lastSync).toLocaleString('es-PA'):'desconocida');
+}
+function uvRenderTable(){
+  var el=$i('uv-tbl'); if(!el)return;
+  var d=gd(); if(!d){el.innerHTML='<p style="padding:18px;color:var(--text2,#64748b)">Sin datos.</p>';return}
+  var h='';
+  if(_t==='com'){var c=d.comisiones||[];var totC=c.reduce(function(s,r){return s+(parseFloat(r.comision)||0);},0);h='<div style="padding:4px 0 8px;font-size:12px;color:#666">Registros: '+c.length+' &nbsp;|&nbsp; Total Comisiones: <strong style="color:#10b981">$'+nm(totC)+'</strong></div>';h+='<table class="uv-t"><thead><tr><th>Corte</th><th>Póliza</th><th>Recibo</th><th>Endoso</th><th>Asegurado</th><th>Comisión</th></tr></thead><tbody>';c.forEach(function(r){h+='<tr><td>'+r.fec_corte+'</td><td>'+r.poliza+'</td><td>'+r.recibo+'</td><td>'+r.endoso+'</td><td>'+r.asegurado+'</td><td style="font-weight:600;color:#10b981">'+nm(r.comision)+'</td></tr>';});h+='</tbody></table>';}else if(_t==='ec'){var ec=d.estadosCuenta||[];h='<table class="uv-t"><thead><tr><th>Cédula</th><th>Nombre</th><th>Póliza</th></tr></thead><tbody>';ec.forEach(function(r){h+='<tr><td>'+r.cedula+'</td><td>'+r.nombre+'</td><td>'+r.poliza+'</td></tr>'});h+='</tbody></table>';}
+  else if(_t==='mor'){var mor=d.morosidad||[];h='<table class="uv-t"><thead><tr><th>Ramo</th><th>P�liza</th><th>Contratante</th><th>Conducto</th><th>0-30d</th><th>31-60d</th><th>61-90d</th><th>&gt;90d</th><th>Total</th></tr></thead><tbody>';mor.forEach(function(r){var clr=r.dias90plus>0?'color:#dc2626':r.dias31_60>0?'color:#d97706':'';h+='<tr><td>'+r.ramo+'</td><td>'+r.poliza+'</td><td>'+r.contratante+'</td><td>'+r.conducto+'</td><td>'+nm(r.dias0_30)+'</td><td>'+nm(r.dias31_60)+'</td><td>'+nm(r.dias61_90)+'</td><td>'+nm(r.dias90plus)+'</td><td style="font-weight:600;'+clr+'">'+nm(r.total)+'</td></tr>';});h+='</tbody></table>';}else if(_t==='pag'){
+    var p=d.pagos||[];
+    h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Asegurado</th><th>F.Cobro</th><th>Recibo</th><th>Prima</th><th>Comisión</th><th>Estatus</th></tr></thead><tbody>';
+    p.forEach(function(r){var b=r.estatus==='Pagada'?'<span class="uv-bok">✔</span>':'<span class="uv-bpend">⏳</span>';h+='<tr><td>'+r.nroPol+'</td><td>'+(r.asegurado||'').slice(0,24)+'</td><td>'+r.fecCobranza+'</td><td>'+r.nroRecibo+'</td><td>'+nm(r.prima)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td>'+b+' '+(r.estatus||'')+'</td></tr>'});
+    h+='</tbody></table>';
+  }else if(_t==='liq'){var liq=d.liqComisiones||[];var corte=d.liqCorte||'';var totC=liq.reduce(function(s,r){return s+r.comision;},0);h='<div style="padding:4px 0 8px;font-size:12px;color:#666">Corte: '+corte+' &nbsp;|&nbsp; Neto: <strong style="color:#10b981">$'+nm(totC)+'</strong></div>';h+='<table class="uv-t"><thead><tr><th>Asegurado</th><th>Póliza</th><th>Recibo</th><th>Cuota</th><th>Saldo</th><th>Comisión</th><th>Primas</th><th>Fecha</th></tr></thead><tbody>';liq.forEach(function(r){var clr=r.comision<0?'color:#dc2626':'';h+='<tr style="'+clr+'"><td>'+r.asegurado+'</td><td>'+r.poliza+'</td><td>'+r.recibo+'</td><td>'+r.nro_cuota+'</td><td>'+nm(r.saldo)+'</td><td>'+nm(r.comision)+'</td><td>'+nm(r.primas)+'</td><td>'+r.fecha_pago+'</td></tr>';});h+='</tbody></table>';
+  }else{
+    var det=d.detalle||[];
+    h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Endoso</th><th>Asegurado</th><th>Desde</th><th>Hasta</th><th>Prima</th><th>Comisión</th><th>Tipo</th></tr></thead><tbody>';
+    det.forEach(function(r){h+='<tr><td>'+r.nroPol+'</td><td>'+r.endoso+'</td><td>'+(r.asegurado||'').slice(0,21)+'</td><td>'+r.fecDesde+'</td><td>'+r.fecHasta+'</td><td>'+nm(r.primaNeta)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td style="font-size:10px">'+r.tipoMovimiento+'</td></tr>'});
+    h+='</tbody></table>';
+  }
+  el.innerHTML=h;
+}
+window.uvSetTab=function(t,el){
+  _t=t;
+  document.querySelectorAll('.uv-tab').forEach(function(e){e.classList.remove('on')});
+  if(el)el.classList.add('on');
+  uvRenderTable();
+};
+window.uvSyncNow=function(){
+  $i('uv-modal').style.display='flex';
+  $i('uv-mt').textContent='🔄 Sincronizar con UniVivir';
+  $i('uv-mb').innerHTML='<p style="margin:0 0 12px;color:var(--text2,#64748b);font-size:14px">Para obtener datos en vivo:</p><ol style="font-size:13px;line-height:1.9;padding-left:18px;color:var(--text2,#64748b)"><li>Abre el portal UniVivir en una nueva pestaña</li><li>Navega a Report/index/5 (Comisiones)</li><li>Abre consola F12 y ejecuta el script de extracción</li><li>Copia el JSON y usa el botón Importar JSON</li></ol><div style="margin-top:14px"><a href="https://www.univivir.com.pa/ConsultasOnline/Report/index/5" target="_blank" class="uv-btn">Abrir UniVivir ↗</a></div>';
+};
+window.uvImport=function(){
+  $i('uv-modal').style.display='flex';
+  $i('uv-mt').textContent='📥 Importar datos JSON';
+  $i('uv-mb').innerHTML='<p style="margin:0 0 8px;font-size:13px;color:var(--text2,#64748b)">Pega el JSON de sincronización generado desde UniVivir:</p><textarea id="uv-jin" style="width:100%;height:110px;border:1.5px solid var(--border,#e2e8f0);border-radius:8px;padding:10px;font-size:11px;font-family:monospace;resize:vertical;box-sizing:border-box" placeholder="Pega aqui el JSON de sincronizacion" ></textarea><div style="margin-top:10px"><button class="uv-btn uv-btn-g" onclick="uvDoImport()">✅ Importar</button></div>';
+};
+window.uvDoImport=function(){
+  var t=$i('uv-jin'); if(!t)return;
+  try{var d=JSON.parse(t.value);if(!d.lastSync)d.lastSync=new Date().toISOString();sd(d);$i('uv-modal').style.display='none';uvRenderStats();uvRenderTable();alert('Importados: '+(d.comisiones||[]).length+' comisiones, '+(d.pagos||[]).length+' pagos, '+(d.detalle||[]).length+' movimientos.');}catch(e){alert('JSON inválido: '+e.message);}
+};
+$i('uv-modal').addEventListener('click',function(e){if(e.target===$i('uv-modal'))$i('uv-modal').style.display='none'});
+var pg=$i('pg-uv');
+if(pg)new MutationObserver(function(){if(pg.classList.contains('on')){uvRenderStats();uvRenderTable();}}).observe(pg,{attributes:true,attributeFilter:['class']});
+var _sv=gd();if(_sv&&(!_sv.estadosCuenta||!_sv.estadosCuenta.length)){_sv.estadosCuenta=[{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6663},{"id":16509,"codPersona":19562,"nombre":"JELY AN CASTRO PEREZ","cedula":"7-118-282","poliza":6896},{"id":17074,"codPersona":20220,"nombre":"MICHELLE DENISE CAMBRA LA DUKE","cedula":"8-514-1344","poliza":6896},{"id":18510,"codPersona":21837,"nombre":"MARIA VIRGINIA TERAN GUTIERREZ","cedula":"8-715-2009","poliza":7498},{"id":22378,"codPersona":26115,"nombre":"DEYANIRA PINTO MONTERO","cedula":"4-771-1782","poliza":9640},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":10181},{"id":26330,"codPersona":30371,"nombre":"KATELEEN MISHELLE  BRINDLEY SALDANA","cedula":"PE-14-1286","poliza":11595},{"id":29962,"codPersona":34228,"nombre":"RICARDO ANDRES GONZALEZ PEIRANO","cedula":"8-748-2221","poliza":13096},{"id":30236,"codPersona":34503,"nombre":"CORINA BEATRIZ FLORES FUENTE","cedula":"8-832-2261","poliza":13096},{"id":32117,"codPersona":36470,"nombre":"MONICA HERNANDEZ PRECIADO","cedula":"A0591190","poliza":13869},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":14087},{"id":40999,"codPersona":45985,"nombre":"ADDEMAR MOISES ROMERO GONZALEZ","cedula":"8-812-1859","poliza":17375},{"id":42978,"codPersona":48076,"nombre":"JEIMMY DAGNERY URRIOLA AYALA","cedula":"4-748-1015","poliza":18009},{"id":32223,"codPersona":36578,"nombre":"CARLOS ALFREDO GONZALEZ SANCHEZ","cedula":"8-846-1661","poliza":18101},{"id":23595,"codPersona":27440,"nombre":"JAN LUIS VALDES LLAURADO","cedula":"8-704-1197","poliza":18625},{"id":49242,"codPersona":54554,"nombre":"MARUSKA MELISSA CANTORAL MONTENEGRO","cedula":"7-705-53","poliza":19545},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20457},{"id":52567,"codPersona":57968,"nombre":"GENESIS ALEJANDRA JURADO MOLINA","cedula":"176192932","poliza":20618},{"id":57692,"codPersona":63252,"nombre":"ESTEFANI YAHIR RUIZ ADRIAN","cedula":"172882688","poliza":21683},{"id":58439,"codPersona":64024,"nombre":"MARIA TERESA PADILLA LAYNES","cedula":"8-820-2062","poliza":21872},{"id":61780,"codPersona":67477,"nombre":"MARGARITA GONZALEZ HERRERA","cedula":"8-895-804","poliza":22682},{"id":62780,"codPersona":68526,"nombre":"LUIS CLEMENTE GONZALEZ HERRERA","cedula":"8-907-184","poliza":22951}];sd(_sv);}
+if(_sv&&(!_sv.morosidad||!_sv.morosidad.length)){_sv.morosidad=[{"ramo":"SALUD IND.","poliza":"6663","emision":"01/05/2026","vigencia":"01/05/2026","contratante":"JELY AN CASTRO PEREZ","pagador":"JELY AN CASTRO PEREZ","conducto":"EFECTIVO","dias0_30":125.06,"dias31_60":125.06,"dias61_90":0,"dias90plus":0,"total":250.12},{"ramo":"SALUD IND.","poliza":"10181","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"JAN LUIS VALDES LLAURADO","pagador":"JAN LUIS VALDES LLAURADO","conducto":"TARJETA DE CREDITO VISA","dias0_30":80.94,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":80.94},{"ramo":"SALUD IND.","poliza":"13869","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"MONICA HERNANDEZ PRECIADO","pagador":"MONICA HERNANDEZ PRECIADO","conducto":"EFECTIVO","dias0_30":104.82,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":104.82},{"ramo":"SALUD IND.","poliza":"21872","emision":"01/06/2026","vigencia":"01/06/2026","contratante":"MARIA PADILLA LAYNES","pagador":"MARIA PADILLA LAYNES","conducto":"ACH","dias0_30":130.29,"dias31_60":0,"dias61_90":0,"dias90plus":0,"total":130.29}];sd(_sv);}if(_sv&&(!_sv.liqComisiones||!_sv.liqComisiones.length)){_sv.liqComisiones=[{"asegurado":"CAMBRA LA DUKE MICHELLE D","poliza":"874579","recibo":"6896","endoso":"126","saldo":2.31,"comision":2.31,"nro_cuota":"009","primas":19.28,"fecha_pago":"01/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"874579","recibo":"18009","endoso":"46","saldo":17.31,"comision":17.31,"nro_cuota":"009","primas":144.21,"fecha_pago":"01/06/2026"},{"asegurado":"JURADO MOLINA GENESIS ALE","poliza":"874844","recibo":"20457","endoso":"27","saldo":13.45,"comision":13.45,"nro_cuota":"009","primas":112.1,"fecha_pago":"02/06/2026"},{"asegurado":"JURADO MOLINA GENESIS ALE","poliza":"874844","recibo":"20618","endoso":"25","saldo":14.6,"comision":14.6,"nro_cuota":"009","primas":121.63,"fecha_pago":"02/06/2026"},{"asegurado":"ROMERO GONZALEZ ADDEMAR M","poliza":"874844","recibo":"17375","endoso":"52","saldo":19.62,"comision":19.62,"nro_cuota":"009","primas":163.5,"fecha_pago":"02/06/2026"},{"asegurado":"TERAN GUTIERREZ MARIA VIR","poliza":"874844","recibo":"7498","endoso":"117","saldo":11.86,"comision":11.86,"nro_cuota":"009","primas":98.82,"fecha_pago":"02/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"874844","recibo":"18625","endoso":"40","saldo":12.37,"comision":12.37,"nro_cuota":"009","primas":103.08,"fecha_pago":"02/06/2026"},{"asegurado":"RUIZ ADRIAN ESTEFANI YAHI","poliza":"875264","recibo":"21683","endoso":"18","saldo":6.89,"comision":6.89,"nro_cuota":"009","primas":57.42,"fecha_pago":"03/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"875113","recibo":"10181","endoso":"105","saldo":4.62,"comision":4.62,"nro_cuota":"009","primas":38.5,"fecha_pago":"03/06/2026"},{"asegurado":"VALDES LLAURADO JAN LUIS","poliza":"875113","recibo":"10181","endoso":"106","saldo":19.09,"comision":19.09,"nro_cuota":"009","primas":159.08,"fecha_pago":"03/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"876329","recibo":"18009","endoso":"46","saldo":-17.31,"comision":-17.31,"nro_cuota":"009","primas":-144.21,"fecha_pago":"09/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876668","recibo":"11595","endoso":"103","saldo":1.99,"comision":1.99,"nro_cuota":"009","primas":16.58,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876668","recibo":"11595","endoso":"104","saldo":4.65,"comision":4.65,"nro_cuota":"009","primas":38.75,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876712","recibo":"11595","endoso":"104","saldo":3.98,"comision":3.98,"nro_cuota":"009","primas":33.17,"fecha_pago":"10/06/2026"},{"asegurado":"BRINDLEY SALDANA KATELEEN","poliza":"876712","recibo":"11595","endoso":"105","saldo":8.63,"comision":8.63,"nro_cuota":"009","primas":71.92,"fecha_pago":"10/06/2026"},{"asegurado":"URRIOLA AYALA JEIMMY DAGN","poliza":"876667","recibo":"18009","endoso":"46","saldo":17.31,"comision":17.31,"nro_cuota":"009","primas":144.21,"fecha_pago":"10/06/2026"},{"asegurado":"GONZALEZ HERRERA LUIS CLE","poliza":"877294","recibo":"22951","endoso":"7","saldo":5.8,"comision":5.8,"nro_cuota":"048","primas":5.8,"fecha_pago":"14/06/2026"},{"asegurado":"CAMBRA LA DUKE MICHELLE D","poliza":"877389","recibo":"6896","endoso":"126","saldo":11.86,"comision":11.86,"nro_cuota":"009","primas":98.82,"fecha_pago":"15/06/2026"}];_sv.liqCorte='15/06/2026';sd(_sv);}
+uvRenderStats();uvRenderTable();
+})();
+</script>
+</div>
+</body>
+</html>+corte.totales.totalPagar.toFixed(2);e4.parentElement.className='is-card '+(corte.totales.totalPagar>0?'ok':'warn');}
+  var wrap=document.getElementById('is-wrap');
+  if(!wrap)return;
+  if(!corte.records.length){wrap.innerHTML='<div class="is-empty">Sin registros para este corte</div>';return;}
+  var h='<div style="overflow-x:auto"><table class="is-tbl"><thead><tr>';
+  h+='<th>Día</th><th>Póliza</th><th>Asegurado</th><th>Recibo</th>';
+  h+='<th class="n">Prima</th><th class="n">%Com</th><th class="n">Comisión</th><th class="n">Total</th>';
+  h+='</tr></thead><tbody>';
+  var sp=0,sc=0,st=0;
+  corte.records.forEach(function(r){
+    sp+=r.prima;sc+=r.comNormal;st+=r.total;
+    var neg=r.total<0?' style="color:#c0392b"':'';
+    h+='<tr><td>'+r.dia+'</td><td>'+r.poliza+'</td><td>'+r.asegurado+'</td><td>'+r.recibo+'</td>';
+    h+='<td class="n">'+r.prima.toFixed(2)+'</td><td class="n">'+r.pctCom+'%</td>';
+    h+='<td class="n">'+r.comNormal.toFixed(2)+'</td><td class="n"'+neg+'>'+r.total.toFixed(2)+'</td></tr>';
+  });
+  h+='<tr class="tot"><td colspan="4">TOTALES ('+corte.records.length+' registros)</td>';
+  h+='<td class="n">'+sp.toFixed(2)+'</td><td></td><td class="n">'+sc.toFixed(2)+'</td><td class="n">'+st.toFixed(2)+'</td></tr>';
+  h+='<tr class="tot"><td colspan="6">+ Saldo Anterior</td><td colspan="2" class="n">'+corte.totales.saldoAnterior.toFixed(2)+'</td></tr>';
+  h+='<tr class="gpay"><td colspan="6">✅ Total a Pagar</td><td colspan="2" class="n">'+corte.totales.totalPagar.toFixed(2)+'</td></tr>';
+  h+='</tbody></table></div>';
+  wrap.innerHTML=h;
+}
+</script>
 </div>
 <script>
 (function(){
