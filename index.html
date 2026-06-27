@@ -9157,55 +9157,7 @@ SH=function(pg){
     </div>
   </div>
 </div>
-<div id="pg-is" class="pg">
-<style>
-.is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
-.is-hdr h2{margin:0;font-size:1.1em;font-weight:700}
-.is-hdr p{margin:4px 0 0;font-size:.78em;opacity:.8}
-.is-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:14px}
-.is-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center}
-.is-card .cv{font-size:1.45em;font-weight:700;color:#1a5276;margin:4px 0}
-.is-card .cl{font-size:.7em;color:#999;text-transform:uppercase;letter-spacing:.5px}
-.is-card.ok .cv{color:#1e8449}
-.is-card.warn .cv{color:#c0392b}
-.is-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.is-sel{padding:6px 12px;border-radius:6px;border:2px solid #2980b9;color:#1a5276;background:#fff;font-weight:600;cursor:pointer}
-.is-note{font-size:.75em;color:#999}
-.is-tbl{width:100%;border-collapse:collapse;font-size:.81em}
-.is-tbl th{background:#1a5276;color:#fff;padding:6px 8px;text-align:left;white-space:nowrap}
-.is-tbl td{padding:5px 8px;border-bottom:1px solid #eee}
-.is-tbl tr:hover td{background:#ebf5fb}
-.is-tbl .n{text-align:right;font-family:monospace}
-.is-tbl .tot{background:#d6eaf8;font-weight:700}
-.is-tbl .gpay{background:#d5f5e3;font-weight:700;color:#1e8449}
-.is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
-.is-btn:hover{background:#2980b9}
-.is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
-</style>
-<div class="is-hdr">
-<h2>ð¥ Internacional de Seguros / BlueCross</h2>
-<p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; CÃ³digo: 117391</p>
-</div>
-<div class="is-cards">
-<div class="is-card"><div class="cv" id="is-cv-corte">--</div><div class="cl">Corte Activo</div></div>
-<div class="is-card ok"><div class="cv" id="is-cv-npol">0</div><div class="cl">PÃ³lizas</div></div>
-<div class="is-card"><div class="cv" id="is-cv-saldo">$0.00</div><div class="cl">+ Saldo Anterior</div></div>
-<div class="is-card ok"><div class="cv" id="is-cv-pagar">$0.00</div><div class="cl">Total a Pagar</div></div>
-</div>
-<div class="is-row">
-<label style="font-weight:700;font-size:.88em;color:#1a5276">Corte:</label>
-<select class="is-sel" id="is-sel" onchange="isSelectCorte(this.value)">
-<option value="2026-06-26">2026-06-26</option>
-<option value="2026-06-19" selected>2026-06-19</option>
-</select>
-<span id="is-sync-info" class="is-note"></span>
-</div>
-<div id="is-wrap"></div>
-<div style="margin-top:14px;padding-top:10px;border-top:1px solid #ddd">
-<div class="is-note">ð¡ Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
-<button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">ð Abrir Portal iSeguros</button>
-</div>
-</div>
+
 <style>
 .is-tabs{display:flex;gap:5px;margin-bottom:14px;border-bottom:2px solid #2980b9;padding-bottom:6px}
 .is-tab{padding:7px 15px;border:2px solid #2980b9;border-bottom:none;border-radius:6px 6px 0 0;background:#e8f4fd;color:#1a5276;cursor:pointer;font-weight:700;font-size:.82em;transition:.15s}
@@ -9560,6 +9512,54 @@ if(typeof RD==='function')RD();if(typeof RCom==='function')RCom();
 uvRenderStats();uvRenderTable();
 })();
 </script>
+</div><div id="pg-is" class="pg">
+<style>
+.is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
+.is-hdr h2{margin:0;font-size:1.1em;font-weight:700}
+.is-hdr p{margin:4px 0 0;font-size:.78em;opacity:.8}
+.is-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:14px}
+.is-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center}
+.is-card .cv{font-size:1.45em;font-weight:700;color:#1a5276;margin:4px 0}
+.is-card .cl{font-size:.7em;color:#999;text-transform:uppercase;letter-spacing:.5px}
+.is-card.ok .cv{color:#1e8449}
+.is-card.warn .cv{color:#c0392b}
+.is-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.is-sel{padding:6px 12px;border-radius:6px;border:2px solid #2980b9;color:#1a5276;background:#fff;font-weight:600;cursor:pointer}
+.is-note{font-size:.75em;color:#999}
+.is-tbl{width:100%;border-collapse:collapse;font-size:.81em}
+.is-tbl th{background:#1a5276;color:#fff;padding:6px 8px;text-align:left;white-space:nowrap}
+.is-tbl td{padding:5px 8px;border-bottom:1px solid #eee}
+.is-tbl tr:hover td{background:#ebf5fb}
+.is-tbl .n{text-align:right;font-family:monospace}
+.is-tbl .tot{background:#d6eaf8;font-weight:700}
+.is-tbl .gpay{background:#d5f5e3;font-weight:700;color:#1e8449}
+.is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
+.is-btn:hover{background:#2980b9}
+.is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
+</style>
+<div class="is-hdr">
+<h2>ð¥ Internacional de Seguros / BlueCross</h2>
+<p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; CÃ³digo: 117391</p>
+</div>
+<div class="is-cards">
+<div class="is-card"><div class="cv" id="is-cv-corte">--</div><div class="cl">Corte Activo</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-npol">0</div><div class="cl">PÃ³lizas</div></div>
+<div class="is-card"><div class="cv" id="is-cv-saldo">$0.00</div><div class="cl">+ Saldo Anterior</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-pagar">$0.00</div><div class="cl">Total a Pagar</div></div>
+</div>
+<div class="is-row">
+<label style="font-weight:700;font-size:.88em;color:#1a5276">Corte:</label>
+<select class="is-sel" id="is-sel" onchange="isSelectCorte(this.value)">
+<option value="2026-06-26">2026-06-26</option>
+<option value="2026-06-19" selected>2026-06-19</option>
+</select>
+<span id="is-sync-info" class="is-note"></span>
+</div>
+<div id="is-wrap"></div>
+<div style="margin-top:14px;padding-top:10px;border-top:1px solid #ddd">
+<div class="is-note">ð¡ Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
+<button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">ð Abrir Portal iSeguros</button>
+</div>
 </div>
 </body>
 </html>
