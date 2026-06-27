@@ -9456,7 +9456,8 @@ function uvRenderTable(){
     h='<table class="uv-t"><thead><tr><th>Póliza</th><th>Endoso</th><th>Asegurado</th><th>Desde</th><th>Hasta</th><th>Prima</th><th>Comisión</th><th>Tipo</th></tr></thead><tbody>';
     det.forEach(function(r){h+='<tr><td>'+r.nroPol+'</td><td>'+r.endoso+'</td><td>'+(r.asegurado||'').slice(0,21)+'</td><td>'+r.fecDesde+'</td><td>'+r.fecHasta+'</td><td>'+nm(r.primaNeta)+'</td><td style="color:#059669">'+nm(r.comision)+'</td><td style="font-size:10px">'+r.tipoMovimiento+'</td></tr>'});
     h+='</tbody></table>';
-  } else if(tab==='pv'){
+  }
+  if(_t==='pv'){
     var pv=_sv.polizasVigentes||[];
     var pvP=pv.reduce(function(s,r){return +(s+r.prima).toFixed(2);},0);
     var pvV=pv.reduce(function(s,r){return s+r.vidas;},0);
