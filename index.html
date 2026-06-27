@@ -9644,6 +9644,23 @@ var _ISPols=[
   "fp": "Mensual",
   "pe": "Vitalicio",
   "id": "VU540"
+ },
+ {
+  "n": "VU-18060",
+  "c": "JOSE ANTONIO JIMENEZ MOYA",
+  "ci": "3-712-1243-97",
+  "contratante": "JOSE ANTONIO JIMENEZ MOYA",
+  "r": "VIDA UNIVERSAL",
+  "pr": 0,
+  "es": "Vigente",
+  "et": "Normal",
+  "fi": "2026-06-01",
+  "ff": "",
+  "fp": "Mensual",
+  "pe": "Vitalicio",
+  "id": "VU180600",
+  "tel": "66702038",
+  "email": "antoniojim@yahoo.com"
  }
 ];
 
@@ -9680,6 +9697,7 @@ function isRender(tabId) {
   try {
     var ld = localStorage.getItem('isSync');
     if (ld) { var lp = JSON.parse(ld); if (lp && lp.cortes) { _IS.cortes = lp.cortes; _IS.lastSync = lp.lastSync || _IS.lastSync; } }
+    localStorage.removeItem('isSyncPols');
     var lp2 = localStorage.getItem('isSyncPols');
     if (lp2) { var pp = JSON.parse(lp2); if (pp && pp.length) window._ISLivePols = pp; }
     var lb = localStorage.getItem('bcbsSync');
