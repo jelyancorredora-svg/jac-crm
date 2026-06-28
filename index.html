@@ -4108,13 +4108,13 @@ function openEmailForPagCli(polizaId,which){
   }
 }
 function addPagReminder(pagId){
-  var S2=JSON.parse(localStorage.getItem("jacv10")||"{}");
-  var pag=(S2.pagos||[]).find(function(x){return x.id===pagId;});
+  
+  var pag=(S.pagos||[]).find(function(x){return x.id===pagId;});
   if(!pag)return toast("Pago no encontrado","err");
-  if(!S2.calEventos)S2.calEventos=[];
+  if(!S.calEventos)S.calEventos=[];
   var evId="pag_"+pagId+"_"+Date.now();
-  S2.calEventos.push({id:evId,start:pag.fecha,end:pag.fecha,title:"💰 Pago: "+(pag.cliente||"")+(" — B/."+(pag.monto||""))+" ("+(pag.ramo||"")+")",color:"#16a34a",allDay:true,src:"local",calN:0,loc:"",desc:"Recordatorio automático desde módulo Pagos"});
-  localStorage.setItem("jacv10",JSON.stringify(S2));
+  S.calEventos.push({id:evId,start:pag.fecha,end:pag.fecha,title:"💰 Pago: "+(pag.cliente||"")+(" — B/."+(pag.monto||""))+" ("+(pag.ramo||"")+")",color:"#16a34a",allDay:true,src:"local",calN:0,loc:"",desc:"Recordatorio automático desde módulo Pagos"});
+  
   if(typeof save==="function")save();
   toast("📅 Recordatorio agregado al calendario","ok");
   try{if(typeof renderCalMonth==="function")renderCalMonth();}catch(e){}
