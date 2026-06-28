@@ -309,7 +309,7 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="card" id="dren"></div>
  </div>
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
- <div class="card" id="dtar"></div><div class="card" id="dven"></div>
+ <div class="card" id="dtar"></div><div class="card" id="dven"></div><div class="card" id="dcan"></div>
  </div>
 </div>
 
@@ -1385,7 +1385,7 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="fl"><label>% Comisión Aseg. <button onclick="syncPolComPct()" style="font-size:9px;padding:1px 6px;margin-left:4px;cursor:pointer;background:#e0f2fe;border:1px solid #38bdf8;border-radius:3px" title="Sync del portal">&#x1F504;</button></label><input class="fc" id="p-cb" type="number" step="0.1" oninput="CT()" inputmode="decimal" placeholder="ej. 12"></div>
  <div class="fl"><label>Participación JAC (%)</label><input class="fc" id="p-pa" type="number" step="0.1" value="100" oninput="CT()" inputmode="decimal"></div>
  <div class="fl"><label>Comisión JAC ($) <span style="font-size:9px;color:#64748b;font-weight:400">editable</span></label><input class="fc" id="p-co" type="number" step="0.01" inputmode="decimal" style="font-weight:700;color:#15803D" title="Auto-calculada. Puedes editarla manualmente."></div>
- <span class="sl">🤝 CO-CORRETAJE</span>
+ <span class="sl" style="cursor:pointer" onclick="document.getElementById('p-hc').click()">🤝 CO-CORRETAJE</span>
  <div style="grid-column:1/-1" id="ccrow">
  <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--bl);cursor:pointer">
  <input type="checkbox" id="p-hc" onchange="TC()" style="width:16px;height:16px;accent-color:var(--bl)"> Activar co-corretaje
@@ -1419,7 +1419,7 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="fl"><label>Vendedor</label><input class="fc" id="p-ven"></div>
  <div class="fl ff"><label>Observaciones</label><textarea class="fc" id="p-ob" rows="2"></textarea></div>
  <div class="fl ff"><label>Observaciones Internas</label><textarea class="fc" id="p-oi" rows="2"></textarea></div>
- <div class="fl ff"><label>Etiquetas / Tags</label><input class="fc" id="p-etq" placeholder="ej: renovar,vip,auto" style="width:100%"></div>
+ <div class="fl" style="flex-direction:column;gap:4px"><label>Etiquetas / Tags</label><div id="p-etq-wrap" style="display:flex;flex-wrap:wrap;gap:5px;padding:8px;border:1px solid var(--brd);border-radius:6px;min-height:36px;background:var(--bg);align-items:center"></div><input type="hidden" id="p-etq"></div>
  <span class="sl">📎 Archivos</span>
  <div class="ff" id="p-file-list"></div>
  <div class="ff"><div class="file-area" onclick="document.getElementById('p-file-inp').click()">📎 Adjuntar archivos de póliza</div>
@@ -3119,7 +3119,7 @@ function RD(){
  let vh=`<div class="ch"><h3>🔴 Vencidas (${venc.length})</h3></div>`;
  if(!venc.length)vh+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin vencidas ✓</div>';
  else{vh+='<div style="padding:10px;display:flex;flex-wrap:wrap;gap:6px">';venc.forEach(p=>{const cl=GC(p.clienteId);const t=cl.cel||cl.tel||p.celCliente||'';const wu=t?waL(t,waRenMsg(p,cl)):null;vh+=`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 10px;font-size:11px;flex:1;min-width:130px"><div style="font-weight:700">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</div><div style="color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm')+'':''}</div>`;});vh+='</div>';}
- const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;
+ const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;const cancel=S.polizas.filter(p=>(p.etapa||p.estado||'').toLowerCase().includes('cancel'));let vc='<div class="ch"><h3>🚫 Canceladas ('+cancel.length+')</h3></div>';if(!cancel.length){vc+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin canceladas ✓</div>';}else{vc+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#FEE2E2"><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Póliza</th><th>Asegurado</th><th>Ramo</th><th>Aseguradora</th><th>Vencimiento</th></tr></thead><tbody>';cancel.forEach(function(p){var cl=GC(p.clienteId),nm=cl?cl.nombre:'—';vc+='<tr style="border-bottom:1px solid #FECACA"><td style="padding:5px;font-weight:600">'+(p.numeroPol||p.numPol||'—')+'</td><td>'+nm+'</td><td>'+(p.ramo||'—')+'</td><td>'+(p.aseguradora||'—')+'</td><td>'+(p.fechaFin||'—')+'</td></tr>';});vc+='</tbody></table>';}const dcan=document.getElementById('dcan');if(dcan)dcan.innerHTML=vc;
  // Auto-run alert panels
  try{renderDashReminders();}catch(e){}
  try{if(typeof renderDashBirthdays==='function')renderDashBirthdays();}catch(e){}
@@ -3941,7 +3941,7 @@ function OP(id){
  ['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','Acerta','WW Medical','VUMI-LA REGIONAL DE SEGUROS','Generali','Chubb','Aliados','La Regional','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,a)=>a.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.aseg===a)o.selected=true;asel.add(o);});
  const rsel=document.getElementById('p-ra');rsel.innerHTML='';
  [...RAMOS_ALL,'SOAT','CUMPLIMIENTO','MULTIRIESGO','TODO RIESGO'].filter((x,i,a)=>a.indexOf(x)===i).forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;if(normRamo(p.ramo)===r)o.selected=true;rsel.add(o);});
- [['p-nu','num'],['p-na','numAnexo'],['p-tp','tipo'],['p-sr','subramo'],['p-nr','nueva'],['p-es','estado'],['p-et','etapa'],['p-ri','riesgo'],['p-vr','valorRiesgo'],['p-cob','cobertura'],['p-tpo','tipoPol'],['p-pr','prima'],['p-it','itbmsPct'],['p-ib','itbms'],['p-ge','gastosExp'],['p-vf','valorFinanciacion'],['p-tot','total'],['p-cmes','cuotaMensual'],['p-ctri','cuotaTrimestral'],['p-csem','cuotaSemestral'],['p-canu','cuotaAnual'],['p-cb','comPct'],['p-npag','numPagos'],['p-pa','participacion'],['p-co','comision'],['p-nas','nombreAsegurado'],['p-das','docAsegurado'],['p-nto','tomador'],['p-dto','docTomador'],['p-ben','beneficiario'],['p-cben','cedBeneficiario'],['p-fex','fechaExpedicion'],['p-fre','fechaRecepcion'],['p-fi','fechaInicio'],['p-ff','fechaFin'],['p-fca','fechaCancelada'],['p-fp','formaPago'],['p-pe','periodo'],['p-me','medio'],['p-ban','banco'],['p-mon','moneda'],['p-ven','vendedor'],['p-ob','obs'],['p-oi','obsInt']].forEach(([fid,key])=>SVal(fid,p[key]));{var _e=document.getElementById('p-etq');if(_e)_e.value=p.etiquetas?(Array.isArray(p.etiquetas)?p.etiquetas.join(', '):p.etiquetas):'';}updateLetraPrima();
+ [['p-nu','num'],['p-na','numAnexo'],['p-tp','tipo'],['p-sr','subramo'],['p-nr','nueva'],['p-es','estado'],['p-et','etapa'],['p-ri','riesgo'],['p-vr','valorRiesgo'],['p-cob','cobertura'],['p-tpo','tipoPol'],['p-pr','prima'],['p-it','itbmsPct'],['p-ib','itbms'],['p-ge','gastosExp'],['p-vf','valorFinanciacion'],['p-tot','total'],['p-cmes','cuotaMensual'],['p-ctri','cuotaTrimestral'],['p-csem','cuotaSemestral'],['p-canu','cuotaAnual'],['p-cb','comPct'],['p-npag','numPagos'],['p-pa','participacion'],['p-co','comision'],['p-nas','nombreAsegurado'],['p-das','docAsegurado'],['p-nto','tomador'],['p-dto','docTomador'],['p-ben','beneficiario'],['p-cben','cedBeneficiario'],['p-fex','fechaExpedicion'],['p-fre','fechaRecepcion'],['p-fi','fechaInicio'],['p-ff','fechaFin'],['p-fca','fechaCancelada'],['p-fp','formaPago'],['p-pe','periodo'],['p-me','medio'],['p-ban','banco'],['p-mon','moneda'],['p-ven','vendedor'],['p-ob','obs'],['p-oi','obsInt']].forEach(([fid,key])=>SVal(fid,p[key]));{var _e=document.getElementById('p-etq-wrap'),_etqH=document.getElementById('p-etq');if(_e&&_etqH){var _sel=Array.isArray(p.etiquetas)?p.etiquetas:(p.etiquetas?String(p.etiquetas).split(',').map(s=>s.trim()).filter(Boolean):[]);_e.innerHTML='';(S.etiquetas||[]).forEach(function(et){var on=_sel.some(function(s){return s===et.id||s===et.nombre;});var ch=document.createElement('span');ch.textContent=et.nombre;ch.dataset.id=et.id;ch.dataset.on=on?'1':'0';ch.style.cssText='display:inline-flex;align-items:center;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid '+et.color+';background:'+(on?et.color:'transparent')+';color:'+(on?'#fff':et.color)+';transition:all .15s;margin:2px';ch.onclick=function(){var isOn=this.dataset.on==='1';isOn=!isOn;this.dataset.on=isOn?'1':'0';this.style.background=isOn?et.color:'transparent';this.style.color=isOn?'#fff':et.color;var ids=Array.from(_e.querySelectorAll('span[data-on="1"]')).map(function(c){return c.dataset.id;});_etqH.value=ids.join(',');};_e.appendChild(ch);});_etqH.value=_sel.map(function(s){var et=(S.etiquetas||[]).find(function(x){return x.nombre===s||x.id===s;});return et?et.id:s;}).filter(Boolean).join(',');if(!(S.etiquetas||[]).length)_e.innerHTML='<span style="color:var(--mu);font-size:11px">Sin etiquetas — crea en ⚙️ Ajustes</span>';}}updateLetraPrima();
  const hcc=!!(p.coCor);const phc=document.getElementById('p-hc');if(phc)phc.checked=hcc;const cob3=document.getElementById('cob3');if(cob3)cob3.className='cob'+(hcc?' on':'');
  SVal('p-cc',p.coCor);SVal('p-cp',p.coCorPart);SVal('p-cc2',p.coCorCom);
  const pfl=document.getElementById('p-file-list');if(pfl)pfl.innerHTML=renderFL(p.archivos||[],id||'','poliza');
@@ -4078,8 +4078,46 @@ function RPag(){
       "<td>"+
         "<button class=\"icn-btn\" title=\"Editar\" onclick=\"OPag('"+p.id+"')\" >&#9999;</button>"+
         "<button class=\"icn-btn\" title=\"Eliminar\" onclick=\"delPag('"+p.id+"')\" style=\"color:#dc2626\">&#128465;</button>"+
+        "<button class=\"icn-btn\" title=\"WhatsApp\" onclick=\"openWAForPagCli('"+p.polizaId+"');\" style=\"color:#25D366\">📱</button>"+
+        "<button class=\"icn-btn\" title=\"Email principal\" onclick=\"openEmailForPagCli('"+p.polizaId+"',1)\" style=\"color:#1d4ed8\">📧</button>"+
+        "<button class=\"icn-btn\" title=\"Email secundario\" onclick=\"openEmailForPagCli('"+p.polizaId+"',2)\" style=\"color:#7c3aed\">📨</button>"+
+        "<button class=\"icn-btn\" title=\"Agregar al calendario\" onclick=\"addPagReminder('"+p.id+"')\">📅</button>"+
       "</td></tr>";
   }).join("");
+}
+function openWAForPagCli(polizaId){
+  var pol=(S.polizas||[]).find(function(x){return x.id===polizaId;});
+  if(!pol)return toast("Póliza no encontrada","err");
+  var cli=(S.clientes||[]).find(function(x){return x.id===pol.clienteId;});
+  if(!cli)return toast("Cliente no encontrado","err");
+  var tel=(cli.cel||cli.tel||"").replace(/\D/g,"");
+  if(!tel)return toast("Cliente sin teléfono registrado","err");
+  window.open("https://wa.me/507"+tel+"?text="+encodeURIComponent("Hola "+cli.nombre+", le contactamos de JAC Seguros respecto a su póliza. Por favor contáctenos. Gracias."),"_blank");
+}
+function openEmailForPagCli(polizaId,which){
+  var pol=(S.polizas||[]).find(function(x){return x.id===polizaId;});
+  if(!pol)return toast("Póliza no encontrada","err");
+  var cli=(S.clientes||[]).find(function(x){return x.id===pol.clienteId;});
+  if(!cli)return toast("Cliente no encontrado","err");
+  if(which===2){
+    var em2=cli.emailSec||"";
+    if(!em2)return toast("Sin email secundario registrado","err");
+    window.open("mailto:"+em2+"?subject="+encodeURIComponent("JAC Seguros — Aviso de Pago")+"&body="+encodeURIComponent("Estimado/a "+cli.nombre+",\n\nLe contactamos de JAC Seguros.\n\nGracias,\nJAC Seguros"));
+  }else{
+    openEmailForClient(cli.id);
+  }
+}
+function addPagReminder(pagId){
+  var S2=JSON.parse(localStorage.getItem("jacv10")||"{}");
+  var pag=(S2.pagos||[]).find(function(x){return x.id===pagId;});
+  if(!pag)return toast("Pago no encontrado","err");
+  if(!S2.calEventos)S2.calEventos=[];
+  var evId="pag_"+pagId+"_"+Date.now();
+  S2.calEventos.push({id:evId,start:pag.fecha,end:pag.fecha,title:"💰 Pago: "+(pag.cliente||"")+(" — B/."+(pag.monto||""))+" ("+(pag.ramo||"")+")",color:"#16a34a",allDay:true,src:"local",calN:0,loc:"",desc:"Recordatorio automático desde módulo Pagos"});
+  localStorage.setItem("jacv10",JSON.stringify(S2));
+  if(typeof save==="function")save();
+  toast("📅 Recordatorio agregado al calendario","ok");
+  try{if(typeof renderCalMonth==="function")renderCalMonth();}catch(e){}
 }
 function delPag(id){
   if(!confirm("\u00BFEliminar este pago?"))return;
