@@ -4071,7 +4071,7 @@ function RPag(){
       "<td>"+(p.ramo||"")+"</td>"+
       "<td>"+num+"</td>"+
       "<td>"+(p.cuota||"")+"</td>"+
-      "<td>"+fmtMon(p.monto)+"</td>"+
+      "<td>"+fmtM(p.monto)+"</td>"+
       "<td>"+per+"</td>"+
       "<td><span style=\""+estStyle+"\">"+est+"</span></td>"+
       "<td>"+(p.notas||"")+"</td>"+
@@ -4116,7 +4116,17 @@ function OPag(id){
   }
   CM('mpag');
 }
-function onPC(){const p=GP(V('pg-po')),cl=GC(p.clienteId);SVal('pg-cl',cl.nombre||p.nombreCliente||'');SVal('pg-as',p.aseg||'');}
+function onPC(){
+  var polId=document.getElementById('pg-po').value;
+  var p=GP(polId);
+  var cl=p?GC(p.clienteId):null;
+  var el=document.getElementById('pg-pe');
+  if(el&&p&&p.periodo)el.value=p.periodo;
+  var ec=document.getElementById('pg-cu');
+  if(ec&&p){var n={'Mensual':12,'Trimestral':4,'Semestral':2,'Anual':1}[p.periodo||'Anual']||1;
+    ec.value=n>1?'Cuota '+(n+'meses').replace('12meses','Mensual').replace('4meses','Trimestral').replace('2meses','Semestral'):'Prima Anual';}
+}
+
 function SPag(){
   var polId=V('pg-po'),monto=GF('pg-mo'),fecha=V('pg-fe');
   if(!monto||!fecha){toast('Monto y fecha obligatorios','err');return;}
