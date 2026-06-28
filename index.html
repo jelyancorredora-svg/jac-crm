@@ -443,7 +443,7 @@ body.dark .mu{color:var(--dark-mu);}
  </div>
  <div class="card">
  <div class="ch"><h3>💰 Pagos Registrados</h3></div>
- <div class="tw"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Póliza</th><th>Cuota</th><th>Monto</th><th>Notas</th><th>Acc.</th></tr></thead><tbody id="tpag"></tbody></table></div>
+ <div class="tw"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Póliza</th><th>Cuota</th><th>Monto</th><th>Período</th><th>Estado</th><th>Notas</th><th>Acc.</th></tr></thead><tbody id="tpag"></tbody></table></div>
  </div>
 </div>
 
@@ -1513,6 +1513,10 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="fl"><label>Fecha <span>*</span></label><input class="fc" id="pg-fe" type="date"></div>
  <div class="fl ff"><label>Notas</label><textarea class="fc" id="pg-no" rows="2"></textarea></div>
 </div></div>
+<div class="fg">
+ <div class="fl"><label>Estado</label><select class="fc" id="pg-es"><option value="Pendiente">Pendiente</option><option value="Pagado">Pagado</option><option value="Vencido">Vencido</option></select></div>
+ <div class="fl"><label>Frecuencia de Pago</label><select class="fc" id="pg-pe"><option value="Mensual">Mensual</option><option value="Trimestral">Trimestral</option><option value="Semestral">Semestral</option><option value="Anual">Anual</option></select></div>
+</div>
 <div class="mf"><button class="btn" onclick="CM('mpag')">Cancelar</button><button class="btn bp" onclick="SPag()">💾 Registrar</button></div>
 </div></div>
 
@@ -3079,7 +3083,7 @@ function RD(){
  const tC=S.polizas.reduce((s,p)=>s+(p.comision||0),0);
  const cp=S.comisiones.filter(c=>c.estado==='pendiente');
  const tCom=cp.reduce((s,c)=>s+(c.monto||0),0);
- const tPend=S.tareas.filter(t=>t.etapaTarea!=='Hecho').length;
+ const tPend=S.tareas.filter(t=>t.etapaTarea!=='Hecho'&&t._autoTipo!=='comision').length;
  const prosAct=S.prospectos.filter(p=>p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido').length;
  const vcOpps=computeVC().length;
  const dsg=document.getElementById('dsg');
@@ -4050,20 +4054,39 @@ function RRen(){
 
 // ── PAGOS ──
 function RPag(){
- const rec=S.pagos.filter(p=>dAgo(p.fecha)<=30);const arc=S.pagos.filter(p=>dAgo(p.fecha)>30);
- const shown=SA_?arc:rec;
- const ps=document.getElementById('pagsub');if(ps)ps.textContent=SA_?`Archivados — ${arc.length}`:`Últimos 30 días — ${rec.length} pagos`;
- const ba=document.getElementById('barch');if(ba)ba.textContent=SA_?'📋 Recientes':`🗂 Archivados (${arc.length})`;
- const tR=rec.reduce((s,p)=>s+(p.monto||0),0);
- const pgsg=document.getElementById('pgsg');if(pgsg)pgsg.innerHTML=`<div class="st"><em>Pagos (30d)</em><div class="n">${rec.length}</div></div><div class="st"><em>Total</em><div class="n" style="color:#15803D;font-size:14px">${fmtM(tR)}</div></div><div class="st"><em>Archivados</em><div class="n" style="color:var(--mu)">${arc.length}</div></div>`;
- const act=S.polizas.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada').sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
- let h2='';act.forEach(p=>{const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',d=dFrom(p.fechaFin),wb=waBtnsP(p,cl);h2+=`<tr><td style="font-weight:600">${esc(nom.split(' ').slice(0,3).join(' '))}</td><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td style="font-size:11px;color:var(--mu)">${esc(p.periodo||'—')}</td><td><span style="color:${d<=30?'#D97706':'inherit'}">${fmt(p.fechaFin)}</span></td><td><div class="ab">${wb}${(cl.email)?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''}</div></td><td><button class="btn bsm bgn" onclick="markPagoQ('${p.id}')">✅ Pagado</button></td></tr>`;});
- if(!h2)h2='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas activas</td></tr>';
- const tpp=document.getElementById('tpp');if(tpp)tpp.innerHTML=h2;
- let h='';shown.sort((a,z)=>new Date(z.fecha)-new Date(a.fecha)).forEach(pg=>{const pol=GP(pg.polizaId),cl=pol.clienteId?GC(pol.clienteId):{};h+=`<tr><td style="font-weight:600;color:var(--bl)">${fmt(pg.fecha)}</td><td style="font-weight:600">${esc((cl.nombre||pg.cliente||'—').split(' ').slice(0,3).join(' '))}</td><td><span style="color:${ac(pg.aseg||pol.aseg||'')};font-weight:700;font-size:11px">${esc(pg.aseg||pol.aseg||'—')}</span></td><td style="font-size:11px">${esc(pg.ramo||pol.ramo||'—')}</td><td style="font-family:monospace;font-size:11px">${esc(pol.num||'—')}</td><td>${b('bin',pg.cuota||'—')}</td><td style="font-weight:800;color:#15803D">${fmtM(pg.monto)}</td><td style="font-size:11px;color:var(--mu)">${esc(pg.notas||'')}</td><td><button class="btn bsm bic" onclick="DPag('${pg.id}')" style="color:var(--rd)">🗑</button></td></tr>`;});
- if(!h)h=`<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">${SA_?'Sin archivados':'Sin pagos en 30 días'}</td></tr>`;
- const tpag=document.getElementById('tpag');if(tpag)tpag.innerHTML=h;
+  var shown=S.pagos.slice().sort(function(a,b){return (b.fecha||"").localeCompare(a.fecha||"");});
+  var ps=document.getElementById("pagsub");if(ps)ps.textContent=shown.length+" pago"+(shown.length!==1?"s":"");
+  var el=document.getElementById("tpag");if(!el)return;
+  if(!shown.length){el.innerHTML='<tr><td colspan="11" style="text-align:center;color:#888;padding:20px">No hay pagos registrados. Haz clic en + para agregar.</td></tr>';return;}
+  el.innerHTML=shown.map(function(p){
+    var pol=GP(p.polizaId)||{};
+    var per=p.periodo||pol.periodo||"—";
+    var num=pol.num||"—";
+    var est=p.estado||"Pendiente";
+    var estStyle=est==="Pagado"?"color:#16a34a;font-weight:bold":est==="Vencido"?"color:#dc2626;font-weight:bold":"color:#d97706;font-weight:bold";
+    return "<tr>"+
+      "<td>"+p.fecha+"</td>"+
+      "<td>"+(p.cliente||"")+"</td>"+
+      "<td>"+(p.aseg||"")+"</td>"+
+      "<td>"+(p.ramo||"")+"</td>"+
+      "<td>"+num+"</td>"+
+      "<td>"+(p.cuota||"")+"</td>"+
+      "<td>"+fmtMon(p.monto)+"</td>"+
+      "<td>"+per+"</td>"+
+      "<td><span style=\""+estStyle+"\">"+est+"</span></td>"+
+      "<td>"+(p.notas||"")+"</td>"+
+      "<td>"+
+        "<button class=\"icn-btn\" title=\"Editar\" onclick=\"OPag('"+p.id+"')\" >&#9999;</button>"+
+        "<button class=\"icn-btn\" title=\"Eliminar\" onclick=\"delPag('"+p.id+"')\" style=\"color:#dc2626\">&#128465;</button>"+
+      "</td></tr>";
+  }).join("");
 }
+function delPag(id){
+  if(!confirm("\u00BFEliminar este pago?"))return;
+  S.pagos=S.pagos.filter(function(p){return p.id!==id;});
+  save();syncToCloud();RPag();
+}
+
 function markPagoQ(polId){
  const p=GP(polId),cl=GC(p.clienteId);
  const monto=parseFloat(prompt(`Monto pagado — ${p.num}:`,p.prima.toFixed(2)));
@@ -4073,14 +4096,44 @@ function markPagoQ(polId){
  save();RPag();toast('✓ Pago registrado');
 }
 function TA(){SA_=!SA_;RPag();}
-function OPag(){
- const psel=document.getElementById('pg-po');psel.innerHTML='<option value="">— Póliza —</option>';
- S.polizas.forEach(p=>{const cl=GC(p.clienteId);const o=document.createElement('option');o.value=p.id;o.textContent=`${p.num} — ${cl.nombre||p.nombreCliente||'?'} (${p.aseg})`;psel.add(o);});
- SVal('pg-fe',TODAY.toISOString().split('T')[0]);['pg-cl','pg-as','pg-mo','pg-cu','pg-no'].forEach(id=>SVal(id,''));
- OM('mpag');
+var _pagEditId=null;
+function OPag(id){
+  _pagEditId=id||null;
+  var psel=document.getElementById('pg-po');
+  psel.innerHTML='<option value="">— Póliza —</option>'+S.polizas.slice().sort(function(a,b){return (a.num||"").localeCompare(b.num||"");}).map(function(p){return '<option value="'+p.id+'">'+( p.num||p.id)+' · '+(p.tomador||p.aseg||"")+'</option>';}).join("");
+  if(id){
+    var pg=S.pagos.find(function(x){return x.id===id;});
+    if(pg){
+      psel.value=pg.polizaId||"";onPC();
+      var flds={'pg-mo':pg.monto,'pg-fe':pg.fecha,'pg-cu':pg.cuota||"",'pg-no':pg.notas||"",'pg-es':pg.estado||"Pendiente",'pg-pe':pg.periodo||""};
+      Object.keys(flds).forEach(function(k){var el=document.getElementById(k);if(el)el.value=flds[k];});
+      if(!pg.periodo){var pol=GP(pg.polizaId);var elPe=document.getElementById('pg-pe');if(elPe&&pol)elPe.value=pol.periodo||"Mensual";}
+    }
+  } else {
+    ["pg-mo","pg-fe","pg-cu","pg-no"].forEach(function(k){var el=document.getElementById(k);if(el)el.value="";});
+    var elFe=document.getElementById("pg-fe");if(elFe)elFe.value=new Date().toISOString().slice(0,10);
+    var elEs=document.getElementById("pg-es");if(elEs)elEs.value="Pendiente";
+  }
+  CM('mpag');
 }
 function onPC(){const p=GP(V('pg-po')),cl=GC(p.clienteId);SVal('pg-cl',cl.nombre||p.nombreCliente||'');SVal('pg-as',p.aseg||'');}
-function SPag(){const polId=V('pg-po'),monto=GF('pg-mo'),fecha=V('pg-fe');if(!monto||!fecha){toast('Monto y fecha obligatorios','err');return;}const p=GP(polId),cl=GC(p.clienteId);S.pagos.push({id:'PAG'+uid(),polizaId:polId,fecha,monto,cuota:V('pg-cu').trim(),notas:V('pg-no').trim(),aseg:p.aseg||'',ramo:p.ramo||'',cliente:cl.nombre||''});save();CM('mpag');RPag();toast('✓ Pago registrado');}
+function SPag(){
+  var polId=V('pg-po'),monto=GF('pg-mo'),fecha=V('pg-fe');
+  if(!monto||!fecha){toast('Monto y fecha obligatorios','err');return;}
+  var p=GP(polId),cl=p?GC(p.clienteId):null;
+  var rec={polizaId:polId,fecha:fecha,monto:monto,
+    cuota:V('pg-cu').trim(),notas:V('pg-no').trim(),
+    aseg:(p&&p.aseg)||"",ramo:(p&&p.ramo)||"",
+    cliente:(cl&&cl.nombre)||"",
+    estado:V('pg-es')||"Pendiente",
+    periodo:V('pg-pe')||""};
+  if(_pagEditId){
+    var idx=S.pagos.findIndex(function(x){return x.id===_pagEditId;});
+    if(idx>-1){rec.id=_pagEditId;S.pagos[idx]=rec;}
+    _pagEditId=null;
+  } else {rec.id='PAG'+uid();S.pagos.push(rec);}
+  save();syncToCloud();CM('mpag');RPag();
+}
 function DPag(id){confirm2('¿Eliminar?',()=>{S.pagos=S.pagos.filter(p=>p.id!==id);save();RPag();toast('Eliminado');});}
 
 // ── SINIESTROS ──
@@ -4273,7 +4326,7 @@ function delComRate(i){confirm2('¿Eliminar tasa?',()=>{S.comRates.splice(i,1);s
 function setTV(v,el){TV=v;document.querySelectorAll('.vtog button').forEach(b=>b.classList.remove('on'));el.classList.add('on');RTar();}
 function RTar(){
  const pend=S.tareas.filter(t=>t.etapaTarea!=='Hecho').length;
- const atrasadas=S.tareas.filter(t=>t.fechaLimite&&dAgo(t.fechaLimite)>0&&t.etapaTarea!=='Hecho').length;
+ const atrasadas=S.tareas.filter(t=>t.fechaLimite&&dAgo(t.fechaLimite)>0&&t.etapaTarea!=='Hecho'&&t._autoTipo!=='comision').length;
  const cnt=document.getElementById('tarcnt');if(cnt)cnt.textContent=`${S.tareas.length} tareas · ${pend} pendientes${atrasadas?' · ⚠️ '+atrasadas+' atrasadas':''}`;
  if(TV==='k')renderTarK();else renderTarL();
 }
@@ -4281,7 +4334,7 @@ function renderTarK(){
  const clr={'Por Hacer':'#1D4ED8','En Proceso':'#D97706','Hecho':'#15803D'};
  let h='<div class="tboard">';
  ['Por Hacer','En Proceso','Hecho'].forEach(et=>{
- const items=S.tareas.filter(t=>t.etapaTarea===et),col=clr[et];
+ const items=S.tareas.filter(t=>t.etapaTarea===et&&t._autoTipo!=='comision'),col=clr[et];
  h+=`<div class="tcol"><div class="tch" style="background:${col}18;color:${col}">${esc(et)} <span style="background:${col}30;border-radius:10px;padding:1px 6px;font-size:10px">${items.length}</span></div><div class="tbody2">`;
  items.forEach(t=>{
  const pc2=pcol(t.prioridad);const atrasada=t.fechaLimite&&dAgo(t.fechaLimite)>0&&et!=='Hecho';
@@ -4307,7 +4360,7 @@ ${(t.tipoRel&&t.relId&&(t.tipoRel==='cliente'?GC(t.relId).email:GPros(t.relId).e
 const TAR_STATUS_CLR={'Por Hacer':'#1D4ED8','Normal':'#64748B','En Proceso':'#D97706','En Seguimiento':'#7E22CE','Delegado':'#0891B2','Reenviado':'#B45309','Completado':'#15803D','Realizado':'#15803D','Finalizado':'#15803D','Hecho':'#15803D','Cancelada':'#B91C1C'};
 const TAR_DONE_STATES=new Set(['Completado','Realizado','Finalizado','Hecho','Cancelada']);
 function renderTarL(){
- const sorted=[...S.tareas].sort((a,z)=>({'Alta':0,'Media':1,'Baja':2}[a.prioridad]||1)-({'Alta':0,'Media':1,'Baja':2}[z.prioridad]||1));
+ const sorted=[...S.tareas.filter(function(t){return t._autoTipo!=='comision';})].sort((a,z)=>({'Alta':0,'Media':1,'Baja':2}[a.prioridad]||1)-({'Alta':0,'Media':1,'Baja':2}[z.prioridad]||1));
  const allEtapas=['Por Hacer','Normal','En Proceso','En Seguimiento','Delegado','Reenviado','Completado','Realizado','Finalizado','Hecho','Cancelada'];
  let h='<div class="card"><div class="tw"><table><thead><tr><th>Prior.</th><th>Título</th><th>Tipo</th><th>Estado ▾</th><th>Relacionado</th><th>Fecha</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
  sorted.forEach(t=>{
