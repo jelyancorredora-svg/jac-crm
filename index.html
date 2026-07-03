@@ -1317,7 +1317,7 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="fl"><label>Prioridad</label><select class="fc" id="pro-pri"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
  <div class="fl"><label>Probabilidad (%)</label><input class="fc" id="pro-prob" type="number" min="0" max="100" inputmode="numeric" placeholder="0-100"></div>
  <div class="fl"><label>Monto estimado ($)</label><input class="fc" id="pro-mon" type="number" step="0.01" inputmode="decimal"></div>
- <div class="fl ff"><label>Aseguradoras preferidas</label><select class="fc" id="pro-aseg" multiple size="5" style="height:auto"></select></div>
+ <div class="fl ff"><label>Aseguradoras preferidas</label><div id="pro-aseg-chips" style="display:flex;flex-wrap:wrap;gap:5px;padding:6px;border:1px solid var(--bd);border-radius:var(--r6);min-height:36px;background:var(--wh);cursor:pointer"></div></div>
  <div class="fl ff"><label>Seguros de interés</label><div id="pro-int-sel" style="display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--bd);border-radius:6px;padding:7px"></div></div>
  <span class="sl">📅 SEGUIMIENTO</span>
  <div class="fl"><label>Primer contacto</label><input class="fc" id="pro-fc" type="date"></div>
@@ -3541,7 +3541,7 @@ function OPros(id){
  const mpt=document.getElementById('mprost');if(mpt)mpt.textContent=id?'Editar Prospecto':'Nuevo Prospecto';
  [['pro-n','nombre'],['pro-td','tipoDoc'],['pro-ced','cedula'],['pro-cel','cel'],['pro-tel','tel'],['pro-em','email'],['pro-fn','fNac'],['pro-ge','genero'],['pro-ocu','ocupacion'],['pro-ciu','ciudad'],['pro-prov','provincia'],['pro-tipo','tipo'],['pro-fue','fuente'],['pro-eta','etapaVenta'],['pro-pri','prioridad'],['pro-prob','probabilidad'],['pro-mon','montoEstimado'],['pro-fc','fContacto'],['pro-fs','fSeguimiento'],['pro-aact','asegActual'],['pro-vact','venceActual'],['pro-not','notas']].forEach(([fid,key])=>SVal(fid,p[key]));
  const cpSelPro=document.getElementById('pro-codPais');if(cpSelPro)cpSelPro.value=p.codPais||'507';
- const asel=document.getElementById('pro-aseg');if(asel){asel.innerHTML='<option value="">—</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS'].forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.asegPreferida===a)o.selected=true;asel.add(o);});}
+ /* aseg chips */
  const isel=document.getElementById('pro-int-sel');
  if(isel)isel.innerHTML=RAMOS_ALL.map(r=>`<span style="display:inline-block;font-size:11px;cursor:pointer;padding:3px 8px;border:1px solid var(--bd);border-radius:5px;margin:2px;background:${(p.interes||[]).includes(r)?'var(--inl)':'transparent'};color:${(p.interes||[]).includes(r)?'var(--in)':'var(--mu)'}" onclick="this.dataset.sel=this.dataset.sel==='1'?'0':'1';this.style.background=this.dataset.sel==='1'?'var(--inl)':'transparent';this.style.color=this.dataset.sel==='1'?'var(--in)':'var(--mu)'" data-val="${esc(r)}" data-sel="${(p.interes||[]).includes(r)?'1':'0'}">${esc(r)}</span>`).join('');
  renderTagSel('pro-tag-sel',p.etiquetas||[]);
@@ -3549,7 +3549,7 @@ function OPros(id){
  // Load cotizaciones
  const cotList=document.getElementById('pro-cotizaciones-list');if(cotList)cotList.innerHTML='';
  (p.cotizaciones||[]).forEach(cot=>addCotizacionRow(cot));
- fillProAseg(p.asegPreferidas||p.asegPreferida||[]);OM('mpros');initFileInp('pro-file-inp','pro-file-pending');
+ fillProAsegChips(p.asegPreferidas||(p.asegPreferida?[p.asegPreferida]:[]));OM('mpros');initFileInp('pro-file-inp','pro-file-pending');
 }
 function getIntSel(){return Array.from(document.querySelectorAll('#pro-int-sel span[data-sel="1"]')).map(s=>s.dataset.val);}
 function getCotizaciones(){
@@ -3643,7 +3643,7 @@ function addMiembroRow(btn){
 }
 function SPros(){
  const nom=(V('pro-n')||'').trim();if(!nom){toast('Nombre obligatorio','err');return;}
- const d={nombre:nom,tipoDoc:V('pro-td'),cedula:V('pro-ced').trim(),cel:V('pro-cel').trim(),tel:V('pro-tel').trim(),email:V('pro-em').trim().toLowerCase(),fNac:V('pro-fn'),genero:V('pro-ge'),ocupacion:V('pro-ocu').trim(),ciudad:V('pro-ciu').trim(),provincia:V('pro-prov').trim(),tipo:V('pro-tipo')||'Personal',fuente:V('pro-fue'),etapaVenta:V('pro-eta')||'Contacto inicial',prioridad:V('pro-pri')||'Media',probabilidad:parseFloat(V('pro-prob'))||0,montoEstimado:parseFloat(V('pro-mon'))||0,asegPreferidas:Array.from((document.getElementById('pro-aseg')||{selectedOptions:[]}).selectedOptions).map(function(o){return o.value;}).filter(Boolean),interes:getIntSel(),fContacto:V('pro-fc'),fSeguimiento:V('pro-fs'),asegActual:V('pro-aact'),venceActual:V('pro-vact'),notas:V('pro-not').trim(),etiquetas:getSelTags('pro-tag-sel'),cotizaciones:getCotizaciones(),codPais:(document.getElementById('pro-codPais')?.value||'507')};
+ const d={nombre:nom,tipoDoc:V('pro-td'),cedula:V('pro-ced').trim(),cel:V('pro-cel').trim(),tel:V('pro-tel').trim(),email:V('pro-em').trim().toLowerCase(),fNac:V('pro-fn'),genero:V('pro-ge'),ocupacion:V('pro-ocu').trim(),ciudad:V('pro-ciu').trim(),provincia:V('pro-prov').trim(),tipo:V('pro-tipo')||'Personal',fuente:V('pro-fue'),etapaVenta:V('pro-eta')||'Contacto inicial',prioridad:V('pro-pri')||'Media',probabilidad:parseFloat(V('pro-prob'))||0,montoEstimado:parseFloat(V('pro-mon'))||0,asegPreferidas:getProAsegSel(),interes:getIntSel(),fContacto:V('pro-fc'),fSeguimiento:V('pro-fs'),asegActual:V('pro-aact'),venceActual:V('pro-vact'),notas:V('pro-not').trim(),etiquetas:getSelTags('pro-tag-sel'),cotizaciones:getCotizaciones(),codPais:(document.getElementById('pro-codPais')?.value||'507')};
  if(EID){const i=S.prospectos.findIndex(p=>p.id===EID);if(i>=0){if(!S.prospectos[i].archivos)S.prospectos[i].archivos=[];S.prospectos[i].archivos.push(..._pf);S.prospectos[i]={...S.prospectos[i],...d};}toast('✓ Actualizado');}
  else{S.prospectos.push({id:'PR'+uid(),...d,historial:[{fecha:TODAY.toISOString().split('T')[0],accion:'✨ Prospecto creado',resultado:'',tipo:'sistema'}],tareas:[],archivos:[..._pf],esVentaCruzada:false,clienteIdVinculado:''});toast('✓ Prospecto creado');}
  // Auto advance to Client ganado si corresponde
@@ -9711,7 +9711,8 @@ function updBenPct(){var tot=0;document.querySelectorAll('#p-ben-list input[data
 function getBens(){var rows=document.querySelectorAll('#p-ben-list > div');var bens=[];rows.forEach(function(row){var g=function(f){var el=row.querySelector('[data-f='+f+']');return el?el.value.trim():'';};bens.push({nombre:g('bnombre'),cedula:g('bcedula'),fechaNac:g('bfechaNac'),pct:parseFloat(g('bpct'))||0});});var tot=bens.reduce(function(a,b){return a+b.pct;},0);if(tot>100.01){toast('Porcentaje beneficiarios supera 100%','err');return null;}return bens;}
 function loadBens(bens){var list=document.getElementById('p-ben-list');if(!list)return;list.innerHTML='';(bens||[]).forEach(addBen);updBenPct();}
 // v84 fillProAseg
-function fillProAseg(selVals){var sel=document.getElementById('pro-aseg');if(!sel)return;var sv=Array.isArray(selVals)?selVals:(selVals?[selVals]:[]);sel.innerHTML='';(S.aseguradoras||[]).forEach(function(a){var op=document.createElement('option');op.value=a.id||a.nombre;op.textContent=a.nombre;op.selected=sv.some(function(v){return v===a.id||v===a.nombre;});sel.appendChild(op);});}
+function fillProAsegChips(selVals){var wrap=document.getElementById('pro-aseg-chips');if(!wrap)return;var sv=Array.isArray(selVals)?selVals:(selVals?[selVals]:[]);wrap.innerHTML='';(S.aseguradoras||[]).forEach(function(a){var val=a.id||a.nombre;var on=sv.some(function(v){return v===val||v===a.nombre||v===a.id;});var chip=document.createElement('span');chip.textContent=a.nombre;chip.setAttribute('data-aseg',val);chip.setAttribute('data-on',on?'1':'0');chip.style.cssText='display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;cursor:pointer;border:1px solid '+(on?'var(--ac)':'var(--bd)')+';background:'+(on?'var(--ac)':'var(--wh)')+';color:'+(on?'#fff':'inherit')+';user-select:none';chip.onclick=function(){var isOn=this.getAttribute('data-on')==='1';isOn=!isOn;this.setAttribute('data-on',isOn?'1':'0');this.style.background=isOn?'var(--ac)':'var(--wh)';this.style.color=isOn?'#fff':'inherit';this.style.borderColor=isOn?'var(--ac)':'var(--bd)';};wrap.appendChild(chip);});}
+function getProAsegSel(){return Array.from(document.querySelectorAll('#pro-aseg-chips span[data-aseg][data-on="1"]')).map(function(c){return c.getAttribute('data-aseg');});}
 </script>
 </div><div id="pg-is" class="pg">
 <style>
