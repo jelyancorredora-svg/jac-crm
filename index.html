@@ -3549,7 +3549,7 @@ function OPros(id){
  // Load cotizaciones
  const cotList=document.getElementById('pro-cotizaciones-list');if(cotList)cotList.innerHTML='';
  (p.cotizaciones||[]).forEach(cot=>addCotizacionRow(cot));
- OM('mpros');initFileInp('pro-file-inp','pro-file-pending');
+ fillProAseg(p.asegPreferidas||p.asegPreferida||[]);OM('mpros');initFileInp('pro-file-inp','pro-file-pending');
 }
 function getIntSel(){return Array.from(document.querySelectorAll('#pro-int-sel span[data-sel="1"]')).map(s=>s.dataset.val);}
 function getCotizaciones(){
@@ -3947,7 +3947,7 @@ function OP(id){
  const hcc=!!(p.coCor);const phc=document.getElementById('p-hc');if(phc)phc.checked=hcc;const cob3=document.getElementById('cob3');if(cob3)cob3.className='cob'+(hcc?' on':'');
  SVal('p-cc',p.coCor);SVal('p-cp',p.coCorPart);SVal('p-cc2',p.coCorCom);
  const pfl=document.getElementById('p-file-list');if(pfl)pfl.innerHTML=renderFL(p.archivos||[],id||'','poliza');
- onRC();OM('mp');initFileInp('p-file-inp','p-file-pending');
+ onRC();loadBens(p.beneficiarios||[]);OM('mp');initFileInp('p-file-inp','p-file-pending');
  // Populate WA + Email history in policy form
  if(id) setTimeout(()=>renderPolicyHistSections(id),120);
  else {
