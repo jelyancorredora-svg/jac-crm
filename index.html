@@ -763,12 +763,14 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="fl" style="margin-bottom:9px"><label>NUEVO PIN</label><input class="fc" type="password" id="cfg-npi" maxlength="4" inputmode="numeric"></div>
  <div class="fl" style="margin-bottom:14px"><label>CONFIRMAR PIN</label><input class="fc" type="password" id="cfg-npi2" maxlength="4" inputmode="numeric"></div>
  <button class="btn bp" onclick="savePin()" style="width:100%">💾 Guardar PIN</button>
- <div style="font-size:13px;font-weight:700;color:var(--bl);margin:16px 0 8px;padding-top:12px;border-top:1px solid var(--bd)">🏷️ Etiquetas</div>
- <div id="cfg-tags" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px"></div>
- <div style="display:flex;gap:6px">
- <input class="fc si" id="cfg-tag-n" placeholder="Nueva etiqueta..." style="flex:1" onkeydown="if(event.key==='Enter')addEtiqueta()">
- <input type="color" id="cfg-tag-c" value="#1D4ED8" style="width:36px;height:34px;border:1px solid var(--bd);border-radius:6px;cursor:pointer">
- <button class="btn bsm bp" onclick="addEtiqueta()">+</button>
+ <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--bd)">
+  <div style="font-size:13px;font-weight:700;color:var(--bl);margin-bottom:8px">🏷️ Gestión de Etiquetas</div>
+  <div id="cfg-tags" style="max-height:220px;overflow-y:auto;border:1px solid var(--bd);border-radius:6px;margin-bottom:8px;background:var(--wh)"></div>
+  <div style="display:flex;gap:6px;align-items:center">
+   <input class="fc si" id="cfg-tag-n" placeholder="Nueva etiqueta..." style="flex:1" onkeydown="if(event.key==='Enter')addEtiqueta()">
+   <input type="color" id="cfg-tag-c" value="#1D4ED8" style="width:36px;height:34px;border:1px solid var(--bd);border-radius:6px;cursor:pointer">
+   <button class="btn bsm bp" onclick="addEtiqueta()">+ Agregar</button>
+  </div>
  </div>
  </div>
  </div>
@@ -4518,7 +4520,7 @@ function RCfg(){
  const nc=document.getElementById('cfg-ncli');if(nc)nc.textContent=S.clientes.length;
  const np=document.getElementById('cfg-npol');if(np)np.textContent=S.polizas.length;
  const npr=document.getElementById('cfg-npro');if(npr)npr.textContent=S.prospectos.length;
- const ct=document.getElementById('cfg-tags');if(ct)ct.innerHTML=S.etiquetas.map(e=>`<span style="display:inline-flex;align-items:center;gap:2px;background:${e.color};color:#fff;padding:3px 8px 3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:2px">${esc(e.nombre)}<button onclick="editEtiqueta('${e.id}')" title="Editar" style="background:rgba(255,255,255,.25);border:none;cursor:pointer;color:#fff;padding:1px 5px;border-radius:10px;font-size:10px;margin-left:2px">✏️</button><button onclick="delEtiqueta('${e.id}')" title="Eliminar" style="background:rgba(255,255,255,.25);border:none;cursor:pointer;color:#fff;padding:1px 5px;border-radius:10px;font-size:10px">✕</button></span>`).join('');
+ renderCfgTags();
 }
 
 
@@ -9713,6 +9715,24 @@ function loadBens(bens){var list=document.getElementById('p-ben-list');if(!list)
 // v84 fillProAseg
 function fillProAsegChips(selVals){var wrap=document.getElementById('pro-aseg-chips');if(!wrap)return;var sv=Array.isArray(selVals)?selVals:(selVals?[selVals]:[]);wrap.innerHTML='';(S.aseguradoras||[]).forEach(function(a){var val=a.id||a.nombre;var on=sv.some(function(v){return v===val||v===a.nombre||v===a.id;});var chip=document.createElement('span');chip.textContent=a.nombre;chip.setAttribute('data-aseg',val);chip.setAttribute('data-on',on?'1':'0');chip.style.cssText='display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;cursor:pointer;border:1px solid '+(on?'var(--ac)':'var(--bd)')+';background:'+(on?'var(--ac)':'var(--wh)')+';color:'+(on?'#fff':'inherit')+';user-select:none';chip.onclick=function(){var isOn=this.getAttribute('data-on')==='1';isOn=!isOn;this.setAttribute('data-on',isOn?'1':'0');this.style.background=isOn?'var(--ac)':'var(--wh)';this.style.color=isOn?'#fff':'inherit';this.style.borderColor=isOn?'var(--ac)':'var(--bd)';};wrap.appendChild(chip);});}
 function getProAsegSel(){return Array.from(document.querySelectorAll('#pro-aseg-chips span[data-aseg][data-on="1"]')).map(function(c){return c.getAttribute('data-aseg');});}
+
+function renderCfgTags(){
+ var ct=document.getElementById('cfg-tags');
+ if(!ct)return;
+ var etqs=S.etiquetas||[];
+ if(!etqs.length){ct.innerHTML='<div style="padding:10px;text-align:center;font-size:11px;color:var(--mu)">Sin etiquetas. Agrega la primera abajo.</div>';return;}
+ ct.innerHTML=etqs.map(function(e){
+  var u=((S.polizas||[]).filter(function(p){return(p.etiquetas||[]).includes(e.id);}).length)
+   +((S.prospectos||[]).filter(function(p){return(p.etiquetas||[]).includes(e.id);}).length);
+  var rw='<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid var(--bd)">';
+  rw+='<div style="width:14px;height:14px;background:'+e.color+';border-radius:3px;flex-shrink:0"></div>';
+  rw+='<span style="flex:1;font-size:12px;font-weight:600">'+esc(e.nombre)+'</span>';
+  rw+='<span style="font-size:10px;color:var(--mu);margin-right:4px">'+u+' uso'+(u!==1?'s':'')+'</span>';
+  rw+='<button onclick="delEtiqueta(this.dataset.id)" data-id="'+e.id+'" style="padding:2px 8px;font-size:11px;color:#dc2626;background:none;border:1px solid #dc2626;border-radius:4px;cursor:pointer">&#x2715;</button>';
+  rw+='</div>';
+  return rw;
+ }).join('');
+}
 </script>
 </div><div id="pg-is" class="pg">
 <style>
