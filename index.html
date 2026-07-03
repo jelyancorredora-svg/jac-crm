@@ -188,6 +188,7 @@ body.dark .ch{border-bottom-color:var(--dark-bd);}
 body.dark .ch h3{color:var(--dark-tx);}
 body.dark a{color:#60A5FA;}
 body.dark .mu{color:var(--dark-mu);}
+main#mainc{overflow-x:hidden}
 </style>
  <!-- Supabase JS SDK -->
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1413,7 +1414,7 @@ body.dark .mu{color:var(--dark-mu);}
  <div class="fl"><label>Fecha Cancelada</label><input class="fc" id="p-fca" type="date"></div>
  <div class="fl"><label>Forma de Pago</label><select class="fc" id="p-fp"><option>Fraccionado</option><option>Contado</option><option>Financiado</option></select></div>
  <div class="fl"><label>Periodicidad</label><select class="fc" id="p-pe" onchange="updateLetraPrima()"><option>Mensual</option><option>Trimestral</option><option>Semestral</option><option>Anual</option></select></div>
- <div class="fl"><label>Nro. Pagos Realizados <button onclick="syncPolPagos()" style="font-size:9px;padding:1px 6px;margin-left:4px;cursor:pointer;background:#e0f2fe;border:1px solid #38bdf8;border-radius:3px" title="Sync del portal">&#x1F504;</button></label><input class="fc" id="p-npag" type="number" step="1" min="0" inputmode="numeric" placeholder="0" style="width:90px"></div>
+ <div class="fl"><label>Nro. Pagos Realizados <button onclick="syncPolPagos()" style="font-size:9px;padding:1px 6px;margin-left:4px;cursor:pointer;background:#e0f2fe;border:1px solid #38bdf8;border-radius:3px" title="Sync del portal">&#x1F504;</button></label><input class="fc" id="p-npag" type="number" oninput="CT()" step="1" min="0" inputmode="numeric" placeholder="0" style="width:90px"></div>
  <div class="fl"><label>Letra Prima</label><input class="fc" id="p-lp" readonly placeholder="auto" style="width:90px;background:#f8fafc;color:#555"></div>
  <div class="fl"><label>Medio de Pago</label><select class="fc" id="p-me"><option>Tarjeta crédito</option><option>Tarjeta débito</option><option>Transferencia</option><option>Efectivo</option><option>Cheque</option></select></div>
  <div class="fl"><label>Banco</label><input class="fc" id="p-ban"></div>
@@ -3406,18 +3407,20 @@ function RPros(){
  if(sg)sg.innerHTML=`<div class="st"><em>Total</em><div class="n">${S.prospectos.length}</div></div><div class="st"><em>Activos</em><div class="n" style="color:#7E22CE">${act.length}</div></div><div class="st"><em>Valor Pipeline</em><div class="n" style="font-size:14px">${fmtM(totMon)}</div></div><div class="st"><em>Ganados</em><div class="n" style="color:#15803D">${gan}</div></div><div class="st"><em>Venta Cruzada</em><div class="n" style="color:#EA580C">${vc}</div></div>`;
  if(prosV==='k')renderProsK();else renderProsT();
 }
+function prosDragStart(e,id){e.dataTransfer.setData('pid',id);}
+function prosDrop(e,etId){e.preventDefault();var pid=e.dataTransfer.getData('pid');var p=(S.prospectos||[]).find(x=>x.id===pid);if(p&&p.etapaVenta!==etId){p.etapaVenta=etId;save();renderProsK();}}
 function renderProsK(){
  let h='<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;align-items:flex-start;min-height:450px">';
  PIPE_ETAPAS.forEach(et=>{
  const items=S.prospectos.filter(p=>p.etapaVenta===et.id);
  const totM=items.reduce((s,p)=>s+(p.montoEstimado||0),0);
- h+=`<div class="pcol"><div class="pch" style="background:${et.color}22;color:${et.color}">${et.label}<span style="background:${et.color}33;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">${items.length}</span></div>`;
+ h+=`<div class="pcol" ondragover="event.preventDefault()" ondrop="prosDrop(event,'${et.id}')"><div class="pch" style="background:${et.color}22;color:${et.color}">${et.label}<span style="background:${et.color}33;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">${items.length}</span></div>`;
  if(totM>0)h+=`<div style="font-size:10px;font-weight:700;color:${et.color};padding:4px 7px;text-align:center;background:#F8FAFC;border-bottom:1px solid var(--bd)">${fmtM(totM)}</div>`;
  h+=`<div class="pbody">`;
  items.forEach(p=>{
  const pc2=pcol(p.prioridad);
  const vcTag=p.esVentaCruzada?'<span class="b bor" style="font-size:9px">VC</span>':'';
- h+=`<div class="pcard" style="border-left-color:${pc2}" onclick="showProsDP('${p.id}')">
+ h+=`<div class="pcard" style="border-left-color:${pc2}" draggable="true" ondragstart="prosDragStart(event,'${p.id}')" onclick="showProsDP('${p.id}')">
 <div style="font-weight:700;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.nombre)} ${vcTag}</div>
 <div style="font-size:10px;color:var(--mu)">${(p.interes||[]).slice(0,2).join(' · ')||'—'}</div>
 ${p.montoEstimado?`<div style="font-size:11px;font-weight:700;color:#15803D">${fmtM(p.montoEstimado)}</div>`:''}
@@ -3679,13 +3682,13 @@ function RPipe(){
  PIPE_ETAPAS.forEach(et=>{
  const items=fil.filter(p=>p.etapaVenta===et.id);
  const totM=items.reduce((s,p)=>s+(p.montoEstimado||0),0);
- h+=`<div class="pcol"><div class="pch" style="background:${et.color}22;color:${et.color}">${et.label}<span style="background:${et.color}33;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">${items.length}</span></div>`;
+ h+=`<div class="pcol" ondragover="event.preventDefault()" ondrop="prosDrop(event,'${et.id}')"><div class="pch" style="background:${et.color}22;color:${et.color}">${et.label}<span style="background:${et.color}33;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px">${items.length}</span></div>`;
  if(totM>0)h+=`<div style="font-size:10px;font-weight:700;color:${et.color};padding:4px 7px;text-align:center;background:#F8FAFC;border-bottom:1px solid var(--bd)">${fmtM(totM)}</div>`;
  h+=`<div class="pbody">`;
  items.forEach(p=>{
  const pc2=pcol(p.prioridad);
  const vcB=p.esVentaCruzada?b('bor','VC'):'';
- h+=`<div class="pcard" style="border-left-color:${pc2}" onclick="showProsDP('${p.id}')">
+ h+=`<div class="pcard" style="border-left-color:${pc2}" draggable="true" ondragstart="prosDragStart(event,'${p.id}')" onclick="showProsDP('${p.id}')">
 <div style="font-weight:700;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.nombre)} ${vcB}</div>
 <div style="font-size:10px;color:var(--mu)">${(p.interes||[]).slice(0,2).join(' · ')||'—'}</div>
 ${p.montoEstimado?`<div style="font-size:11px;font-weight:700;color:#15803D">${fmtM(p.montoEstimado)}</div>`:''}
@@ -3862,10 +3865,10 @@ function renderPT(fil){
  fil.forEach(p=>{
  const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
  const primaTot=p.total||p.prima||0;
- h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num||p.numero||'')}</td><td style="cursor:pointer" draggable="true" ondragstart="pkDragStart(event,'${p.id}')" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}${(p.etiquetas||[]).length?'<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:2px">'+renderTags(p.etiquetas)+'</div>':''}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(primaTot)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px"><div style="display:flex;flex-direction:column;gap:2px">${fmt(p.fechaFin)}${(()=>{const d=dFrom(p.fechaFin);const col=d<0?'#DC2626':d<=7?'#DC2626':d<=30?'#D97706':d<=60?'#2563EB':'#15803D';const label=d<0?'Vencida':(d===0?'HOY':d+'d');return '<span style="font-size:9px;font-weight:800;color:'+col+';background:'+col+'18;padding:1px 5px;border-radius:10px;width:fit-content">'+label+'</span>';})()}</div></td><td onclick="event.stopPropagation()"><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''} ${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+ h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num||p.numero||'')}</td><td style="cursor:pointer" draggable="true" ondragstart="pkDragStart(event,'${p.id}')" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}${(p.etiquetas||[]).length?'<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:2px">'+renderTags(p.etiquetas)+'</div>':''}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(primaTot)}</td><td style="font-weight:700;color:#9333EA">${fmtM(primaTot/12)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px"><div style="display:flex;flex-direction:column;gap:2px">${fmt(p.fechaFin)}${(()=>{const d=dFrom(p.fechaFin);const col=d<0?'#DC2626':d<=7?'#DC2626':d<=30?'#D97706':d<=60?'#2563EB':'#15803D';const label=d<0?'Vencida':(d===0?'HOY':d+'d');return '<span style="font-size:9px;font-weight:800;color:'+col+';background:'+col+'18;padding:1px 5px;border-radius:10px;width:fit-content">'+label+'</span>';})()}</div></td><td onclick="event.stopPropagation()"><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''} ${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
  });
- if(!h)h='<tr><td colspan="9" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
- const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=`<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima Total</th><th>Comisión JAC</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${h}</tbody></table></div></div>`;
+ if(!h)h='<tr><td colspan="10" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
+ const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=`<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima Total</th><th>Prima Mensual</th><th>Comisión JAC</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${h}</tbody></table></div></div>`;
 }
 function renderPK(fil,view){
  const KC2={'Vigente':'#15803D','Por Vencer':'#B45309','Vencida':'#B91C1C','Cancelada':'#64748B','Nueva':'#1D4ED8','En Proceso':'#7E22CE','Por Renovar':'#D97706','Renovada':'#15803D'};
@@ -3972,6 +3975,7 @@ function onRC(){
 function TC(){const cob3=document.getElementById('cob3'),phc=document.getElementById('p-hc');if(cob3&&phc)cob3.className='cob'+(phc.checked?' on':'');}
 function CT(){
  const pr=GF('p-pr'),itp=GF('p-it'),gex=GF('p-ge'),cpct=GF('p-cb'),part=GF('p-pa')||100,ccp=GF('p-cp');
+ const npag=GF('p-npag')||0;
  // ITBMS se calcula sobre prima neta
  const itb=pr*itp/100;
  // Prima Total = Prima Neta + ITBMS + Gastos Expedición
@@ -3990,6 +3994,7 @@ function CT(){
  SVal('p-canu',canu.toFixed(2));
  SVal('p-co',myCom.toFixed(2));
  SVal('p-cc2',ccCom.toFixed(2));
+ SVal('p-lp',npag>0?(tot/npag).toFixed(2):'');
 }
 function SP(){
  const num=(V('p-nu')||'').trim(),aseg=V('p-as');
