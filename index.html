@@ -386,6 +386,10 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <button class="btn" onclick="SH('not')" style="background:#D97706;color:#fff;border-color:#D97706;display:inline-flex;align-items:center;gap:5px">📝 Notas</button>
  </div>
  <div id="dash-agenda" style="display:none;margin-bottom:10px"></div>
+ <!-- STARTUP NOTIFICATION BANNER -->
+ <div id="dash-startup-alert" style="display:none;margin-bottom:10px"></div>
+ <!-- DONUT CHART ROW -->
+ <div id="dash-donut-row" style="display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;margin-bottom:10px"></div>
  <!-- BIRTHDAY ALERTS -->
  <div class="card" id="dash-birthdays" style="margin-bottom:10px;display:none"></div>
  <!-- 30-DAY REMINDER ALERTS -->
@@ -454,6 +458,7 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <button onclick="setPV('kr',this)">Ramo</button>
  </div>
  <button class="btn bp" onclick="OP()">+ Póliza</button>
+   <button class="btn" style="background:#217346;color:#fff;border-color:#1a5c38" onclick="OM('m-import-csv')">📥 Importar CSV</button>
  <button class="btn bsm" onclick="exportPolCSV()" title="Exportar a CSV" style="background:#f0fdf4;border:1px solid #86efac;color:#15803d">📥 CSV</button>
  </div>
  <div id="vf-btns" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 0 2px 0">
@@ -1197,6 +1202,50 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  </div>
 </div></div>
 
+
+<!-- IMPORT POLIZAS MODAL -->
+<div class="mo" id="m-import-csv"><div class="md" style="max-width:640px">
+ <div class="mh"><h2>📥 Importar Pólizas desde CSV</h2><button class="btn bgh" onclick="CM('m-import-csv')">✕</button></div>
+ <div class="mb">
+  <div style="background:#EEF4FF;border:1px solid #C7D7FF;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#1E3A8A">
+   <b>📋 Formato CSV aceptado:</b><br>
+   Columnas requeridas: <code>nombre_cliente, aseguradora, ramo, numero_poliza, fecha_inicio, fecha_fin, prima</code><br>
+   Columnas opcionales: <code>cedula, celular, email, comision_pct, notas</code><br>
+   • Primera fila = encabezados (serán ignorados)<br>
+   • Separador: coma (,) o punto y coma (;)<br>
+   • Fechas: YYYY-MM-DD o DD/MM/YYYY<br>
+   • Compatible con exportaciones de <b>Softseguros</b>
+  </div>
+  <div class="fl" style="margin-bottom:12px">
+   <label>📎 Seleccionar archivo CSV o Excel</label>
+   <input type="file" class="fc" id="csv-file-input" accept=".csv,.xlsx,.xls,.txt" onchange="csvPreview(event)" style="padding:8px;cursor:pointer">
+  </div>
+  <div id="csv-preview-area" style="display:none">
+   <div class="ch"><h3>👁 Vista Previa <span id="csv-row-count"></span></h3></div>
+   <div style="overflow-x:auto;max-height:240px;border:1px solid var(--bd);border-radius:6px">
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+     <thead id="csv-preview-head"></thead>
+     <tbody id="csv-preview-body"></tbody>
+    </table>
+   </div>
+   <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <div class="fl" style="margin:0;flex:1;min-width:160px">
+     <label>Mapear "nombre cliente" como:</label>
+     <select class="fc" id="csv-map-nombre"><option value="nombre">nombre_cliente</option><option value="asegurado">asegurado</option><option value="cliente">cliente</option></select>
+    </div>
+    <div class="fl" style="margin:0;flex:1;min-width:120px">
+     <label>Formato fecha:</label>
+     <select class="fc" id="csv-map-fecha"><option value="iso">YYYY-MM-DD</option><option value="dmy">DD/MM/YYYY</option><option value="mdy">MM/DD/YYYY</option></select>
+    </div>
+   </div>
+   <div id="csv-import-stats" style="margin-top:10px;font-size:12px;color:var(--mu)"></div>
+  </div>
+ </div>
+ <div class="mf">
+  <button class="btn" onclick="CM('m-import-csv')">Cancelar</button>
+  <button class="btn bp" id="csv-import-btn" onclick="csvImport()" disabled>📥 Importar pólizas</button>
+ </div>
+</div></div>
 
 <!-- MODAL COTIZADOR RÁPIDO -->
 <div class="mo" id="mcotz"><div class="md mdsm" style="max-width:560px">
@@ -3109,7 +3158,7 @@ function logEmailSent(){
 function openEmailForClient(cid){
   const c=GC(cid);
   if(!c.email){toast('Cliente sin email registrado','err');return;}
-  openComposeEmail(c.email,c.nombre,'','cliente',cid,'cliente',cid);
+  openComposeEmail(c.email,c.nombre,'','','cliente',cid);
   // Auto-select bienvenida template after modal opens
   setTimeout(()=>{
     document.getElementById('cem-template').value='bienvenida';
@@ -3145,29 +3194,6 @@ function openEmailForTarea(tid){
  openComposeEmail(email,nombre,sub,body,'tarea',tid);
 }
 function openEmailForSin(sid){
- const s=S.siniestros.find(x=>x.id===sid);if(!s){toast('Siniestro no encontrado','err');return;}
- const cl=s.clienteId?GC(s.clienteId):{};
- const email=cl.email||s.emailCliente||'';
- if(!email){toast('Sin email del asegurado registrado','err');return;}
- const fn=(cl.nombre||s.cliente||s.asegurado||'').split(' ')[0];
- const sub=`Actualización siniestro ${s.numCia||s.numSin||''} — JAC Seguros`;
- const body=`Hola ${fn} 👋\n\nTe enviamos una actualización sobre tu siniestro ${s.nombre?' de *'+s.nombre+'*':''} (Ref: ${s.numCia||s.numSin||'—'}).\n\nEstado actual: ${s.estado||'—'}\n${s.seguimiento||s.desc||''}\n\nAnte cualquier consulta, estamos a tu disposición.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
- openComposeEmail(email,cl.nombre||s.cliente||s.asegurado||'',sub,body,'siniestro',sid);
-}
-
- let ml=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
- if(cc)ml+=`&cc=${encodeURIComponent(cc)}`;
- // If Gmail selected, open Gmail compose directly
- if(fromEmail==='jelyancorredora@gmail.com'){
- const gmUrl=`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}${cc?'&cc='+encodeURIComponent(cc):''}`;
- window.open(gmUrl,'_blank');
- } else {
- window.open(ml);
- }
- logEmailSent();
- CM('mcem');toast('📨 Abriendo app de correo...');
-}
-
 function SH(id){
  // Fix blank screen: use requestAnimationFrame to ensure render
  const pages=document.querySelectorAll('.pg');
@@ -5029,7 +5055,7 @@ function loadFromCloud(){
     if((remote._ts||0)>locTs+5000){localStorage.setItem("jacv10",fc);location.reload();}
   }).catch(function(){});
 }
-function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}
+function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}}
 </script>
 
 <!-- MODAL: HISTORIAL COMPLETO EMAILS + WHATSAPP -->
@@ -9784,6 +9810,7 @@ SH=function(pg){
 };
 
 
+}
 </script>
 
 
@@ -10754,6 +10781,21 @@ function sendEmailViaMailto() {
 // MEJORAS ADICIONALES JAC CRM v5
 // ══════════════════════════════════════════════════════════════
 
+
+function ONot(id){openAddNota(id||null);}
+
+function cotpCalc(){try{cotpCalcAll();}catch(e){console.warn('cotpCalc:',e);}}
+
+// ── UniVivir stubs ──
+function uvSetTab(a,b,c){console.warn('UniVivir: uvSetTab not fully implemented');}
+function uvEditPV(a,b,c){console.warn('UniVivir: uvEditPV not fully implemented');}
+function uvSyncPV(a,b,c){console.warn('UniVivir: uvSyncPV not fully implemented');}
+function uvDoImport(a,b,c){console.warn('UniVivir: uvDoImport not fully implemented');}
+function uvEditLiq(a,b,c){console.warn('UniVivir: uvEditLiq not fully implemented');}
+function uvSavePV(a,b,c){console.warn('UniVivir: uvSavePV not fully implemented');}
+function uvImport(a,b,c){console.warn('UniVivir: uvImport not fully implemented');}
+function uvSaveLiq(a,b,c){console.warn('UniVivir: uvSaveLiq not fully implemented');}
+function uvSyncNow(a,b,c){console.warn('UniVivir: uvSyncNow not fully implemented');}
 // ── 1. Ctrl+N = Nueva entrada rápida según módulo activo ──
 document.addEventListener('keydown', function(eN){
   if((eN.ctrlKey||eN.metaKey)&&eN.key==='n'&&!eN.shiftKey){
@@ -10870,6 +10912,130 @@ function quickStats(){
   toast(msg,'ok',6000);
 }
 // END MEJORAS ADICIONALES v5
+
+
+// ══ CSV IMPORT POLIZAS ══
+let _csvParsed = [];
+
+function csvParseDate(str, fmt) {
+  if (!str) return '';
+  str = str.trim();
+  if (!str) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str; // already ISO
+  const parts = str.split(/[\/\-\.]/);
+  if (parts.length < 3) return str;
+  if (fmt === 'dmy') return `${parts[2].padStart(4,'20')}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+  if (fmt === 'mdy') return `${parts[2].padStart(4,'20')}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+  return str;
+}
+
+function csvParseContent(text) {
+  const sep = text.includes(';') ? ';' : ',';
+  const rows = text.trim().split('\n').map(r => r.split(sep).map(c => c.trim().replace(/^"|"$/g,'')));
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.toLowerCase().replace(/\s+/g,'_'));
+  return rows.slice(1).filter(r => r.some(c => c)).map(r => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = r[i] || '');
+    return obj;
+  });
+}
+
+function csvPreview(ev) {
+  const file = ev.target.files[0]; if (!file) return;
+  const btn = document.getElementById('csv-import-btn');
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const rows = csvParseContent(text);
+    _csvParsed = rows;
+    const area = document.getElementById('csv-preview-area');
+    const cnt  = document.getElementById('csv-row-count');
+    const head = document.getElementById('csv-preview-head');
+    const body = document.getElementById('csv-preview-body');
+    const stats= document.getElementById('csv-import-stats');
+    if (!rows.length) { toast('CSV vacío o formato incorrecto','err'); return; }
+    if (area) area.style.display = '';
+    if (cnt)  cnt.textContent = `(${rows.length} filas)`;
+    const headers = Object.keys(rows[0]);
+    if (head) head.innerHTML = '<tr>' + headers.map(h => `<th style="padding:5px 8px;background:#F8FAFC;border:1px solid #e5e7eb;font-size:10px;white-space:nowrap">${h}</th>`).join('') + '</tr>';
+    if (body) body.innerHTML = rows.slice(0,5).map(r =>
+      '<tr>' + headers.map(h => `<td style="padding:4px 8px;border:1px solid #e5e7eb;font-size:10px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(r[h]||'')}</td>`).join('') + '</tr>'
+    ).join('');
+    // Detect key columns
+    const hasCliente = headers.some(h => h.includes('nombre') || h.includes('cliente'));
+    const hasAseg    = headers.some(h => h.includes('aseg'));
+    const hasFecha   = headers.some(h => h.includes('fecha'));
+    if (stats) stats.innerHTML = [
+      hasCliente ? '✅ Columna cliente detectada' : '⚠️ No se detectó columna de cliente',
+      hasAseg    ? '✅ Columna aseguradora detectada' : '⚠️ Sin aseguradora',
+      hasFecha   ? '✅ Columna fecha detectada' : '⚠️ Sin fecha',
+      `<br>Se importarán ${rows.length} pólizas`,
+    ].join('<br>');
+    if (btn) btn.disabled = false;
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function csvFindCol(row, ...candidates) {
+  for (const c of candidates) {
+    const key = Object.keys(row).find(k => k.includes(c));
+    if (key && row[key]) return row[key];
+  }
+  return '';
+}
+
+function csvImport() {
+  if (!_csvParsed.length) { toast('Primero carga un archivo CSV','warn'); return; }
+  const fechaFmt = document.getElementById('csv-map-fecha')?.value || 'iso';
+  const ramosCom = {'AUTOMÓVIL':15,'AUTOS':15,'AUTO':15,'SOAT':8,'VIDA':20,'SALUD':15,'MÉDICOS':15,'GASTOS MÉDICOS':15,'HOGAR':12,'INCENDIO':12,'ACCIDENTES':12,'FIANZAS':8,'RC':12};
+  let imported = 0, skipped = 0, errors = [];
+  const comPct = p => {
+    const r = (p.ramo||'').toUpperCase();
+    for (const [k,v] of Object.entries(ramosCom)) if (r.includes(k)) return v;
+    return 12;
+  };
+  _csvParsed.forEach((row, idx) => {
+    try {
+      const nombre = csvFindCol(row,'nombre','cliente','asegurado','tomador');
+      const aseg   = csvFindCol(row,'aseg','aseguradora','compania','compañia');
+      const ramo   = csvFindCol(row,'ramo','tipo','producto','cobertura');
+      const num    = csvFindCol(row,'poliza','numero','num','nro','póliza');
+      const ini    = csvParseDate(csvFindCol(row,'inicio','from','emision','emisión'), fechaFmt);
+      const fin    = csvParseDate(csvFindCol(row,'fin','vence','expira','hasta','vencimiento'), fechaFmt);
+      const prima  = parseFloat((csvFindCol(row,'prima','monto','importe','tarifa')||'0').replace(/[,$]/g,'')) || 0;
+      const cedula = csvFindCol(row,'cedula','cédula','doc','identificacion');
+      const cel    = csvFindCol(row,'celular','cel','telefono','teléfono','tel');
+      const email  = csvFindCol(row,'email','correo','mail');
+      if (!nombre) { skipped++; return; }
+      // Find or create client
+      let cli = S.clientes.find(c => c.nombre?.toLowerCase() === nombre.toLowerCase() || (cedula && c.cedula === cedula));
+      if (!cli) {
+        cli = { id: uid(), nombre, cedula, cel, email, tipo: 'Personal', ciudad: '', _importado: true };
+        S.clientes.push(cli);
+      }
+      // Create policy
+      const pct = comPct({ramo});
+      const pol = {
+        id: uid(), clienteId: cli.id, nombreCliente: nombre,
+        aseg: aseg || 'Sin aseguradora', ramo: ramo || 'Otro',
+        polNum: num, num, fechaInicio: ini, fechaFin: fin,
+        prima, comPct: pct, comision: Math.round(prima * pct / 100 * 100) / 100,
+        participacion: 100, estado: 'Vigente', _importado: true,
+        _importDate: new Date().toISOString().slice(0,10)
+      };
+      S.polizas.push(pol);
+      imported++;
+    } catch(e) { errors.push(`Fila ${idx+2}: ${e.message}`); skipped++; }
+  });
+  save();
+  try { RP(); RD(); } catch(e) {}
+  CM('m-import-csv');
+  _csvParsed = [];
+  const msg = `✅ ${imported} pólizas importadas${skipped ? ' · ⚠️ '+skipped+' saltadas' : ''}${errors.length ? '\nErrores: '+errors.slice(0,3).join(', ') : ''}`;
+  toast(msg, imported ? 'ok' : 'warn', 6000);
+}
+// END CSV IMPORT
 
 </script>
 </div><div id="pg-is" class="pg">
