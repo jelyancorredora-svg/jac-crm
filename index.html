@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- v90 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -12,7 +12,7 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
  --dark-bg:#0F172A;--dark-card:#1E293B;--dark-bd:#334155;--dark-tx:#E2E8F0;--dark-mu:#94A3B8;--dark-nav:#1E293B;--bl:#1A3A6B;--rd:#C8102E;--bg:#EEF2F8;--wh:#fff;--bd:#D4DEF0;--tx:#18264B;--mu:#5A6A8A;--ok:#15803D;--okl:#D1FAE5;--wn:#B45309;--wnl:#FEF3C7;--dg:#B91C1C;--dgl:#FEE2E2;--in:#1D4ED8;--inl:#DBEAFE;--pu:#7E22CE;--pul:#F3E8FF;--cy:#0891B2;--r8:8px;--r6:6px;--sh:0 1px 4px rgba(26,58,107,.1);--sh2:0 4px 16px rgba(26,58,107,.15)}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;min-height:100vh}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:16px;min-height:100vh}
 #ls{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1A3A6B 0%,#0D1F3C 100%);padding:16px}
 .lbox{background:var(--wh);border-radius:16px;padding:36px 30px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 .llogo{text-align:center;margin-bottom:24px}
@@ -54,8 +54,8 @@ main{padding:14px 16px;max-width:1800px;margin:0 auto;padding-bottom:80px}
 .st .sv{font-size:10px;color:var(--mu);margin-top:2px}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse}
-th{padding:8px 10px;text-align:left;font-size:12px;font-weight:700;color:var(--mu);letter-spacing:.4px;border-bottom:1px solid var(--bd);white-space:nowrap;background:#F8FAFD}
-td{padding:9px 10px;font-size:13px;vertical-align:middle;border-bottom:1px solid #EEF2F8}
+th{padding:8px 10px;text-align:left;font-size:13px;font-weight:700;color:var(--mu);letter-spacing:.4px;border-bottom:1px solid var(--bd);white-space:nowrap;background:#F8FAFD}
+td{padding:9px 10px;font-size:14px;vertical-align:middle;border-bottom:1px solid #EEF2F8}
 tr:hover td{background:#F4F8FF}
 .ab{display:flex;gap:3px;align-items:center;flex-wrap:wrap}
 .b{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap;gap:2px;line-height:1.4}
@@ -191,82 +191,15 @@ body.dark a{color:#60A5FA;}
 body.dark .mu{color:var(--dark-mu);}
 main#mainc{overflow-x:hidden}
 
-/* ══ DARK MODE TAREAS + PIPELINE v3 ══ */
-body.dark .tboard .tcol{background:var(--dark-nav) !important;border:1px solid var(--dark-bd)}
-body.dark .tch{background:var(--dark-card) !important;color:var(--dark-tx) !important}
-body.dark .tcard{background:var(--dark-card) !important;border-color:var(--dark-bd) !important;color:var(--dark-tx) !important}
-body.dark .tbody2{background:var(--dark-nav) !important}
-body.dark .vtog{background:#1E293B !important}
-body.dark .vtog button{color:var(--dark-mu)}
-body.dark .vtog button.on{background:var(--dark-card) !important;color:#93C5FD !important}
-body.dark .pcol{background:var(--dark-nav) !important;border-color:var(--dark-bd) !important}
-body.dark .pcard{background:var(--dark-card) !important;border-color:var(--dark-bd) !important;color:var(--dark-tx) !important}
-body.dark .pbody{background:var(--dark-nav) !important}
-body.dark .pch{color:inherit !important}
-body.dark .wa-hist{background:#0D2818 !important;border-left-color:#25D366 !important}
-body.dark .renew-row{border-color:var(--dark-bd) !important}
-body.dark .renew-row:hover{background:var(--dark-card)}
-body.dark .file-area{border-color:var(--dark-bd);color:var(--dark-mu)}
-body.dark .fitem{background:#273549;border-color:var(--dark-bd)}
-body.dark .ph{background:var(--dark-card) !important;border-color:var(--dark-bd) !important}
-/* END DARK MODE v3 */
-
-/* Dark mode - Global search */
-body.dark #gsearch-results{background:var(--dark-card);border-color:var(--dark-bd);color:var(--dark-tx)}
-body.dark #gsearch-results div[onmouseover]{border-color:var(--dark-bd)}
-body.dark #gsearch-results div[onmouseover]:hover{background:var(--dark-nav) !important}
-body.dark #gsearch-inp{background:#1E293B;border-color:var(--dark-bd);color:var(--dark-tx)}
-/* Dark mode - Dashboard progress */
-body.dark #dash-progress .card{background:var(--dark-card)}
-body.dark #dash-progress [style*="background:#DCFCE7"]{background:#052E16 !important}
-body.dark #dash-progress [style*="background:#FEF3C7"]{background:#1C1002 !important}
-body.dark #dash-progress [style*="background:#FEE2E2"]{background:#1C0505 !important}
-/* Dark mode - Informes charts */
-body.dark #inf-stats .card{background:var(--dark-card) !important;border-color:var(--dark-bd) !important}
-body.dark #inf-com-mes [style*="background:#93C5FD"]{background:#1D4ED8 !important}
-body.dark [style*="background:#F0F4FF"]{background:#1E293B !important}
-body.dark [style*="background:#F0F4FF"] [style*="background:#1E3A8A"]{background:#3B82F6 !important}
-/* Dark mode - progress bars inner */
-body.dark #dash-progress div[style*="linear-gradient(90deg"]{opacity:.85}
-
-/* ══ EMAIL MODAL v2 ══ */
-#mcem .md{display:flex;flex-direction:column}
-#mcem .mb{padding:14px 16px}
-body.dark #mcem .mb{background:var(--dark-bg)}
-body.dark #cem-compose-tab{background:var(--dark-bg)}
-body.dark #cem-preview-tab{background:var(--dark-bg)}
-body.dark #cem-hist-tab{background:var(--dark-bg)}
-body.dark #cem-hist-content{color:var(--dark-tx)}
-body.dark #cem-hist-content div[style*="border-bottom"]{border-color:var(--dark-bd)}
-body.dark [style*="background:#EEF4FF"]{background:#1E293B !important;border-color:#1D4ED8 !important}
-body.dark [style*="background:#C7D7FF"]{border-color:#1D4ED8 !important}
-body.dark [style*="color:#1D4ED8"]{color:#93C5FD !important}
-body.dark #mcem [style*="background:#F8FAFC"]{background:var(--dark-nav) !important}
-body.dark #mcem [style*="background:#F8FAFC"][style*="border-bottom"]{background:#0F172A !important;border-color:var(--dark-bd) !important}
-/* Email compose toolbar buttons */
-#mcem button[onclick*="cemFmt"]{transition:.15s}
-#mcem button[onclick*="cemFmt"]:hover{background:#EEF4FF !important;border-color:#93C5FD !important}
-#mcem button[onclick*="cemInsertVar"]:hover{background:#C7D7FF !important}
-/* END EMAIL CSS */
-
-/* ══ WA MASIVO v2 ══ */
-body.dark #wam-preview{background:#0D2818 !important;color:#86EFAC !important;border-color:#166534 !important}
-body.dark #wam-list > div{border-color:var(--dark-bd) !important}
-body.dark #wam-list > div:hover{background:var(--dark-nav)}
-body.dark [style*="background:#F8FAFC"][style*="border-bottom"]{background:#0F172A !important;border-color:var(--dark-bd) !important}
-/* ══ EMPRESAS v2 ══ */
-body.dark #emp-view .card{background:var(--dark-card) !important}
-body.dark #emp-view [style*="background:linear-gradient(135deg,#1E3A8A"]{opacity:.85}
-body.dark #emp-view [style*="background:#F8FAFC"]{background:var(--dark-nav) !important}
-body.dark #emp-sg .st{background:var(--dark-card)}
-/* ══ EMAIL v2 tabs ══ */
-body.dark #mcem [style*="background:#F8FAFC"]{background:#0F172A !important}
-body.dark [id^="cemtab-"]{color:var(--dark-mu) !important}
-body.dark [id^="cemtab-"].selected{color:#93C5FD !important}
-body.dark #cem-preview-tab [style*="background:#F8FAFC"]{background:#0F172A !important}
-body.dark #cem-preview-tab [style*="background:#fff"]{background:var(--dark-card) !important;color:var(--dark-tx) !important}
-body.dark #prev-body{color:var(--dark-tx) !important}
-/* END EXTRA CSS */
+/* ══ DARK MODE ADDITIONS ══ */
+body.dark .tboard .tcol,body.dark .pcol{background:var(--dark-nav)!important;border-color:var(--dark-bd)!important}
+body.dark .tcard,body.dark .pcard{background:var(--dark-card)!important;border-color:var(--dark-bd)!important;color:var(--dark-tx)!important}
+body.dark .ph{background:var(--dark-card)!important;border-color:var(--dark-bd)!important}
+body.dark .si{background:#1E293B!important;border-color:var(--dark-bd)!important;color:var(--dark-tx)!important}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:10px}
+body.dark ::-webkit-scrollbar-thumb{background:#334155}
+/* END DARK MODE ADDITIONS */
 </style>
  <!-- Supabase JS SDK -->
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -279,10 +212,8 @@ body.dark #prev-body{color:var(--dark-tx) !important}
 <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JAC CRM">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231A3A6B'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-size='50' font-weight='900' fill='white' font-family='Arial'%3EJAC%3C/text%3E%3C/svg%3E">
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Permissions-Policy" content="geolocation=(),microphone=(),camera=()">
 </head>
@@ -291,8 +222,7 @@ body.dark #prev-body{color:var(--dark-tx) !important}
 <div id="cof"><div id="cob"><h3>⚠️ Confirmar</h3><p id="cmsg">¿Eliminar?</p><div style="display:flex;gap:9px;justify-content:center"><button class="btn" onclick="cc()">Cancelar</button><button class="btn brd2" id="cokb">Confirmar</button></div></div></div>
 
 <!-- ═══ LOGIN ═══ -->
-
-<div id="toast-container"></div>
+<div id="toast-container" style="position:fixed;top:60px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none"></div>
 <div id="ls">
 <div class="lbox">
  <div class="llogo">
@@ -312,7 +242,7 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <div class="lform on" id="lf-pwd">
  <div class="lfld"><label>USUARIO</label><input type="text" id="lu" placeholder="Usuario" autocomplete="username" spellcheck="false"></div>
  <div class="lfld"><label>CONTRASEÑA</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"></div>
- <button class="lbtn" id="lbtn-main" onclick="doLogin()">Ingresar →</button>
+ <button class="lbtn" onclick="doLogin()">Ingresar →</button>
  <div style="text-align:center;margin-top:10px"><button onclick="resetLoginEmergency()" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer;text-decoration:underline">🔓 ¿No puedes entrar? Restablecer acceso</button></div>
  </div>
  <div class="lform" id="lf-pin">
@@ -363,7 +293,7 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <input id="gsearch-inp" class="fc" placeholder="🔍 Buscar..." 
  style="width:180px;font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff"
  oninput="gsearchLive(this.value)" onblur="setTimeout(()=>gsearchHide(),200)" autocomplete="off">
- <div id="gsearch-results" style="display:none;position:absolute;top:32px;right:0;background:var(--wh);border:1px solid var(--bd)0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;max-height:400px;overflow-y:auto;min-width:340px"></div>
+ <div id="gsearch-results" style="display:none;position:absolute;top:32px;right:0;background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;max-height:400px;overflow-y:auto;min-width:340px"></div>
  </div>
  <button onclick="toggleDarkMode()" id="dark-btn" class="btn bgh" style="padding:6px 10px;font-size:16px" title="Modo oscuro">🌙</button> <button class="btn bsm" onclick="doLogout()">🚪</button>
 </div>
@@ -386,17 +316,12 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <button class="btn" onclick="SH('not')" style="background:#D97706;color:#fff;border-color:#D97706;display:inline-flex;align-items:center;gap:5px">📝 Notas</button>
  </div>
  <div id="dash-agenda" style="display:none;margin-bottom:10px"></div>
- <!-- STARTUP NOTIFICATION BANNER -->
- <div id="dash-startup-alert" style="display:none;margin-bottom:10px"></div>
- <!-- DONUT CHART ROW -->
- <div id="dash-donut-row" style="display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;margin-bottom:10px"></div>
  <!-- BIRTHDAY ALERTS -->
  <div class="card" id="dash-birthdays" style="margin-bottom:10px;display:none"></div>
  <!-- 30-DAY REMINDER ALERTS -->
  <div class="card" id="dash-reminders" style="margin-bottom:10px;display:none"></div>
 
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
- <div id="dash-progress"></div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:10px">
  <div class="card" id="dren"></div>
  </div>
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
@@ -458,7 +383,6 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <button onclick="setPV('kr',this)">Ramo</button>
  </div>
  <button class="btn bp" onclick="OP()">+ Póliza</button>
-   <button class="btn" style="background:#217346;color:#fff;border-color:#1a5c38" onclick="OM('m-import-csv')">📥 Importar CSV</button>
  <button class="btn bsm" onclick="exportPolCSV()" title="Exportar a CSV" style="background:#f0fdf4;border:1px solid #86efac;color:#15803d">📥 CSV</button>
  </div>
  <div id="vf-btns" style="display:flex;gap:4px;flex-wrap:wrap;padding:6px 0 2px 0">
@@ -645,29 +569,16 @@ body.dark #prev-body{color:var(--dark-tx) !important}
 
 <!-- EMPRESAS -->
 <div class="pg" id="pg-emp">
- <div class="ph">
-  <div>
-   <h2>🏢 Empresas & Colectivos</h2>
-   <small id="empcnt"></small>
-  </div>
-  <div class="tb">
-   <input class="si" id="s-emp" placeholder="Buscar empresa, RUC..." style="flex:1;min-width:140px" oninput="REmp()">
-   <button class="btn bp" onclick="OC()">+ Empresa</button>
-   <button class="btn" style="background:#7C3AED;color:#fff;border-color:#7C3AED" onclick="exportEmpExcel()">📊 Excel</button>
-  </div>
- </div>
- <!-- STATS CARDS -->
- <div class="sg" id="emp-sg" style="margin-bottom:10px"></div>
- <!-- TABS -->
+ <div class="ph"><div><h2>🏢 Empresas &amp; Colectivos</h2><small id="empcnt"></small></div></div>
  <div class="ptabs" id="emp-tabs">
-  <a class="on" onclick="switchEmpTab('emp',this)">🏢 Empresas</a>
-  <a onclick="switchEmpTab('col',this)">👥 Pólizas Colectivas</a>
-  <a onclick="switchEmpTab('asd',this)">📋 Asegurados</a>
-  <a onclick="switchEmpTab('map',this)">📊 Análisis</a>
+ <a class="on" onclick="switchEmpTab('emp',this)">🏢 Empresas</a>
+ <a onclick="switchEmpTab('col',this)">👥 Pólizas Colectivas</a>
+ <a onclick="switchEmpTab('asd',this)">📋 Asegurados</a>
  </div>
  <div id="emp-view"></div>
 </div>
 
+<!-- ASEGURADORAS -->
 <div class="pg" id="pg-aseg">
  <div class="ph"><div><h2>🏛 Aseguradoras</h2><small id="asegcnt"></small></div><button class="btn bp" onclick="OAseg()">+ Aseguradora</button></div>
  <div id="gaseg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px"></div>
@@ -774,7 +685,7 @@ body.dark #prev-body{color:var(--dark-tx) !important}
 <!-- INFORMES -->
 <div class="pg" id="pg-inf">
  <div class="ph">
- <div><h2>📊 Informes</h2><small id="inf-subtitle">Reportes y análisis de cartera</small></div>
+ <div><h2>📊 Informes</h2><small>Reportes y análisis de cartera</small></div>
  <div style="display:flex;gap:8px">
  <button class="btn bcy" onclick="exportInformePDF()">📄 Exportar PDF</button>
  <button class="btn bgn" onclick="exportInformeExcel()">📊 Exportar Excel</button>
@@ -1084,168 +995,34 @@ body.dark #prev-body{color:var(--dark-tx) !important}
 </div></div>
 
 <!-- MODAL COMPOSE EMAIL -->
-<div class="mo" id="mcem"><div class="md" style="max-width:660px;max-height:92vh;display:flex;flex-direction:column">
- <div class="mh" style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8);color:#fff;flex-shrink:0">
-  <div style="display:flex;align-items:center;gap:10px">
-   <span style="font-size:20px">📧</span>
-   <div><h2 style="color:#fff;font-size:15px">Redactar Correo</h2><div style="font-size:10px;opacity:.75" id="cem-status-line">JAC Seguros · jcastro@jacsegurospa.com</div></div>
-  </div>
-  <div style="display:flex;gap:6px;align-items:center">
-   <button class="btn bsm" onclick="cemLoadDraft()" title="Cargar borrador" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">📂</button>
-   <button class="btn bgh" onclick="CM('mcem')" style="color:#fff;border-color:rgba(255,255,255,.3)">✕</button>
-  </div>
- </div>
- <!-- TABS -->
- <div style="display:flex;border-bottom:1px solid var(--bd);background:#F8FAFC;flex-shrink:0">
-  <button id="cemtab-compose" onclick="cemSwitchTab('compose')" style="padding:8px 16px;border:none;background:var(--wh);font-size:12px;font-weight:700;color:#1D4ED8;border-bottom:2px solid #1D4ED8;cursor:pointer">✏️ Redactar</button>
-  <button id="cemtab-preview" onclick="cemSwitchTab('preview')" style="padding:8px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:var(--mu);border-bottom:2px solid transparent;cursor:pointer">👁 Preview</button>
-  <button id="cemtab-hist" onclick="cemSwitchTab('hist')" style="padding:8px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:var(--mu);border-bottom:2px solid transparent;cursor:pointer">📬 Historial</button>
- </div>
- <!-- TAB: COMPOSE -->
- <div id="cem-compose-tab" class="mb" style="overflow-y:auto;flex:1">
-  <!-- Template bar -->
-  <div style="background:#EEF4FF;border:1px solid #C7D7FF;border-radius:8px;padding:10px 12px;margin-bottom:12px">
-   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <span style="font-size:11px;font-weight:700;color:#1D4ED8;white-space:nowrap">🗂 Plantilla:</span>
-    <select id="cem-template" class="fc" style="flex:1;min-width:160px;font-size:12px" onchange="cemApplyTemplate()">
-     <option value="">— Seleccionar plantilla —</option>
-     <option value="bienvenida">👋 Bienvenida nuevo cliente</option>
-     <option value="renovacion">🔔 Renovación de póliza</option>
-     <option value="cotizacion">📋 Envío de cotización</option>
-     <option value="cumpleanos">🎂 Feliz cumpleaños</option>
-     <option value="cobranza">💳 Recordatorio de pago</option>
-     <option value="siniestro">🚑 Seguimiento siniestro</option>
-     <option value="soat">🚗 Vencimiento SOAT</option>
-     <option value="agradecimiento">🙏 Agradecimiento / seguimiento</option>
-     <option value="presentacion">🌟 Presentación servicios</option>
-    </select>
-    <button onclick="cemInsertSignature()" style="padding:5px 10px;background:#fff;border:1px solid #C7D7FF;border-radius:6px;font-size:11px;font-weight:600;color:#1D4ED8;cursor:pointer;white-space:nowrap">✍️ Firma</button>
-   </div>
-  </div>
-  <div class="fg" style="gap:9px">
-   <div class="fl ff"><label>De</label>
-    <select class="fc" id="cem-from">
-     <option value="jcastro@jacsegurospa.com">📮 jcastro@jacsegurospa.com — JAC Seguros</option>
-     <option value="jelyancorredora@gmail.com">📮 jelyancorredora@gmail.com — Gmail</option>
-    </select>
-   </div>
-   <div class="fl" style="flex:1;min-width:0"><label>Para <span style="color:var(--rd)">*</span></label>
-    <input class="fc" id="cem-to" type="email" placeholder="destinatario@email.com">
-   </div>
-   <div class="fl" style="width:180px"><label>CC</label>
-    <input class="fc" id="cem-cc" type="email" placeholder="copia@email.com">
-   </div>
-   <div class="fl ff"><label>Asunto <span style="color:var(--rd)">*</span></label>
-    <input class="fc" id="cem-sub" placeholder="Asunto del correo">
-   </div>
-   <div class="fl ff">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-     <label style="margin:0">Mensaje <span style="color:var(--rd)">*</span></label>
-     <span id="cem-char-count" style="font-size:10px;color:var(--mu)">0 caracteres</span>
-    </div>
-    <!-- Toolbar -->
-    <div style="display:flex;gap:4px;padding:5px 8px;background:#F8FAFC;border:1px solid var(--bd);border-bottom:none;border-radius:6px 6px 0 0;flex-wrap:wrap">
-     <button type="button" onclick="cemFmt('bold')" title="Negrita" style="padding:3px 7px;border:1px solid var(--bd);border-radius:4px;background:#fff;cursor:pointer;font-weight:700;font-size:12px">B</button>
-     <button type="button" onclick="cemFmt('italic')" title="Cursiva" style="padding:3px 7px;border:1px solid var(--bd);border-radius:4px;background:#fff;cursor:pointer;font-style:italic;font-size:12px">i</button>
-     <div style="width:1px;background:var(--bd);margin:2px 2px"></div>
-     <button type="button" onclick="cemInsertVar('{{nombre}}')" title="Nombre del cliente" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{nombre}}</button>
-     <button type="button" onclick="cemInsertVar('{{poliza}}')" title="Número de póliza" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{poliza}}</button>
-     <button type="button" onclick="cemInsertVar('{{aseguradora}}')" title="Aseguradora" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{aseg}}</button>
-     <button type="button" onclick="cemInsertVar('{{vencimiento}}')" title="Fecha de vencimiento" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{vence}}</button>
-     <button type="button" onclick="cemInsertVar('{{prima}}')" title="Monto de prima" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{prima}}</button>
-    </div>
-    <textarea class="fc" id="cem-body" rows="10" placeholder="Escribe tu mensaje aquí..." 
-     style="border-radius:0 0 6px 6px;resize:vertical;font-family:inherit;line-height:1.6"
-     oninput="cemUpdateCount()"></textarea>
-   </div>
-   <div class="fl ff">
-    <label>📎 Adjuntos <span style="font-size:10px;color:var(--mu)">(opcional · hasta 5 MB)</span></label>
-    <input class="fc" id="cem-attach" type="file" multiple accept="*/*" style="padding:6px;cursor:pointer">
-   </div>
-   <!-- Tracking -->
-   <div class="fl ff">
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-     <input type="checkbox" id="cem-track" checked style="accent-color:#1D4ED8">
-     <span style="font-size:11px;font-weight:600">🔍 Activar tracking (abrir / clic)</span>
-    </label>
-   </div>
-  </div>
- </div>
- <!-- TAB: PREVIEW -->
- <div id="cem-preview-tab" style="display:none;flex:1;overflow-y:auto;padding:16px">
-  <div style="background:#F8FAFC;border:1px solid var(--bd);border-radius:8px;padding:0;overflow:hidden;max-width:560px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.08)">
-   <div style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8);padding:20px 24px;color:#fff">
-    <div style="font-size:11px;opacity:.7;margin-bottom:4px">De: <span id="prev-from"></span></div>
-    <div style="font-size:11px;opacity:.7;margin-bottom:8px">Para: <span id="prev-to"></span></div>
-    <div style="font-size:16px;font-weight:700" id="prev-subject">Asunto</div>
-   </div>
-   <div style="padding:24px;background:#fff">
-    <div id="prev-body" style="font-size:13px;line-height:1.8;color:#1A1A2E;white-space:pre-wrap"></div>
-   </div>
-   <div style="background:#F8FAFC;border-top:1px solid var(--bd);padding:12px 20px;text-align:center">
-    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40'%3E%3Ctext x='100' y='28' text-anchor='middle' font-family='Georgia' font-weight='700' font-size='24' fill='%231E3A8A'%3EJAC%3C/text%3E%3Ctext x='100' y='38' text-anchor='middle' font-family='Arial' font-size='9' fill='%23666' letter-spacing='4'%3ESEGUROS%3C/text%3E%3C/svg%3E" alt="JAC Seguros" style="height:36px;margin-bottom:6px">
-    <div style="font-size:10px;color:#888">JAC Seguros · Lic. #6175 · +507 6292-6010 · jacsegurospa.com</div>
-   </div>
-  </div>
- </div>
- <!-- TAB: HISTORIAL -->
- <div id="cem-hist-tab" style="display:none;flex:1;overflow-y:auto;padding:12px">
-  <div id="cem-hist-content" style="font-size:12px;color:var(--mu);text-align:center;padding:24px">Selecciona un contacto para ver el historial de correos.</div>
- </div>
- <!-- FOOTER -->
- <div class="mf" style="flex-shrink:0;flex-wrap:wrap;gap:6px;background:#F8FAFC;border-top:1px solid var(--bd)">
-  <button class="btn" onclick="CM('mcem')">Cancelar</button>
-  <button class="btn" onclick="cemSaveDraft()" style="background:#FEF3C7;color:#B45309;border-color:#FDE68A">💾 Guardar borrador</button>
-  <div style="flex:1"></div>
-  <button class="btn bcy" onclick="sendEmailViaMailto()">📨 Abrir en correo</button>
-  <button class="btn bp" onclick="sendEmailViaEJS()" id="cem-send-btn">📧 Enviar →</button>
- </div>
-</div></div>
-
-
-<!-- IMPORT POLIZAS MODAL -->
-<div class="mo" id="m-import-csv"><div class="md" style="max-width:640px">
- <div class="mh"><h2>📥 Importar Pólizas desde CSV</h2><button class="btn bgh" onclick="CM('m-import-csv')">✕</button></div>
+<div class="mo" id="mcem"><div class="md mdsm" style="max-width:580px">
+ <div class="mh"><h2>📧 Redactar Correo</h2><button class="btn bgh" onclick="CM('mcem')">✕</button></div>
  <div class="mb">
-  <div style="background:#EEF4FF;border:1px solid #C7D7FF;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#1E3A8A">
-   <b>📋 Formato CSV aceptado:</b><br>
-   Columnas requeridas: <code>nombre_cliente, aseguradora, ramo, numero_poliza, fecha_inicio, fecha_fin, prima</code><br>
-   Columnas opcionales: <code>cedula, celular, email, comision_pct, notas</code><br>
-   • Primera fila = encabezados (serán ignorados)<br>
-   • Separador: coma (,) o punto y coma (;)<br>
-   • Fechas: YYYY-MM-DD o DD/MM/YYYY<br>
-   • Compatible con exportaciones de <b>Softseguros</b>
-  </div>
-  <div class="fl" style="margin-bottom:12px">
-   <label>📎 Seleccionar archivo CSV o Excel</label>
-   <input type="file" class="fc" id="csv-file-input" accept=".csv,.xlsx,.xls,.txt" onchange="csvPreview(event)" style="padding:8px;cursor:pointer">
-  </div>
-  <div id="csv-preview-area" style="display:none">
-   <div class="ch"><h3>👁 Vista Previa <span id="csv-row-count"></span></h3></div>
-   <div style="overflow-x:auto;max-height:240px;border:1px solid var(--bd);border-radius:6px">
-    <table style="width:100%;border-collapse:collapse;font-size:11px">
-     <thead id="csv-preview-head"></thead>
-     <tbody id="csv-preview-body"></tbody>
-    </table>
-   </div>
-   <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <div class="fl" style="margin:0;flex:1;min-width:160px">
-     <label>Mapear "nombre cliente" como:</label>
-     <select class="fc" id="csv-map-nombre"><option value="nombre">nombre_cliente</option><option value="asegurado">asegurado</option><option value="cliente">cliente</option></select>
-    </div>
-    <div class="fl" style="margin:0;flex:1;min-width:120px">
-     <label>Formato fecha:</label>
-     <select class="fc" id="csv-map-fecha"><option value="iso">YYYY-MM-DD</option><option value="dmy">DD/MM/YYYY</option><option value="mdy">MM/DD/YYYY</option></select>
-    </div>
-   </div>
-   <div id="csv-import-stats" style="margin-top:10px;font-size:12px;color:var(--mu)"></div>
-  </div>
+ <div class="fg" style="gap:9px">
+ <div class="fl ff"><label>De (remitente)</label><select class="fc" id="cem-from">
+ <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com (JAC Seguros)</option>
+ <option value="jelyancorredora@gmail.com">jelyancorredora@gmail.com (Gmail)</option>
+ </select></div>
+ <div class="fl ff"><label>Para (email) <span style="color:var(--rd)">*</span></label><input class="fc" id="cem-to" type="email" placeholder="destinatario@email.com"></div>
+ <div class="fl ff"><label>CC (opcional)</label><input class="fc" id="cem-cc" type="email" placeholder="copia@email.com"></div>
+ <div class="fl ff"><label>Asunto <span style="color:var(--rd)">*</span></label><input class="fc" id="cem-sub" placeholder="Asunto del correo"></div>
+ <div class="fl ff"><label>Mensaje <span style="color:var(--rd)">*</span></label><textarea class="fc" id="cem-body" rows="8" placeholder="Escribe tu mensaje aquí..."></textarea></div>
+ <div class="fl ff"><label>📎 Adjuntar archivos <span style="font-size:10px;color:var(--mu)">(opcional)</span></label><input class="fc" id="cem-attach" type="file" multiple accept="*/*" style="padding:6px;cursor:pointer"><div style="font-size:10px;color:var(--mu);margin-top:2px">Puedes adjuntar varios archivos. EmailJS soporta hasta ~5 MB total.</div></div>
+ <div class="fl ff"><div style="background:#EEF4FF;border:1px solid #C7D7FF;border-radius:6px;padding:10px;font-size:11px;color:#1D4ED8">
+ <b>💡 Opciones de envío:</b><br>
+ • <b>Abrir app de correo</b>: Abre tu cliente de email predeterminado (Gmail, Outlook, Zoho) con el mensaje listo.<br>
+ • <b>Enviar vía EmailJS</b>: Envía directamente desde el CRM (requiere EmailJS configurado).
+ </div></div>
  </div>
- <div class="mf">
-  <button class="btn" onclick="CM('m-import-csv')">Cancelar</button>
-  <button class="btn bp" id="csv-import-btn" onclick="csvImport()" disabled>📥 Importar pólizas</button>
+ </div>
+ <div class="mf" style="flex-wrap:wrap;gap:6px">
+ <button class="btn" onclick="CM('mcem')">Cancelar</button>
+ <button class="btn bsm" style="background:#EEF4FF;color:#1D4ED8;border-color:#C7D7FF;font-size:11px" onclick="CM('mcem');if(cemEntityId&&cemEntityType==='cliente'||cemEntityType==='prospecto')openFullHistory(cemEntityId)">📬 Ver historial</button>
+ <button class="btn bcy" onclick="sendEmailViaMailto()">📨 Abrir app de correo</button>
+ <button class="btn bp" onclick="sendEmailViaEJS()">📧 Enviar vía EmailJS</button>
  </div>
 </div></div>
+
 
 <!-- MODAL COTIZADOR RÁPIDO -->
 <div class="mo" id="mcotz"><div class="md mdsm" style="max-width:560px">
@@ -1661,7 +1438,7 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <div class="fl"><label>Vendedor</label><input class="fc" id="p-ven"></div>
  <div class="fl ff"><label>Observaciones</label><textarea class="fc" id="p-ob" rows="2"></textarea></div>
  <div class="fl ff"><label>Observaciones Internas</label><textarea class="fc" id="p-oi" rows="2"></textarea></div>
- <div class="fl" style="flex-direction:column;gap:4px"><label>Etiquetas / Tags</label><div id="p-etq-wrap" style="display:flex;flex-wrap:wrap;gap:5px;padding:8px;border:1px solid var(--brd);border-radius:6px;min-height:36px;background:var(--bg);align-items:center"></div><input type="hidden" id="p-etq"></div>
+ <div class="fl" style="flex-direction:column;gap:4px"><label>Etiquetas / Tags</label><div id="p-etq-wrap" style="display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px;border:1px solid var(--brd);border-radius:6px 6px 0 0;min-height:32px;background:var(--bg);align-items:center"></div><div id="p-etq-wrap-pk" style="display:none;flex-wrap:wrap;gap:4px;padding:8px;border:1px solid var(--brd);border-top:none;border-radius:0 0 6px 6px;background:var(--bg2)"></div><input type="hidden" id="p-etq"></div>
  <span class="sl">📎 Archivos</span>
  <div class="ff" id="p-file-list"></div>
  <div class="ff"><div class="file-area" onclick="document.getElementById('p-file-inp').click()">📎 Adjuntar archivos de póliza</div>
@@ -2343,9 +2120,16 @@ ${rows.map((r,i)=>`<tr style="background:${i===0?'#F0FDF4':'#fff'};border-bottom
 
 // ── COTIZADOR PRO EXTRA HELPERS ───────────────────────────────────────────
 let _cotpRamoSel=null;
-
-// cotpInit: full definition below
-
+function cotpInit(){
+ if(!document.getElementById('cotp-ramos-grid'))return;
+ cotpBuildRamoGrid();
+ cotpBuildAsegGrid();
+ // Pre-fill client data if any was entered
+ const nom=document.getElementById('cotp-cli-nom');
+ if(nom&&!nom.value&&typeof S!=='undefined'){
+ // leave empty — user can search
+ }
+}
 function cotpBuildAsegGrid(){
  const grid=document.getElementById('cotp-aseg-grid');
  if(!grid)return;
@@ -2724,18 +2508,16 @@ function GF(id){return parseFloat(V(id))||0;}
 function b(cls,txt){return`<span class="b ${cls}">${esc(String(txt||''))}</span>`;}
 function dot(col){return`<span class="dot8" style="background:${col}"></span>`;}
 function toast(msg,type='ok',dur=3800){
-  // JAC CRM Toasts v2
   const c=document.getElementById('toast-container');
-  if(c){
-    const t=document.createElement('div');
-    t.className='toast'+(type==='ok'?' ok':type==='err'?' err':type==='warn'?' warn':'');
-    const icon=type==='ok'?'✅':type==='err'?'❌':type==='warn'?'⚠️':'ℹ️';
-    t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
+  if(c){const t=document.createElement('div');
+    const col=type==='ok'?'#15803D':type==='err'||type==='error'?'#B91C1C':type==='warn'?'#B45309':'#1E3A8A';
+    t.style.cssText='background:'+col+';color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.25);pointer-events:all;display:flex;align-items:center;gap:8px;max-width:320px;animation:fadeIn .3s ease';
+    const icon=type==='ok'?'✅':type==='err'||type==='error'?'❌':type==='warn'?'⚠️':'ℹ️';
+    t.innerHTML='<span>'+icon+'</span><span>'+msg+'</span>';
     c.appendChild(t);
-    setTimeout(()=>{t.style.animation='toastOut .3s ease forwards';setTimeout(()=>t.remove(),300);},dur);
+    setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},dur);
     return;
   }
-  // Fallback to old #tst
   const e=document.getElementById('tst');if(!e)return;
   e.style.background=type==='ok'?'#15803D':type==='warn'?'#B45309':'#B91C1C';
   e.style.display='block';e.textContent=msg;
@@ -2762,6 +2544,9 @@ function renderTagSel(cid,selIds){
 }
 function toggleTag(cid,tid){const el=document.getElementById(cid);if(!el)return;let sel=JSON.parse(el.dataset.sel||'[]');const i=sel.indexOf(tid);i>=0?sel.splice(i,1):sel.push(tid);renderTagSel(cid,sel);}
 function getSelTags(cid){const el=document.getElementById(cid);return el?JSON.parse(el.dataset.sel||'[]'):[];}
+function renderEtqSel(wid,sel){var w=document.getElementById(wid);if(!w)return;var s=sel||[];var h='';s.forEach(function(id){var e=getEt(id);h+='<span class="tag" data-etq-wid="'+wid+'" data-etq-id="'+id+'" data-etq-act="rm" style="background:'+e.color+';cursor:pointer;margin:2px">'+esc(e.nombre)+' &times;</span>';});h+='<span data-etq-wid="'+wid+'" data-etq-act="open" style="cursor:pointer;display:inline-flex;align-items:center;padding:2px 10px;border-radius:12px;border:1.5px dashed var(--brd);font-size:11px;color:var(--mu);margin:2px">+ Etiqueta</span>';w.dataset.sel=JSON.stringify(s);w.innerHTML=h;}
+function renderEtqPk(wid,sel){var pk=document.getElementById(wid+'-pk');if(!pk)return;var s=sel||[];var h='';if(!(S.etiquetas||[]).length){pk.innerHTML='<span style="color:var(--mu);font-size:11px">Sin etiquetas &mdash; crea en Ajustes</span>';return;}(S.etiquetas||[]).forEach(function(et){var on=s.indexOf(et.id)>=0;var sty='background:'+et.color+';opacity:'+(on?1:.35)+';cursor:pointer;margin:3px;transition:.15s';if(on)sty+=';box-shadow:inset 0 0 0 3px rgba(0,0,0,.3)';h+='<span class="tag" data-etq-wid="'+wid+'" data-etq-id="'+et.id+'" data-etq-act="pick" style="'+sty+'">'+esc(et.nombre)+'</span>';});h+=' <span data-etq-wid="'+wid+'" data-etq-act="close" style="cursor:pointer;font-size:11px;color:var(--mu);padding:4px 10px;border:1px solid var(--brd);border-radius:10px;margin-left:4px">Cerrar</span>';pk.innerHTML=h;}
+document.addEventListener('click',function(ev){var t=ev.target.closest('[data-etq-act]');if(!t)return;var act=t.dataset.etqAct,wid=t.dataset.etqWid,eid=t.dataset.etqId,w=document.getElementById(wid),pk=document.getElementById(wid+'-pk');if(act==='rm'){if(!w)return;var s=JSON.parse(w.dataset.sel||'[]').filter(function(x){return x!==eid;});renderEtqSel(wid,s);if(pk&&pk.style.display!=='none')renderEtqPk(wid,s);}else if(act==='open'){if(!pk)return;var show=pk.style.display==='none';pk.style.display=show?'flex':'none';if(show&&w)renderEtqPk(wid,JSON.parse(w.dataset.sel||'[]'));}else if(act==='pick'){if(!w)return;var s=JSON.parse(w.dataset.sel||'[]');var i=s.indexOf(eid);if(i>=0)s.splice(i,1);else s.push(eid);renderEtqSel(wid,s);renderEtqPk(wid,s);}else if(act==='close'){if(pk)pk.style.display='none';}});
 
 // ── FILES ──
 function initFileInp(inputId,listId){
@@ -3101,7 +2886,11 @@ _Jely An Castro Pérez · 📞 +507 6292-6010_`;}
  }
  OM('mwap');
 }
-
+function openComposeEmail(toEmail,toName,subject,body,entityType,entityId){
+ SVal('cem-to',toEmail||'');SVal('cem-cc','');SVal('cem-sub',subject||'');SVal('cem-body',body||'');
+ cemEntityType=entityType||null; cemEntityId=entityId||null;
+ OM('mcem');
+}
 function logEmailSent(){
  if(!cemEntityType||!cemEntityId)return;
  const sub=V('cem-sub')||'Correo';
@@ -3149,14 +2938,11 @@ function logEmailSent(){
  if(cemEntityType==='poliza'&&dpOn){const pol=GP(cemEntityId);if(pol)setTimeout(()=>showPolDP(cemEntityId),200);}
 }
 function openEmailForClient(cid){
-  const c=GC(cid);
-  if(!c.email){toast('Cliente sin email registrado','err');return;}
-  openComposeEmail(c.email,c.nombre,'','','cliente',cid);
-  // Auto-select bienvenida template after modal opens
-  setTimeout(()=>{
-    document.getElementById('cem-template').value='bienvenida';
-    cemApplyTemplate();
-  },150);
+ const c=GC(cid);if(!c.email){toast('Cliente sin email registrado','err');return;}
+ const fn=(c.nombre||'').split(' ')[0];
+ const sub=`JAC Seguros — Hola ${fn}`;
+ const body=`Estimado/a ${c.nombre},\n\nEspero que se encuentre muy bien.\n\nMe pongo en contacto desde JAC Seguros.\n\n\n\nQuedo atenta a su respuesta.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
+ openComposeEmail(c.email,c.nombre,sub,body,'cliente',cid);
 }
 function openEmailForPros(pid){
  const p=GPros(pid);if(!p.email){toast('Prospecto sin email registrado','err');return;}
@@ -3187,6 +2973,64 @@ function openEmailForTarea(tid){
  openComposeEmail(email,nombre,sub,body,'tarea',tid);
 }
 function openEmailForSin(sid){
+ const s=S.siniestros.find(x=>x.id===sid);if(!s){toast('Siniestro no encontrado','err');return;}
+ const cl=s.clienteId?GC(s.clienteId):{};
+ const email=cl.email||s.emailCliente||'';
+ if(!email){toast('Sin email del asegurado registrado','err');return;}
+ const fn=(cl.nombre||s.cliente||s.asegurado||'').split(' ')[0];
+ const sub=`Actualización siniestro ${s.numCia||s.numSin||''} — JAC Seguros`;
+ const body=`Hola ${fn} 👋\n\nTe enviamos una actualización sobre tu siniestro ${s.nombre?' de *'+s.nombre+'*':''} (Ref: ${s.numCia||s.numSin||'—'}).\n\nEstado actual: ${s.estado||'—'}\n${s.seguimiento||s.desc||''}\n\nAnte cualquier consulta, estamos a tu disposición.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
+ openComposeEmail(email,cl.nombre||s.cliente||s.asegurado||'',sub,body,'siniestro',sid);
+}
+function sendEmailViaMailto(){
+ const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body'),cc=V('cem-cc');
+ const fromEmail=V('cem-from')||'jcastro@jacsegurospa.com';
+ if(!to||!sub){toast('Para y Asunto son obligatorios','err');return;}
+ let ml=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+ if(cc)ml+=`&cc=${encodeURIComponent(cc)}`;
+ // If Gmail selected, open Gmail compose directly
+ if(fromEmail==='jelyancorredora@gmail.com'){
+ const gmUrl=`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}${cc?'&cc='+encodeURIComponent(cc):''}`;
+ window.open(gmUrl,'_blank');
+ } else {
+ window.open(ml);
+ }
+ logEmailSent();
+ CM('mcem');toast('📨 Abriendo app de correo...');
+}
+async function sendEmailViaEJS(){
+ const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body'),fromEmail=V('cem-from')||'jcastro@jacsegurospa.com';
+ if(!to||!sub||!body){toast('Completa todos los campos','err');return;}
+ const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
+ if(!cfg['ejs-pub']||!cfg['ejs-svc']){toast('Configura EmailJS en Configuración → Integración','err');return;}
+ const tpl=cfg['ejs-tpl-general']||cfg['ejs-tpl-ren']||cfg['ejs-tpl-bday'];
+ if(!tpl){toast('No hay template EmailJS configurado. Usa "Abrir app de correo"','err');return;}
+ // Generate trackId for HubSpot-style tracking
+ window._cemTrackId=uid();
+ const trackUrl=`https://crm.jacsegurospa.com/?jem_open=${window._cemTrackId}`;
+ const trackFooter=`\n\n——\nJAC Seguros | Jely An Castro Pérez\n📞 +507 6292-6010 | jcastro@jacsegurospa.com\nRef. seguimiento: ${window._cemTrackId.slice(-6).toUpperCase()}`;
+ // Read attachments
+ const attachInput=document.getElementById('cem-attach');
+ const files=attachInput&&attachInput.files?[...attachInput.files]:[];
+ let attachStr='';
+ if(files.length>0){
+ const b64arr=await Promise.all(files.map(f=>new Promise((res,rej)=>{
+ const r=new FileReader();
+ r.onload=e=>res(f.name+': (adjunto '+Math.round(f.size/1024)+'KB)');
+ r.onerror=()=>res(f.name+': (error leyendo)');
+ r.readAsDataURL(f);
+ })));
+ attachStr='\n\n📎 Archivos adjuntos:\n'+b64arr.join('\n');
+ toast('⚠️ EmailJS no soporta adjuntos binarios. Los archivos se enviarán como referencia en el cuerpo.','warn');
+ }
+ const fromName=fromEmail==='jelyancorredora@gmail.com'?'Jely An Castro (Gmail)':'JAC Seguros | Jely An Castro';
+ const msgFull=body+attachStr+trackFooter;
+ const ok=await sendEmailJS(tpl,{to_name:'',to_email:to,subject:sub,message:msgFull,from_name:fromName,from_email:fromEmail,reply_to:fromEmail,company:'JAC Seguros',phone:'+507 6292-6010',attachments:files.map(f=>f.name).join(', '),track_url:trackUrl});
+ if(ok){logEmailSent();if(attachInput)attachInput.value='';CM('mcem');toast('✅ Correo enviado por EmailJS','ok');}
+ else{window._cemTrackId=null;toast('Error enviando. Usa "Abrir app de correo"','err');}
+}
+
+// ── NAV ──
 function SH(id){
  // Fix blank screen: use requestAnimationFrame to ensure render
  const pages=document.querySelectorAll('.pg');
@@ -3239,8 +3083,8 @@ function RAgenda(){
  });
  items.sort((a,z)=>new Date(a.fecha)-new Date(z.fecha));
  const urg={alta:'#DC2626',media:'#D97706',baja:'#15803D'};
- const _pol=S.polizas||[];const _va=_pol.filter(function(p){return p.estado==='Activa';}).length;const _v30=_pol.filter(function(p){return p.estado==='Activa'&&dFrom(p.fechaFin)>=0&&dFrom(p.fechaFin)<=30;}).length;const _v90=_pol.filter(function(p){return p.estado==='Activa'&&dFrom(p.fechaFin)>30&&dFrom(p.fechaFin)<=90;}).length;
-  let h='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 12px;flex:1;min-width:80px;text-align:center"><div style="font-size:22px;font-weight:700;color:#1D4ED8">'+_va+'</div><div style="font-size:11px;color:#1D4ED8;font-weight:600">Activas</div></div><div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;flex:1;min-width:80px;text-align:center"><div style="font-size:22px;font-weight:700;color:#DC2626">'+_v30+'</div><div style="font-size:11px;color:#DC2626;font-weight:600">Vencen -30d</div></div><div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:10px 12px;flex:1;min-width:80px;text-align:center"><div style="font-size:22px;font-weight:700;color:#D97706">'+_v90+'</div><div style="font-size:11px;color:#D97706;font-weight:600">Vencen 30-90d</div></div></div><div class="ch"><h3>📋 Agenda próximos 30 días</h3><button class="btn bsm" onclick="toggleAgenda()">✕</button></div>';
+ const _pol=S.polizas||[];const _va=_pol.filter(function(p){return (p.estado==='Activa'||p.estado==='Vigente');}).length;const _v30=_pol.filter(function(p){return (p.estado==='Activa'||p.estado==='Vigente')&&dFrom(p.fechaFin)>=0&&dFrom(p.fechaFin)<=30;}).length;const _v90=_pol.filter(function(p){return (p.estado==='Activa'||p.estado==='Vigente')&&dFrom(p.fechaFin)>30&&dFrom(p.fechaFin)<=90;}).length;const _vc=_pol.filter(function(p){return p.estado==='Cancelada';}).length;
+  let h='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 12px;flex:1;min-width:80px;text-align:center"><div style="font-size:22px;font-weight:700;color:#1D4ED8">'+_va+'</div><div style="font-size:11px;color:#1D4ED8;font-weight:600">Activas</div></div><div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;flex:1;min-width:80px;text-align:center"><div style="font-size:22px;font-weight:700;color:#DC2626">'+_v30+'</div><div style="font-size:11px;color:#DC2626;font-weight:600">Vencen -30d</div></div><div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:10px 12px;flex:1;min-width:80px;text-align:center"><div style="font-size:22px;font-weight:700;color:#D97706">'+_v90+'</div><div style="font-size:11px;color:#D97706;font-weight:600">Vencen 30-90d</div></div><div style="background:#F3F4F6;border:1px solid #D1D5DB;border-radius:8px;padding:10px 12px;flex:1;min-width:80px;text-align:center"><div style="font-size:22px;font-weight:700;color:#6B7280">'+_vc+'</div><div style="font-size:11px;color:#6B7280;font-weight:600">Canceladas</div></div></div><div class="ch"><h3>📋 Agenda próximos 30 días</h3><button class="btn bsm" onclick="toggleAgenda()">✕</button></div>';
  if(!items.length){h+='<div style="padding:15px;text-align:center;color:var(--mu);font-size:12px">Sin eventos próximos ✓</div>';}
  else{
  h+='<div>';
@@ -3266,17 +3110,7 @@ function RAgenda(){
  d.innerHTML=`<div class="card">${h}</div>`;
 }
 function RD(){
- 
-  // ── Dashboard greeting ──
-  (function(){
-    const hr=new Date().getHours();
-    const gr=hr<12?'☀️ Buenos días, Jely':hr<18?'🌤 Buenas tardes, Jely':'🌙 Buenas noches, Jely';
-    const ddt=document.getElementById('ddt');
-    if(ddt) ddt.innerHTML=gr+' &nbsp;·&nbsp; <span style="color:var(--mu);font-size:11px">'+fmt(TODAY.toISOString().split('T')[0])+'</span>';
-  })();
-  const ddt99=document.getElementById("ddt_skip"); // skip
-  const ddt=document.getElementById("ddt_skip2"); //
-  'Hoy: '+fmt(TODAY.toISOString().split('T')[0]);
+ const ddt=document.getElementById('ddt');if(ddt)ddt.textContent='Hoy: '+fmt(TODAY.toISOString().split('T')[0]);
  const vp=S.polizas.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada').length;
  const vv=S.polizas.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada'&&(p.estado||'').toLowerCase()!=='vigente').length;
  const p30=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';}).length;
@@ -3298,47 +3132,7 @@ function RD(){
  <div class="st" onclick="SH('vc')" style="cursor:pointer"><em>Venta Cruzada</em><div class="n" style="color:#EA580C">${vcOpps}</div><div class="sv">oportunidades</div></div>
  <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div>${(()=>{const h=TODAY.toISOString().split('T')[0];const t=(S.tareas||[]).filter(x=>x.fechaLimite===h&&x.etapaTarea!=='Hecho').length;return t?`<div class="sv" style="color:#DC2626;font-weight:700">🔴 ${t} hoy</div>`:''})()}</div>
  ${(()=>{const tot=S.clientes.length+(S.prospectos||[]).length;const rate=tot>0?Math.round(S.clientes.length/tot*100):0;return`<div class="st" onclick="SH('cli')" style="cursor:pointer"><em>Conversión</em><div class="n" style="color:#0891B2;font-size:16px">${rate}%</div><div class="sv">${S.clientes.length} clientes de ${tot}</div></div>`;})()}`;
- 
-  // ── Progress bars for dashboard ──
-  (function(){
-    const totPol=pol.length||1;
-    const vigPct=Math.round(vp/totPol*100);
-    const renPct=Math.round(p30/totPol*100);
-    const progEl=document.getElementById('dash-progress');
-    if(!progEl)return;
-    progEl.innerHTML=`
-      <div class="card" style="padding:16px">
-        <div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📊 Estado de Cartera</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-              <span style="font-weight:600">✅ Vigentes</span><span style="font-weight:700;color:#15803D">${vp} (${vigPct}%)</span>
-            </div>
-            <div style="height:10px;background:#DCFCE7;border-radius:6px;overflow:hidden">
-              <div style="width:${vigPct}%;height:100%;background:linear-gradient(90deg,#15803D,#22C55E);border-radius:6px;transition:width .6s ease"></div>
-            </div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-              <span style="font-weight:600">⚠️ Vencen en 30d</span><span style="font-weight:700;color:#D97706">${p30} (${renPct}%)</span>
-            </div>
-            <div style="height:10px;background:#FEF3C7;border-radius:6px;overflow:hidden">
-              <div style="width:${Math.min(100,renPct*3)}%;height:100%;background:linear-gradient(90deg,#D97706,#F59E0B);border-radius:6px;transition:width .6s ease"></div>
-            </div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-              <span style="font-weight:600">🔴 Vencidas</span><span style="font-weight:700;color:#DC2626">${vv} (${Math.round(vv/totPol*100)}%)</span>
-            </div>
-            <div style="height:10px;background:#FEE2E2;border-radius:6px;overflow:hidden">
-              <div style="width:${Math.min(100,Math.round(vv/totPol*100)*2)}%;height:100%;background:linear-gradient(90deg,#DC2626,#F87171);border-radius:6px;transition:width .6s ease"></div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-  })();
-
-  let al='';if(p30)al+=b('bwn',`⚠️ ${p30} por vencer`)+' ';if(vv)al+=b('bdg',`🔴 ${vv} vencidas`);
+ let al='';if(p30)al+=b('bwn',`⚠️ ${p30} por vencer`)+' ';if(vv)al+=b('bdg',`🔴 ${vv} vencidas`);
  const ha=document.getElementById('ha');if(ha)ha.innerHTML=al+`<button class="btn bsm" onclick="doLogout()">🚪</button>`;
  const prox=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=60&&p.estado!=='Cancelada';}).sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
  let rh=`<div class="ch"><h3>🔔 Vencimientos (60d)</h3><button class="btn bsm" onclick="SH('ren')">Ver →</button></div>`;
@@ -3363,7 +3157,6 @@ function RD(){
  const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;const cancel=S.polizas.filter(p=>(p.etapa||p.estado||'').toLowerCase().includes('cancel'));let vc='<div class="ch"><h3>🚫 Canceladas ('+cancel.length+')</h3></div>';if(!cancel.length){vc+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin canceladas ✓</div>';}else{vc+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#FEE2E2"><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Póliza</th><th>Asegurado</th><th>Ramo</th><th>Aseguradora</th><th>Vencimiento</th></tr></thead><tbody>';cancel.forEach(function(p){var cl=GC(p.clienteId),nm=cl?cl.nombre:'—';vc+='<tr style="border-bottom:1px solid #FECACA"><td style="padding:5px;font-weight:600">'+(p.numeroPol||p.numPol||'—')+'</td><td>'+nm+'</td><td>'+(p.ramo||'—')+'</td><td>'+(p.aseguradora||'—')+'</td><td>'+(p.fechaFin||'—')+'</td></tr>';});vc+='</tbody></table>';}const dcan=document.getElementById('dcan');if(dcan)dcan.innerHTML=vc;
  // Auto-run alert panels
  try{renderDashReminders();}catch(e){}
-  try{updateNavBadges();}catch(e){}
  try{if(typeof renderDashBirthdays==='function')renderDashBirthdays();}catch(e){}
  // "Tareas de hoy" quick banner
  try{
@@ -4015,7 +3808,7 @@ function RPort(){
  fil.forEach(p=>{
  const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
  const ptot=p.total||p.prima||0;
- h+=`<tr><td>${statusB(p)}</td><td style="font-weight:600;cursor:pointer" onclick="showCliDP('${p.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td><td style="font-family:monospace;font-size:11px">${esc(p.num||p.numero||'')}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.subramo||'—')}</td><td style="font-size:10px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.riesgo||'').substring(0,50))}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(ptot)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td>${fmt(p.fechaFin)}</td><td><div class="ab">${wb}</div></td><td><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;
+ h+=`<tr><td>${statusB(p)}</td><td style="font-weight:600;cursor:pointer" onclick="showCliDP('${p.clienteId}')">${esc(nom.split(' ').slice(0,3).join(' '))} ↗</td><td style="font-family:monospace;font-size:11px">${esc(p.num||p.numero||'')}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.subramo||'—')}</td><td style="font-size:10px;color:var(--mu);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((p.riesgo||'').substring(0,50))}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(ptot)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}${p.comisionPct>0?'<div style="font-size:9px;color:#15803D">'+p.comisionPct+'%</div>':''}</td><td>${fmt(p.fechaFin)}</td><td><div class="ab">${wb}</div></td><td><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;
  });
  const pv=document.getElementById('port-view');if(pv)pv.innerHTML=h+'</tbody></table></div></div>';
 }
@@ -4103,14 +3896,14 @@ function renderPT(fil){
  fil.forEach(p=>{
  const cl=GC(p.clienteId),nom=cl.nombre||p.nombreCliente||'—',wb=waBtnsP(p,cl);
  const primaTot=p.total||p.prima||0;
- h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num||p.numero||'')}</td><td style="cursor:pointer" draggable="true" ondragstart="pkDragStart(event,'${p.id}')" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}${(p.etiquetas||[]).length?'<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:2px">'+renderTags(p.etiquetas)+'</div>':''}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(primaTot)}</td><td style="font-weight:700;color:#9333EA">${fmtM(primaTot/12)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px"><div style="display:flex;flex-direction:column;gap:2px">${fmt(p.fechaFin)}${(()=>{const d=dFrom(p.fechaFin);const col=d<0?'#DC2626':d<=7?'#DC2626':d<=30?'#D97706':d<=60?'#2563EB':'#15803D';const label=d<0?'Vencida':(d===0?'HOY':d+'d');return '<span style="font-size:9px;font-weight:800;color:'+col+';background:'+col+'18;padding:1px 5px;border-radius:10px;width:fit-content">'+label+'</span>';})()}</div></td><td onclick="event.stopPropagation()"><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''} ${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+ h+=`<tr><td style="cursor:pointer" onclick="showPolDP('${p.id}')">${statusB(p)}</td><td style="cursor:pointer;font-family:monospace;font-size:11px;font-weight:600" onclick="showPolDP('${p.id}')">${esc(p.num||p.numero||'')}</td><td style="cursor:pointer" draggable="true" ondragstart="pkDragStart(event,'${p.id}')" onclick="showPolDP('${p.id}')"><div style="font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom.split(' ').slice(0,3).join(' '))}</div>${p.coCor?b('bbl',p.coCor):''}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}${(p.etiquetas||[]).length?'<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:2px">'+renderTags(p.etiquetas)+'</div>':''}</td><td style="font-weight:700;color:#1D4ED8">${fmtM(primaTot)}</td><td style="font-weight:700;color:#9333EA">${p.letraPrima>0?(fmtM(p.letraPrima)+(p.numPagos>0?'<div style="font-size:9px;color:#9333EA">'+p.numPagos+'p</div>':'')):fmtM(primaTot/12)}</td><td style="font-weight:700;color:#15803D">${fmtM(p.comision)}</td><td style="font-size:11px"><div style="display:flex;flex-direction:column;gap:2px">${fmt(p.fechaFin)}${(()=>{const d=dFrom(p.fechaFin);const col=d<0?'#DC2626':d<=7?'#DC2626':d<=30?'#D97706':d<=60?'#2563EB':'#15803D';const label=d<0?'Vencida':(d===0?'HOY':d+'d');return '<span style="font-size:9px;font-weight:800;color:'+col+';background:'+col+'18;padding:1px 5px;border-radius:10px;width:fit-content">'+label+'</span>';})()}</div></td><td onclick="event.stopPropagation()"><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''} ${wb}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button><button class="btn bsm bic" onclick="DPol('${p.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
  });
  if(!h)h='<tr><td colspan="10" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
  const pv=document.getElementById('pol-view');if(pv)pv.innerHTML=`<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima Total</th><th>Prima Mensual</th><th>Comisión JAC</th><th>Vence</th><th>Acciones</th></tr></thead><tbody>${h}</tbody></table></div></div>`;
 }
 function vencTag(p){if(!p.fechaFin)return '';var d=dFrom(p.fechaFin);var c=d<0?'#DC2626':d<=30?'#EA580C':d<=90?'#D97706':'#15803D';var t=d<0?'Vencida':d===0?'Vence hoy':'Vence en '+d+' dias';return '<div style="font-size:10px;font-weight:600;margin-top:3px;color:'+c+'">'+t+'</div>';}
 function renderPK(fil,view){
- const KC2={'Vigente':'#15803D','Por Vencer':'#B45309','Vencida':'#B91C1C','Cancelada':'#64748B','Nueva':'#1D4ED8','En Proceso':'#7E22CE','Por Renovar':'#D97706','Renovada':'#15803D'};
+ const KC2={'Vigente':'#15803D','Por Vencer':'#B45309','Vencida':'#B91C1C','Cancelada':'#64748B','Nueva':'#1D4ED8','En Proceso':'#7E22CE','Por Renovar':'#D97706','Renovada':'#15803D','Cancelada':'#6B7280'};
  let cols,getCol;
  if(view==='ke'){cols=['Vigente','Por Vencer','Vencida','Cancelada'];getCol=p=>{const d=dFrom(p.fechaFin);if(p.estado==='Cancelada')return'Cancelada';if(d<0)return'Vencida';if(d<=30)return'Por Vencer';return'Vigente';};}
  else if(view==='ka'){cols=[...new Set(fil.map(p=>p.aseg).filter(Boolean))].sort();getCol=p=>p.aseg;}
@@ -4187,7 +3980,7 @@ function OP(id){
  ['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','Acerta','WW Medical','VUMI-LA REGIONAL DE SEGUROS','Generali','Chubb','Aliados','La Regional','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,a)=>a.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;if(p.aseg===a)o.selected=true;asel.add(o);});
  const rsel=document.getElementById('p-ra');rsel.innerHTML='';
  [...RAMOS_ALL,'SOAT','CUMPLIMIENTO','MULTIRIESGO','TODO RIESGO'].filter((x,i,a)=>a.indexOf(x)===i).forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;if(normRamo(p.ramo)===r)o.selected=true;rsel.add(o);});
- [['p-nu','num'],['p-na','numAnexo'],['p-tp','tipo'],['p-sr','subramo'],['p-nr','nueva'],['p-es','estado'],['p-et','etapa'],['p-ri','riesgo'],['p-vr','valorRiesgo'],['p-cob','cobertura'],['p-tpo','tipoPol'],['p-pr','prima'],['p-it','itbmsPct'],['p-ib','itbms'],['p-ge','gastosExp'],['p-vf','valorFinanciacion'],['p-tot','total'],['p-cmes','cuotaMensual'],['p-ctri','cuotaTrimestral'],['p-csem','cuotaSemestral'],['p-canu','cuotaAnual'],['p-cb','comPct'],['p-npag','numPagos'],['p-pa','participacion'],['p-co','comision'],['p-nas','nombreAsegurado'],['p-das','docAsegurado'],['p-nto','tomador'],['p-dto','docTomador'],['p-ben','beneficiario'],['p-cben','cedBeneficiario'],['p-fex','fechaExpedicion'],['p-fre','fechaRecepcion'],['p-fi','fechaInicio'],['p-ff','fechaFin'],['p-fca','fechaCancelada'],['p-fp','formaPago'],['p-pe','periodo'],['p-me','medio'],['p-ban','banco'],['p-mon','moneda'],['p-ven','vendedor'],['p-ob','obs'],['p-oi','obsInt']].forEach(([fid,key])=>SVal(fid,p[key]));{var _e=document.getElementById('p-etq-wrap'),_etqH=document.getElementById('p-etq');if(_e&&_etqH){var _sel=Array.isArray(p.etiquetas)?p.etiquetas:(p.etiquetas?String(p.etiquetas).split(',').map(s=>s.trim()).filter(Boolean):[]);_e.innerHTML='';(S.etiquetas||[]).forEach(function(et){var on=_sel.some(function(s){return s===et.id||s===et.nombre;});var ch=document.createElement('span');ch.textContent=et.nombre;ch.dataset.id=et.id;ch.dataset.on=on?'1':'0';ch.style.cssText='display:inline-flex;align-items:center;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid '+et.color+';background:'+(on?et.color:'transparent')+';color:'+(on?'#fff':et.color)+';transition:all .15s;margin:2px';ch.onclick=function(){var isOn=this.dataset.on==='1';isOn=!isOn;this.dataset.on=isOn?'1':'0';this.style.background=isOn?et.color:'transparent';this.style.color=isOn?'#fff':et.color;var ids=Array.from(_e.querySelectorAll('span[data-on="1"]')).map(function(c){return c.dataset.id;});_etqH.value=ids.join(',');};_e.appendChild(ch);});_etqH.value=_sel.map(function(s){var et=(S.etiquetas||[]).find(function(x){return x.nombre===s||x.id===s;});return et?et.id:s;}).filter(Boolean).join(',');if(!(S.etiquetas||[]).length)_e.innerHTML='<span style="color:var(--mu);font-size:11px">Sin etiquetas — crea en ⚙️ Ajustes</span>';}}updateLetraPrima();
+ [['p-nu','num'],['p-na','numAnexo'],['p-tp','tipo'],['p-sr','subramo'],['p-nr','nueva'],['p-es','estado'],['p-et','etapa'],['p-ri','riesgo'],['p-vr','valorRiesgo'],['p-cob','cobertura'],['p-tpo','tipoPol'],['p-pr','prima'],['p-it','itbmsPct'],['p-ib','itbms'],['p-ge','gastosExp'],['p-vf','valorFinanciacion'],['p-tot','total'],['p-cmes','cuotaMensual'],['p-ctri','cuotaTrimestral'],['p-csem','cuotaSemestral'],['p-canu','cuotaAnual'],['p-cb','comPct'],['p-npag','numPagos'],['p-pa','participacion'],['p-co','comision'],['p-nas','nombreAsegurado'],['p-das','docAsegurado'],['p-nto','tomador'],['p-dto','docTomador'],['p-ben','beneficiario'],['p-cben','cedBeneficiario'],['p-fex','fechaExpedicion'],['p-fre','fechaRecepcion'],['p-fi','fechaInicio'],['p-ff','fechaFin'],['p-fca','fechaCancelada'],['p-fp','formaPago'],['p-pe','periodo'],['p-me','medio'],['p-ban','banco'],['p-mon','moneda'],['p-ven','vendedor'],['p-ob','obs'],['p-oi','obsInt']].forEach(([fid,key])=>SVal(fid,p[key]));{var _sel2=Array.isArray(p.etiquetas)?p.etiquetas:(p.etiquetas?String(p.etiquetas).split(',').map(function(s){return s.trim();}).filter(Boolean):[]);var _selIds=_sel2.map(function(s){var et=(S.etiquetas||[]).find(function(x){return x.nombre===s||x.id===s;});return et?et.id:s;}).filter(Boolean);renderEtqSel('p-etq-wrap',_selIds);}updateLetraPrima();
  const hcc=!!(p.coCor);const phc=document.getElementById('p-hc');if(phc)phc.checked=hcc;const cob3=document.getElementById('cob3');if(cob3)cob3.className='cob'+(hcc?' on':'');
  SVal('p-cc',p.coCor);SVal('p-cp',p.coCorPart);SVal('p-cc2',p.coCorCom);
  const pfl=document.getElementById('p-file-list');if(pfl)pfl.innerHTML=renderFL(p.archivos||[],id||'','poliza');
@@ -4239,7 +4032,7 @@ function SP(){
  const num=(V('p-nu')||'').trim(),aseg=V('p-as');
  if(!num||!aseg){toast('Nro. Póliza y Aseguradora son obligatorios','err');return;}
  const phc=document.getElementById('p-hc');const hcc=phc?phc.checked:false;const cId=V('p-cl');
- const d={clienteId:cId,nombreCliente:GC(cId).nombre||'',num,numAnexo:V('p-na'),tipo:V('p-tp'),aseg,ramo:normRamo(V('p-ra')),subramo:V('p-sr').trim(),nueva:V('p-nr'),estado:V('p-es'),etapa:V('p-et'),riesgo:V('p-ri').trim(),valorRiesgo:GF('p-vr'),cobertura:V('p-cob'),tipoPol:V('p-tpo'),prima:GF('p-pr'),itbmsPct:GF('p-it'),itbms:GF('p-ib'),gastosExp:GF('p-ge'),valorFinanciacion:GF('p-vf'),total:GF('p-tot'),cuotaMensual:GF('p-cmes'),cuotaTrimestral:GF('p-ctri'),cuotaSemestral:GF('p-csem'),cuotaAnual:GF('p-canu'),comPct:GF('p-cb'),numPagos:parseInt(V('p-npag'))||0,letraPrima:(parseInt(V('p-npag'))||0)>0?(GF('p-tot')||0)/(parseInt(V('p-npag'))):0,participacion:GF('p-pa')||100,comision:GF('p-co'),nombreAsegurado:V('p-nas'),docAsegurado:V('p-das'),tomador:V('p-nto'),docTomador:V('p-dto'),beneficiario:V('p-ben'),cedBeneficiario:V('p-cben'),fechaExpedicion:V('p-fex'),fechaRecepcion:V('p-fre'),fechaInicio:V('p-fi'),fechaFin:V('p-ff'),fechaCancelada:V('p-fca'),formaPago:V('p-fp'),periodo:V('p-pe'),medio:V('p-me'),banco:V('p-ban'),moneda:V('p-mon')||'USD',vendedor:V('p-ven').trim(),obs:V('p-ob').trim(),obsInt:V('p-oi').trim(),coCor:hcc?V('p-cc'):'',coCorPart:hcc?GF('p-cp'):0,coCorCom:hcc?GF('p-cc2'):0};
+ const d={clienteId:cId,nombreCliente:GC(cId).nombre||'',num,numAnexo:V('p-na'),tipo:V('p-tp'),aseg,ramo:normRamo(V('p-ra')),subramo:V('p-sr').trim(),nueva:V('p-nr'),estado:V('p-es'),etapa:V('p-et'),riesgo:V('p-ri').trim(),valorRiesgo:GF('p-vr'),cobertura:V('p-cob'),tipoPol:V('p-tpo'),prima:GF('p-pr'),itbmsPct:GF('p-it'),itbms:GF('p-ib'),gastosExp:GF('p-ge'),valorFinanciacion:GF('p-vf'),total:GF('p-tot'),cuotaMensual:GF('p-cmes'),cuotaTrimestral:GF('p-ctri'),cuotaSemestral:GF('p-csem'),cuotaAnual:GF('p-canu'),comPct:GF('p-cb'),numPagos:parseInt(V('p-npag'))||0,letraPrima:(parseInt(V('p-npag'))||0)>0?(GF('p-tot')||0)/(parseInt(V('p-npag'))):0,participacion:GF('p-pa')||100,comision:GF('p-co'),comisionPct:GF('p-cb'),nombreAsegurado:V('p-nas'),docAsegurado:V('p-das'),tomador:V('p-nto'),docTomador:V('p-dto'),beneficiario:V('p-ben'),cedBeneficiario:V('p-cben'),fechaExpedicion:V('p-fex'),fechaRecepcion:V('p-fre'),fechaInicio:V('p-fi'),fechaFin:V('p-ff'),fechaCancelada:V('p-fca'),formaPago:V('p-fp'),periodo:V('p-pe'),medio:V('p-me'),banco:V('p-ban'),moneda:V('p-mon')||'USD',vendedor:V('p-ven').trim(),obs:V('p-ob').trim(),obsInt:V('p-oi').trim(),coCor:hcc?V('p-cc'):'',coCorPart:hcc?GF('p-cp'):0,coCorCom:hcc?GF('p-cc2'):0};
  if(EID){const i=S.polizas.findIndex(p=>p.id===EID);if(i>=0){if(!S.polizas[i].archivos)S.polizas[i].archivos=[];S.polizas[i].archivos.push(..._pf);S.polizas[i]={...S.polizas[i],...d};}toast('✓ Póliza actualizada');}
  else{const _newPolId='P'+uid();const _newPol={id:_newPolId,...d,asegurados:[],archivos:[..._pf]};S.polizas.push(_newPol);if((_newPol.comision||0)>0){if(!S.comisiones)S.comisiones=[];const _mes=(_newPol.fechaInicio||TODAY.toISOString().split('T')[0]).substring(0,7);S.comisiones.push({id:'COM'+uid(),aseg:_newPol.aseg,mes:_mes,monto:_newPol.comision,estado:'pendiente',polizaId:_newPolId,polizaNum:_newPol.num,ramo:_newPol.ramo,clienteId:_newPol.clienteId,auto:true});if(typeof RCom==='function')RCom();}toast('✓ Póliza guardada · Comisión registrada automáticamente');}
  // Auto-promote prospecto to cliente when policy is created
@@ -4268,7 +4061,7 @@ function SP(){
  }
  }
  }
- _pf=[];d.etiquetas=Array.from(document.querySelectorAll('#p-etq-wrap span[data-id]')).filter(function(c){return c.dataset.on==='1';}).map(function(c){return c.dataset.id;});{var _bd=getBens();if(_bd===null)return;d.beneficiarios=_bd;}save();syncToCloud();CM('mp');RP();
+ _pf=[];d.etiquetas=getSelTags('p-etq-wrap');{var _bd=getBens();if(_bd===null)return;d.beneficiarios=_bd;}save();syncToCloud();CM('mp');RP();
 }
 function DPol(id){const p=GP(id);confirm2(`¿Eliminar "${p.num}"?`,()=>{S.polizas=S.polizas.filter(p=>p.id!==id);save();RP();toast('Eliminada');});}
 
@@ -4555,40 +4348,6 @@ function RCom(){
  hd+=`<tr style="background:#FAFBFD;border-top:2px solid var(--bd)"><td colspan="6" style="padding:9px 10px;font-weight:700;color:var(--mu);font-size:11px">TOTAL MI COMISIÓN</td><td style="padding:9px 10px;font-weight:800;font-size:14px;color:#15803D">${fmtM(tK)}</td><td colspan="2"></td></tr>`;
  if(!S.polizas.length)hd='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
  const tcd=document.getElementById('tcomd');if(tcd)tcd.innerHTML=hd;
-  // ── BAR CHARTS: Por Ramo y Por Aseguradora ──
-  const byRamo={};
-  S.polizas.forEach(p=>{const r=p.ramo||'Otro';byRamo[r]=(byRamo[r]||0)+(+p.comision||0);});
-  const byAseg={};
-  S.polizas.forEach(p=>{const a=(p.aseg||p.aseguradora||'—').split(',')[0].trim();byAseg[a]=(byAseg[a]||0)+(+p.comision||0);});
-  const mkBars=(obj,el,col)=>{
-    if(!el)return;
-    const entries=Object.entries(obj).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    if(!entries.length){el.innerHTML='<div style="padding:12px;text-align:center;color:var(--mu);font-size:11px">Sin datos</div>';return;}
-    const max=Math.max(...entries.map(([,v])=>v));
-    el.innerHTML=entries.map(([k,v])=>{
-      const pct=max>0?Math.round(v/max*100):0;
-      return`<div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-          <span style="font-size:11px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${esc(k)}</span>
-          <span style="font-size:11px;font-weight:700;color:${col}">${fmtM(v)}</span>
-        </div>
-        <div style="height:6px;background:#EEF2F8;border-radius:3px;overflow:hidden">
-          <div style="width:${pct}%;height:100%;background:${col};border-radius:3px;transition:width .4s ease"></div>
-        </div>
-      </div>`;
-    }).join('');
-  };
-  mkBars(byRamo, document.getElementById('com-chart-ramo'), '#1D4ED8');
-  mkBars(byAseg, document.getElementById('com-chart-aseg'), '#C8102E');
-  // Update summary cards
-  const mes=new Date().toISOString().slice(0,7);
-  const mesCom=S.comisiones.filter(c=>c.mes&&c.mes.startsWith(mes)).reduce((s,c)=>s+(c.monto||0),0)
-              +S.polizas.filter(p=>p.fechaInicio&&p.fechaInicio.startsWith(mes)).reduce((s,p)=>s+(+p.comision||0),0);
-  const ctP=document.getElementById('com-total-pol');if(ctP)ctP.textContent=fmtM(tK);
-  const ctPe=document.getElementById('com-total-pend');if(ctPe)ctPe.textContent=fmtM(tP);
-  const ctC=document.getElementById('com-total-cob');if(ctC)ctC.textContent=fmtM(tC);
-  const cma=document.getElementById('com-mes-act');if(cma)cma.textContent=fmtM(mesCom);
-
  // Populate crt-as select (rates config aseg picker)
  const crtAs=document.getElementById('crt-as');
  if(crtAs){crtAs.innerHTML='<option value="">— Seleccionar —</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;crtAs.add(o);});}
@@ -4737,148 +4496,25 @@ function DTar(id){confirm2('¿Eliminar?',()=>{S.tareas=S.tareas.filter(x=>x.id!=
 // ── EMPRESAS ──
 function switchEmpTab(t,el){empTab=t;document.querySelectorAll('#emp-tabs a').forEach(a=>a.classList.remove('on'));el.classList.add('on');REmp();}
 function REmp(){
-  const q=(document.getElementById('s-emp')?.value||'').toLowerCase();
-  const emp=S.clientes.filter(c=>c.tipo==='Empresa').filter(c=>
-    !q|||(c.nombre||'').toLowerCase().includes(q)||(c.cedula||'').includes(q)
-  );
-  const colPols=S.polizas.filter(p=>['SALUD/MÉDICOS','VIDA','ACCIDENTES PERSONALES','SALUD GRUPAL','VIDA GRUPAL'].includes(p.ramo));
-  const totalPrima=emp.reduce((s,c)=>{const ps=polsByC(c.id);return s+ps.reduce((a,p)=>a+(+p.prima||0),0);},0);
-  const totalCom=emp.reduce((s,c)=>{const ps=polsByC(c.id);return s+ps.reduce((a,p)=>a+(+p.comision||0),0);},0);
-  const cnt=document.getElementById('empcnt');
-  if(cnt)cnt.textContent=`${emp.length} empresas · ${colPols.length} pólizas colectivas · ${S.asegurados?.length||0} asegurados`;
-  // Stats
-  const sg=document.getElementById('emp-sg');
-  if(sg)sg.innerHTML=[
-    {e:'🏢',l:'Empresas',v:emp.length,c:'#1E3A8A'},
-    {e:'📋',l:'Pólizas Colectivas',v:colPols.length,c:'#7C3AED'},
-    {e:'👥',l:'Asegurados',v:S.asegurados?.length||0,c:'#15803D'},
-    {e:'💰',l:'Prima Empresas',v:fmtM(totalPrima),c:'#D97706'},
-    {e:'💵',l:'Comisión',v:fmtM(totalCom),c:'#0891B2'},
-  ].map(x=>`<div class="st" style="cursor:default"><em>${x.e} ${x.l}</em><div class="n" style="color:${x.c};font-size:16px">${x.v}</div></div>`).join('');
-  // Views
-  if(empTab==='emp'){
-    if(!emp.length){document.getElementById('emp-view').innerHTML='<div class="card" style="padding:40px;text-align:center;color:var(--mu)">🏢 Sin empresas registradas. Crea un cliente de tipo "Empresa".</div>';return;}
-    let h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">';
-    emp.forEach(c=>{
-      const ps=polsByC(c.id);
-      const tP=ps.reduce((s,p)=>s+(+p.prima||0),0);
-      const tC=ps.reduce((s,p)=>s+(+p.comision||0),0);
-      const vigentes=ps.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada');
-      const vence30=ps.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';});
-      const tel=c.cel||c.tel||'';
-      const wu=tel?waL(tel,`Hola ${(c.nombre||'').split(' ')[0]}, soy Jely de JAC Seguros.`):null;
-      h+=`<div class="card" style="padding:0;overflow:hidden">
-        <div style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8);padding:14px 16px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start">
-          <div>
-            <div style="font-size:14px;font-weight:800">${esc(c.nombre||'—')}</div>
-            <div style="font-size:10px;opacity:.75;margin-top:2px">RUC: ${esc(c.cedula||'—')} · ${esc(c.ciudad||'Panamá')}</div>
-          </div>
-          <div style="background:rgba(255,255,255,.15);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700">${ps.length} póliza${ps.length!==1?'s':''}</div>
-        </div>
-        <div style="padding:12px 14px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-            <div style="text-align:center;background:#F8FAFC;border-radius:6px;padding:8px">
-              <div style="font-size:15px;font-weight:800;color:#15803D">${fmtM(tP)}</div>
-              <div style="font-size:9px;color:var(--mu)">Prima Total</div>
-            </div>
-            <div style="text-align:center;background:#F8FAFC;border-radius:6px;padding:8px">
-              <div style="font-size:15px;font-weight:800;color:#1D4ED8">${fmtM(tC)}</div>
-              <div style="font-size:9px;color:var(--mu)">Comisión</div>
-            </div>
-          </div>
-          ${vigentes.length?`<div style="font-size:11px;margin-bottom:6px">✅ <strong>${vigentes.length}</strong> póliza${vigentes.length!==1?'s':''} vigente${vigentes.length!==1?'s':''}</div>`:''}
-          ${vence30.length?`<div style="font-size:11px;color:#DC2626;margin-bottom:6px">⚠️ <strong>${vence30.length}</strong> vence${vence30.length===1?'':'n'} en 30 días</div>`:''}
-          ${ps.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">${[...new Set(ps.map(p=>p.ramo))].slice(0,4).map(r=>`<span style="font-size:9px;background:#EEF4FF;color:#1D4ED8;border-radius:4px;padding:2px 6px;font-weight:600">${r}</span>`).join('')}</div>`:''}
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="btn bsm bp" onclick="OC('${c.id}')">✏️ Ver</button>
-            ${wu?`<a href="${wu}" target="_blank" class="btn bsm bwa">💬 WA</a>`:''}
-            ${c.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForClient('${c.id}')">📧</button>`:''}
-            <button class="btn bsm" style="background:#15803D;color:#fff;border-color:#15803D" onclick="empQuoteGroup('${c.id}')">📋 Cotizar</button>
-          </div>
-        </div>
-      </div>`;
-    });
-    h+='</div>';
-    document.getElementById('emp-view').innerHTML=h;
-  } else if(empTab==='col'){
-    if(!colPols.length){document.getElementById('emp-view').innerHTML='<div class="card" style="padding:40px;text-align:center;color:var(--mu)">👥 Sin pólizas colectivas registradas.</div>';return;}
-    let h='<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Empresa</th><th>Aseg.</th><th>Ramo</th><th>N° Póliza</th><th>Prima</th><th>Vence</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
-    colPols.forEach(p=>{
-      const cl=GC(p.clienteId);const d=dFrom(p.fechaFin);
-      const col=d<0?'#DC2626':d<=30?'#D97706':'#15803D';
-      const stLbl=d<0?'Vencida':d<=30?`${d}d`:fmt(p.fechaFin);
-      const t=cl.cel||cl.tel||p.celCliente||'';
-      const wu=t?waL(t,waRenMsg(p,cl)):null;
-      h+=`<tr>
-        <td><span class="b" style="background:${col}18;color:${col}">${stLbl}</span></td>
-        <td style="font-weight:600">${esc(cl.nombre||p.nombreCliente||'—')}</td>
-        <td style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg||'—')}</td>
-        <td style="font-size:11px">${esc(p.ramo||'—')}</td>
-        <td style="font-family:monospace;font-size:11px">${esc(p.polNum||p.num||'—')}</td>
-        <td style="font-weight:700">${fmtM(+p.prima||0)}</td>
-        <td style="font-size:11px">${p.fechaFin?fmt(p.fechaFin):'—'}</td>
-        <td>${wu?waBtn(wu,'cliente',cl.id||'','Renovación colectiva',cl.nombre||'','💬','bwa bsm'):''}</td>
-        <td style="display:flex;gap:4px"><button class="btn bsm bic" onclick="OP('${p.id}')">📋</button>${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''}</td>
-      </tr>`;
-    });
-    h+='</tbody></table></div></div>';
-    document.getElementById('emp-view').innerHTML=h;
-  } else if(empTab==='asd'){
-    const asd=S.asegurados||[];
-    if(!asd.length){document.getElementById('emp-view').innerHTML='<div class="card" style="padding:30px;text-align:center;color:var(--mu)">📋 Sin asegurados registrados.<br><small>Los asegurados se agregan desde las pólizas colectivas.</small></div>';return;}
-    let h='<div class="card"><div class="tw"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Empresa</th><th>Póliza</th><th>Ramo</th><th>Aseg.</th><th>Fecha Nac.</th><th>Email</th></tr></thead><tbody>';
-    asd.forEach(a=>{
-      h+=`<tr><td style="font-weight:600">${esc(a.nombre||'—')}</td><td style="font-family:monospace;font-size:11px">${esc(a.cedula||'—')}</td><td style="font-size:11px">${esc(a.empresa||'—')}</td><td style="font-family:monospace;font-size:11px">${esc(a.polNum||'—')}</td><td style="font-size:11px">${esc(a.ramo||'—')}</td><td style="font-size:11px;font-weight:700;color:${ac(a.aseg)}">${esc(a.aseg||'—')}</td><td style="font-size:11px">${a.fechaNac?fmt(a.fechaNac):'—'}</td><td style="font-size:11px">${esc(a.email||'—')}</td></tr>`;
-    });
-    h+='</tbody></table></div></div>';
-    document.getElementById('emp-view').innerHTML=h;
-  } else if(empTab==='map'){
-    // Analysis tab
-    const ramoEmp={};
-    colPols.forEach(p=>{const r=p.ramo||'Otro';ramoEmp[r]=(ramoEmp[r]||0)+1;});
-    const asegEmp={};
-    colPols.forEach(p=>{const a=(p.aseg||'—').split(',')[0].trim();asegEmp[a]=(asegEmp[a]||0)+(+p.prima||0);});
-    let h=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="card"><div class="ch"><h3>📊 Pólizas Colectivas por Ramo</h3></div><div style="padding:12px">`;
-    const maxR=Math.max(1,...Object.values(ramoEmp));
-    Object.entries(ramoEmp).sort((a,b)=>b[1]-a[1]).forEach(([r,n])=>{
-      const pct=Math.round(n/maxR*100);
-      h+=`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:600">${esc(r)}</span><span style="font-weight:700;color:#7C3AED">${n}</span></div><div style="height:7px;background:#F0F4FF;border-radius:4px;overflow:hidden"><div style="width:${pct}%;height:100%;background:#7C3AED;border-radius:4px"></div></div></div>`;
-    });
-    h+=`</div></div><div class="card"><div class="ch"><h3>🏛 Prima por Aseguradora</h3></div><div style="padding:12px">`;
-    const maxA=Math.max(1,...Object.values(asegEmp));
-    const asegClrs={'ASSA':'#005F9E','SURA':'#E85D04','MAPFRE':'#C8102E','IS':'#1A3A6B','PALIG':'#2D6A4F'};
-    Object.entries(asegEmp).sort((a,b)=>b[1]-a[1]).forEach(([a,v])=>{
-      const pct=Math.round(v/maxA*100);const col=asegClrs[a]||'#64748B';
-      h+=`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:600">${esc(a)}</span><span style="font-weight:700;color:${col}">${fmtM(v)}</span></div><div style="height:7px;background:#F0F4FF;border-radius:4px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:4px"></div></div></div>`;
-    });
-    h+='</div></div></div>';
-    document.getElementById('emp-view').innerHTML=h;
-  }
-}
-function empQuoteGroup(cid){
-  const c=GC(cid);
-  openComposeEmail(c.email||'',c.nombre,`JAC Seguros — Propuesta de seguros colectivos para ${c.nombre}`,'','cliente',cid);
-  setTimeout(()=>{
-    document.getElementById('cem-template').value='cotizacion';
-    cemApplyTemplate();
-  },200);
-}
-function exportEmpExcel(){
-  const emp=S.clientes.filter(c=>c.tipo==='Empresa');
-  if(!emp.length){toast('Sin empresas para exportar','warn');return;}
-  let csv='Empresa,RUC/Doc,Ciudad,Celular,Email,Pólizas,Prima Total,Comisión\n';
-  emp.forEach(c=>{
-    const ps=polsByC(c.id);
-    const tP=ps.reduce((s,p)=>s+(+p.prima||0),0);
-    const tC=ps.reduce((s,p)=>s+(+p.comision||0),0);
-    csv+=`"${c.nombre||''}","${c.cedula||''}","${c.ciudad||''}","${c.cel||''}","${c.email||''}",${ps.length},${tP.toFixed(2)},${tC.toFixed(2)}\n`;
-  });
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download='JAC_Empresas_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
-  toast('📊 Excel exportado','ok');
+ const emp=S.clientes.filter(c=>c.tipo==='Empresa');
+ const colPols=S.polizas.filter(p=>['SALUD/MÉDICOS','VIDA','ACCIDENTES PERSONALES'].includes(p.ramo));
+ const cnt=document.getElementById('empcnt');if(cnt)cnt.textContent=`${emp.length} empresas · ${colPols.length} pólizas colectivas`;
+ if(empTab==='emp'){
+ let h='<div class="card"><div class="tw"><table><thead><tr><th>Empresa</th><th>RUC/Doc.</th><th>Celular</th><th>Email</th><th>Ciudad</th><th>Pólizas</th><th>Prima</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
+ emp.forEach(c=>{const ps=polsByC(c.id),tP=ps.reduce((s,p)=>s+(p.prima||0),0),wa=waBtnC(c);h+=`<tr onclick="showCliDP('${c.id}')" style="cursor:pointer"><td style="font-weight:600">${esc(c.nombre)}</td><td style="font-family:monospace;font-size:11px">${esc(c.cedula)}</td><td>${esc(c.cel||'—')}</td><td style="font-size:11px">${esc(c.email||'—')}</td><td style="font-size:11px">${esc(c.ciudad||'—')}</td><td>${ps.length?b('bok',ps.length+' pólizas'):'—'}</td><td style="font-weight:700">${fmtM(tP)}</td><td onclick="event.stopPropagation()">${wa||'—'}</td><td onclick="event.stopPropagation()"><div class="ab">${c.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForClient('${c.id}')">📧</button>`:''}<button class="btn bsm bic" onclick="OC('${c.id}')">✏️</button></div></td></tr>`;});
+ if(!emp.length)h+='<tr><td colspan="9" style="padding:24px;text-align:center;color:var(--mu)">Sin empresas</td></tr>';
+ const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
+ }else if(empTab==='col'){
+ let h='<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Empresa</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Asegurados</th><th>Vence</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
+ colPols.forEach(p=>{const cl=GC(p.clienteId),asd=(p.asegurados||[]).length,wb=waBtnsP(p,cl);h+=`<tr onclick="showPolDP('${p.id}')" style="cursor:pointer"><td>${statusB(p)}</td><td style="font-family:monospace;font-size:11px;font-weight:600">${esc(p.num)}</td><td style="font-weight:600">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td onclick="event.stopPropagation()"><button class="btn bsm" onclick="OAsd('${p.id}')">${asd?'📋 '+asd+' aseg.':'+Asegurado'}</button></td><td>${fmt(p.fechaFin)}</td><td onclick="event.stopPropagation()"><div class="ab">${wb}</div></td><td onclick="event.stopPropagation()"><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;});
+ if(!colPols.length)h+='<tr><td colspan="10" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas colectivas</td></tr>';
+ const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
+ }else{
+ let h='<div class="card"><div class="tw"><table><thead><tr><th>Póliza</th><th>Empresa</th><th>Nombre Asegurado</th><th>Doc.</th><th>Cargo</th><th>Celular</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';let tot=0;
+ S.polizas.forEach(p=>{(p.asegurados||[]).forEach(a=>{tot++;const cl=GC(p.clienteId);const wu=a.cel?waL(a.cel,`Hola ${a.nombre.split(' ')[0]} 👋🏼, te contactamos de *JAC Seguros*.\n\n_JAC Seguros · 📞 +507 6292-6010_`):null;h+=`<tr><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td style="font-size:11px">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</td><td style="font-weight:600">${esc(a.nombre)}</td><td style="font-size:11px">${esc(a.cedula||'—')}</td><td style="font-size:11px">${esc(a.cargo||'—')}</td><td style="font-size:11px">${esc(a.cel||'—')}</td><td>${wu?waBtn(wu,'','','Asegurado',a.nombre,'💬','bwa bsm'):'—'}</td><td><button class="btn bsm bic brd2" onclick="DAsd('${p.id}','${a.id||a.cedula}')">🗑</button></td></tr>`;});});
+ if(!tot)h+='<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--mu)">Sin asegurados</td></tr>';
+ const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
+ }
 }
 function OAsd(polId){asdPolId=polId;['asd-no','asd-ce','asd-fn','asd-ca','asd-c2','asd-em'].forEach(id=>SVal(id,''));OM('masd');}
 function SAsd(){const nom=V('asd-no').trim();if(!nom){toast('Nombre obligatorio','err');return;}const i=S.polizas.findIndex(p=>p.id===asdPolId);if(i>=0){if(!S.polizas[i].asegurados)S.polizas[i].asegurados=[];S.polizas[i].asegurados.push({id:'ASD'+uid(),nombre:nom,cedula:V('asd-ce').trim(),fNac:V('asd-fn'),cargo:V('asd-ca').trim(),cel:V('asd-c2').trim(),email:V('asd-em').trim()});}save();CM('masd');REmp();toast('✓ Asegurado agregado');}
@@ -5048,7 +4684,7 @@ function loadFromCloud(){
     if((remote._ts||0)>locTs+5000){localStorage.setItem("jacv10",fc);location.reload();}
   }).catch(function(){});
 }
-function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}}
+function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}
 </script>
 
 <!-- MODAL: HISTORIAL COMPLETO EMAILS + WHATSAPP -->
@@ -5930,84 +5566,43 @@ function renderInformes(){
 }
 
 function renderInfResumen(){
-  const hoy=new Date().toISOString().split('T')[0];
-  const pol=S.polizas;
-  const vigentes=pol.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada');
-  const vencidas=pol.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada');
-  const canceladas=pol.filter(p=>p.estado==='Cancelada');
-  const totalPrima=pol.reduce((s,p)=>s+(+p.prima||0),0);
-  const totalCom=pol.reduce((s,p)=>s+(+p.comision||0),0);
-  const comPend=S.comisiones.filter(c=>c.estado==='pendiente').reduce((s,c)=>s+(c.monto||0),0);
-  const prosAct=(S.prospectos||[]).filter(p=>p.etapaVenta!=='Perdido'&&p.etapaVenta!=='Cliente ganado').length;
-  const stats=document.getElementById('inf-stats');
-  if(stats)stats.innerHTML=[
-    {label:'Total Pólizas',val:pol.length,color:'#1E3A8A',icon:'📋',sub:'en cartera'},
-    {label:'Vigentes',val:vigentes.length,color:'#15803D',icon:'✅',sub:pol.length?Math.round(vigentes.length/pol.length*100)+'% del total':'—'},
-    {label:'Vencidas',val:vencidas.length,color:'#DC2626',icon:'🔴',sub:'por renovar'},
-    {label:'Clientes',val:S.clientes.length,color:'#7C3AED',icon:'👥',sub:prosAct+' prospectos activos'},
-    {label:'Prima Cartera',val:fmtM(totalPrima),color:'#D97706',icon:'💰',sub:'suma total'},
-    {label:'Com. Cartera',val:fmtM(totalCom),color:'#15803D',icon:'💵',sub:'de pólizas'},
-    {label:'Com. Pendiente',val:fmtM(comPend),color:'#B45309',icon:'⏳',sub:'por cobrar'},
-    {label:'Tasa Promedio',val:totalPrima>0?(totalCom/totalPrima*100).toFixed(1)+'%':'—',color:'#0891B2',icon:'📊',sub:'comisión/prima'},
-  ].map(s=>`<div class="card" style="padding:14px 16px;border-left:4px solid ${s.color};cursor:default">
-    <div style="font-size:22px;font-weight:900;color:${s.color};line-height:1.1">${s.val}</div>
-    <div style="font-size:11px;font-weight:700;color:var(--tx);margin-top:4px">${s.icon} ${s.label}</div>
-    <div style="font-size:10px;color:var(--mu);margin-top:2px">${s.sub}</div>
-  </div>`).join('');
-
-  // ── Bar chart helper ──
-  const mkBar=(entries,el,colorFn,valFn)=>{
-    if(!el||!entries.length)return;
-    const max=Math.max(...entries.map(([,v])=>valFn(v)));
-    el.innerHTML=entries.map(([k,v])=>{
-      const val=valFn(v);const pct=max>0?Math.round(val/max*100):0;
-      const col=colorFn(k);
-      return`<div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
-          <span style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${esc(k)}</span>
-          <span style="font-size:11px;font-weight:700;color:${col};white-space:nowrap;margin-left:8px">${typeof val==='number'&&val>99?fmtM(val):val}</span>
-        </div>
-        <div style="height:8px;background:#F0F4FF;border-radius:4px;overflow:hidden">
-          <div style="width:${pct}%;height:100%;background:${col};border-radius:4px;transition:width .5s ease"></div>
-        </div>
-        <div style="font-size:10px;color:var(--mu);margin-top:2px">${v.count} póliza${v.count!==1?'s':''}</div>
-      </div>`;
-    }).join('');
-  };
-
-  // ── By ramo (with prima) ──
-  const ramoMap={};
-  pol.forEach(p=>{const r=p.ramo||'Otros';if(!ramoMap[r])ramoMap[r]={count:0,prima:0,com:0};ramoMap[r].count++;ramoMap[r].prima+=(+p.prima||0);ramoMap[r].com+=(+p.comision||0);});
-  const ramoEl=document.getElementById('inf-ramo-list');
-  if(ramoEl)mkBar(Object.entries(ramoMap).sort((a,b)=>b[1].prima-a[1].prima).slice(0,8),ramoEl,()=>'#1E3A8A',v=>v.prima);
-
-  // ── By aseg (with prima) ──
-  const asegMap={};
-  pol.forEach(p=>{const a=(p.aseg||p.aseguradora||'Otra').split(',')[0].trim();if(!asegMap[a])asegMap[a]={count:0,prima:0,com:0};asegMap[a].count++;asegMap[a].prima+=(+p.prima||0);asegMap[a].com+=(+p.comision||0);});
-  const asegEl=document.getElementById('inf-aseg-list');
-  const asegColors={'ASSA':'#005F9E','SURA':'#E85D04','MAPFRE':'#C8102E','IS':'#1A3A6B','PALIG':'#2D6A4F','FEDPA':'#8B5E00','Ancón':'#3D405B','Chubb':'#2E7D32'};
-  if(asegEl)mkBar(Object.entries(asegMap).sort((a,b)=>b[1].prima-a[1].prima).slice(0,8),asegEl,k=>asegColors[k]||'#64748B',v=>v.prima);
-
-  // ── Comisiones por mes (bar chart) ──
-  const mesMap={};
-  pol.filter(p=>p.fechaInicio).forEach(p=>{const m=p.fechaInicio.slice(0,7);mesMap[m]=(mesMap[m]||0)+(+p.comision||0);});
-  const _dataYears=[...new Set(pol.filter(p=>p.fechaInicio).map(p=>p.fechaInicio.slice(0,4)))].sort().reverse();
-  const year=_dataYears[0]||new Date().getFullYear();
-  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const maxMes=Math.max(1,...meses.map((_,i)=>mesMap[year+'-'+(i+1<10?'0':'')+(i+1)]||0));
-  const comEl=document.getElementById('inf-com-mes');
-  if(comEl)comEl.innerHTML=`<div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px 0 4px">`+
-    meses.map((mn,i)=>{
-      const k=year+'-'+(i+1<10?'0':'')+(i+1);const v=mesMap[k]||0;
-      const h=v>0?Math.max(4,Math.round(v/maxMes*80)):0;
-      const isNow=k===new Date().toISOString().slice(0,7);
-      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px" title="${mn}: ${fmtM(v)}">
-        <span style="font-size:9px;font-weight:700;color:${isNow?'#1E3A8A':'var(--mu)'}">${v>0?fmtM(v):''}</span>
-        <div style="width:100%;background:${isNow?'#1E3A8A':'#93C5FD'};height:${h}px;border-radius:3px 3px 0 0;min-height:${v>0?4:0}px;transition:height .4s ease"></div>
-        <span style="font-size:9px;color:${isNow?'#1E3A8A':'var(--mu)'};font-weight:${isNow?700:400}">${mn}</span>
-      </div>`;
-    }).join('')+'</div>';
+ const hoy=new Date().toISOString().split('T')[0];
+ const pol=S.polizas;
+ const vigentes=pol.filter(p=>p.estado==='Vigente');
+ const vencidas=pol.filter(p=>p.estado==='Vencida'||p.fechaFin<hoy);
+ const canceladas=pol.filter(p=>p.estado==='Cancelada');
+ const totalPrima=pol.reduce((s,p)=>s+(+p.prima||0),0);
+ const totalCom=pol.reduce((s,p)=>s+(+p.comision||0),0);
+ const stats=document.getElementById('inf-stats');
+ if(stats)stats.innerHTML=[
+ {label:'Total Pólizas',val:pol.length,color:'#1E3A8A',icon:'📋'},
+ {label:'Vigentes',val:vigentes.length,color:'#15803D',icon:'✅'},
+ {label:'Vencidas',val:vencidas.length,color:'#DC2626',icon:'🔴'},
+ {label:'Total Clientes',val:S.clientes.length,color:'#7C3AED',icon:'👥'},
+ {label:'Prima Total',val:'$'+fmt2(totalPrima),color:'#D97706',icon:'💰'},
+ {label:'Comisión Total',val:'$'+fmt2(totalCom),color:'#15803D',icon:'💵'},
+ ].map(s=>`<div class="card" style="padding:14px;border-left:4px solid ${s.color}">
+ <div style="font-size:22px;font-weight:900;color:${s.color}">${s.val}</div>
+ <div style="font-size:11px;color:var(--mu)">${s.icon} ${s.label}</div>
+ </div>`).join('');
+ // By ramo
+ const ramoMap={};pol.forEach(p=>{const r=p.ramo||'Otros';ramoMap[r]=(ramoMap[r]||0)+1;});
+ const ramoEl=document.getElementById('inf-ramo-list');
+ if(ramoEl)ramoEl.innerHTML=Object.entries(ramoMap).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${r}</span><span style="font-weight:700">${n}</span></div>`).join('');
+ // By aseg
+ const asegMap={};pol.forEach(p=>{const a=p.aseg||'Otra';asegMap[a]=(asegMap[a]||0)+1;});
+ const asegEl=document.getElementById('inf-aseg-list');
+ if(asegEl)asegEl.innerHTML=Object.entries(asegMap).sort((a,b)=>b[1]-a[1]).map(([a,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${a}</span><span style="font-weight:700">${n}</span></div>`).join('');
+ // Comisiones por mes — use most recent year that has actual data
+ const mesMap={};
+ pol.filter(p=>p.fechaInicio).forEach(p=>{const m=p.fechaInicio.slice(0,7);mesMap[m]=(mesMap[m]||0)+(+p.comision||0);});
+ const _dataYears=[...new Set(pol.filter(p=>p.fechaInicio).map(p=>p.fechaInicio.slice(0,4)))].sort().reverse();
+ const year=_dataYears[0]||new Date().getFullYear();
+ const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+ const comEl=document.getElementById('inf-com-mes');
+ if(comEl)comEl.innerHTML=meses.map((mn,i)=>{const k=year+'-'+(i+1<10?'0':'')+(i+1);const v=mesMap[k]||0;const pct=v>0?Math.min(100,v/200*100):0;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="width:32px;font-size:11px;color:var(--mu)">${mn}</span><div style="flex:1;background:#F0F4FF;border-radius:4px;height:18px"><div style="width:${pct}%;background:#1E3A8A;height:100%;border-radius:4px"></div></div><span style="width:70px;text-align:right;font-size:11px;font-weight:600">$${fmt2(v)}</span></div>`;}).join('');
 }
+
 function renderInfProd(){
  const year=document.getElementById('inf-prod-year')?.value||new Date().getFullYear();
  const mes=document.getElementById('inf-prod-mes')?.value||'';
@@ -6833,79 +6428,52 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // ── GLOBAL SEARCH ──────────────────────────────────────────────────────────
 function gsearchLive(q){
-  const res=document.getElementById('gsearch-results');
-  if(!res)return;
-  if(!q||q.length<2){gsearchHide();return;}
-  const ql=q.toLowerCase();
-  const hits=[];
-  const typeColors={cli:'#1D4ED8',pol:'#15803D',pros:'#7C3AED',tar:'#D97706',sin:'#DC2626',not:'#0891B2',emp:'#374151',veh:'#EA580C'};
-  // ── Clientes
-  (S.clientes||[]).forEach(c=>{
-    if((c.nombre||'').toLowerCase().includes(ql)||(c.cedula||'').includes(ql)||(c.cel||'').includes(ql)||(c.email||'').toLowerCase().includes(ql)||(c.empresa||'').toLowerCase().includes(ql))
-      hits.push({type:'cli',icon:'👤',label:'Cliente',title:c.nombre||'—',sub:(c.cedula?c.cedula+' · ':'')+( c.cel||'')+(c.ciudad?' · '+c.ciudad:''),action:`SH('cli');setTimeout(()=>OC('${c.id}'),150)`});
-  });
-  // ── Pólizas
-  (S.polizas||[]).forEach(p=>{
-    const cl=GC(p.clienteId)||{};
-    if((p.polNum||p.num||'').toLowerCase().includes(ql)||(p.ramo||'').toLowerCase().includes(ql)||(p.aseg||p.aseguradora||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql))
-      hits.push({type:'pol',icon:'📋',label:'Póliza',title:(p.polNum||p.num||'—')+' · '+(p.ramo||''),sub:(cl.nombre||'—')+' · '+(p.aseg||p.aseguradora||'—'),action:`SH('pol');setTimeout(()=>OP('${p.id}'),150)`});
-  });
-  // ── Prospectos
-  (S.prospectos||[]).forEach(p=>{
-    if((p.nombre||'').toLowerCase().includes(ql)||(p.cel||'').toLowerCase().includes(ql)||(p.email||'').toLowerCase().includes(ql)||(p.etapaVenta||'').toLowerCase().includes(ql))
-      hits.push({type:'pros',icon:'🎯',label:'Prospecto',title:p.nombre||'—',sub:(p.etapaVenta||'')+(p.cel?' · '+p.cel:''),action:`SH('pros');setTimeout(()=>OPros('${p.id}'),150)`});
-  });
-  // ── Tareas
-  (S.tareas||[]).filter(t=>t._autoTipo!=='comision').forEach(t=>{
-    if((t.titulo||'').toLowerCase().includes(ql)||(t.tipo||'').toLowerCase().includes(ql)||(t.descripcion||'').toLowerCase().includes(ql))
-      hits.push({type:'tar',icon:'✅',label:'Tarea',title:t.titulo||'—',sub:(t.tipo||'')+(t.fechaLimite?' · '+fmt(t.fechaLimite):''),action:`SH('tar');setTimeout(()=>OT_open('${t.id}'),150)`});
-  });
-  // ── Siniestros
-  (S.siniestros||[]).forEach(s=>{
-    const cl=GC(s.clienteId)||{};
-    if((s.nroCia||'').toLowerCase().includes(ql)||(s.tipo||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql)||(s.aseg||'').toLowerCase().includes(ql))
-      hits.push({type:'sin',icon:'🚑',label:'Siniestro',title:(s.nroCia||'—')+' · '+(s.tipo||''),sub:(cl.nombre||'—')+' · '+(s.estado||''),action:`SH('sin')`});
-  });
-  // ── Notas
-  (S.notas||[]).forEach(n=>{
-    if((n.titulo||'').toLowerCase().includes(ql)||(n.texto||'').toLowerCase().includes(ql)||(n.etiqueta||'').toLowerCase().includes(ql))
-      hits.push({type:'not',icon:'📝',label:'Nota',title:n.titulo||'—',sub:(n.etiqueta||'')+(n.fecha?' · '+fmt(n.fecha):''),action:`SH('not')`});
-  });
-  // ── Empresas
-  (S.empresas||[]).forEach(e=>{
-    if((e.nombre||'').toLowerCase().includes(ql)||(e.ruc||'').includes(ql))
-      hits.push({type:'emp',icon:'🏢',label:'Empresa',title:e.nombre||'—',sub:(e.ruc||'')+(e.sector?' · '+e.sector:''),action:`SH('emp')`});
-  });
-  // ── Vehículos
-  (S.vehiculos||[]).forEach(v=>{
-    const cl=GC(v.clienteId)||{};
-    if((v.placa||'').toLowerCase().includes(ql)||(v.marca||'').toLowerCase().includes(ql)||(v.modelo||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql))
-      hits.push({type:'veh',icon:'🚗',label:'Vehículo',title:(v.placa||'—')+' · '+(v.marca||'')+(v.modelo?' '+v.modelo:''),sub:cl.nombre||'—',action:`SH('veh')`});
-  });
-  if(!hits.length){
-    res.style.display='block';
-    res.innerHTML=`<div style="padding:14px;text-align:center;color:var(--mu);font-size:12px">Sin resultados para "<strong>${esc(q)}</strong>"</div>`;
-    return;
-  }
-  const typeOrder={cli:0,pol:1,pros:2,tar:3,sin:4,not:5,emp:6,veh:7};
-  hits.sort((a,b)=>(typeOrder[a.type]||9)-(typeOrder[b.type]||9));
-  let h=`<div style="padding:6px 10px;font-size:10px;font-weight:700;color:var(--mu);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between"><span>🔍 ${hits.length} resultado${hits.length!==1?'s':''}</span><span style="cursor:pointer;color:var(--rd);padding:2px 6px" onclick="gsearchHide()">✕</span></div>`;
-  hits.slice(0,14).forEach(hit=>{
-    const col=typeColors[hit.type]||'#374151';
-    h+=`<div onclick="${hit.action};document.getElementById('gsearch-inp').value='';gsearchHide()" style="padding:9px 12px;cursor:pointer;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:9px" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background=''">
-      <span style="font-size:15px;flex-shrink:0">${hit.icon}</span>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(hit.title)}</div>
-        <div style="font-size:10px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(hit.sub)}</div>
-      </div>
-      <span style="font-size:9px;font-weight:700;color:${col};background:${col}18;border-radius:4px;padding:2px 6px;white-space:nowrap;flex-shrink:0">${hit.label}</span>
-    </div>`;
-  });
-  if(hits.length>14)h+=`<div style="padding:8px;text-align:center;font-size:11px;color:var(--mu)">${hits.length-14} resultados más...</div>`;
-  res.style.display='block';
-  res.innerHTML=h;
+ const res=document.getElementById('gsearch-results');
+ if(!res)return;
+ if(!q||q.length<2){gsearchHide();return;}
+ const ql=q.toLowerCase();
+ const hits=[];
+
+ // Search clients
+ (S.clientes||[]).forEach(c=>{
+ const score=(c.nombre||'').toLowerCase().includes(ql)||(c.cedula||'').includes(ql)||(c.cel||'').includes(ql)||(c.email||'').toLowerCase().includes(ql);
+ if(score)hits.push({type:'cli',icon:'👤',title:c.nombre||'—',sub:(c.cedula||'')+(c.cel?' · '+c.cel:''),id:c.id,action:`OC('${c.id}')`});
+ });
+
+ // Search policies by number, ramo, aseguradora
+ (S.polizas||[]).forEach(p=>{
+ const cl=GC(p.clienteId)||{};
+ const score=(p.polNum||'').toLowerCase().includes(ql)||(p.ramo||'').toLowerCase().includes(ql)||(p.aseg||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql);
+ if(score)hits.push({type:'pol',icon:'📋',title:(p.polNum||p.id||'Póliza')+' — '+(p.ramo||''),sub:(p.aseg||'')+(cl.nombre?' · '+cl.nombre:'')+(p.fechaFin?' · Vence: '+fmt(p.fechaFin):''),id:p.id,action:`SH('pol')`});
+ });
+
+ // Search prospects
+ (S.prospectos||[]).forEach(pr=>{
+ if((pr.nombre||'').toLowerCase().includes(ql)||(pr.cedula||'').includes(ql))
+ hits.push({type:'pro',icon:'🎯',title:pr.nombre||'—',sub:'Prospecto'+(pr.cel?' · '+pr.cel:''),id:pr.id,action:`SH('pros')`});
+ });
+
+ if(!hits.length){res.style.display='block';res.innerHTML='<div style="padding:14px;text-align:center;color:var(--mu);font-size:12px">Sin resultados para "'+esc(q)+'"</div>';return;}
+
+ const grouped={cli:[],pol:[],pro:[]};
+ hits.slice(0,20).forEach(h=>grouped[h.type]&&grouped[h.type].push(h));
+ const labels={cli:'👤 Clientes',pol:'📋 Pólizas',pro:'🎯 Prospectos'};
+ let html='';
+ ['cli','pol','pro'].forEach(t=>{
+ if(!grouped[t].length)return;
+ html+=`<div style="padding:6px 12px 2px;font-size:10px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;background:#F8FAFF">${labels[t]}</div>`;
+ grouped[t].forEach(h=>{
+ html+=`<div onclick="${h.action};gsearchHide();document.getElementById('gsearch-inp').value=''" style="padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F1F5F9" onmouseover="this.style.background='#EEF4FF'" onmouseout="this.style.background=''">
+ <span style="font-size:18px">${h.icon}</span>
+ <div><div style="font-weight:700;font-size:12px">${esc(h.title)}</div><div style="font-size:10px;color:var(--mu)">${esc(h.sub)}</div></div>
+ </div>`;
+ });
+ });
+ res.style.display='block';
+ res.innerHTML=html;
 }
 function gsearchHide(){const r=document.getElementById('gsearch-results');if(r)r.style.display='none';}
+
 // ── WHATSAPP MASIVO ────────────────────────────────────────────────────────
 let wamData=[];
 
@@ -6938,162 +6506,87 @@ function wamUpdatePreview(){
  prev.textContent=samples[tipo]||samples.ren;
 }
 
-function wamBuildMsg(tipo,cl,pol,customMsg){
-  const fn=(cl.nombre||'Cliente').split(' ')[0];
-  const sig=`\n\n📞 +507 6292-6010\n🌐 jacsegurospa.com\n_Jely An Castro · JAC Seguros · Lic. #6175_`;
-  switch(tipo){
-    case 'ren':{
-      const dias=pol?.fechaFin?dFrom(pol.fechaFin):'?';
-      const urgente=typeof dias==='number'&&dias<=7;
-      return`Hola ${fn} 👋\n\n${urgente?'🚨 *URGENTE* — ':''}Te escribo de *JAC Seguros* para avisarte que tu póliza de *${pol?.ramo||'seguro'}* con *${pol?.aseg||'la aseguradora'}*${pol?.polNum||pol?.num?' (N° '+(pol.polNum||pol.num)+')':''} vence el *${pol?.fechaFin?fmt(pol.fechaFin):'próximamente'}*${typeof dias==='number'?' — en '+dias+' día'+(dias!==1?'s':'')+'.':'.'}\n\n¡No te quedes sin cobertura! Te ayudo a renovar rápido y sin complicaciones.${sig}`;
-    }
-    case 'bday':
-      return`¡Hola ${fn}! 🎂\n\nEn nombre de *JAC Seguros* te deseo un muy *¡Feliz Cumpleaños!* 🎉🎊\n\nQue este nuevo año de vida esté lleno de salud, éxitos y mucha protección. ¡Es un privilegio contar con tu confianza!${sig}`;
-    case 'cobro':{
-      return`Hola ${fn} 👋\n\nTe recuerdo desde *JAC Seguros* que tienes un pago pendiente de tu póliza de *${pol?.ramo||'seguro'}* con *${pol?.aseg||'la aseguradora'}*${pol?.prima?' por *'+fmtM(+pol.prima||0)+'*':''}.\n\nPara evitar la suspensión de tu cobertura, te recomiendo realizar el pago a la brevedad. ¿Tienes alguna consulta?${sig}`;
-    }
-    case 'soat':{
-      return`Hola ${fn} 👋\n\nTe aviso de *JAC Seguros* que tu *SOAT* está próximo a vencer${pol?.fechaFin?' el *'+fmt(pol.fechaFin)+'*':''}.\n\nRecuerda que circular sin SOAT vigente es infracción. ¡Renuévalo hoy mismo! Te lo gestiono en minutos.${sig}`;
-    }
-    case 'nuevapoliza':
-      return`Hola ${fn} 👋\n\nSoy *Jely* de *JAC Seguros* y te escribo para presentarte nuestra asesoría.\n\nComparamos TODAS las aseguradoras de Panamá para encontrarte la mejor cobertura al mejor precio, *sin costo adicional*. 🛡️\n\n¿Te gustaría recibir una cotización gratuita? ¡Con gusto te atiendo!${sig}`;
-    case 'siniestro':
-      return`Hola ${fn} 👋\n\nTe contacto de *JAC Seguros* para darte seguimiento a tu siniestro. Estamos trabajando para resolverlo lo antes posible.\n\n¿Tienes alguna duda o necesitas documentación adicional? Estoy aquí para ayudarte.${sig}`;
-    case 'custom':
-      return(customMsg||'').replace(/\{nombre\}/g,fn).replace(/\{fn\}/g,fn)+sig;
-    default:
-      return`Hola ${fn} 👋, soy Jely de JAC Seguros. ¿En qué te puedo ayudar?${sig}`;
-  }
+function wamBuildMsg(tipo,cl,pol){
+ const fn=(cl.nombre||'Cliente').split(' ')[0];
+ const sig=`\n\n📞 +507 6292-6010\n🌐 www.jacsegurospa.com\n_Jely An Castro Pérez · JAC Seguros_`;
+ if(tipo==='ren'){
+ const dias=pol&&pol.fechaFin?dFrom(pol.fechaFin):'?';
+ return`Hola ${fn} 👋🏼\n\nTe escribimos desde *JAC Seguros* | *Jely An Castro* para avisarte que tu póliza de *${pol?.ramo||''}* con *${pol?.aseg||''}* (N° ${pol?.polNum||pol?.id||''}) vence el *${pol?.fechaFin?fmt(pol.fechaFin):'pronto'}* (${dias} días).\n\n¡No te quedes sin cobertura! Comunícate con nosotros para renovar.${sig}`;
+ }
+ if(tipo==='bday'){
+ return`🎂 ¡Feliz Cumpleaños, ${fn}! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟${sig}`;
+ }
+ if(tipo==='cobro'){
+ return`Hola ${fn} 👋🏼\n\nTe recordamos desde *JAC Seguros* | *Jely An Castro* que tienes un pago pendiente de tu póliza de *${pol?.ramo||''}* por *${pol?.prima?fmtM(pol.prima):'—'}*.${sig}`;
+ }
+ const customTpl=document.getElementById('wam-custom-msg')?.value||'Hola {nombre}, te contacta JAC Seguros.';
+ return customTpl.replace(/{nombre}/gi,fn)+sig;
 }
 
 function wamGenerate(){
-  const tipo=document.getElementById('wam-tipo')?.value||'ren';
-  const ramo=document.getElementById('wam-ramo')?.value||'';
-  const aseg=document.getElementById('wam-aseg')?.value||'';
-  const dias=parseInt(document.getElementById('wam-dias')?.value||'30');
-  const bdayDias=parseInt(document.getElementById('wam-bday-per')?.value||'7');
-  const customMsg=document.getElementById('wam-custom-msg')?.value||'';
-  wamData=[];
-  const today=new Date();
+ const tipo=document.getElementById('wam-tipo')?.value||'ren';
+ const ramo=document.getElementById('wam-ramo')?.value||'';
+ const aseg=document.getElementById('wam-aseg')?.value||'';
+ const dias=parseInt(document.getElementById('wam-dias')?.value||'30');
+ const bdayDias=parseInt(document.getElementById('wam-bday-per')?.value||'7');
+ wamData=[];
 
-  if(tipo==='ren'||tipo==='cobro'||tipo==='soat'){
-    (S.polizas||[]).forEach(p=>{
-      if(p.estado==='Cancelada')return;
-      if(ramo&&p.ramo!==ramo)return;
-      if(aseg&&(p.aseg||p.aseguradora)!==aseg)return;
-      if(tipo==='soat'&&!['SOAT','DAÑOS A TERCEROS','SOAT/DAÑOS A TERCEROS'].includes(p.ramo))return;
-      const d=typeof dFrom==='function'?dFrom(p.fechaFin):-999;
-      if(typeof d!=='number'||d<0||d>dias)return;
-      const cl=GC(p.clienteId)||{};
-      const tel=fmtWANum(cl.cel||cl.tel||p.celCliente||'');
-      wamData.push({
-        id:p.id,tipo,
-        nombre:cl.nombre||p.nombreCliente||'—',
-        tel,email:cl.email||'',
-        msg:wamBuildMsg(tipo,cl,p,customMsg),
-        dias:d,pol:p,cli:cl,sel:!!tel,
-        noTel:!tel
-      });
-    });
-    wamData.sort((a,b)=>a.dias-b.dias);
-  } else if(tipo==='bday'){
-    const lim=new Date(today); lim.setDate(lim.getDate()+bdayDias);
-    (S.clientes||[]).forEach(c=>{
-      if(!c.fechaNac)return;
-      const parts=c.fechaNac.split('-');if(parts.length<3)return;
-      const mm=parseInt(parts[1]),dd=parseInt(parts[2]);
-      const bday=new Date(today.getFullYear(),mm-1,dd);
-      if(bday<today)bday.setFullYear(today.getFullYear()+1);
-      const diff=Math.round((bday-today)/86400000);
-      if(diff>bdayDias)return;
-      const tel=fmtWANum(c.cel||c.tel||'');
-      wamData.push({id:c.id,tipo,nombre:c.nombre||'—',tel,email:c.email||'',msg:wamBuildMsg('bday',c,null,customMsg),dias:diff,pol:null,cli:c,sel:!!tel,noTel:!tel});
-    });
-    wamData.sort((a,b)=>a.dias-b.dias);
-  } else if(tipo==='nuevapoliza'){
-    (S.prospectos||[]).filter(p=>p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido').forEach(p=>{
-      const tel=fmtWANum(p.cel||'');
-      wamData.push({id:p.id,tipo,nombre:p.nombre||'—',tel,email:p.email||'',msg:wamBuildMsg('nuevapoliza',p,null,customMsg),pol:null,cli:p,sel:!!tel,noTel:!tel});
-    });
-  } else if(tipo==='siniestro'){
-    (S.siniestros||[]).filter(s=>['En proceso','Pendiente docs'].includes(s.estado)).forEach(s=>{
-      const cl=GC(s.clienteId)||{};
-      const tel=fmtWANum(cl.cel||cl.tel||'');
-      wamData.push({id:s.id,tipo,nombre:cl.nombre||'—',tel,email:cl.email||'',msg:wamBuildMsg('siniestro',cl,null,customMsg),pol:null,cli:cl,sel:!!tel,noTel:!tel});
-    });
-  } else if(tipo==='custom'){
-    (S.clientes||[]).forEach(c=>{
-      const tel=fmtWANum(c.cel||c.tel||'');
-      wamData.push({id:c.id,tipo,nombre:c.nombre||'—',tel,email:c.email||'',msg:wamBuildMsg('custom',c,null,customMsg),pol:null,cli:c,sel:!!tel,noTel:!tel});
-    });
-  }
-  wamRenderList();
-  const conTel=wamData.filter(w=>w.tel).length;
-  const sinTel=wamData.filter(w=>!w.tel).length;
-  if(!wamData.length){toast('Sin destinatarios con esos filtros','warn');return;}
-  toast(`✅ ${wamData.length} destinatarios (${conTel} con WA${sinTel?' · ⚠️ '+sinTel+' sin tel':''})`,'ok',4000);
+ if(tipo==='ren'||tipo==='cobro'){
+ const today=new Date();
+ (S.polizas||[]).forEach(p=>{
+ if(p.estado==='Cancelada')return;
+ if(ramo&&p.ramo!==ramo)return;
+ if(aseg&&p.aseg!==aseg)return;
+ const d=typeof dFrom==='function'?dFrom(p.fechaFin):9999;
+ if(d<0||d>dias)return;
+ const cl=GC(p.clienteId)||{nombre:p.nombreCliente||'Cliente',cel:p.celCliente||''};
+ const tel=cl.cel||cl.tel||'';
+ if(!tel)return;
+ const msg=wamBuildMsg(tipo,cl,p);
+ wamData.push({id:p.id+'_'+cl.id,nombre:cl.nombre||'—',tel,dias:d,info:`${p.ramo||''} · ${p.aseg||''} · ${fmt(p.fechaFin)}`,msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
+ });
+ wamData.sort((a,b)=>a.dias-b.dias);
+ } else if(tipo==='bday'){
+ const today=new Date();
+ (S.clientes||[]).forEach(c=>{
+ if(!c.fNac)return;
+ const tel=c.cel||c.tel||'';if(!tel)return;
+ const bday=new Date(c.fNac);bday.setFullYear(today.getFullYear());
+ if(bday<new Date(today.toISOString().split('T')[0]))bday.setFullYear(today.getFullYear()+1);
+ const diff=Math.round((bday-today)/(864e5));
+ if(diff<0||diff>bdayDias)return;
+ const msg=wamBuildMsg('bday',c,null);
+ wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:diff,info:`Cumpleaños en ${diff===0?'HOY':diff+' días'} · ${fmt(c.fNac)}`,msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
+ });
+ } else {
+ (S.clientes||[]).forEach(c=>{
+ const tel=c.cel||c.tel||'';if(!tel)return;
+ const msg=wamBuildMsg('custom',c,null);
+ wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:0,info:'Cliente',msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
+ });
+ }
+
+ wamRenderList();
 }
 
 function wamRenderList(){
-  const cnt=document.getElementById('wam-cnt');
-  const tot=document.getElementById('wam-total-cnt');
-  const sel=wamData.filter(x=>x.sel).length;
-  const sinTel=wamData.filter(x=>x.noTel).length;
-  if(cnt)cnt.textContent=`${wamData.length} destinatarios · ${sel} seleccionados${sinTel?' · ⚠️ '+sinTel+' sin teléfono':''}`;
-  if(tot)tot.textContent=`${sel} de ${wamData.length}`;
-  const el=document.getElementById('wam-list');
-  if(!el)return;
-  if(!wamData.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">Sin destinatarios</div>';return;}
-  el.innerHTML=`
-    <div style="display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--bd);background:#F8FAFC;flex-wrap:wrap;align-items:center">
-      <button class="btn bsm bgn" onclick="wamSendSelected()" style="font-weight:700">⚡ Enviar seleccionados (${sel})</button>
-      <button class="btn bsm" onclick="wamSelectAll(true)">✅ Todos</button>
-      <button class="btn bsm" onclick="wamSelectAll(false)">⬜ Ninguno</button>
-      ${sinTel?`<span style="font-size:10px;color:#DC2626;font-weight:600">⚠️ ${sinTel} sin teléfono</span>`:''}
-    </div>`+
-    wamData.map((w,i)=>{
-      const dias=w.dias;
-      const urgente=typeof dias==='number'&&dias<=7;
-      const msgLen=w.msg.length;
-      return`<div style="padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:10px;${w.noTel?'opacity:.5':''}${urgente?'background:#FFF9F9':''}">
-        <input type="checkbox" ${w.sel?'checked':''} ${w.noTel?'disabled':''} onchange="wamData[${i}].sel=this.checked;wamRenderList()" style="margin-top:3px;flex-shrink:0;accent-color:#25D366">
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;justify-content:space-between;align-items:baseline">
-            <span style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(w.nombre)}</span>
-            <div style="display:flex;gap:4px;flex-shrink:0">
-              ${urgente?'<span style="font-size:9px;background:#FEE2E2;color:#DC2626;border-radius:4px;padding:1px 5px;font-weight:700">URGENTE</span>':''}
-              ${typeof dias==='number'?`<span style="font-size:10px;color:var(--mu)">${dias===0?'HOY':dias+'d'}</span>`:''}
-            </div>
-          </div>
-          <div style="font-size:10px;color:var(--mu);margin-top:1px">
-            ${w.noTel?'<span style="color:#DC2626;font-weight:600">⚠️ Sin teléfono</span>':esc(w.tel)}
-            ${w.pol?` · ${esc(w.pol.ramo||'')} · ${esc(w.pol.aseg||'')}`:w.cli.etapaVenta?` · ${esc(w.cli.etapaVenta)}`:''}
-          </div>
-          <div style="font-size:9px;color:var(--mu);margin-top:2px">📝 ${msgLen} caracteres${msgLen>1024?` · <span style="color:#D97706">largo para WA</span>`:''}</div>
-        </div>
-        ${!w.noTel?`<a href="${waL(w.tel,w.msg)}" target="_blank" class="btn bsm bwa" onclick="wamMarkSent(${i})" title="Enviar por WhatsApp">💬</a>`:''}
-      </div>`;
-    }).join('');
-}
-
-function wamMarkSent(i){
-  if(wamData[i])wamData[i]._sent=true;
-  setTimeout(()=>{
-    const items=document.querySelectorAll('#wam-list > div[style*="border-bottom"]');
-    if(items[i])items[i].style.background='#F0FDF4';
-  },200);
-}
-
-function wamSendSelected(){
-  const sel=wamData.filter(w=>w.sel&&w.tel);
-  if(!sel.length){toast('Selecciona al menos un destinatario con teléfono','warn');return;}
-  if(sel.length>5){
-    toast(`⚡ Abriendo ${sel.length} chats — confirma cada envío en WhatsApp`,'ok',4000);
-    sel.forEach((w,i)=>setTimeout(()=>window.open(waL(w.tel,w.msg),'_blank'),i*800));
-  } else {
-    sel.forEach(w=>window.open(waL(w.tel,w.msg),'_blank'));
-    toast(`✅ ${sel.length} WhatsApp${sel.length>1?'s':''} abierto${sel.length>1?'s':''}. ¡Envía cada uno!`,'ok',4000);
-  }
+ const cnt=document.getElementById('wam-cnt');
+ const tot=document.getElementById('wam-total-cnt');
+ const sel=wamData.filter(x=>x.sel).length;
+ if(cnt)cnt.textContent=`${wamData.length} destinatarios · ${sel} seleccionados`;
+ if(tot)tot.textContent=`${sel} seleccionados de ${wamData.length}`;
+ const el=document.getElementById('wam-list');
+ if(!el)return;
+ if(!wamData.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">Sin destinatarios con los filtros seleccionados</div>';return;}
+ el.innerHTML=wamData.map((w,i)=>`
+ <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #F1F5F9;${w.sel?'':'opacity:.5'}">
+ <input type="checkbox" ${w.sel?'checked':''} onchange="wamData[${i}].sel=this.checked;wamRenderList()" style="width:16px;height:16px;cursor:pointer">
+ <div style="flex:1;min-width:0">
+ <div style="font-weight:700;font-size:12px">${esc(w.nombre)}</div>
+ <div style="font-size:10px;color:var(--mu)">${esc(w.info)} · 📞 ${esc(w.tel)}</div>
+ </div>
+ <a href="${w.url}" target="_blank" rel="noopener" class="btn bwa bsm" style="white-space:nowrap" title="Abrir WhatsApp">💬 Enviar</a>
+ </div>`).join('');
 }
 
 function wamSelectAll(v){wamData.forEach(w=>w.sel=v);wamRenderList();}
@@ -10278,704 +9771,22 @@ function renderCfgTags(){
  }).join('');
 }
 
-
-
-// ── KEYBOARD SHORTCUTS ──
-document.addEventListener('keydown', function(e) {
-  // Ctrl+K or Cmd+K = global search (focus first search input)
-  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+// ── Atajos de teclado JAC CRM ──
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){
     e.preventDefault();
-    const s = document.querySelector('.pg.on .si') || document.querySelector('.si');
-    if (s) { s.focus(); s.select(); toast('🔍 Búsqueda activa', 'ok', 1500); }
+    const s=document.querySelector('.pg.on .si')||document.querySelector('.si');
+    if(s){s.focus();s.select();toast('🔍 Búsqueda activa','ok',1500);}
   }
-  // Ctrl+D = toggle dark mode
-  if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-    e.preventDefault();
-    toggleDarkMode();
-    toast(S.darkMode ? '🌙 Modo oscuro' : '☀️ Modo claro', 'ok', 1500);
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'&&!e.shiftKey){
+    e.preventDefault();toggleDarkMode();
+    toast(typeof S!=='undefined'&&S.darkMode?'🌙 Modo oscuro':'☀️ Modo claro','ok',1500);
   }
-  // Escape = close all modals + panels
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.mo').forEach(m => m.style.display = 'none');
-    document.querySelectorAll('.dpanel').forEach(p => p.style.display = 'none');
-    document.body.style.overflow = '';
+  if(e.key==='Escape'){
+    document.querySelectorAll('.mo').forEach(m=>{if(m.style.display!=='none')m.style.display='none';});
+    document.body.style.overflow='';
   }
 });
-
-
-// ── Ctrl+F → redirect to CRM search ──
-document.addEventListener('keydown', function(e2){
-  if((e2.ctrlKey||e2.metaKey)&&e2.key==='f'){
-    const inModal=document.querySelector('.mo[style*="flex"],.mo[style*="block"]');
-    if(inModal)return; // allow native search in modals
-    e2.preventDefault();
-    const gi=document.getElementById('gsearch-inp');
-    if(gi){gi.focus();gi.select();toast('🔍 Búsqueda global — escribe para buscar','ok',2000);}
-  }
-}, true);
-
-
-// ── NAV BADGES — updateNavBadges hooked via RD wrapper above
-
-
-// ══════════════════════════════════════════════════════════════
-// JAC EMAIL MODULE v2
-var cemEntityType=null,cemEntityId=null;
- — Plantillas, Preview, Variables, Draft
-// ══════════════════════════════════════════════════════════════
-
-// ── FIRMA OFICIAL ──
-const JAC_FIRMA = `
-
----
-Jely An Castro Pérez
-Corredora de Seguros Autorizada · Lic. #6175
-JAC Seguros | jacsegurospa.com
-📞 +507 6292-6010 | 📧 jcastro@jacsegurospa.com
-Supervisada por la SSRP · Panamá`;
-
-// ── PLANTILLAS DE EMAIL ──
-const EMAIL_TEMPLATES = {
-  bienvenida: {
-    sub: 'Bienvenido/a a JAC Seguros, {{nombre}} 🎉',
-    body: `Estimado/a {{nombre}},
-
-Es un placer darle la bienvenida a JAC Seguros.
-
-Como su corredora de seguros autorizada (Lic. #6175), mi compromiso es brindarle la mejor asesoría personalizada y acompañarle en cada etapa de su protección.
-
-📋 Lo que puede esperar de mi servicio:
-• Análisis de sus necesidades de cobertura
-• Comparación entre las mejores aseguradoras de Panamá
-• Gestión de renovaciones y cambios
-• Acompañamiento en caso de siniestros
-
-Estoy a su disposición para cualquier consulta. ¡Bienvenido/a!`
-  },
-  renovacion: {
-    sub: '⏰ Aviso de renovación — Póliza {{poliza}} vence pronto',
-    body: `Estimado/a {{nombre}},
-
-Le escribo para recordarle que su póliza de {{ramo}} con {{aseguradora}} (N° {{poliza}}) está próxima a vencer.
-
-📅 Fecha de vencimiento: {{vencimiento}}
-💰 Prima actual: {{prima}}
-🏛 Aseguradora: {{aseguradora}}
-
-Para renovar o conocer opciones más convenientes, comuníquese con nosotros a la brevedad. Comparamos todas las aseguradoras para ofrecerle la mejor opción.
-
-¿Prefiere que le contacte por WhatsApp? Escríbame al +507 6292-6010.`
-  },
-  cotizacion: {
-    sub: '📋 Cotización de seguros preparada para {{nombre}} — JAC Seguros',
-    body: `Estimado/a {{nombre}},
-
-Con mucho gusto le comparto la cotización que preparé especialmente para usted.
-
-A continuación encontrará las opciones más competitivas del mercado panameño para el seguro de {{ramo}}:
-
-[ADJUNTE O DETALLE LA COTIZACIÓN AQUÍ]
-
-Recuerde que como su corredora, mi asesoría es completamente gratuita. Usted paga exactamente lo mismo que si contratara directamente con la aseguradora.
-
-Para proceder o consultar dudas, estoy disponible.`
-  },
-  cumpleanos: {
-    sub: '🎂 ¡Feliz cumpleaños, {{nombre}}! — JAC Seguros',
-    body: `Estimado/a {{nombre}},
-
-¡Hoy es un día muy especial! En nombre de todo el equipo de JAC Seguros, le deseamos un muy feliz cumpleaños lleno de salud, felicidad y éxitos.
-
-Es un privilegio contar con su confianza. ¡Que pase un maravilloso día! 🎉🎊`
-  },
-  cobranza: {
-    sub: '💳 Recordatorio de pago — Póliza {{poliza}}',
-    body: `Estimado/a {{nombre}},
-
-Le escribo para recordarle que tiene un pago pendiente correspondiente a su póliza de {{ramo}} con {{aseguradora}} (N° {{poliza}}).
-
-💰 Monto: {{prima}}
-📅 Fecha límite de pago recomendada: [FECHA]
-
-Para evitar la suspensión de su cobertura, le recomendamos realizar el pago a la brevedad.
-
-Si ya realizó el pago, por favor ignore este mensaje o confírmenos para actualizar nuestros registros.`
-  },
-  siniestro: {
-    sub: '🚑 Actualización de su siniestro — JAC Seguros',
-    body: `Estimado/a {{nombre}},
-
-Le escribo para brindarle una actualización sobre el siniestro reportado.
-
-📋 Estado actual: [ESTADO DEL SINIESTRO]
-🔢 Número de siniestro CIA: [NÚMERO]
-🏛 Aseguradora: {{aseguradora}}
-
-Estamos dando seguimiento activo a su caso. Cualquier documento adicional que requieran, le comunicaremos de inmediato.
-
-Estoy a su disposición para cualquier consulta.`
-  },
-  soat: {
-    sub: '🚗 Su SOAT / Seguro de Autos vence pronto — Renueve ya',
-    body: `Estimado/a {{nombre}},
-
-Le recordamos que su Seguro Obligatorio de Daños a Terceros (SOAT) / seguro de vehículo está próximo a vencer.
-
-🚗 Vehículo: [PLACA / MODELO]
-📅 Vencimiento: {{vencimiento}}
-
-Circular sin SOAT vigente es una infracción y puede acarrear multas. 
-
-Renueve hoy mismo. El proceso es rápido y puedo gestionarlo sin que usted tenga que moverse. Escríbame al +507 6292-6010.`
-  },
-  agradecimiento: {
-    sub: '🙏 Gracias por su confianza — JAC Seguros',
-    body: `Estimado/a {{nombre}},
-
-Quiero tomarme un momento para agradecerle por confiar en JAC Seguros para la protección de lo que más valora.
-
-Estamos comprometidos a brindarle el mejor servicio y asesoría en todo momento. Recuerde que ante cualquier eventualidad, estamos aquí para acompañarle.
-
-¡Gracias por elegirnos! Que siga siendo un excelente cliente. 😊`
-  },
-  presentacion: {
-    sub: '🌟 Conozca JAC Seguros — Su corredora de confianza en Panamá',
-    body: `Estimado/a {{nombre}},
-
-Me dirijo a usted para presentarle los servicios de JAC Seguros, su corredora de seguros autorizada en Panamá (Lic. #6175).
-
-🛡️ ¿Qué hacemos?
-Comparamos TODAS las aseguradoras autorizadas para encontrarle la mejor cobertura al mejor precio — sin costo adicional para usted.
-
-📊 Trabajamos con:
-• ASSA • SURA • MAPFRE • IS • PALIG • La Regional • FEDPA • Chubb y más
-
-🎯 Especialidades:
-✅ Autos y SOAT  ✅ Salud y Vida  ✅ Hogar e Incendio  ✅ Empresas  ✅ Fianzas
-
-¿Le gustaría recibir una cotización sin compromiso? Con mucho gusto le atiendo.`
-  }
-};
-
-// ── VARIABLES HANDLER ──
-function cemResolveVars(text) {
-  // Try to fill vars from current entity context
-  let data = {};
-  if (cemEntityType === 'cliente' || cemEntityType === 'prospecto') {
-    const c = cemEntityType === 'cliente' ? GC(cemEntityId) : GPros(cemEntityId);
-    if (c) {
-      data.nombre = c.nombre || '';
-      data.email  = c.email  || '';
-      data.cel    = c.cel    || '';
-    }
-  }
-  if (cemEntityType === 'poliza') {
-    const p = GP(cemEntityId);
-    const cl = p ? GC(p.clienteId) : {};
-    if (p) {
-      data.nombre       = cl.nombre || data.nombre || '';
-      data.poliza       = p.polNum || p.num || '';
-      data.ramo         = p.ramo || '';
-      data.aseguradora  = p.aseg || p.aseguradora || '';
-      data.vencimiento  = p.fechaFin ? fmt(p.fechaFin) : '';
-      data.prima        = p.prima ? fmtM(p.prima) : '';
-    }
-  }
-  // Also try from To field name
-  const toEl = document.getElementById('cem-to');
-  if (toEl && toEl.dataset.clientNombre) data.nombre = toEl.dataset.clientNombre;
-  // Replace all vars
-  return text
-    .replace(/\{\{nombre\}\}/g, data.nombre || '[NOMBRE]')
-    .replace(/\{\{poliza\}\}/g, data.poliza || '[N° PÓLIZA]')
-    .replace(/\{\{ramo\}\}/g, data.ramo || '[RAMO]')
-    .replace(/\{\{aseguradora?\}\}/g, data.aseguradora || '[ASEGURADORA]')
-    .replace(/\{\{aseg\}\}/g, data.aseguradora || '[ASEGURADORA]')
-    .replace(/\{\{vence\}\}/g, data.vencimiento || '[VENCIMIENTO]')
-    .replace(/\{\{vencimiento\}\}/g, data.vencimiento || '[VENCIMIENTO]')
-    .replace(/\{\{prima\}\}/g, data.prima || '[PRIMA]');
-}
-
-// ── APPLY TEMPLATE ──
-function cemApplyTemplate() {
-  const sel = document.getElementById('cem-template');
-  const key = sel?.value;
-  if (!key || !EMAIL_TEMPLATES[key]) return;
-  const tpl = EMAIL_TEMPLATES[key];
-  const subEl = document.getElementById('cem-sub');
-  const bodyEl = document.getElementById('cem-body');
-  if (subEl) subEl.value = cemResolveVars(tpl.sub);
-  if (bodyEl) {
-    bodyEl.value = cemResolveVars(tpl.body) + JAC_FIRMA;
-    cemUpdateCount();
-  }
-  toast('📋 Plantilla aplicada — revisa y personaliza', 'ok', 2500);
-}
-
-// ── INSERT SIGNATURE ──
-function cemInsertSignature() {
-  const el = document.getElementById('cem-body');
-  if (!el) return;
-  if (el.value.includes('JAC Seguros | jacsegurospa.com')) {
-    toast('La firma ya está incluida', 'warn', 2000); return;
-  }
-  el.value += JAC_FIRMA;
-  cemUpdateCount();
-  toast('✍️ Firma insertada', 'ok', 1500);
-}
-
-// ── FORMAT TEXT ──
-function cemFmt(type) {
-  const el = document.getElementById('cem-body');
-  if (!el) return;
-  const start = el.selectionStart, end = el.selectionEnd;
-  const sel = el.value.substring(start, end);
-  if (!sel) { toast('Selecciona texto primero', 'warn', 1500); return; }
-  const markers = { bold: '**', italic: '_' };
-  const m = markers[type] || '';
-  el.value = el.value.substring(0, start) + m + sel + m + el.value.substring(end);
-  el.setSelectionRange(start, end + m.length * 2);
-  cemUpdateCount();
-}
-
-// ── INSERT VARIABLE ──
-function cemInsertVar(v) {
-  const el = document.getElementById('cem-body');
-  if (!el) return;
-  const pos = el.selectionStart;
-  el.value = el.value.substring(0, pos) + v + el.value.substring(pos);
-  el.setSelectionRange(pos + v.length, pos + v.length);
-  el.focus();
-}
-
-// ── CHAR COUNT ──
-function cemUpdateCount() {
-  const el = document.getElementById('cem-body');
-  const cnt = document.getElementById('cem-char-count');
-  if (el && cnt) {
-    const chars = el.value.length;
-    const words = el.value.trim() ? el.value.trim().split(/\s+/).length : 0;
-    cnt.textContent = `${words} palabras · ${chars} caracteres`;
-  }
-}
-
-// ── TABS ──
-function cemSwitchTab(tab) {
-  ['compose','preview','hist'].forEach(t => {
-    const panel = document.getElementById(`cem-${t}-tab`);
-    const btn   = document.getElementById(`cemtab-${t}`);
-    if (panel) panel.style.display = t === tab ? (t==='compose'?'block':'block') : 'none';
-    if (btn) {
-      btn.style.color = t === tab ? '#1D4ED8' : 'var(--mu)';
-      btn.style.borderBottomColor = t === tab ? '#1D4ED8' : 'transparent';
-      btn.style.background = t === tab ? 'var(--wh)' : 'transparent';
-      btn.style.fontWeight = t === tab ? '700' : '600';
-    }
-  });
-  if (tab === 'preview') cemBuildPreview();
-  if (tab === 'hist')    cemLoadHistTab();
-}
-
-// ── BUILD PREVIEW ──
-function cemBuildPreview() {
-  const from = document.getElementById('cem-from')?.value || '';
-  const to   = document.getElementById('cem-to')?.value   || '';
-  const sub  = document.getElementById('cem-sub')?.value  || 'Sin asunto';
-  const body = document.getElementById('cem-body')?.value || '';
-  document.getElementById('prev-from').textContent    = from;
-  document.getElementById('prev-to').textContent      = to;
-  document.getElementById('prev-subject').textContent = sub;
-  // Convert markdown-ish bold (**text**) and line breaks
-  const fmtBody = esc(body)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/_([^_]+)_/g, '<em>$1</em>')
-    .replace(/\n/g, '<br>');
-  document.getElementById('prev-body').innerHTML = fmtBody;
-}
-
-// ── EMAIL HISTORY TAB ──
-function cemLoadHistTab() {
-  const el = document.getElementById('cem-hist-content');
-  if (!el) return;
-  // Gather emails from current entity
-  let emails = [];
-  if (cemEntityId && cemEntityType === 'cliente') {
-    const c = GC(cemEntityId);
-    emails = (c._historial || []).filter(h => h.tipo === 'email' || h.msgType === 'Email');
-  } else if (cemEntityId && cemEntityType === 'prospecto') {
-    const p = GPros(cemEntityId);
-    emails = (p._historial || []).filter(h => h.tipo === 'email' || h.msgType === 'Email');
-  }
-  // Also search across all entities by cem-to email
-  const toEmail = document.getElementById('cem-to')?.value?.toLowerCase() || '';
-  if (!emails.length && toEmail) {
-    (S.clientes||[]).forEach(c => {
-      if ((c.email||'').toLowerCase() === toEmail)
-        emails = [...emails, ...(c._historial||[]).filter(h=>h.tipo==='email'||h.msgType==='Email')];
-    });
-  }
-  if (!emails.length) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">📭 Sin historial de correos para este contacto</div>'; return; }
-  emails.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
-  el.innerHTML = emails.slice(0,20).map(e => {
-    const track = e.tracking || {};
-    const opened = track.openedAt ? `<span style="color:#15803D;font-size:10px;font-weight:600">✅ Abierto ${fmt(track.openedAt.slice(0,10))}</span>` : '<span style="color:var(--mu);font-size:10px">⬜ Sin abrir</span>';
-    const clicked = track.clickedAt ? `<span style="color:#1D4ED8;font-size:10px;font-weight:600">🔗 Clic registrado</span>` : '';
-    return `<div style="padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:3px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(e.subject||e.preview||e.accion||'—')}</span>
-        <span style="font-size:10px;color:var(--mu);white-space:nowrap;margin-left:8px">${fmt(e.fecha||'')}</span>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">${opened}${clicked?'&nbsp;·&nbsp;'+clicked:''}</div>
-      ${e.resultado?`<div style="font-size:10px;color:var(--mu)">Para: ${esc(e.resultado)}</div>`:''}
-    </div>`;
-  }).join('');
-}
-
-// ── DRAFT SAVE / LOAD ──
-function cemSaveDraft() {
-  const draft = {
-    from: document.getElementById('cem-from')?.value,
-    to:   document.getElementById('cem-to')?.value,
-    cc:   document.getElementById('cem-cc')?.value,
-    sub:  document.getElementById('cem-sub')?.value,
-    body: document.getElementById('cem-body')?.value,
-    savedAt: new Date().toISOString(),
-    entityType: cemEntityType,
-    entityId:   cemEntityId
-  };
-  localStorage.setItem('jac_email_draft', JSON.stringify(draft));
-  toast('💾 Borrador guardado', 'ok', 2000);
-}
-function cemLoadDraft() {
-  const raw = localStorage.getItem('jac_email_draft');
-  if (!raw) { toast('No hay borrador guardado', 'warn', 2000); return; }
-  const d = JSON.parse(raw);
-  SVal('cem-from', d.from); SVal('cem-to', d.to); SVal('cem-cc', d.cc);
-  SVal('cem-sub', d.sub);   SVal('cem-body', d.body);
-  cemUpdateCount();
-  toast(`📂 Borrador cargado (${fmt(d.savedAt?.slice(0,10)||'')})`, 'ok', 2500);
-}
-
-// ── IMPROVED openComposeEmail ──
-function openComposeEmail(toEmail, toName, subject, body, entityType, entityId) {
-  cemEntityType = entityType || null;
-  cemEntityId   = entityId   || null;
-  // Reset tabs
-  cemSwitchTab('compose');
-  document.getElementById('cem-template').value = '';
-  SVal('cem-to',   toEmail  || '');
-  SVal('cem-cc',   '');
-  SVal('cem-sub',  subject  || '');
-  SVal('cem-body', body     || '');
-  // Set name hint on to field
-  const toEl = document.getElementById('cem-to');
-  if (toEl && toName) toEl.dataset.clientNombre = toName;
-  // Auto-insert signature if body is empty or doesn't have it
-  const bodyEl = document.getElementById('cem-body');
-  if (bodyEl && !bodyEl.value.includes('JAC Seguros | jacsegurospa.com')) {
-    bodyEl.value = (bodyEl.value || '') + JAC_FIRMA;
-  }
-  // Status line
-  const sl = document.getElementById('cem-status-line');
-  if (sl && toName) sl.textContent = `Para: ${toName}${entityType?' · '+entityType:''}`;
-  cemUpdateCount();
-  OM('mcem');
-}
-
-// ── IMPROVED sendEmailViaEJS ──
-async function sendEmailViaEJS() {
-  const to   = V('cem-to');
-  const sub  = V('cem-sub');
-  const body = V('cem-body');
-  const from = V('cem-from') || 'jcastro@jacsegurospa.com';
-  const cc   = V('cem-cc')   || '';
-  if (!to || !sub || !body) { toast('Completa Para, Asunto y Mensaje', 'err'); return; }
-  const cfg = JSON.parse(localStorage.getItem('jac_ejs_cfg') || '{}');
-  if (!cfg['ejs-pub'] || !cfg['ejs-svc']) { toast('Configura EmailJS en ⚙️ Configuración → Integración', 'err'); return; }
-  const tpl = cfg['ejs-tpl-general'] || cfg['ejs-tpl-ren'] || cfg['ejs-tpl-bday'];
-  if (!tpl) { toast('Falta template ID en Configuración → EmailJS', 'err'); return; }
-  const btn = document.getElementById('cem-send-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
-  try {
-    const trackEnabled = document.getElementById('cem-track')?.checked;
-    const trackId = trackEnabled ? (window._cemTrackId || uid()) : null;
-    window._cemTrackId = trackId;
-    const params = { to_email: to, to_name: V('cem-to'), from_email: from,
-      reply_to: from, cc_email: cc, subject: sub, message: body,
-      ...(trackId ? { track_open: `https://crm.jacsegurospa.com?jem_open=${trackId}`,
-                      track_click: `https://crm.jacsegurospa.com?jem_click=${trackId}` } : {}) };
-    const ok = await sendEmailJS(tpl, params);
-    if (ok) {
-      toast('✅ Email enviado correctamente', 'ok');
-      logEmailSent();
-      CM('mcem');
-    } else {
-      toast('❌ Error al enviar. Verifica la config de EmailJS', 'err', 5000);
-    }
-  } catch(e) {
-    toast('❌ Error: ' + (e.message || e), 'err', 5000);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '📧 Enviar →'; }
-  }
-}
-
-// ── IMPROVED sendEmailViaMailto ──
-function sendEmailViaMailto() {
-  const to   = V('cem-to')  || '';
-  const cc   = V('cem-cc')  || '';
-  const sub  = V('cem-sub') || '';
-  const body = V('cem-body')|| '';
-  if (!to) { toast('Ingresa el email del destinatario', 'err'); return; }
-  let url = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
-  if (cc) url += `&cc=${encodeURIComponent(cc)}`;
-  window.open(url, '_blank');
-  logEmailSent();
-  toast('📨 Abriendo cliente de correo...', 'ok', 2000);
-}
-// END JAC EMAIL MODULE v2
-
-
-// ══════════════════════════════════════════════════════════════
-// MEJORAS ADICIONALES JAC CRM v5
-// ══════════════════════════════════════════════════════════════
-
-
-function ONot(id){openAddNota(id||null);}
-
-function cotpCalc(){try{cotpCalcAll();}catch(e){console.warn('cotpCalc:',e);}}
-
-// ── UniVivir stubs ──
-function uvSetTab(a,b,c){console.warn('UniVivir: uvSetTab not fully implemented');}
-function uvEditPV(a,b,c){console.warn('UniVivir: uvEditPV not fully implemented');}
-function uvSyncPV(a,b,c){console.warn('UniVivir: uvSyncPV not fully implemented');}
-function uvDoImport(a,b,c){console.warn('UniVivir: uvDoImport not fully implemented');}
-function uvEditLiq(a,b,c){console.warn('UniVivir: uvEditLiq not fully implemented');}
-function uvSavePV(a,b,c){console.warn('UniVivir: uvSavePV not fully implemented');}
-function uvImport(a,b,c){console.warn('UniVivir: uvImport not fully implemented');}
-function uvSaveLiq(a,b,c){console.warn('UniVivir: uvSaveLiq not fully implemented');}
-function uvSyncNow(a,b,c){console.warn('UniVivir: uvSyncNow not fully implemented');}
-// ── 1. Ctrl+N = Nueva entrada rápida según módulo activo ──
-document.addEventListener('keydown', function(eN){
-  if((eN.ctrlKey||eN.metaKey)&&eN.key==='n'&&!eN.shiftKey){
-    const active=document.querySelector('.pg.on');
-    if(!active)return;
-    eN.preventDefault();
-    const id=active.id;
-    if(id==='pg-cli')OC();
-    else if(id==='pg-pol')OP();
-    else if(id==='pg-pros')OPros();
-    else if(id==='pg-tar')OT_open();
-    else if(id==='pg-sin')OS();
-    else if(id==='pg-pag')OPag();
-    else if(id==='pg-not')ONot();
-    else if(id==='pg-com')OCom();
-    else toast('Ctrl+N: nueva entrada rápida','ok',1500);
-  }
-});
-
-// ── 2. Quick-copy para números de póliza y cédula ──
-function copyToClipboard(text,label){
-  navigator.clipboard.writeText(text).then(()=>toast('📋 '+label+' copiado','ok',1500)).catch(()=>{
-    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
-    toast('📋 '+label+' copiado','ok',1500);
-  });
-}
-
-// ── 3. Scroll-to-top button ──
-(function(){
-  const btn=document.createElement('button');
-  btn.id='scroll-top-btn';
-  btn.innerHTML='▲';
-  btn.title='Volver arriba';
-  btn.style.cssText='position:fixed;bottom:72px;right:16px;width:36px;height:36px;border-radius:50%;background:var(--bl);color:#fff;border:none;cursor:pointer;font-size:14px;display:none;align-items:center;justify-content:center;z-index:90;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:.2s;opacity:.8';
-  btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
-  document.body.appendChild(btn);
-  window.addEventListener('scroll',()=>{
-    btn.style.display=window.scrollY>300?'flex':'none';
-  },{passive:true});
-})();
-
-// ── 4. Auto-save indicator ──
-const _origSaveX=save;
-if(typeof save==='function'){
-  window.save=function(){
-    _origSaveX();
-    const ind=document.getElementById('save-indicator');
-    if(ind){ind.textContent='💾 Guardado';ind.style.opacity='1';setTimeout(()=>ind.style.opacity='0',2000);}
-  };
-}
-
-// ── 5. Mejoras WAM: wamUpdatePreview mejorado ──
-const _origWAMPreview=wamUpdatePreview;
-// wamUpdatePreview: see original above
-
-
-// ── 6. Atajos teclado adicionales ──
-document.addEventListener('keydown',function(eX){
-  if((eX.ctrlKey||eX.metaKey)&&eX.shiftKey&&eX.key==='E'){
-    eX.preventDefault();
-    openComposeEmail('','','','','','');
-    toast('📧 Nuevo email','ok',1500);
-  }
-  if((eX.ctrlKey||eX.metaKey)&&eX.shiftKey&&eX.key==='W'){
-    eX.preventDefault();
-    SH('wam');
-    toast('📣 WA Masivo','ok',1500);
-  }
-});
-
-// ── 7. wamUpdatePreview on tipo change + auto-preview on load ──
-setTimeout(()=>{
-  try{wamUpdatePreview();}catch(e){}
-  // Add char count div to WAM preview if not exists
-  const wp=document.getElementById('wam-preview');
-  if(wp&&!document.getElementById('wam-preview-len')){
-    const d=document.createElement('div');
-    d.id='wam-preview-len';
-    d.style.cssText='font-size:10px;color:var(--mu);text-align:right;margin:4px 10px 0';
-    wp.parentElement.appendChild(d);
-  }
-},500);
-
-// ── 8. Función de estadísticas rápidas para el header ──
-function quickStats(){
-  const p30=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';}).length;
-  const tPend=S.tareas.filter(t=>t.etapaTarea!=='Hecho'&&t._autoTipo!=='comision').length;
-  const comPend=S.comisiones.filter(c=>c.estado==='pendiente').reduce((s,c)=>s+(c.monto||0),0);
-  const bdays=getTodayBirthdays().length;
-  let msg=`📊 JAC Seguros — Resumen rápido:
-• ${p30} póliza${p30!==1?'s':''} por vencer en 30d
-• ${tPend} tarea${tPend!==1?'s':''} pendiente${tPend!==1?'s':''}
-• ${fmtM(comPend)} por cobrar`;
-  if(bdays)msg+=`
-• 🎂 ${bdays} cumpleaño${bdays!==1?'s':''} HOY`;
-  toast(msg,'ok',6000);
-}
-// END MEJORAS ADICIONALES v5
-
-
-// ══ CSV IMPORT POLIZAS ══
-let _csvParsed = [];
-
-function csvParseDate(str, fmt) {
-  if (!str) return '';
-  str = str.trim();
-  if (!str) return '';
-  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str; // already ISO
-  const parts = str.split(/[\/\-\.]/);
-  if (parts.length < 3) return str;
-  if (fmt === 'dmy') return `${parts[2].padStart(4,'20')}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
-  if (fmt === 'mdy') return `${parts[2].padStart(4,'20')}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
-  return str;
-}
-
-function csvParseContent(text) {
-  const sep = text.includes(';') ? ';' : ',';
-  const rows = text.trim().split('\n').map(r => r.split(sep).map(c => c.trim().replace(/^"|"$/g,'')));
-  if (rows.length < 2) return [];
-  const headers = rows[0].map(h => h.toLowerCase().replace(/\s+/g,'_'));
-  return rows.slice(1).filter(r => r.some(c => c)).map(r => {
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = r[i] || '');
-    return obj;
-  });
-}
-
-function csvPreview(ev) {
-  const file = ev.target.files[0]; if (!file) return;
-  const btn = document.getElementById('csv-import-btn');
-  const reader = new FileReader();
-  reader.onload = e => {
-    const text = e.target.result;
-    const rows = csvParseContent(text);
-    _csvParsed = rows;
-    const area = document.getElementById('csv-preview-area');
-    const cnt  = document.getElementById('csv-row-count');
-    const head = document.getElementById('csv-preview-head');
-    const body = document.getElementById('csv-preview-body');
-    const stats= document.getElementById('csv-import-stats');
-    if (!rows.length) { toast('CSV vacío o formato incorrecto','err'); return; }
-    if (area) area.style.display = '';
-    if (cnt)  cnt.textContent = `(${rows.length} filas)`;
-    const headers = Object.keys(rows[0]);
-    if (head) head.innerHTML = '<tr>' + headers.map(h => `<th style="padding:5px 8px;background:#F8FAFC;border:1px solid #e5e7eb;font-size:10px;white-space:nowrap">${h}</th>`).join('') + '</tr>';
-    if (body) body.innerHTML = rows.slice(0,5).map(r =>
-      '<tr>' + headers.map(h => `<td style="padding:4px 8px;border:1px solid #e5e7eb;font-size:10px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(r[h]||'')}</td>`).join('') + '</tr>'
-    ).join('');
-    // Detect key columns
-    const hasCliente = headers.some(h => h.includes('nombre') || h.includes('cliente'));
-    const hasAseg    = headers.some(h => h.includes('aseg'));
-    const hasFecha   = headers.some(h => h.includes('fecha'));
-    if (stats) stats.innerHTML = [
-      hasCliente ? '✅ Columna cliente detectada' : '⚠️ No se detectó columna de cliente',
-      hasAseg    ? '✅ Columna aseguradora detectada' : '⚠️ Sin aseguradora',
-      hasFecha   ? '✅ Columna fecha detectada' : '⚠️ Sin fecha',
-      `<br>Se importarán ${rows.length} pólizas`,
-    ].join('<br>');
-    if (btn) btn.disabled = false;
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-function csvFindCol(row, ...candidates) {
-  for (const c of candidates) {
-    const key = Object.keys(row).find(k => k.includes(c));
-    if (key && row[key]) return row[key];
-  }
-  return '';
-}
-
-function csvImport() {
-  if (!_csvParsed.length) { toast('Primero carga un archivo CSV','warn'); return; }
-  const fechaFmt = document.getElementById('csv-map-fecha')?.value || 'iso';
-  const ramosCom = {'AUTOMÓVIL':15,'AUTOS':15,'AUTO':15,'SOAT':8,'VIDA':20,'SALUD':15,'MÉDICOS':15,'GASTOS MÉDICOS':15,'HOGAR':12,'INCENDIO':12,'ACCIDENTES':12,'FIANZAS':8,'RC':12};
-  let imported = 0, skipped = 0, errors = [];
-  const comPct = p => {
-    const r = (p.ramo||'').toUpperCase();
-    for (const [k,v] of Object.entries(ramosCom)) if (r.includes(k)) return v;
-    return 12;
-  };
-  _csvParsed.forEach((row, idx) => {
-    try {
-      const nombre = csvFindCol(row,'nombre','cliente','asegurado','tomador');
-      const aseg   = csvFindCol(row,'aseg','aseguradora','compania','compañia');
-      const ramo   = csvFindCol(row,'ramo','tipo','producto','cobertura');
-      const num    = csvFindCol(row,'poliza','numero','num','nro','póliza');
-      const ini    = csvParseDate(csvFindCol(row,'inicio','from','emision','emisión'), fechaFmt);
-      const fin    = csvParseDate(csvFindCol(row,'fin','vence','expira','hasta','vencimiento'), fechaFmt);
-      const prima  = parseFloat((csvFindCol(row,'prima','monto','importe','tarifa')||'0').replace(/[,$]/g,'')) || 0;
-      const cedula = csvFindCol(row,'cedula','cédula','doc','identificacion');
-      const cel    = csvFindCol(row,'celular','cel','telefono','teléfono','tel');
-      const email  = csvFindCol(row,'email','correo','mail');
-      if (!nombre) { skipped++; return; }
-      // Find or create client
-      let cli = S.clientes.find(c => c.nombre?.toLowerCase() === nombre.toLowerCase() || (cedula && c.cedula === cedula));
-      if (!cli) {
-        cli = { id: uid(), nombre, cedula, cel, email, tipo: 'Personal', ciudad: '', _importado: true };
-        S.clientes.push(cli);
-      }
-      // Create policy
-      const pct = comPct({ramo});
-      const pol = {
-        id: uid(), clienteId: cli.id, nombreCliente: nombre,
-        aseg: aseg || 'Sin aseguradora', ramo: ramo || 'Otro',
-        polNum: num, num, fechaInicio: ini, fechaFin: fin,
-        prima, comPct: pct, comision: Math.round(prima * pct / 100 * 100) / 100,
-        participacion: 100, estado: 'Vigente', _importado: true,
-        _importDate: new Date().toISOString().slice(0,10)
-      };
-      S.polizas.push(pol);
-      imported++;
-    } catch(e) { errors.push(`Fila ${idx+2}: ${e.message}`); skipped++; }
-  });
-  save();
-  try { RP(); RD(); } catch(e) {}
-  CM('m-import-csv');
-  _csvParsed = [];
-  const msg = `✅ ${imported} pólizas importadas${skipped ? ' · ⚠️ '+skipped+' saltadas' : ''}${errors.length ? '\nErrores: '+errors.slice(0,3).join(', ') : ''}`;
-  toast(msg, imported ? 'ok' : 'warn', 6000);
-}
-// END CSV IMPORT
 
 </script>
 </div><div id="pg-is" class="pg">
