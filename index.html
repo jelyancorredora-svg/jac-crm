@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v93 -->
+<!DOCTYPE html><!-- v94 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -4033,6 +4033,7 @@ function SP(){
  if(!num||!aseg){toast('Nro. Póliza y Aseguradora son obligatorios','err');return;}
  const phc=document.getElementById('p-hc');const hcc=phc?phc.checked:false;const cId=V('p-cl');
  const d={clienteId:cId,nombreCliente:GC(cId).nombre||'',num,numAnexo:V('p-na'),tipo:V('p-tp'),aseg,ramo:normRamo(V('p-ra')),subramo:V('p-sr').trim(),nueva:V('p-nr'),estado:V('p-es'),etapa:V('p-et'),riesgo:V('p-ri').trim(),valorRiesgo:GF('p-vr'),cobertura:V('p-cob'),tipoPol:V('p-tpo'),prima:GF('p-pr'),itbmsPct:GF('p-it'),itbms:GF('p-ib'),gastosExp:GF('p-ge'),valorFinanciacion:GF('p-vf'),total:GF('p-tot'),cuotaMensual:GF('p-cmes'),cuotaTrimestral:GF('p-ctri'),cuotaSemestral:GF('p-csem'),cuotaAnual:GF('p-canu'),comPct:GF('p-cb'),numPagos:parseInt(V('p-npag'))||0,letraPrima:(parseInt(V('p-npag'))||0)>0?(GF('p-tot')||0)/(parseInt(V('p-npag'))):0,participacion:GF('p-pa')||100,comision:GF('p-co'),comisionPct:GF('p-cb'),nombreAsegurado:V('p-nas'),docAsegurado:V('p-das'),tomador:V('p-nto'),docTomador:V('p-dto'),beneficiario:V('p-ben'),cedBeneficiario:V('p-cben'),fechaExpedicion:V('p-fex'),fechaRecepcion:V('p-fre'),fechaInicio:V('p-fi'),fechaFin:V('p-ff'),fechaCancelada:V('p-fca'),formaPago:V('p-fp'),periodo:V('p-pe'),medio:V('p-me'),banco:V('p-ban'),moneda:V('p-mon')||'USD',vendedor:V('p-ven').trim(),obs:V('p-ob').trim(),obsInt:V('p-oi').trim(),coCor:hcc?V('p-cc'):'',coCorPart:hcc?GF('p-cp'):0,coCorCom:hcc?GF('p-cc2'):0};
+ d.etiquetas=getSelTags('p-etq-wrap');{var _bd=getBens();if(_bd===null)return;d.beneficiarios=_bd;}
  if(EID){const i=S.polizas.findIndex(p=>p.id===EID);if(i>=0){if(!S.polizas[i].archivos)S.polizas[i].archivos=[];S.polizas[i].archivos.push(..._pf);S.polizas[i]={...S.polizas[i],...d};}toast('✓ Póliza actualizada');}
  else{const _newPolId='P'+uid();const _newPol={id:_newPolId,...d,asegurados:[],archivos:[..._pf]};S.polizas.push(_newPol);if((_newPol.comision||0)>0){if(!S.comisiones)S.comisiones=[];const _mes=(_newPol.fechaInicio||TODAY.toISOString().split('T')[0]).substring(0,7);S.comisiones.push({id:'COM'+uid(),aseg:_newPol.aseg,mes:_mes,monto:_newPol.comision,estado:'pendiente',polizaId:_newPolId,polizaNum:_newPol.num,ramo:_newPol.ramo,clienteId:_newPol.clienteId,auto:true});if(typeof RCom==='function')RCom();}toast('✓ Póliza guardada · Comisión registrada automáticamente');}
  // Auto-promote prospecto to cliente when policy is created
@@ -4061,7 +4062,7 @@ function SP(){
  }
  }
  }
- _pf=[];d.etiquetas=getSelTags('p-etq-wrap');{var _bd=getBens();if(_bd===null)return;d.beneficiarios=_bd;}save();syncToCloud();CM('mp');RP();
+ _pf=[];save();syncToCloud();CM('mp');RP();
 }
 function DPol(id){const p=GP(id);confirm2(`¿Eliminar "${p.num}"?`,()=>{S.polizas=S.polizas.filter(p=>p.id!==id);save();RP();toast('Eliminada');});}
 
