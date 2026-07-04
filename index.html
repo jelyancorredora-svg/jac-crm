@@ -190,6 +190,26 @@ body.dark .ch h3{color:var(--dark-tx);}
 body.dark a{color:#60A5FA;}
 body.dark .mu{color:var(--dark-mu);}
 main#mainc{overflow-x:hidden}
+
+/* ══ DARK MODE TAREAS + PIPELINE v3 ══ */
+body.dark .tboard .tcol{background:var(--dark-nav) !important;border:1px solid var(--dark-bd)}
+body.dark .tch{background:var(--dark-card) !important;color:var(--dark-tx) !important}
+body.dark .tcard{background:var(--dark-card) !important;border-color:var(--dark-bd) !important;color:var(--dark-tx) !important}
+body.dark .tbody2{background:var(--dark-nav) !important}
+body.dark .vtog{background:#1E293B !important}
+body.dark .vtog button{color:var(--dark-mu)}
+body.dark .vtog button.on{background:var(--dark-card) !important;color:#93C5FD !important}
+body.dark .pcol{background:var(--dark-nav) !important;border-color:var(--dark-bd) !important}
+body.dark .pcard{background:var(--dark-card) !important;border-color:var(--dark-bd) !important;color:var(--dark-tx) !important}
+body.dark .pbody{background:var(--dark-nav) !important}
+body.dark .pch{color:inherit !important}
+body.dark .wa-hist{background:#0D2818 !important;border-left-color:#25D366 !important}
+body.dark .renew-row{border-color:var(--dark-bd) !important}
+body.dark .renew-row:hover{background:var(--dark-card)}
+body.dark .file-area{border-color:var(--dark-bd);color:var(--dark-mu)}
+body.dark .fitem{background:#273549;border-color:var(--dark-bd)}
+body.dark .ph{background:var(--dark-card) !important;border-color:var(--dark-bd) !important}
+/* END DARK MODE v3 */
 </style>
  <!-- Supabase JS SDK -->
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2500,11 +2520,23 @@ function SVal(id,v){const el=document.getElementById(id);if(el)el.value=(v==null
 function GF(id){return parseFloat(V(id))||0;}
 function b(cls,txt){return`<span class="b ${cls}">${esc(String(txt||''))}</span>`;}
 function dot(col){return`<span class="dot8" style="background:${col}"></span>`;}
-function toast(msg,t='ok'){
- const e=document.getElementById('tst');if(!e)return;
- e.style.background=t==='ok'?'#15803D':t==='warn'?'#B45309':'#B91C1C';
- e.style.display='block';e.textContent=msg;
- clearTimeout(window._tt);window._tt=setTimeout(()=>e.style.display='none',4000);
+function toast(msg,type='ok',dur=3800){
+  // JAC CRM Toasts v2
+  const c=document.getElementById('toast-container');
+  if(c){
+    const t=document.createElement('div');
+    t.className='toast'+(type==='ok'?' ok':type==='err'?' err':type==='warn'?' warn':'');
+    const icon=type==='ok'?'✅':type==='err'?'❌':type==='warn'?'⚠️':'ℹ️';
+    t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.style.animation='toastOut .3s ease forwards';setTimeout(()=>t.remove(),300);},dur);
+    return;
+  }
+  // Fallback to old #tst
+  const e=document.getElementById('tst');if(!e)return;
+  e.style.background=type==='ok'?'#15803D':type==='warn'?'#B45309':'#B91C1C';
+  e.style.display='block';e.textContent=msg;
+  clearTimeout(window._tt);window._tt=setTimeout(()=>e.style.display='none',dur);
 }
 function confirm2(msg,cb){document.getElementById('cmsg').textContent=msg;CFN=cb;document.getElementById('cof').classList.add('on');}
 function cc(){document.getElementById('cof').classList.remove('on');CFN=null;}
@@ -3090,7 +3122,17 @@ function RAgenda(){
  d.innerHTML=`<div class="card">${h}</div>`;
 }
 function RD(){
- const ddt=document.getElementById('ddt');if(ddt)ddt.textContent='Hoy: '+fmt(TODAY.toISOString().split('T')[0]);
+ 
+  // ── Dashboard greeting ──
+  (function(){
+    const hr=new Date().getHours();
+    const gr=hr<12?'☀️ Buenos días, Jely':hr<18?'🌤 Buenas tardes, Jely':'🌙 Buenas noches, Jely';
+    const ddt=document.getElementById('ddt');
+    if(ddt) ddt.innerHTML=gr+' &nbsp;·&nbsp; <span style="color:var(--mu);font-size:11px">'+fmt(TODAY.toISOString().split('T')[0])+'</span>';
+  })();
+  const ddt99=document.getElementById("ddt_skip"); // skip
+  const ddt=document.getElementById("ddt_skip2"); //
+  'Hoy: '+fmt(TODAY.toISOString().split('T')[0]);
  const vp=S.polizas.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada').length;
  const vv=S.polizas.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada'&&(p.estado||'').toLowerCase()!=='vigente').length;
  const p30=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';}).length;
@@ -4328,6 +4370,40 @@ function RCom(){
  hd+=`<tr style="background:#FAFBFD;border-top:2px solid var(--bd)"><td colspan="6" style="padding:9px 10px;font-weight:700;color:var(--mu);font-size:11px">TOTAL MI COMISIÓN</td><td style="padding:9px 10px;font-weight:800;font-size:14px;color:#15803D">${fmtM(tK)}</td><td colspan="2"></td></tr>`;
  if(!S.polizas.length)hd='<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--mu)">Sin pólizas</td></tr>';
  const tcd=document.getElementById('tcomd');if(tcd)tcd.innerHTML=hd;
+  // ── BAR CHARTS: Por Ramo y Por Aseguradora ──
+  const byRamo={};
+  S.polizas.forEach(p=>{const r=p.ramo||'Otro';byRamo[r]=(byRamo[r]||0)+(+p.comision||0);});
+  const byAseg={};
+  S.polizas.forEach(p=>{const a=(p.aseg||p.aseguradora||'—').split(',')[0].trim();byAseg[a]=(byAseg[a]||0)+(+p.comision||0);});
+  const mkBars=(obj,el,col)=>{
+    if(!el)return;
+    const entries=Object.entries(obj).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    if(!entries.length){el.innerHTML='<div style="padding:12px;text-align:center;color:var(--mu);font-size:11px">Sin datos</div>';return;}
+    const max=Math.max(...entries.map(([,v])=>v));
+    el.innerHTML=entries.map(([k,v])=>{
+      const pct=max>0?Math.round(v/max*100):0;
+      return`<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="font-size:11px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${esc(k)}</span>
+          <span style="font-size:11px;font-weight:700;color:${col}">${fmtM(v)}</span>
+        </div>
+        <div style="height:6px;background:#EEF2F8;border-radius:3px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${col};border-radius:3px;transition:width .4s ease"></div>
+        </div>
+      </div>`;
+    }).join('');
+  };
+  mkBars(byRamo, document.getElementById('com-chart-ramo'), '#1D4ED8');
+  mkBars(byAseg, document.getElementById('com-chart-aseg'), '#C8102E');
+  // Update summary cards
+  const mes=new Date().toISOString().slice(0,7);
+  const mesCom=S.comisiones.filter(c=>c.mes&&c.mes.startsWith(mes)).reduce((s,c)=>s+(c.monto||0),0)
+              +S.polizas.filter(p=>p.fechaInicio&&p.fechaInicio.startsWith(mes)).reduce((s,p)=>s+(+p.comision||0),0);
+  const ctP=document.getElementById('com-total-pol');if(ctP)ctP.textContent=fmtM(tK);
+  const ctPe=document.getElementById('com-total-pend');if(ctPe)ctPe.textContent=fmtM(tP);
+  const ctC=document.getElementById('com-total-cob');if(ctC)ctC.textContent=fmtM(tC);
+  const cma=document.getElementById('com-mes-act');if(cma)cma.textContent=fmtM(mesCom);
+
  // Populate crt-as select (rates config aseg picker)
  const crtAs=document.getElementById('crt-as');
  if(crtAs){crtAs.innerHTML='<option value="">— Seleccionar —</option>';['ASSA','IS','SURA','MAPFRE','PALIG','UNIVIVIR','FEDPA','Ancón','WW Medical','Generali','Chubb','La Regional','VUMI-LA REGIONAL DE SEGUROS','General',...new Set(S.aseguradoras.map(a=>a.nombre.split(',')[0].trim()))].filter((x,i,arr)=>arr.indexOf(x)===i).forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;crtAs.add(o);});}
@@ -9751,22 +9827,29 @@ function renderCfgTags(){
  }).join('');
 }
 
-// ══ TOAST NOTIFICATIONS ══
-function toast(msg, type='info', dur=3500){
-  const c=document.getElementById('toast-container');
-  if(!c)return;
-  const t=document.createElement('div');
-  t.className='toast'+(type==='ok'?' ok':type==='err'?' err':type==='warn'?' warn':'');
-  const icon=type==='ok'?'✅':type==='err'?'❌':type==='warn'?'⚠️':'ℹ️';
-  t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
-  c.appendChild(t);
-  setTimeout(()=>{
-    t.style.animation='toastOut .3s ease forwards';
-    setTimeout(()=>t.remove(),300);
-  },dur);
-}
-// Override alert-based notifications with toast where possible
-const _origSave=typeof save==='function'?save:null;
+
+
+// ── KEYBOARD SHORTCUTS ──
+document.addEventListener('keydown', function(e) {
+  // Ctrl+K or Cmd+K = global search (focus first search input)
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    const s = document.querySelector('.pg.on .si') || document.querySelector('.si');
+    if (s) { s.focus(); s.select(); toast('🔍 Búsqueda activa', 'ok', 1500); }
+  }
+  // Ctrl+D = toggle dark mode
+  if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+    e.preventDefault();
+    toggleDarkMode();
+    toast(S.darkMode ? '🌙 Modo oscuro' : '☀️ Modo claro', 'ok', 1500);
+  }
+  // Escape = close all modals + panels
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.mo').forEach(m => m.style.display = 'none');
+    document.querySelectorAll('.dpanel').forEach(p => p.style.display = 'none');
+    document.body.style.overflow = '';
+  }
+});
 
 </script>
 </div><div id="pg-is" class="pg">
