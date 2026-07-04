@@ -312,7 +312,7 @@ body.dark #prev-body{color:var(--dark-tx) !important}
  <div class="lform on" id="lf-pwd">
  <div class="lfld"><label>USUARIO</label><input type="text" id="lu" placeholder="Usuario" autocomplete="username" spellcheck="false"></div>
  <div class="lfld"><label>CONTRASEÑA</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"></div>
- <button class="lbtn" id="lbtn-main" onclick="this.disabled=true;this.textContent='Verificando...';setTimeout(()=>{doLogin();this.disabled=false;this.textContent='Ingresar →'},100)">Ingresar →</button>
+ <button class="lbtn" id="lbtn-main" onclick="doLogin()">Ingresar →</button>
  <div style="text-align:center;margin-top:10px"><button onclick="resetLoginEmergency()" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer;text-decoration:underline">🔓 ¿No puedes entrar? Restablecer acceso</button></div>
  </div>
  <div class="lform" id="lf-pin">
@@ -2343,16 +2343,9 @@ ${rows.map((r,i)=>`<tr style="background:${i===0?'#F0FDF4':'#fff'};border-bottom
 
 // ── COTIZADOR PRO EXTRA HELPERS ───────────────────────────────────────────
 let _cotpRamoSel=null;
-function cotpInit(){
- if(!document.getElementById('cotp-ramos-grid'))return;
- cotpBuildRamoGrid();
- cotpBuildAsegGrid();
- // Pre-fill client data if any was entered
- const nom=document.getElementById('cotp-cli-nom');
- if(nom&&!nom.value&&typeof S!=='undefined'){
- // leave empty — user can search
- }
-}
+
+// cotpInit: full definition below
+
 function cotpBuildAsegGrid(){
  const grid=document.getElementById('cotp-aseg-grid');
  if(!grid)return;
@@ -4746,7 +4739,7 @@ function switchEmpTab(t,el){empTab=t;document.querySelectorAll('#emp-tabs a').fo
 function REmp(){
   const q=(document.getElementById('s-emp')?.value||'').toLowerCase();
   const emp=S.clientes.filter(c=>c.tipo==='Empresa').filter(c=>
-    !q||(c.nombre||'').toLowerCase().includes(q)||(c.cedula||'').includes(q)
+    !q|||(c.nombre||'').toLowerCase().includes(q)||(c.cedula||'').includes(q)
   );
   const colPols=S.polizas.filter(p=>['SALUD/MÉDICOS','VIDA','ACCIDENTES PERSONALES','SALUD GRUPAL','VIDA GRUPAL'].includes(p.ramo));
   const totalPrima=emp.reduce((s,c)=>{const ps=polsByC(c.id);return s+ps.reduce((a,p)=>a+(+p.prima||0),0);},0);
@@ -10322,47 +10315,13 @@ document.addEventListener('keydown', function(e2){
 }, true);
 
 
-// ── NAV BADGES — actualizar contadores en nav ──
-function updateNavBadges(){
-  try{
-    const p30=(S.polizas||[]).filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';}).length;
-    const tPend=(S.tareas||[]).filter(t=>t.etapaTarea!=='Hecho'&&t._autoTipo!=='comision').length;
-    const sinPend=(S.siniestros||[]).filter(s=>['En proceso','Pendiente docs'].includes(s.estado)).length;
-    // Update renewal nav item
-    const renNav=document.querySelector('nav a[onclick*="ren"]');
-    if(renNav){
-      const badge=renNav.querySelector('.nav-badge');
-      if(p30>0){
-        if(!badge){const b=document.createElement('span');b.className='nav-badge';b.style.cssText='background:#DC2626;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px';renNav.appendChild(b);}
-        renNav.querySelector('.nav-badge').textContent=p30;
-      }else if(badge)badge.remove();
-    }
-    // Update tareas nav item
-    const tarNav=document.querySelector('nav a[onclick*="tar"]');
-    if(tarNav){
-      const badge2=tarNav.querySelector('.nav-badge');
-      if(tPend>0){
-        if(!badge2){const b=document.createElement('span');b.className='nav-badge';b.style.cssText='background:#7C3AED;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px';tarNav.appendChild(b);}
-        tarNav.querySelector('.nav-badge').textContent=tPend;
-      }else if(badge2)badge2.remove();
-    }
-    // Update siniestros nav item
-    const sinNav=document.querySelector('nav a[onclick*="sin"]');
-    if(sinNav){
-      const badge3=sinNav.querySelector('.nav-badge');
-      if(sinPend>0){
-        if(!badge3){const b=document.createElement('span');b.className='nav-badge';b.style.cssText='background:#DC2626;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px';sinNav.appendChild(b);}
-        sinNav.querySelector('.nav-badge').textContent=sinPend;
-      }else if(badge3)badge3.remove();
-    }
-  }catch(e){}
-}
-// Run badges on every render
-const _origRD=typeof RD==='function'?RD:null;
+// ── NAV BADGES — updateNavBadges hooked via RD wrapper above
 
 
 // ══════════════════════════════════════════════════════════════
-// JAC EMAIL MODULE v2 — Plantillas, Preview, Variables, Draft
+// JAC EMAIL MODULE v2
+var cemEntityType=null,cemEntityId=null;
+ — Plantillas, Preview, Variables, Draft
 // ══════════════════════════════════════════════════════════════
 
 // ── FIRMA OFICIAL ──
@@ -10848,26 +10807,8 @@ if(typeof save==='function'){
 
 // ── 5. Mejoras WAM: wamUpdatePreview mejorado ──
 const _origWAMPreview=wamUpdatePreview;
-function wamUpdatePreview(){
-  const tipo=document.getElementById('wam-tipo')?.value||'ren';
-  ['wam-filter-ren','wam-filter-bday','wam-custom-wrap'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.style.display='none';
-  });
-  if(tipo==='ren'||tipo==='cobro'||tipo==='soat'){const el=document.getElementById('wam-filter-ren');if(el)el.style.display='';}
-  else if(tipo==='bday'){const el=document.getElementById('wam-filter-bday');if(el)el.style.display='';}
-  else if(tipo==='custom'){const el=document.getElementById('wam-custom-wrap');if(el)el.style.display='';}
-  // Build preview
-  const prev=document.getElementById('wam-preview');
-  if(!prev)return;
-  const sampleCli={nombre:'María González',cel:'+50762001234'};
-  const samplePol={ramo:'Automóvil',aseg:'ASSA',polNum:'POL-2024-001',fechaFin:new Date(Date.now()+15*86400000).toISOString().slice(0,10),prima:350};
-  const customMsg=document.getElementById('wam-custom-msg')?.value||'Hola {nombre}, te contacto de JAC Seguros.';
-  prev.textContent=wamBuildMsg(tipo,sampleCli,tipo==='bday'?null:samplePol,customMsg);
-  // Character count
-  const len=prev.textContent.length;
-  const lenEl=document.getElementById('wam-preview-len');
-  if(lenEl)lenEl.textContent=len+' caracteres'+(len>1024?' ⚠️ largo':'');
-}
+// wamUpdatePreview: see original above
+
 
 // ── 6. Atajos teclado adicionales ──
 document.addEventListener('keydown',function(eX){
