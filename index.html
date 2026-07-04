@@ -210,6 +210,24 @@ body.dark .file-area{border-color:var(--dark-bd);color:var(--dark-mu)}
 body.dark .fitem{background:#273549;border-color:var(--dark-bd)}
 body.dark .ph{background:var(--dark-card) !important;border-color:var(--dark-bd) !important}
 /* END DARK MODE v3 */
+
+/* Dark mode - Global search */
+body.dark #gsearch-results{background:var(--dark-card);border-color:var(--dark-bd);color:var(--dark-tx)}
+body.dark #gsearch-results div[onmouseover]{border-color:var(--dark-bd)}
+body.dark #gsearch-results div[onmouseover]:hover{background:var(--dark-nav) !important}
+body.dark #gsearch-inp{background:#1E293B;border-color:var(--dark-bd);color:var(--dark-tx)}
+/* Dark mode - Dashboard progress */
+body.dark #dash-progress .card{background:var(--dark-card)}
+body.dark #dash-progress [style*="background:#DCFCE7"]{background:#052E16 !important}
+body.dark #dash-progress [style*="background:#FEF3C7"]{background:#1C1002 !important}
+body.dark #dash-progress [style*="background:#FEE2E2"]{background:#1C0505 !important}
+/* Dark mode - Informes charts */
+body.dark #inf-stats .card{background:var(--dark-card) !important;border-color:var(--dark-bd) !important}
+body.dark #inf-com-mes [style*="background:#93C5FD"]{background:#1D4ED8 !important}
+body.dark [style*="background:#F0F4FF"]{background:#1E293B !important}
+body.dark [style*="background:#F0F4FF"] [style*="background:#1E3A8A"]{background:#3B82F6 !important}
+/* Dark mode - progress bars inner */
+body.dark #dash-progress div[style*="linear-gradient(90deg"]{opacity:.85}
 </style>
  <!-- Supabase JS SDK -->
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -306,7 +324,7 @@ body.dark .ph{background:var(--dark-card) !important;border-color:var(--dark-bd)
  <input id="gsearch-inp" class="fc" placeholder="🔍 Buscar..." 
  style="width:180px;font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff"
  oninput="gsearchLive(this.value)" onblur="setTimeout(()=>gsearchHide(),200)" autocomplete="off">
- <div id="gsearch-results" style="display:none;position:absolute;top:32px;right:0;background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;max-height:400px;overflow-y:auto;min-width:340px"></div>
+ <div id="gsearch-results" style="display:none;position:absolute;top:32px;right:0;background:var(--wh);border:1px solid var(--bd)0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;max-height:400px;overflow-y:auto;min-width:340px"></div>
  </div>
  <button onclick="toggleDarkMode()" id="dark-btn" class="btn bgh" style="padding:6px 10px;font-size:16px" title="Modo oscuro">🌙</button> <button class="btn bsm" onclick="doLogout()">🚪</button>
 </div>
@@ -334,7 +352,8 @@ body.dark .ph{background:var(--dark-card) !important;border-color:var(--dark-bd)
  <!-- 30-DAY REMINDER ALERTS -->
  <div class="card" id="dash-reminders" style="margin-bottom:10px;display:none"></div>
 
- <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-bottom:10px">
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+ <div id="dash-progress"></div>
  <div class="card" id="dren"></div>
  </div>
  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
@@ -698,7 +717,7 @@ body.dark .ph{background:var(--dark-card) !important;border-color:var(--dark-bd)
 <!-- INFORMES -->
 <div class="pg" id="pg-inf">
  <div class="ph">
- <div><h2>📊 Informes</h2><small>Reportes y análisis de cartera</small></div>
+ <div><h2>📊 Informes</h2><small id="inf-subtitle">Reportes y análisis de cartera</small></div>
  <div style="display:flex;gap:8px">
  <button class="btn bcy" onclick="exportInformePDF()">📄 Exportar PDF</button>
  <button class="btn bgn" onclick="exportInformeExcel()">📊 Exportar Excel</button>
@@ -3154,7 +3173,47 @@ function RD(){
  <div class="st" onclick="SH('vc')" style="cursor:pointer"><em>Venta Cruzada</em><div class="n" style="color:#EA580C">${vcOpps}</div><div class="sv">oportunidades</div></div>
  <div class="st" onclick="SH('tar')" style="cursor:pointer"><em>Tareas Pend.</em><div class="n" style="color:#7E22CE">${tPend}</div>${(()=>{const h=TODAY.toISOString().split('T')[0];const t=(S.tareas||[]).filter(x=>x.fechaLimite===h&&x.etapaTarea!=='Hecho').length;return t?`<div class="sv" style="color:#DC2626;font-weight:700">🔴 ${t} hoy</div>`:''})()}</div>
  ${(()=>{const tot=S.clientes.length+(S.prospectos||[]).length;const rate=tot>0?Math.round(S.clientes.length/tot*100):0;return`<div class="st" onclick="SH('cli')" style="cursor:pointer"><em>Conversión</em><div class="n" style="color:#0891B2;font-size:16px">${rate}%</div><div class="sv">${S.clientes.length} clientes de ${tot}</div></div>`;})()}`;
- let al='';if(p30)al+=b('bwn',`⚠️ ${p30} por vencer`)+' ';if(vv)al+=b('bdg',`🔴 ${vv} vencidas`);
+ 
+  // ── Progress bars for dashboard ──
+  (function(){
+    const totPol=pol.length||1;
+    const vigPct=Math.round(vp/totPol*100);
+    const renPct=Math.round(p30/totPol*100);
+    const progEl=document.getElementById('dash-progress');
+    if(!progEl)return;
+    progEl.innerHTML=`
+      <div class="card" style="padding:16px">
+        <div style="font-size:11px;font-weight:700;color:var(--mu);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📊 Estado de Cartera</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="font-weight:600">✅ Vigentes</span><span style="font-weight:700;color:#15803D">${vp} (${vigPct}%)</span>
+            </div>
+            <div style="height:10px;background:#DCFCE7;border-radius:6px;overflow:hidden">
+              <div style="width:${vigPct}%;height:100%;background:linear-gradient(90deg,#15803D,#22C55E);border-radius:6px;transition:width .6s ease"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="font-weight:600">⚠️ Vencen en 30d</span><span style="font-weight:700;color:#D97706">${p30} (${renPct}%)</span>
+            </div>
+            <div style="height:10px;background:#FEF3C7;border-radius:6px;overflow:hidden">
+              <div style="width:${Math.min(100,renPct*3)}%;height:100%;background:linear-gradient(90deg,#D97706,#F59E0B);border-radius:6px;transition:width .6s ease"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="font-weight:600">🔴 Vencidas</span><span style="font-weight:700;color:#DC2626">${vv} (${Math.round(vv/totPol*100)}%)</span>
+            </div>
+            <div style="height:10px;background:#FEE2E2;border-radius:6px;overflow:hidden">
+              <div style="width:${Math.min(100,Math.round(vv/totPol*100)*2)}%;height:100%;background:linear-gradient(90deg,#DC2626,#F87171);border-radius:6px;transition:width .6s ease"></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  })();
+
+  let al='';if(p30)al+=b('bwn',`⚠️ ${p30} por vencer`)+' ';if(vv)al+=b('bdg',`🔴 ${vv} vencidas`);
  const ha=document.getElementById('ha');if(ha)ha.innerHTML=al+`<button class="btn bsm" onclick="doLogout()">🚪</button>`;
  const prox=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=60&&p.estado!=='Cancelada';}).sort((a,z)=>dFrom(a.fechaFin)-dFrom(z.fechaFin));
  let rh=`<div class="ch"><h3>🔔 Vencimientos (60d)</h3><button class="btn bsm" onclick="SH('ren')">Ver →</button></div>`;
@@ -3179,6 +3238,7 @@ function RD(){
  const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;const cancel=S.polizas.filter(p=>(p.etapa||p.estado||'').toLowerCase().includes('cancel'));let vc='<div class="ch"><h3>🚫 Canceladas ('+cancel.length+')</h3></div>';if(!cancel.length){vc+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin canceladas ✓</div>';}else{vc+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#FEE2E2"><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Póliza</th><th>Asegurado</th><th>Ramo</th><th>Aseguradora</th><th>Vencimiento</th></tr></thead><tbody>';cancel.forEach(function(p){var cl=GC(p.clienteId),nm=cl?cl.nombre:'—';vc+='<tr style="border-bottom:1px solid #FECACA"><td style="padding:5px;font-weight:600">'+(p.numeroPol||p.numPol||'—')+'</td><td>'+nm+'</td><td>'+(p.ramo||'—')+'</td><td>'+(p.aseguradora||'—')+'</td><td>'+(p.fechaFin||'—')+'</td></tr>';});vc+='</tbody></table>';}const dcan=document.getElementById('dcan');if(dcan)dcan.innerHTML=vc;
  // Auto-run alert panels
  try{renderDashReminders();}catch(e){}
+  try{updateNavBadges();}catch(e){}
  try{if(typeof renderDashBirthdays==='function')renderDashBirthdays();}catch(e){}
  // "Tareas de hoy" quick banner
  try{
@@ -5622,43 +5682,84 @@ function renderInformes(){
 }
 
 function renderInfResumen(){
- const hoy=new Date().toISOString().split('T')[0];
- const pol=S.polizas;
- const vigentes=pol.filter(p=>p.estado==='Vigente');
- const vencidas=pol.filter(p=>p.estado==='Vencida'||p.fechaFin<hoy);
- const canceladas=pol.filter(p=>p.estado==='Cancelada');
- const totalPrima=pol.reduce((s,p)=>s+(+p.prima||0),0);
- const totalCom=pol.reduce((s,p)=>s+(+p.comision||0),0);
- const stats=document.getElementById('inf-stats');
- if(stats)stats.innerHTML=[
- {label:'Total Pólizas',val:pol.length,color:'#1E3A8A',icon:'📋'},
- {label:'Vigentes',val:vigentes.length,color:'#15803D',icon:'✅'},
- {label:'Vencidas',val:vencidas.length,color:'#DC2626',icon:'🔴'},
- {label:'Total Clientes',val:S.clientes.length,color:'#7C3AED',icon:'👥'},
- {label:'Prima Total',val:'$'+fmt2(totalPrima),color:'#D97706',icon:'💰'},
- {label:'Comisión Total',val:'$'+fmt2(totalCom),color:'#15803D',icon:'💵'},
- ].map(s=>`<div class="card" style="padding:14px;border-left:4px solid ${s.color}">
- <div style="font-size:22px;font-weight:900;color:${s.color}">${s.val}</div>
- <div style="font-size:11px;color:var(--mu)">${s.icon} ${s.label}</div>
- </div>`).join('');
- // By ramo
- const ramoMap={};pol.forEach(p=>{const r=p.ramo||'Otros';ramoMap[r]=(ramoMap[r]||0)+1;});
- const ramoEl=document.getElementById('inf-ramo-list');
- if(ramoEl)ramoEl.innerHTML=Object.entries(ramoMap).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${r}</span><span style="font-weight:700">${n}</span></div>`).join('');
- // By aseg
- const asegMap={};pol.forEach(p=>{const a=p.aseg||'Otra';asegMap[a]=(asegMap[a]||0)+1;});
- const asegEl=document.getElementById('inf-aseg-list');
- if(asegEl)asegEl.innerHTML=Object.entries(asegMap).sort((a,b)=>b[1]-a[1]).map(([a,n])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${a}</span><span style="font-weight:700">${n}</span></div>`).join('');
- // Comisiones por mes — use most recent year that has actual data
- const mesMap={};
- pol.filter(p=>p.fechaInicio).forEach(p=>{const m=p.fechaInicio.slice(0,7);mesMap[m]=(mesMap[m]||0)+(+p.comision||0);});
- const _dataYears=[...new Set(pol.filter(p=>p.fechaInicio).map(p=>p.fechaInicio.slice(0,4)))].sort().reverse();
- const year=_dataYears[0]||new Date().getFullYear();
- const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
- const comEl=document.getElementById('inf-com-mes');
- if(comEl)comEl.innerHTML=meses.map((mn,i)=>{const k=year+'-'+(i+1<10?'0':'')+(i+1);const v=mesMap[k]||0;const pct=v>0?Math.min(100,v/200*100):0;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="width:32px;font-size:11px;color:var(--mu)">${mn}</span><div style="flex:1;background:#F0F4FF;border-radius:4px;height:18px"><div style="width:${pct}%;background:#1E3A8A;height:100%;border-radius:4px"></div></div><span style="width:70px;text-align:right;font-size:11px;font-weight:600">$${fmt2(v)}</span></div>`;}).join('');
-}
+  const hoy=new Date().toISOString().split('T')[0];
+  const pol=S.polizas;
+  const vigentes=pol.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada');
+  const vencidas=pol.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada');
+  const canceladas=pol.filter(p=>p.estado==='Cancelada');
+  const totalPrima=pol.reduce((s,p)=>s+(+p.prima||0),0);
+  const totalCom=pol.reduce((s,p)=>s+(+p.comision||0),0);
+  const comPend=S.comisiones.filter(c=>c.estado==='pendiente').reduce((s,c)=>s+(c.monto||0),0);
+  const prosAct=(S.prospectos||[]).filter(p=>p.etapaVenta!=='Perdido'&&p.etapaVenta!=='Cliente ganado').length;
+  const stats=document.getElementById('inf-stats');
+  if(stats)stats.innerHTML=[
+    {label:'Total Pólizas',val:pol.length,color:'#1E3A8A',icon:'📋',sub:'en cartera'},
+    {label:'Vigentes',val:vigentes.length,color:'#15803D',icon:'✅',sub:pol.length?Math.round(vigentes.length/pol.length*100)+'% del total':'—'},
+    {label:'Vencidas',val:vencidas.length,color:'#DC2626',icon:'🔴',sub:'por renovar'},
+    {label:'Clientes',val:S.clientes.length,color:'#7C3AED',icon:'👥',sub:prosAct+' prospectos activos'},
+    {label:'Prima Cartera',val:fmtM(totalPrima),color:'#D97706',icon:'💰',sub:'suma total'},
+    {label:'Com. Cartera',val:fmtM(totalCom),color:'#15803D',icon:'💵',sub:'de pólizas'},
+    {label:'Com. Pendiente',val:fmtM(comPend),color:'#B45309',icon:'⏳',sub:'por cobrar'},
+    {label:'Tasa Promedio',val:totalPrima>0?(totalCom/totalPrima*100).toFixed(1)+'%':'—',color:'#0891B2',icon:'📊',sub:'comisión/prima'},
+  ].map(s=>`<div class="card" style="padding:14px 16px;border-left:4px solid ${s.color};cursor:default">
+    <div style="font-size:22px;font-weight:900;color:${s.color};line-height:1.1">${s.val}</div>
+    <div style="font-size:11px;font-weight:700;color:var(--tx);margin-top:4px">${s.icon} ${s.label}</div>
+    <div style="font-size:10px;color:var(--mu);margin-top:2px">${s.sub}</div>
+  </div>`).join('');
 
+  // ── Bar chart helper ──
+  const mkBar=(entries,el,colorFn,valFn)=>{
+    if(!el||!entries.length)return;
+    const max=Math.max(...entries.map(([,v])=>valFn(v)));
+    el.innerHTML=entries.map(([k,v])=>{
+      const val=valFn(v);const pct=max>0?Math.round(val/max*100):0;
+      const col=colorFn(k);
+      return`<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+          <span style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${esc(k)}</span>
+          <span style="font-size:11px;font-weight:700;color:${col};white-space:nowrap;margin-left:8px">${typeof val==='number'&&val>99?fmtM(val):val}</span>
+        </div>
+        <div style="height:8px;background:#F0F4FF;border-radius:4px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${col};border-radius:4px;transition:width .5s ease"></div>
+        </div>
+        <div style="font-size:10px;color:var(--mu);margin-top:2px">${v.count} póliza${v.count!==1?'s':''}</div>
+      </div>`;
+    }).join('');
+  };
+
+  // ── By ramo (with prima) ──
+  const ramoMap={};
+  pol.forEach(p=>{const r=p.ramo||'Otros';if(!ramoMap[r])ramoMap[r]={count:0,prima:0,com:0};ramoMap[r].count++;ramoMap[r].prima+=(+p.prima||0);ramoMap[r].com+=(+p.comision||0);});
+  const ramoEl=document.getElementById('inf-ramo-list');
+  if(ramoEl)mkBar(Object.entries(ramoMap).sort((a,b)=>b[1].prima-a[1].prima).slice(0,8),ramoEl,()=>'#1E3A8A',v=>v.prima);
+
+  // ── By aseg (with prima) ──
+  const asegMap={};
+  pol.forEach(p=>{const a=(p.aseg||p.aseguradora||'Otra').split(',')[0].trim();if(!asegMap[a])asegMap[a]={count:0,prima:0,com:0};asegMap[a].count++;asegMap[a].prima+=(+p.prima||0);asegMap[a].com+=(+p.comision||0);});
+  const asegEl=document.getElementById('inf-aseg-list');
+  const asegColors={'ASSA':'#005F9E','SURA':'#E85D04','MAPFRE':'#C8102E','IS':'#1A3A6B','PALIG':'#2D6A4F','FEDPA':'#8B5E00','Ancón':'#3D405B','Chubb':'#2E7D32'};
+  if(asegEl)mkBar(Object.entries(asegMap).sort((a,b)=>b[1].prima-a[1].prima).slice(0,8),asegEl,k=>asegColors[k]||'#64748B',v=>v.prima);
+
+  // ── Comisiones por mes (bar chart) ──
+  const mesMap={};
+  pol.filter(p=>p.fechaInicio).forEach(p=>{const m=p.fechaInicio.slice(0,7);mesMap[m]=(mesMap[m]||0)+(+p.comision||0);});
+  const _dataYears=[...new Set(pol.filter(p=>p.fechaInicio).map(p=>p.fechaInicio.slice(0,4)))].sort().reverse();
+  const year=_dataYears[0]||new Date().getFullYear();
+  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const maxMes=Math.max(1,...meses.map((_,i)=>mesMap[year+'-'+(i+1<10?'0':'')+(i+1)]||0));
+  const comEl=document.getElementById('inf-com-mes');
+  if(comEl)comEl.innerHTML=`<div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px 0 4px">`+
+    meses.map((mn,i)=>{
+      const k=year+'-'+(i+1<10?'0':'')+(i+1);const v=mesMap[k]||0;
+      const h=v>0?Math.max(4,Math.round(v/maxMes*80)):0;
+      const isNow=k===new Date().toISOString().slice(0,7);
+      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px" title="${mn}: ${fmtM(v)}">
+        <span style="font-size:9px;font-weight:700;color:${isNow?'#1E3A8A':'var(--mu)'}">${v>0?fmtM(v):''}</span>
+        <div style="width:100%;background:${isNow?'#1E3A8A':'#93C5FD'};height:${h}px;border-radius:3px 3px 0 0;min-height:${v>0?4:0}px;transition:height .4s ease"></div>
+        <span style="font-size:9px;color:${isNow?'#1E3A8A':'var(--mu)';font-weight:${isNow?'700':'400'}">${mn}</span>
+      </div>`;
+    }).join('')+'</div>';
+}
 function renderInfProd(){
  const year=document.getElementById('inf-prod-year')?.value||new Date().getFullYear();
  const mes=document.getElementById('inf-prod-mes')?.value||'';
@@ -6484,52 +6585,79 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // ── GLOBAL SEARCH ──────────────────────────────────────────────────────────
 function gsearchLive(q){
- const res=document.getElementById('gsearch-results');
- if(!res)return;
- if(!q||q.length<2){gsearchHide();return;}
- const ql=q.toLowerCase();
- const hits=[];
-
- // Search clients
- (S.clientes||[]).forEach(c=>{
- const score=(c.nombre||'').toLowerCase().includes(ql)||(c.cedula||'').includes(ql)||(c.cel||'').includes(ql)||(c.email||'').toLowerCase().includes(ql);
- if(score)hits.push({type:'cli',icon:'👤',title:c.nombre||'—',sub:(c.cedula||'')+(c.cel?' · '+c.cel:''),id:c.id,action:`OC('${c.id}')`});
- });
-
- // Search policies by number, ramo, aseguradora
- (S.polizas||[]).forEach(p=>{
- const cl=GC(p.clienteId)||{};
- const score=(p.polNum||'').toLowerCase().includes(ql)||(p.ramo||'').toLowerCase().includes(ql)||(p.aseg||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql);
- if(score)hits.push({type:'pol',icon:'📋',title:(p.polNum||p.id||'Póliza')+' — '+(p.ramo||''),sub:(p.aseg||'')+(cl.nombre?' · '+cl.nombre:'')+(p.fechaFin?' · Vence: '+fmt(p.fechaFin):''),id:p.id,action:`SH('pol')`});
- });
-
- // Search prospects
- (S.prospectos||[]).forEach(pr=>{
- if((pr.nombre||'').toLowerCase().includes(ql)||(pr.cedula||'').includes(ql))
- hits.push({type:'pro',icon:'🎯',title:pr.nombre||'—',sub:'Prospecto'+(pr.cel?' · '+pr.cel:''),id:pr.id,action:`SH('pros')`});
- });
-
- if(!hits.length){res.style.display='block';res.innerHTML='<div style="padding:14px;text-align:center;color:var(--mu);font-size:12px">Sin resultados para "'+esc(q)+'"</div>';return;}
-
- const grouped={cli:[],pol:[],pro:[]};
- hits.slice(0,20).forEach(h=>grouped[h.type]&&grouped[h.type].push(h));
- const labels={cli:'👤 Clientes',pol:'📋 Pólizas',pro:'🎯 Prospectos'};
- let html='';
- ['cli','pol','pro'].forEach(t=>{
- if(!grouped[t].length)return;
- html+=`<div style="padding:6px 12px 2px;font-size:10px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;background:#F8FAFF">${labels[t]}</div>`;
- grouped[t].forEach(h=>{
- html+=`<div onclick="${h.action};gsearchHide();document.getElementById('gsearch-inp').value=''" style="padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F1F5F9" onmouseover="this.style.background='#EEF4FF'" onmouseout="this.style.background=''">
- <span style="font-size:18px">${h.icon}</span>
- <div><div style="font-weight:700;font-size:12px">${esc(h.title)}</div><div style="font-size:10px;color:var(--mu)">${esc(h.sub)}</div></div>
- </div>`;
- });
- });
- res.style.display='block';
- res.innerHTML=html;
+  const res=document.getElementById('gsearch-results');
+  if(!res)return;
+  if(!q||q.length<2){gsearchHide();return;}
+  const ql=q.toLowerCase();
+  const hits=[];
+  const typeColors={cli:'#1D4ED8',pol:'#15803D',pros:'#7C3AED',tar:'#D97706',sin:'#DC2626',not:'#0891B2',emp:'#374151',veh:'#EA580C'};
+  // ── Clientes
+  (S.clientes||[]).forEach(c=>{
+    if((c.nombre||'').toLowerCase().includes(ql)||(c.cedula||'').includes(ql)||(c.cel||'').includes(ql)||(c.email||'').toLowerCase().includes(ql)||(c.empresa||'').toLowerCase().includes(ql))
+      hits.push({type:'cli',icon:'👤',label:'Cliente',title:c.nombre||'—',sub:(c.cedula?c.cedula+' · ':'')+( c.cel||'')+(c.ciudad?' · '+c.ciudad:''),action:`SH('cli');setTimeout(()=>OC('${c.id}'),150)`});
+  });
+  // ── Pólizas
+  (S.polizas||[]).forEach(p=>{
+    const cl=GC(p.clienteId)||{};
+    if((p.polNum||p.num||'').toLowerCase().includes(ql)||(p.ramo||'').toLowerCase().includes(ql)||(p.aseg||p.aseguradora||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql))
+      hits.push({type:'pol',icon:'📋',label:'Póliza',title:(p.polNum||p.num||'—')+' · '+(p.ramo||''),sub:(cl.nombre||'—')+' · '+(p.aseg||p.aseguradora||'—'),action:`SH('pol');setTimeout(()=>OP('${p.id}'),150)`});
+  });
+  // ── Prospectos
+  (S.prospectos||[]).forEach(p=>{
+    if((p.nombre||'').toLowerCase().includes(ql)||(p.cel||'').toLowerCase().includes(ql)||(p.email||'').toLowerCase().includes(ql)||(p.etapaVenta||'').toLowerCase().includes(ql))
+      hits.push({type:'pros',icon:'🎯',label:'Prospecto',title:p.nombre||'—',sub:(p.etapaVenta||'')+(p.cel?' · '+p.cel:''),action:`SH('pros');setTimeout(()=>OPros('${p.id}'),150)`});
+  });
+  // ── Tareas
+  (S.tareas||[]).filter(t=>t._autoTipo!=='comision').forEach(t=>{
+    if((t.titulo||'').toLowerCase().includes(ql)||(t.tipo||'').toLowerCase().includes(ql)||(t.descripcion||'').toLowerCase().includes(ql))
+      hits.push({type:'tar',icon:'✅',label:'Tarea',title:t.titulo||'—',sub:(t.tipo||'')+(t.fechaLimite?' · '+fmt(t.fechaLimite):''),action:`SH('tar');setTimeout(()=>OT_open('${t.id}'),150)`});
+  });
+  // ── Siniestros
+  (S.siniestros||[]).forEach(s=>{
+    const cl=GC(s.clienteId)||{};
+    if((s.nroCia||'').toLowerCase().includes(ql)||(s.tipo||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql)||(s.aseg||'').toLowerCase().includes(ql))
+      hits.push({type:'sin',icon:'🚑',label:'Siniestro',title:(s.nroCia||'—')+' · '+(s.tipo||''),sub:(cl.nombre||'—')+' · '+(s.estado||''),action:`SH('sin')`});
+  });
+  // ── Notas
+  (S.notas||[]).forEach(n=>{
+    if((n.titulo||'').toLowerCase().includes(ql)||(n.texto||'').toLowerCase().includes(ql)||(n.etiqueta||'').toLowerCase().includes(ql))
+      hits.push({type:'not',icon:'📝',label:'Nota',title:n.titulo||'—',sub:(n.etiqueta||'')+(n.fecha?' · '+fmt(n.fecha):''),action:`SH('not')`});
+  });
+  // ── Empresas
+  (S.empresas||[]).forEach(e=>{
+    if((e.nombre||'').toLowerCase().includes(ql)||(e.ruc||'').includes(ql))
+      hits.push({type:'emp',icon:'🏢',label:'Empresa',title:e.nombre||'—',sub:(e.ruc||'')+(e.sector?' · '+e.sector:''),action:`SH('emp')`});
+  });
+  // ── Vehículos
+  (S.vehiculos||[]).forEach(v=>{
+    const cl=GC(v.clienteId)||{};
+    if((v.placa||'').toLowerCase().includes(ql)||(v.marca||'').toLowerCase().includes(ql)||(v.modelo||'').toLowerCase().includes(ql)||(cl.nombre||'').toLowerCase().includes(ql))
+      hits.push({type:'veh',icon:'🚗',label:'Vehículo',title:(v.placa||'—')+' · '+(v.marca||'')+(v.modelo?' '+v.modelo:''),sub:cl.nombre||'—',action:`SH('veh')`});
+  });
+  if(!hits.length){
+    res.style.display='block';
+    res.innerHTML=`<div style="padding:14px;text-align:center;color:var(--mu);font-size:12px">Sin resultados para "<strong>${esc(q)}</strong>"</div>`;
+    return;
+  }
+  const typeOrder={cli:0,pol:1,pros:2,tar:3,sin:4,not:5,emp:6,veh:7};
+  hits.sort((a,b)=>(typeOrder[a.type]||9)-(typeOrder[b.type]||9));
+  let h=`<div style="padding:6px 10px;font-size:10px;font-weight:700;color:var(--mu);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between"><span>🔍 ${hits.length} resultado${hits.length!==1?'s':''}</span><span style="cursor:pointer;color:var(--rd);padding:2px 6px" onclick="gsearchHide()">✕</span></div>`;
+  hits.slice(0,14).forEach(hit=>{
+    const col=typeColors[hit.type]||'#374151';
+    h+=`<div onclick="${hit.action};document.getElementById('gsearch-inp').value='';gsearchHide()" style="padding:9px 12px;cursor:pointer;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:9px" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background=''">
+      <span style="font-size:15px;flex-shrink:0">${hit.icon}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(hit.title)}</div>
+        <div style="font-size:10px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(hit.sub)}</div>
+      </div>
+      <span style="font-size:9px;font-weight:700;color:${col};background:${col}18;border-radius:4px;padding:2px 6px;white-space:nowrap;flex-shrink:0">${hit.label}</span>
+    </div>`;
+  });
+  if(hits.length>14)h+=`<div style="padding:8px;text-align:center;font-size:11px;color:var(--mu)">${hits.length-14} resultados más...</div>`;
+  res.style.display='block';
+  res.innerHTML=h;
 }
 function gsearchHide(){const r=document.getElementById('gsearch-results');if(r)r.style.display='none';}
-
 // ── WHATSAPP MASIVO ────────────────────────────────────────────────────────
 let wamData=[];
 
@@ -9850,6 +9978,57 @@ document.addEventListener('keydown', function(e) {
     document.body.style.overflow = '';
   }
 });
+
+
+// ── Ctrl+F → redirect to CRM search ──
+document.addEventListener('keydown', function(e2){
+  if((e2.ctrlKey||e2.metaKey)&&e2.key==='f'){
+    const inModal=document.querySelector('.mo[style*="flex"],.mo[style*="block"]');
+    if(inModal)return; // allow native search in modals
+    e2.preventDefault();
+    const gi=document.getElementById('gsearch-inp');
+    if(gi){gi.focus();gi.select();toast('🔍 Búsqueda global — escribe para buscar','ok',2000);}
+  }
+}, true);
+
+
+// ── NAV BADGES — actualizar contadores en nav ──
+function updateNavBadges(){
+  try{
+    const p30=(S.polizas||[]).filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';}).length;
+    const tPend=(S.tareas||[]).filter(t=>t.etapaTarea!=='Hecho'&&t._autoTipo!=='comision').length;
+    const sinPend=(S.siniestros||[]).filter(s=>['En proceso','Pendiente docs'].includes(s.estado)).length;
+    // Update renewal nav item
+    const renNav=document.querySelector('nav a[onclick*="ren"]');
+    if(renNav){
+      const badge=renNav.querySelector('.nav-badge');
+      if(p30>0){
+        if(!badge){const b=document.createElement('span');b.className='nav-badge';b.style.cssText='background:#DC2626;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px';renNav.appendChild(b);}
+        renNav.querySelector('.nav-badge').textContent=p30;
+      }else if(badge)badge.remove();
+    }
+    // Update tareas nav item
+    const tarNav=document.querySelector('nav a[onclick*="tar"]');
+    if(tarNav){
+      const badge2=tarNav.querySelector('.nav-badge');
+      if(tPend>0){
+        if(!badge2){const b=document.createElement('span');b.className='nav-badge';b.style.cssText='background:#7C3AED;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px';tarNav.appendChild(b);}
+        tarNav.querySelector('.nav-badge').textContent=tPend;
+      }else if(badge2)badge2.remove();
+    }
+    // Update siniestros nav item
+    const sinNav=document.querySelector('nav a[onclick*="sin"]');
+    if(sinNav){
+      const badge3=sinNav.querySelector('.nav-badge');
+      if(sinPend>0){
+        if(!badge3){const b=document.createElement('span');b.className='nav-badge';b.style.cssText='background:#DC2626;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px';sinNav.appendChild(b);}
+        sinNav.querySelector('.nav-badge').textContent=sinPend;
+      }else if(badge3)badge3.remove();
+    }
+  }catch(e){}
+}
+// Run badges on every render
+const _origRD=typeof RD==='function'?RD:null;
 
 </script>
 </div><div id="pg-is" class="pg">
