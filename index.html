@@ -228,6 +228,26 @@ body.dark [style*="background:#F0F4FF"]{background:#1E293B !important}
 body.dark [style*="background:#F0F4FF"] [style*="background:#1E3A8A"]{background:#3B82F6 !important}
 /* Dark mode - progress bars inner */
 body.dark #dash-progress div[style*="linear-gradient(90deg"]{opacity:.85}
+
+/* ══ EMAIL MODAL v2 ══ */
+#mcem .md{display:flex;flex-direction:column}
+#mcem .mb{padding:14px 16px}
+body.dark #mcem .mb{background:var(--dark-bg)}
+body.dark #cem-compose-tab{background:var(--dark-bg)}
+body.dark #cem-preview-tab{background:var(--dark-bg)}
+body.dark #cem-hist-tab{background:var(--dark-bg)}
+body.dark #cem-hist-content{color:var(--dark-tx)}
+body.dark #cem-hist-content div[style*="border-bottom"]{border-color:var(--dark-bd)}
+body.dark [style*="background:#EEF4FF"]{background:#1E293B !important;border-color:#1D4ED8 !important}
+body.dark [style*="background:#C7D7FF"]{border-color:#1D4ED8 !important}
+body.dark [style*="color:#1D4ED8"]{color:#93C5FD !important}
+body.dark #mcem [style*="background:#F8FAFC"]{background:var(--dark-nav) !important}
+body.dark #mcem [style*="background:#F8FAFC"][style*="border-bottom"]{background:#0F172A !important;border-color:var(--dark-bd) !important}
+/* Email compose toolbar buttons */
+#mcem button[onclick*="cemFmt"]{transition:.15s}
+#mcem button[onclick*="cemFmt"]:hover{background:#EEF4FF !important;border-color:#93C5FD !important}
+#mcem button[onclick*="cemInsertVar"]:hover{background:#C7D7FF !important}
+/* END EMAIL CSS */
 </style>
  <!-- Supabase JS SDK -->
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1027,31 +1047,121 @@ body.dark #dash-progress div[style*="linear-gradient(90deg"]{opacity:.85}
 </div></div>
 
 <!-- MODAL COMPOSE EMAIL -->
-<div class="mo" id="mcem"><div class="md mdsm" style="max-width:580px">
- <div class="mh"><h2>📧 Redactar Correo</h2><button class="btn bgh" onclick="CM('mcem')">✕</button></div>
- <div class="mb">
- <div class="fg" style="gap:9px">
- <div class="fl ff"><label>De (remitente)</label><select class="fc" id="cem-from">
- <option value="jcastro@jacsegurospa.com">jcastro@jacsegurospa.com (JAC Seguros)</option>
- <option value="jelyancorredora@gmail.com">jelyancorredora@gmail.com (Gmail)</option>
- </select></div>
- <div class="fl ff"><label>Para (email) <span style="color:var(--rd)">*</span></label><input class="fc" id="cem-to" type="email" placeholder="destinatario@email.com"></div>
- <div class="fl ff"><label>CC (opcional)</label><input class="fc" id="cem-cc" type="email" placeholder="copia@email.com"></div>
- <div class="fl ff"><label>Asunto <span style="color:var(--rd)">*</span></label><input class="fc" id="cem-sub" placeholder="Asunto del correo"></div>
- <div class="fl ff"><label>Mensaje <span style="color:var(--rd)">*</span></label><textarea class="fc" id="cem-body" rows="8" placeholder="Escribe tu mensaje aquí..."></textarea></div>
- <div class="fl ff"><label>📎 Adjuntar archivos <span style="font-size:10px;color:var(--mu)">(opcional)</span></label><input class="fc" id="cem-attach" type="file" multiple accept="*/*" style="padding:6px;cursor:pointer"><div style="font-size:10px;color:var(--mu);margin-top:2px">Puedes adjuntar varios archivos. EmailJS soporta hasta ~5 MB total.</div></div>
- <div class="fl ff"><div style="background:#EEF4FF;border:1px solid #C7D7FF;border-radius:6px;padding:10px;font-size:11px;color:#1D4ED8">
- <b>💡 Opciones de envío:</b><br>
- • <b>Abrir app de correo</b>: Abre tu cliente de email predeterminado (Gmail, Outlook, Zoho) con el mensaje listo.<br>
- • <b>Enviar vía EmailJS</b>: Envía directamente desde el CRM (requiere EmailJS configurado).
- </div></div>
+<div class="mo" id="mcem"><div class="md" style="max-width:660px;max-height:92vh;display:flex;flex-direction:column">
+ <div class="mh" style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8);color:#fff;flex-shrink:0">
+  <div style="display:flex;align-items:center;gap:10px">
+   <span style="font-size:20px">📧</span>
+   <div><h2 style="color:#fff;font-size:15px">Redactar Correo</h2><div style="font-size:10px;opacity:.75" id="cem-status-line">JAC Seguros · jcastro@jacsegurospa.com</div></div>
+  </div>
+  <div style="display:flex;gap:6px;align-items:center">
+   <button class="btn bsm" onclick="cemLoadDraft()" title="Cargar borrador" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">📂</button>
+   <button class="btn bgh" onclick="CM('mcem')" style="color:#fff;border-color:rgba(255,255,255,.3)">✕</button>
+  </div>
  </div>
+ <!-- TABS -->
+ <div style="display:flex;border-bottom:1px solid var(--bd);background:#F8FAFC;flex-shrink:0">
+  <button id="cemtab-compose" onclick="cemSwitchTab('compose')" style="padding:8px 16px;border:none;background:var(--wh);font-size:12px;font-weight:700;color:#1D4ED8;border-bottom:2px solid #1D4ED8;cursor:pointer">✏️ Redactar</button>
+  <button id="cemtab-preview" onclick="cemSwitchTab('preview')" style="padding:8px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:var(--mu);border-bottom:2px solid transparent;cursor:pointer">👁 Preview</button>
+  <button id="cemtab-hist" onclick="cemSwitchTab('hist')" style="padding:8px 16px;border:none;background:transparent;font-size:12px;font-weight:600;color:var(--mu);border-bottom:2px solid transparent;cursor:pointer">📬 Historial</button>
  </div>
- <div class="mf" style="flex-wrap:wrap;gap:6px">
- <button class="btn" onclick="CM('mcem')">Cancelar</button>
- <button class="btn bsm" style="background:#EEF4FF;color:#1D4ED8;border-color:#C7D7FF;font-size:11px" onclick="CM('mcem');if(cemEntityId&&cemEntityType==='cliente'||cemEntityType==='prospecto')openFullHistory(cemEntityId)">📬 Ver historial</button>
- <button class="btn bcy" onclick="sendEmailViaMailto()">📨 Abrir app de correo</button>
- <button class="btn bp" onclick="sendEmailViaEJS()">📧 Enviar vía EmailJS</button>
+ <!-- TAB: COMPOSE -->
+ <div id="cem-compose-tab" class="mb" style="overflow-y:auto;flex:1">
+  <!-- Template bar -->
+  <div style="background:#EEF4FF;border:1px solid #C7D7FF;border-radius:8px;padding:10px 12px;margin-bottom:12px">
+   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:11px;font-weight:700;color:#1D4ED8;white-space:nowrap">🗂 Plantilla:</span>
+    <select id="cem-template" class="fc" style="flex:1;min-width:160px;font-size:12px" onchange="cemApplyTemplate()">
+     <option value="">— Seleccionar plantilla —</option>
+     <option value="bienvenida">👋 Bienvenida nuevo cliente</option>
+     <option value="renovacion">🔔 Renovación de póliza</option>
+     <option value="cotizacion">📋 Envío de cotización</option>
+     <option value="cumpleanos">🎂 Feliz cumpleaños</option>
+     <option value="cobranza">💳 Recordatorio de pago</option>
+     <option value="siniestro">🚑 Seguimiento siniestro</option>
+     <option value="soat">🚗 Vencimiento SOAT</option>
+     <option value="agradecimiento">🙏 Agradecimiento / seguimiento</option>
+     <option value="presentacion">🌟 Presentación servicios</option>
+    </select>
+    <button onclick="cemInsertSignature()" style="padding:5px 10px;background:#fff;border:1px solid #C7D7FF;border-radius:6px;font-size:11px;font-weight:600;color:#1D4ED8;cursor:pointer;white-space:nowrap">✍️ Firma</button>
+   </div>
+  </div>
+  <div class="fg" style="gap:9px">
+   <div class="fl ff"><label>De</label>
+    <select class="fc" id="cem-from">
+     <option value="jcastro@jacsegurospa.com">📮 jcastro@jacsegurospa.com — JAC Seguros</option>
+     <option value="jelyancorredora@gmail.com">📮 jelyancorredora@gmail.com — Gmail</option>
+    </select>
+   </div>
+   <div class="fl" style="flex:1;min-width:0"><label>Para <span style="color:var(--rd)">*</span></label>
+    <input class="fc" id="cem-to" type="email" placeholder="destinatario@email.com">
+   </div>
+   <div class="fl" style="width:180px"><label>CC</label>
+    <input class="fc" id="cem-cc" type="email" placeholder="copia@email.com">
+   </div>
+   <div class="fl ff"><label>Asunto <span style="color:var(--rd)">*</span></label>
+    <input class="fc" id="cem-sub" placeholder="Asunto del correo">
+   </div>
+   <div class="fl ff">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+     <label style="margin:0">Mensaje <span style="color:var(--rd)">*</span></label>
+     <span id="cem-char-count" style="font-size:10px;color:var(--mu)">0 caracteres</span>
+    </div>
+    <!-- Toolbar -->
+    <div style="display:flex;gap:4px;padding:5px 8px;background:#F8FAFC;border:1px solid var(--bd);border-bottom:none;border-radius:6px 6px 0 0;flex-wrap:wrap">
+     <button type="button" onclick="cemFmt('bold')" title="Negrita" style="padding:3px 7px;border:1px solid var(--bd);border-radius:4px;background:#fff;cursor:pointer;font-weight:700;font-size:12px">B</button>
+     <button type="button" onclick="cemFmt('italic')" title="Cursiva" style="padding:3px 7px;border:1px solid var(--bd);border-radius:4px;background:#fff;cursor:pointer;font-style:italic;font-size:12px">i</button>
+     <div style="width:1px;background:var(--bd);margin:2px 2px"></div>
+     <button type="button" onclick="cemInsertVar('{{nombre}}')" title="Nombre del cliente" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{nombre}}</button>
+     <button type="button" onclick="cemInsertVar('{{poliza}}')" title="Número de póliza" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{poliza}}</button>
+     <button type="button" onclick="cemInsertVar('{{aseguradora}}')" title="Aseguradora" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{aseg}}</button>
+     <button type="button" onclick="cemInsertVar('{{vencimiento}}')" title="Fecha de vencimiento" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{vence}}</button>
+     <button type="button" onclick="cemInsertVar('{{prima}}')" title="Monto de prima" style="padding:3px 7px;border:1px solid #C7D7FF;border-radius:4px;background:#EEF4FF;cursor:pointer;font-size:10px;font-weight:600;color:#1D4ED8">{{prima}}</button>
+    </div>
+    <textarea class="fc" id="cem-body" rows="10" placeholder="Escribe tu mensaje aquí..." 
+     style="border-radius:0 0 6px 6px;resize:vertical;font-family:inherit;line-height:1.6"
+     oninput="cemUpdateCount()"></textarea>
+   </div>
+   <div class="fl ff">
+    <label>📎 Adjuntos <span style="font-size:10px;color:var(--mu)">(opcional · hasta 5 MB)</span></label>
+    <input class="fc" id="cem-attach" type="file" multiple accept="*/*" style="padding:6px;cursor:pointer">
+   </div>
+   <!-- Tracking -->
+   <div class="fl ff">
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+     <input type="checkbox" id="cem-track" checked style="accent-color:#1D4ED8">
+     <span style="font-size:11px;font-weight:600">🔍 Activar tracking (abrir / clic)</span>
+    </label>
+   </div>
+  </div>
+ </div>
+ <!-- TAB: PREVIEW -->
+ <div id="cem-preview-tab" style="display:none;flex:1;overflow-y:auto;padding:16px">
+  <div style="background:#F8FAFC;border:1px solid var(--bd);border-radius:8px;padding:0;overflow:hidden;max-width:560px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+   <div style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8);padding:20px 24px;color:#fff">
+    <div style="font-size:11px;opacity:.7;margin-bottom:4px">De: <span id="prev-from"></span></div>
+    <div style="font-size:11px;opacity:.7;margin-bottom:8px">Para: <span id="prev-to"></span></div>
+    <div style="font-size:16px;font-weight:700" id="prev-subject">Asunto</div>
+   </div>
+   <div style="padding:24px;background:#fff">
+    <div id="prev-body" style="font-size:13px;line-height:1.8;color:#1A1A2E;white-space:pre-wrap"></div>
+   </div>
+   <div style="background:#F8FAFC;border-top:1px solid var(--bd);padding:12px 20px;text-align:center">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40'%3E%3Ctext x='100' y='28' text-anchor='middle' font-family='Georgia' font-weight='700' font-size='24' fill='%231E3A8A'%3EJAC%3C/text%3E%3Ctext x='100' y='38' text-anchor='middle' font-family='Arial' font-size='9' fill='%23666' letter-spacing='4'%3ESEGUROS%3C/text%3E%3C/svg%3E" alt="JAC Seguros" style="height:36px;margin-bottom:6px">
+    <div style="font-size:10px;color:#888">JAC Seguros · Lic. #6175 · +507 6292-6010 · jacsegurospa.com</div>
+   </div>
+  </div>
+ </div>
+ <!-- TAB: HISTORIAL -->
+ <div id="cem-hist-tab" style="display:none;flex:1;overflow-y:auto;padding:12px">
+  <div id="cem-hist-content" style="font-size:12px;color:var(--mu);text-align:center;padding:24px">Selecciona un contacto para ver el historial de correos.</div>
+ </div>
+ <!-- FOOTER -->
+ <div class="mf" style="flex-shrink:0;flex-wrap:wrap;gap:6px;background:#F8FAFC;border-top:1px solid var(--bd)">
+  <button class="btn" onclick="CM('mcem')">Cancelar</button>
+  <button class="btn" onclick="cemSaveDraft()" style="background:#FEF3C7;color:#B45309;border-color:#FDE68A">💾 Guardar borrador</button>
+  <div style="flex:1"></div>
+  <button class="btn bcy" onclick="sendEmailViaMailto()">📨 Abrir en correo</button>
+  <button class="btn bp" onclick="sendEmailViaEJS()" id="cem-send-btn">📧 Enviar →</button>
  </div>
 </div></div>
 
@@ -2917,11 +3027,7 @@ _Jely An Castro Pérez · 📞 +507 6292-6010_`;}
  }
  OM('mwap');
 }
-function openComposeEmail(toEmail,toName,subject,body,entityType,entityId){
- SVal('cem-to',toEmail||'');SVal('cem-cc','');SVal('cem-sub',subject||'');SVal('cem-body',body||'');
- cemEntityType=entityType||null; cemEntityId=entityId||null;
- OM('mcem');
-}
+
 function logEmailSent(){
  if(!cemEntityType||!cemEntityId)return;
  const sub=V('cem-sub')||'Correo';
@@ -3013,10 +3119,7 @@ function openEmailForSin(sid){
  const body=`Hola ${fn} 👋\n\nTe enviamos una actualización sobre tu siniestro ${s.nombre?' de *'+s.nombre+'*':''} (Ref: ${s.numCia||s.numSin||'—'}).\n\nEstado actual: ${s.estado||'—'}\n${s.seguimiento||s.desc||''}\n\nAnte cualquier consulta, estamos a tu disposición.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
  openComposeEmail(email,cl.nombre||s.cliente||s.asegurado||'',sub,body,'siniestro',sid);
 }
-function sendEmailViaMailto(){
- const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body'),cc=V('cem-cc');
- const fromEmail=V('cem-from')||'jcastro@jacsegurospa.com';
- if(!to||!sub){toast('Para y Asunto son obligatorios','err');return;}
+
  let ml=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
  if(cc)ml+=`&cc=${encodeURIComponent(cc)}`;
  // If Gmail selected, open Gmail compose directly
@@ -3029,39 +3132,7 @@ function sendEmailViaMailto(){
  logEmailSent();
  CM('mcem');toast('📨 Abriendo app de correo...');
 }
-async function sendEmailViaEJS(){
- const to=V('cem-to'),sub=V('cem-sub'),body=V('cem-body'),fromEmail=V('cem-from')||'jcastro@jacsegurospa.com';
- if(!to||!sub||!body){toast('Completa todos los campos','err');return;}
- const cfg=JSON.parse(localStorage.getItem('jac_ejs_cfg')||'{}');
- if(!cfg['ejs-pub']||!cfg['ejs-svc']){toast('Configura EmailJS en Configuración → Integración','err');return;}
- const tpl=cfg['ejs-tpl-general']||cfg['ejs-tpl-ren']||cfg['ejs-tpl-bday'];
- if(!tpl){toast('No hay template EmailJS configurado. Usa "Abrir app de correo"','err');return;}
- // Generate trackId for HubSpot-style tracking
- window._cemTrackId=uid();
- const trackUrl=`https://crm.jacsegurospa.com/?jem_open=${window._cemTrackId}`;
- const trackFooter=`\n\n——\nJAC Seguros | Jely An Castro Pérez\n📞 +507 6292-6010 | jcastro@jacsegurospa.com\nRef. seguimiento: ${window._cemTrackId.slice(-6).toUpperCase()}`;
- // Read attachments
- const attachInput=document.getElementById('cem-attach');
- const files=attachInput&&attachInput.files?[...attachInput.files]:[];
- let attachStr='';
- if(files.length>0){
- const b64arr=await Promise.all(files.map(f=>new Promise((res,rej)=>{
- const r=new FileReader();
- r.onload=e=>res(f.name+': (adjunto '+Math.round(f.size/1024)+'KB)');
- r.onerror=()=>res(f.name+': (error leyendo)');
- r.readAsDataURL(f);
- })));
- attachStr='\n\n📎 Archivos adjuntos:\n'+b64arr.join('\n');
- toast('⚠️ EmailJS no soporta adjuntos binarios. Los archivos se enviarán como referencia en el cuerpo.','warn');
- }
- const fromName=fromEmail==='jelyancorredora@gmail.com'?'Jely An Castro (Gmail)':'JAC Seguros | Jely An Castro';
- const msgFull=body+attachStr+trackFooter;
- const ok=await sendEmailJS(tpl,{to_name:'',to_email:to,subject:sub,message:msgFull,from_name:fromName,from_email:fromEmail,reply_to:fromEmail,company:'JAC Seguros',phone:'+507 6292-6010',attachments:files.map(f=>f.name).join(', '),track_url:trackUrl});
- if(ok){logEmailSent();if(attachInput)attachInput.value='';CM('mcem');toast('✅ Correo enviado por EmailJS','ok');}
- else{window._cemTrackId=null;toast('Error enviando. Usa "Abrir app de correo"','err');}
-}
 
-// ── NAV ──
 function SH(id){
  // Fix blank screen: use requestAnimationFrame to ensure render
  const pages=document.querySelectorAll('.pg');
@@ -10029,6 +10100,421 @@ function updateNavBadges(){
 }
 // Run badges on every render
 const _origRD=typeof RD==='function'?RD:null;
+
+
+// ══════════════════════════════════════════════════════════════
+// JAC EMAIL MODULE v2 — Plantillas, Preview, Variables, Draft
+// ══════════════════════════════════════════════════════════════
+
+// ── FIRMA OFICIAL ──
+const JAC_FIRMA = `
+
+---
+Jely An Castro Pérez
+Corredora de Seguros Autorizada · Lic. #6175
+JAC Seguros | jacsegurospa.com
+📞 +507 6292-6010 | 📧 jcastro@jacsegurospa.com
+Supervisada por la SSRP · Panamá`;
+
+// ── PLANTILLAS DE EMAIL ──
+const EMAIL_TEMPLATES = {
+  bienvenida: {
+    sub: 'Bienvenido/a a JAC Seguros, {{nombre}} 🎉',
+    body: `Estimado/a {{nombre}},
+
+Es un placer darle la bienvenida a JAC Seguros.
+
+Como su corredora de seguros autorizada (Lic. #6175), mi compromiso es brindarle la mejor asesoría personalizada y acompañarle en cada etapa de su protección.
+
+📋 Lo que puede esperar de mi servicio:
+• Análisis de sus necesidades de cobertura
+• Comparación entre las mejores aseguradoras de Panamá
+• Gestión de renovaciones y cambios
+• Acompañamiento en caso de siniestros
+
+Estoy a su disposición para cualquier consulta. ¡Bienvenido/a!`
+  },
+  renovacion: {
+    sub: '⏰ Aviso de renovación — Póliza {{poliza}} vence pronto',
+    body: `Estimado/a {{nombre}},
+
+Le escribo para recordarle que su póliza de {{ramo}} con {{aseguradora}} (N° {{poliza}}) está próxima a vencer.
+
+📅 Fecha de vencimiento: {{vencimiento}}
+💰 Prima actual: {{prima}}
+🏛 Aseguradora: {{aseguradora}}
+
+Para renovar o conocer opciones más convenientes, comuníquese con nosotros a la brevedad. Comparamos todas las aseguradoras para ofrecerle la mejor opción.
+
+¿Prefiere que le contacte por WhatsApp? Escríbame al +507 6292-6010.`
+  },
+  cotizacion: {
+    sub: '📋 Cotización de seguros preparada para {{nombre}} — JAC Seguros',
+    body: `Estimado/a {{nombre}},
+
+Con mucho gusto le comparto la cotización que preparé especialmente para usted.
+
+A continuación encontrará las opciones más competitivas del mercado panameño para el seguro de {{ramo}}:
+
+[ADJUNTE O DETALLE LA COTIZACIÓN AQUÍ]
+
+Recuerde que como su corredora, mi asesoría es completamente gratuita. Usted paga exactamente lo mismo que si contratara directamente con la aseguradora.
+
+Para proceder o consultar dudas, estoy disponible.`
+  },
+  cumpleanos: {
+    sub: '🎂 ¡Feliz cumpleaños, {{nombre}}! — JAC Seguros',
+    body: `Estimado/a {{nombre}},
+
+¡Hoy es un día muy especial! En nombre de todo el equipo de JAC Seguros, le deseamos un muy feliz cumpleaños lleno de salud, felicidad y éxitos.
+
+Es un privilegio contar con su confianza. ¡Que pase un maravilloso día! 🎉🎊`
+  },
+  cobranza: {
+    sub: '💳 Recordatorio de pago — Póliza {{poliza}}',
+    body: `Estimado/a {{nombre}},
+
+Le escribo para recordarle que tiene un pago pendiente correspondiente a su póliza de {{ramo}} con {{aseguradora}} (N° {{poliza}}).
+
+💰 Monto: {{prima}}
+📅 Fecha límite de pago recomendada: [FECHA]
+
+Para evitar la suspensión de su cobertura, le recomendamos realizar el pago a la brevedad.
+
+Si ya realizó el pago, por favor ignore este mensaje o confírmenos para actualizar nuestros registros.`
+  },
+  siniestro: {
+    sub: '🚑 Actualización de su siniestro — JAC Seguros',
+    body: `Estimado/a {{nombre}},
+
+Le escribo para brindarle una actualización sobre el siniestro reportado.
+
+📋 Estado actual: [ESTADO DEL SINIESTRO]
+🔢 Número de siniestro CIA: [NÚMERO]
+🏛 Aseguradora: {{aseguradora}}
+
+Estamos dando seguimiento activo a su caso. Cualquier documento adicional que requieran, le comunicaremos de inmediato.
+
+Estoy a su disposición para cualquier consulta.`
+  },
+  soat: {
+    sub: '🚗 Su SOAT / Seguro de Autos vence pronto — Renueve ya',
+    body: `Estimado/a {{nombre}},
+
+Le recordamos que su Seguro Obligatorio de Daños a Terceros (SOAT) / seguro de vehículo está próximo a vencer.
+
+🚗 Vehículo: [PLACA / MODELO]
+📅 Vencimiento: {{vencimiento}}
+
+Circular sin SOAT vigente es una infracción y puede acarrear multas. 
+
+Renueve hoy mismo. El proceso es rápido y puedo gestionarlo sin que usted tenga que moverse. Escríbame al +507 6292-6010.`
+  },
+  agradecimiento: {
+    sub: '🙏 Gracias por su confianza — JAC Seguros',
+    body: `Estimado/a {{nombre}},
+
+Quiero tomarme un momento para agradecerle por confiar en JAC Seguros para la protección de lo que más valora.
+
+Estamos comprometidos a brindarle el mejor servicio y asesoría en todo momento. Recuerde que ante cualquier eventualidad, estamos aquí para acompañarle.
+
+¡Gracias por elegirnos! Que siga siendo un excelente cliente. 😊`
+  },
+  presentacion: {
+    sub: '🌟 Conozca JAC Seguros — Su corredora de confianza en Panamá',
+    body: `Estimado/a {{nombre}},
+
+Me dirijo a usted para presentarle los servicios de JAC Seguros, su corredora de seguros autorizada en Panamá (Lic. #6175).
+
+🛡️ ¿Qué hacemos?
+Comparamos TODAS las aseguradoras autorizadas para encontrarle la mejor cobertura al mejor precio — sin costo adicional para usted.
+
+📊 Trabajamos con:
+• ASSA • SURA • MAPFRE • IS • PALIG • La Regional • FEDPA • Chubb y más
+
+🎯 Especialidades:
+✅ Autos y SOAT  ✅ Salud y Vida  ✅ Hogar e Incendio  ✅ Empresas  ✅ Fianzas
+
+¿Le gustaría recibir una cotización sin compromiso? Con mucho gusto le atiendo.`
+  }
+};
+
+// ── VARIABLES HANDLER ──
+function cemResolveVars(text) {
+  // Try to fill vars from current entity context
+  let data = {};
+  if (cemEntityType === 'cliente' || cemEntityType === 'prospecto') {
+    const c = cemEntityType === 'cliente' ? GC(cemEntityId) : GPros(cemEntityId);
+    if (c) {
+      data.nombre = c.nombre || '';
+      data.email  = c.email  || '';
+      data.cel    = c.cel    || '';
+    }
+  }
+  if (cemEntityType === 'poliza') {
+    const p = GP(cemEntityId);
+    const cl = p ? GC(p.clienteId) : {};
+    if (p) {
+      data.nombre       = cl.nombre || data.nombre || '';
+      data.poliza       = p.polNum || p.num || '';
+      data.ramo         = p.ramo || '';
+      data.aseguradora  = p.aseg || p.aseguradora || '';
+      data.vencimiento  = p.fechaFin ? fmt(p.fechaFin) : '';
+      data.prima        = p.prima ? fmtM(p.prima) : '';
+    }
+  }
+  // Also try from To field name
+  const toEl = document.getElementById('cem-to');
+  if (toEl && toEl.dataset.clientNombre) data.nombre = toEl.dataset.clientNombre;
+  // Replace all vars
+  return text
+    .replace(/\{\{nombre\}\}/g, data.nombre || '[NOMBRE]')
+    .replace(/\{\{poliza\}\}/g, data.poliza || '[N° PÓLIZA]')
+    .replace(/\{\{ramo\}\}/g, data.ramo || '[RAMO]')
+    .replace(/\{\{aseguradora?\}\}/g, data.aseguradora || '[ASEGURADORA]')
+    .replace(/\{\{aseg\}\}/g, data.aseguradora || '[ASEGURADORA]')
+    .replace(/\{\{vence\}\}/g, data.vencimiento || '[VENCIMIENTO]')
+    .replace(/\{\{vencimiento\}\}/g, data.vencimiento || '[VENCIMIENTO]')
+    .replace(/\{\{prima\}\}/g, data.prima || '[PRIMA]');
+}
+
+// ── APPLY TEMPLATE ──
+function cemApplyTemplate() {
+  const sel = document.getElementById('cem-template');
+  const key = sel?.value;
+  if (!key || !EMAIL_TEMPLATES[key]) return;
+  const tpl = EMAIL_TEMPLATES[key];
+  const subEl = document.getElementById('cem-sub');
+  const bodyEl = document.getElementById('cem-body');
+  if (subEl) subEl.value = cemResolveVars(tpl.sub);
+  if (bodyEl) {
+    bodyEl.value = cemResolveVars(tpl.body) + JAC_FIRMA;
+    cemUpdateCount();
+  }
+  toast('📋 Plantilla aplicada — revisa y personaliza', 'ok', 2500);
+}
+
+// ── INSERT SIGNATURE ──
+function cemInsertSignature() {
+  const el = document.getElementById('cem-body');
+  if (!el) return;
+  if (el.value.includes('JAC Seguros | jacsegurospa.com')) {
+    toast('La firma ya está incluida', 'warn', 2000); return;
+  }
+  el.value += JAC_FIRMA;
+  cemUpdateCount();
+  toast('✍️ Firma insertada', 'ok', 1500);
+}
+
+// ── FORMAT TEXT ──
+function cemFmt(type) {
+  const el = document.getElementById('cem-body');
+  if (!el) return;
+  const start = el.selectionStart, end = el.selectionEnd;
+  const sel = el.value.substring(start, end);
+  if (!sel) { toast('Selecciona texto primero', 'warn', 1500); return; }
+  const markers = { bold: '**', italic: '_' };
+  const m = markers[type] || '';
+  el.value = el.value.substring(0, start) + m + sel + m + el.value.substring(end);
+  el.setSelectionRange(start, end + m.length * 2);
+  cemUpdateCount();
+}
+
+// ── INSERT VARIABLE ──
+function cemInsertVar(v) {
+  const el = document.getElementById('cem-body');
+  if (!el) return;
+  const pos = el.selectionStart;
+  el.value = el.value.substring(0, pos) + v + el.value.substring(pos);
+  el.setSelectionRange(pos + v.length, pos + v.length);
+  el.focus();
+}
+
+// ── CHAR COUNT ──
+function cemUpdateCount() {
+  const el = document.getElementById('cem-body');
+  const cnt = document.getElementById('cem-char-count');
+  if (el && cnt) {
+    const chars = el.value.length;
+    const words = el.value.trim() ? el.value.trim().split(/\s+/).length : 0;
+    cnt.textContent = `${words} palabras · ${chars} caracteres`;
+  }
+}
+
+// ── TABS ──
+function cemSwitchTab(tab) {
+  ['compose','preview','hist'].forEach(t => {
+    const panel = document.getElementById(`cem-${t}-tab`);
+    const btn   = document.getElementById(`cemtab-${t}`);
+    if (panel) panel.style.display = t === tab ? (t==='compose'?'block':'block') : 'none';
+    if (btn) {
+      btn.style.color = t === tab ? '#1D4ED8' : 'var(--mu)';
+      btn.style.borderBottomColor = t === tab ? '#1D4ED8' : 'transparent';
+      btn.style.background = t === tab ? 'var(--wh)' : 'transparent';
+      btn.style.fontWeight = t === tab ? '700' : '600';
+    }
+  });
+  if (tab === 'preview') cemBuildPreview();
+  if (tab === 'hist')    cemLoadHistTab();
+}
+
+// ── BUILD PREVIEW ──
+function cemBuildPreview() {
+  const from = document.getElementById('cem-from')?.value || '';
+  const to   = document.getElementById('cem-to')?.value   || '';
+  const sub  = document.getElementById('cem-sub')?.value  || 'Sin asunto';
+  const body = document.getElementById('cem-body')?.value || '';
+  document.getElementById('prev-from').textContent    = from;
+  document.getElementById('prev-to').textContent      = to;
+  document.getElementById('prev-subject').textContent = sub;
+  // Convert markdown-ish bold (**text**) and line breaks
+  const fmtBody = esc(body)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/_([^_]+)_/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+  document.getElementById('prev-body').innerHTML = fmtBody;
+}
+
+// ── EMAIL HISTORY TAB ──
+function cemLoadHistTab() {
+  const el = document.getElementById('cem-hist-content');
+  if (!el) return;
+  // Gather emails from current entity
+  let emails = [];
+  if (cemEntityId && cemEntityType === 'cliente') {
+    const c = GC(cemEntityId);
+    emails = (c._historial || []).filter(h => h.tipo === 'email' || h.msgType === 'Email');
+  } else if (cemEntityId && cemEntityType === 'prospecto') {
+    const p = GPros(cemEntityId);
+    emails = (p._historial || []).filter(h => h.tipo === 'email' || h.msgType === 'Email');
+  }
+  // Also search across all entities by cem-to email
+  const toEmail = document.getElementById('cem-to')?.value?.toLowerCase() || '';
+  if (!emails.length && toEmail) {
+    (S.clientes||[]).forEach(c => {
+      if ((c.email||'').toLowerCase() === toEmail)
+        emails = [...emails, ...(c._historial||[]).filter(h=>h.tipo==='email'||h.msgType==='Email')];
+    });
+  }
+  if (!emails.length) { el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">📭 Sin historial de correos para este contacto</div>'; return; }
+  emails.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  el.innerHTML = emails.slice(0,20).map(e => {
+    const track = e.tracking || {};
+    const opened = track.openedAt ? `<span style="color:#15803D;font-size:10px;font-weight:600">✅ Abierto ${fmt(track.openedAt.slice(0,10))}</span>` : '<span style="color:var(--mu);font-size:10px">⬜ Sin abrir</span>';
+    const clicked = track.clickedAt ? `<span style="color:#1D4ED8;font-size:10px;font-weight:600">🔗 Clic registrado</span>` : '';
+    return `<div style="padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(e.subject||e.preview||e.accion||'—')}</span>
+        <span style="font-size:10px;color:var(--mu);white-space:nowrap;margin-left:8px">${fmt(e.fecha||'')}</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">${opened}${clicked?'&nbsp;·&nbsp;'+clicked:''}</div>
+      ${e.resultado?`<div style="font-size:10px;color:var(--mu)">Para: ${esc(e.resultado)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── DRAFT SAVE / LOAD ──
+function cemSaveDraft() {
+  const draft = {
+    from: document.getElementById('cem-from')?.value,
+    to:   document.getElementById('cem-to')?.value,
+    cc:   document.getElementById('cem-cc')?.value,
+    sub:  document.getElementById('cem-sub')?.value,
+    body: document.getElementById('cem-body')?.value,
+    savedAt: new Date().toISOString(),
+    entityType: cemEntityType,
+    entityId:   cemEntityId
+  };
+  localStorage.setItem('jac_email_draft', JSON.stringify(draft));
+  toast('💾 Borrador guardado', 'ok', 2000);
+}
+function cemLoadDraft() {
+  const raw = localStorage.getItem('jac_email_draft');
+  if (!raw) { toast('No hay borrador guardado', 'warn', 2000); return; }
+  const d = JSON.parse(raw);
+  SVal('cem-from', d.from); SVal('cem-to', d.to); SVal('cem-cc', d.cc);
+  SVal('cem-sub', d.sub);   SVal('cem-body', d.body);
+  cemUpdateCount();
+  toast(`📂 Borrador cargado (${fmt(d.savedAt?.slice(0,10)||'')})`, 'ok', 2500);
+}
+
+// ── IMPROVED openComposeEmail ──
+function openComposeEmail(toEmail, toName, subject, body, entityType, entityId) {
+  cemEntityType = entityType || null;
+  cemEntityId   = entityId   || null;
+  // Reset tabs
+  cemSwitchTab('compose');
+  document.getElementById('cem-template').value = '';
+  SVal('cem-to',   toEmail  || '');
+  SVal('cem-cc',   '');
+  SVal('cem-sub',  subject  || '');
+  SVal('cem-body', body     || '');
+  // Set name hint on to field
+  const toEl = document.getElementById('cem-to');
+  if (toEl && toName) toEl.dataset.clientNombre = toName;
+  // Auto-insert signature if body is empty or doesn't have it
+  const bodyEl = document.getElementById('cem-body');
+  if (bodyEl && !bodyEl.value.includes('JAC Seguros | jacsegurospa.com')) {
+    bodyEl.value = (bodyEl.value || '') + JAC_FIRMA;
+  }
+  // Status line
+  const sl = document.getElementById('cem-status-line');
+  if (sl && toName) sl.textContent = `Para: ${toName}${entityType?' · '+entityType:''}`;
+  cemUpdateCount();
+  OM('mcem');
+}
+
+// ── IMPROVED sendEmailViaEJS ──
+async function sendEmailViaEJS() {
+  const to   = V('cem-to');
+  const sub  = V('cem-sub');
+  const body = V('cem-body');
+  const from = V('cem-from') || 'jcastro@jacsegurospa.com';
+  const cc   = V('cem-cc')   || '';
+  if (!to || !sub || !body) { toast('Completa Para, Asunto y Mensaje', 'err'); return; }
+  const cfg = JSON.parse(localStorage.getItem('jac_ejs_cfg') || '{}');
+  if (!cfg['ejs-pub'] || !cfg['ejs-svc']) { toast('Configura EmailJS en ⚙️ Configuración → Integración', 'err'); return; }
+  const tpl = cfg['ejs-tpl-general'] || cfg['ejs-tpl-ren'] || cfg['ejs-tpl-bday'];
+  if (!tpl) { toast('Falta template ID en Configuración → EmailJS', 'err'); return; }
+  const btn = document.getElementById('cem-send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
+  try {
+    const trackEnabled = document.getElementById('cem-track')?.checked;
+    const trackId = trackEnabled ? (window._cemTrackId || uid()) : null;
+    window._cemTrackId = trackId;
+    const params = { to_email: to, to_name: V('cem-to'), from_email: from,
+      reply_to: from, cc_email: cc, subject: sub, message: body,
+      ...(trackId ? { track_open: `https://crm.jacsegurospa.com?jem_open=${trackId}`,
+                      track_click: `https://crm.jacsegurospa.com?jem_click=${trackId}` } : {}) };
+    const ok = await sendEmailJS(tpl, params);
+    if (ok) {
+      toast('✅ Email enviado correctamente', 'ok');
+      logEmailSent();
+      CM('mcem');
+    } else {
+      toast('❌ Error al enviar. Verifica la config de EmailJS', 'err', 5000);
+    }
+  } catch(e) {
+    toast('❌ Error: ' + (e.message || e), 'err', 5000);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📧 Enviar →'; }
+  }
+}
+
+// ── IMPROVED sendEmailViaMailto ──
+function sendEmailViaMailto() {
+  const to   = V('cem-to')  || '';
+  const cc   = V('cem-cc')  || '';
+  const sub  = V('cem-sub') || '';
+  const body = V('cem-body')|| '';
+  if (!to) { toast('Ingresa el email del destinatario', 'err'); return; }
+  let url = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+  if (cc) url += `&cc=${encodeURIComponent(cc)}`;
+  window.open(url, '_blank');
+  logEmailSent();
+  toast('📨 Abriendo cliente de correo...', 'ok', 2000);
+}
+// END JAC EMAIL MODULE v2
 
 </script>
 </div><div id="pg-is" class="pg">
