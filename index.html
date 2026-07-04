@@ -4746,7 +4746,7 @@ function switchEmpTab(t,el){empTab=t;document.querySelectorAll('#emp-tabs a').fo
 function REmp(){
   const q=(document.getElementById('s-emp')?.value||'').toLowerCase();
   const emp=S.clientes.filter(c=>c.tipo==='Empresa').filter(c=>
-    !q|||(c.nombre||'').toLowerCase().includes(q)||(c.cedula||'').includes(q)
+    !q||(c.nombre||'').toLowerCase().includes(q)||(c.cedula||'').includes(q)
   );
   const colPols=S.polizas.filter(p=>['SALUD/MÉDICOS','VIDA','ACCIDENTES PERSONALES','SALUD GRUPAL','VIDA GRUPAL'].includes(p.ramo));
   const totalPrima=emp.reduce((s,c)=>{const ps=polsByC(c.id);return s+ps.reduce((a,p)=>a+(+p.prima||0),0);},0);
@@ -6011,7 +6011,7 @@ function renderInfResumen(){
       return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px" title="${mn}: ${fmtM(v)}">
         <span style="font-size:9px;font-weight:700;color:${isNow?'#1E3A8A':'var(--mu)'}">${v>0?fmtM(v):''}</span>
         <div style="width:100%;background:${isNow?'#1E3A8A':'#93C5FD'};height:${h}px;border-radius:3px 3px 0 0;min-height:${v>0?4:0}px;transition:height .4s ease"></div>
-        <span style="font-size:9px;color:${isNow?'#1E3A8A':'var(--mu)';font-weight:${isNow?'700':'400'}">${mn}</span>
+        <span style="font-size:9px;color:${isNow?'#1E3A8A':'var(--mu)'};font-weight:${isNow?700:400}">${mn}</span>
       </div>`;
     }).join('')+'</div>';
 }
@@ -9810,7 +9810,6 @@ SH=function(pg){
 };
 
 
-}
 </script>
 
 
