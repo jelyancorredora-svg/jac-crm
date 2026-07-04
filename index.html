@@ -248,6 +248,25 @@ body.dark #mcem [style*="background:#F8FAFC"][style*="border-bottom"]{background
 #mcem button[onclick*="cemFmt"]:hover{background:#EEF4FF !important;border-color:#93C5FD !important}
 #mcem button[onclick*="cemInsertVar"]:hover{background:#C7D7FF !important}
 /* END EMAIL CSS */
+
+/* ══ WA MASIVO v2 ══ */
+body.dark #wam-preview{background:#0D2818 !important;color:#86EFAC !important;border-color:#166534 !important}
+body.dark #wam-list > div{border-color:var(--dark-bd) !important}
+body.dark #wam-list > div:hover{background:var(--dark-nav)}
+body.dark [style*="background:#F8FAFC"][style*="border-bottom"]{background:#0F172A !important;border-color:var(--dark-bd) !important}
+/* ══ EMPRESAS v2 ══ */
+body.dark #emp-view .card{background:var(--dark-card) !important}
+body.dark #emp-view [style*="background:linear-gradient(135deg,#1E3A8A"]{opacity:.85}
+body.dark #emp-view [style*="background:#F8FAFC"]{background:var(--dark-nav) !important}
+body.dark #emp-sg .st{background:var(--dark-card)}
+/* ══ EMAIL v2 tabs ══ */
+body.dark #mcem [style*="background:#F8FAFC"]{background:#0F172A !important}
+body.dark [id^="cemtab-"]{color:var(--dark-mu) !important}
+body.dark [id^="cemtab-"].selected{color:#93C5FD !important}
+body.dark #cem-preview-tab [style*="background:#F8FAFC"]{background:#0F172A !important}
+body.dark #cem-preview-tab [style*="background:#fff"]{background:var(--dark-card) !important;color:var(--dark-tx) !important}
+body.dark #prev-body{color:var(--dark-tx) !important}
+/* END EXTRA CSS */
 </style>
  <!-- Supabase JS SDK -->
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -621,16 +640,29 @@ body.dark #mcem [style*="background:#F8FAFC"][style*="border-bottom"]{background
 
 <!-- EMPRESAS -->
 <div class="pg" id="pg-emp">
- <div class="ph"><div><h2>🏢 Empresas &amp; Colectivos</h2><small id="empcnt"></small></div></div>
+ <div class="ph">
+  <div>
+   <h2>🏢 Empresas & Colectivos</h2>
+   <small id="empcnt"></small>
+  </div>
+  <div class="tb">
+   <input class="si" id="s-emp" placeholder="Buscar empresa, RUC..." style="flex:1;min-width:140px" oninput="REmp()">
+   <button class="btn bp" onclick="OC()">+ Empresa</button>
+   <button class="btn" style="background:#7C3AED;color:#fff;border-color:#7C3AED" onclick="exportEmpExcel()">📊 Excel</button>
+  </div>
+ </div>
+ <!-- STATS CARDS -->
+ <div class="sg" id="emp-sg" style="margin-bottom:10px"></div>
+ <!-- TABS -->
  <div class="ptabs" id="emp-tabs">
- <a class="on" onclick="switchEmpTab('emp',this)">🏢 Empresas</a>
- <a onclick="switchEmpTab('col',this)">👥 Pólizas Colectivas</a>
- <a onclick="switchEmpTab('asd',this)">📋 Asegurados</a>
+  <a class="on" onclick="switchEmpTab('emp',this)">🏢 Empresas</a>
+  <a onclick="switchEmpTab('col',this)">👥 Pólizas Colectivas</a>
+  <a onclick="switchEmpTab('asd',this)">📋 Asegurados</a>
+  <a onclick="switchEmpTab('map',this)">📊 Análisis</a>
  </div>
  <div id="emp-view"></div>
 </div>
 
-<!-- ASEGURADORAS -->
 <div class="pg" id="pg-aseg">
  <div class="ph"><div><h2>🏛 Aseguradoras</h2><small id="asegcnt"></small></div><button class="btn bp" onclick="OAseg()">+ Aseguradora</button></div>
  <div id="gaseg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px"></div>
@@ -3075,11 +3107,14 @@ function logEmailSent(){
  if(cemEntityType==='poliza'&&dpOn){const pol=GP(cemEntityId);if(pol)setTimeout(()=>showPolDP(cemEntityId),200);}
 }
 function openEmailForClient(cid){
- const c=GC(cid);if(!c.email){toast('Cliente sin email registrado','err');return;}
- const fn=(c.nombre||'').split(' ')[0];
- const sub=`JAC Seguros — Hola ${fn}`;
- const body=`Estimado/a ${c.nombre},\n\nEspero que se encuentre muy bien.\n\nMe pongo en contacto desde JAC Seguros.\n\n\n\nQuedo atenta a su respuesta.\n\nAtentamente,\nJely An Castro Pérez\nJAC Seguros\n📞 +507 6292-6010`;
- openComposeEmail(c.email,c.nombre,sub,body,'cliente',cid);
+  const c=GC(cid);
+  if(!c.email){toast('Cliente sin email registrado','err');return;}
+  openComposeEmail(c.email,c.nombre,'','cliente',cid,'cliente',cid);
+  // Auto-select bienvenida template after modal opens
+  setTimeout(()=>{
+    document.getElementById('cem-template').value='bienvenida';
+    cemApplyTemplate();
+  },150);
 }
 function openEmailForPros(pid){
  const p=GPros(pid);if(!p.email){toast('Prospecto sin email registrado','err');return;}
@@ -4683,25 +4718,148 @@ function DTar(id){confirm2('¿Eliminar?',()=>{S.tareas=S.tareas.filter(x=>x.id!=
 // ── EMPRESAS ──
 function switchEmpTab(t,el){empTab=t;document.querySelectorAll('#emp-tabs a').forEach(a=>a.classList.remove('on'));el.classList.add('on');REmp();}
 function REmp(){
- const emp=S.clientes.filter(c=>c.tipo==='Empresa');
- const colPols=S.polizas.filter(p=>['SALUD/MÉDICOS','VIDA','ACCIDENTES PERSONALES'].includes(p.ramo));
- const cnt=document.getElementById('empcnt');if(cnt)cnt.textContent=`${emp.length} empresas · ${colPols.length} pólizas colectivas`;
- if(empTab==='emp'){
- let h='<div class="card"><div class="tw"><table><thead><tr><th>Empresa</th><th>RUC/Doc.</th><th>Celular</th><th>Email</th><th>Ciudad</th><th>Pólizas</th><th>Prima</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
- emp.forEach(c=>{const ps=polsByC(c.id),tP=ps.reduce((s,p)=>s+(p.prima||0),0),wa=waBtnC(c);h+=`<tr onclick="showCliDP('${c.id}')" style="cursor:pointer"><td style="font-weight:600">${esc(c.nombre)}</td><td style="font-family:monospace;font-size:11px">${esc(c.cedula)}</td><td>${esc(c.cel||'—')}</td><td style="font-size:11px">${esc(c.email||'—')}</td><td style="font-size:11px">${esc(c.ciudad||'—')}</td><td>${ps.length?b('bok',ps.length+' pólizas'):'—'}</td><td style="font-weight:700">${fmtM(tP)}</td><td onclick="event.stopPropagation()">${wa||'—'}</td><td onclick="event.stopPropagation()"><div class="ab">${c.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForClient('${c.id}')">📧</button>`:''}<button class="btn bsm bic" onclick="OC('${c.id}')">✏️</button></div></td></tr>`;});
- if(!emp.length)h+='<tr><td colspan="9" style="padding:24px;text-align:center;color:var(--mu)">Sin empresas</td></tr>';
- const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
- }else if(empTab==='col'){
- let h='<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Póliza</th><th>Empresa</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Asegurados</th><th>Vence</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
- colPols.forEach(p=>{const cl=GC(p.clienteId),asd=(p.asegurados||[]).length,wb=waBtnsP(p,cl);h+=`<tr onclick="showPolDP('${p.id}')" style="cursor:pointer"><td>${statusB(p)}</td><td style="font-family:monospace;font-size:11px;font-weight:600">${esc(p.num)}</td><td style="font-weight:600">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</td><td><span style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg)}</span></td><td style="font-size:11px">${esc(p.ramo)}</td><td style="font-weight:700">${fmtM(p.prima)}</td><td onclick="event.stopPropagation()"><button class="btn bsm" onclick="OAsd('${p.id}')">${asd?'📋 '+asd+' aseg.':'+Asegurado'}</button></td><td>${fmt(p.fechaFin)}</td><td onclick="event.stopPropagation()"><div class="ab">${wb}</div></td><td onclick="event.stopPropagation()"><div class="ab">${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''}<button class="btn bsm bgn" onclick="openRen('${p.id}')">🔄</button><button class="btn bsm bic" onclick="OP('${p.id}')">✏️</button></div></td></tr>`;});
- if(!colPols.length)h+='<tr><td colspan="10" style="padding:24px;text-align:center;color:var(--mu)">Sin pólizas colectivas</td></tr>';
- const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
- }else{
- let h='<div class="card"><div class="tw"><table><thead><tr><th>Póliza</th><th>Empresa</th><th>Nombre Asegurado</th><th>Doc.</th><th>Cargo</th><th>Celular</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';let tot=0;
- S.polizas.forEach(p=>{(p.asegurados||[]).forEach(a=>{tot++;const cl=GC(p.clienteId);const wu=a.cel?waL(a.cel,`Hola ${a.nombre.split(' ')[0]} 👋🏼, te contactamos de *JAC Seguros*.\n\n_JAC Seguros · 📞 +507 6292-6010_`):null;h+=`<tr><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td style="font-size:11px">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</td><td style="font-weight:600">${esc(a.nombre)}</td><td style="font-size:11px">${esc(a.cedula||'—')}</td><td style="font-size:11px">${esc(a.cargo||'—')}</td><td style="font-size:11px">${esc(a.cel||'—')}</td><td>${wu?waBtn(wu,'','','Asegurado',a.nombre,'💬','bwa bsm'):'—'}</td><td><button class="btn bsm bic brd2" onclick="DAsd('${p.id}','${a.id||a.cedula}')">🗑</button></td></tr>`;});});
- if(!tot)h+='<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--mu)">Sin asegurados</td></tr>';
- const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
- }
+  const q=(document.getElementById('s-emp')?.value||'').toLowerCase();
+  const emp=S.clientes.filter(c=>c.tipo==='Empresa').filter(c=>
+    !q|||(c.nombre||'').toLowerCase().includes(q)||(c.cedula||'').includes(q)
+  );
+  const colPols=S.polizas.filter(p=>['SALUD/MÉDICOS','VIDA','ACCIDENTES PERSONALES','SALUD GRUPAL','VIDA GRUPAL'].includes(p.ramo));
+  const totalPrima=emp.reduce((s,c)=>{const ps=polsByC(c.id);return s+ps.reduce((a,p)=>a+(+p.prima||0),0);},0);
+  const totalCom=emp.reduce((s,c)=>{const ps=polsByC(c.id);return s+ps.reduce((a,p)=>a+(+p.comision||0),0);},0);
+  const cnt=document.getElementById('empcnt');
+  if(cnt)cnt.textContent=`${emp.length} empresas · ${colPols.length} pólizas colectivas · ${S.asegurados?.length||0} asegurados`;
+  // Stats
+  const sg=document.getElementById('emp-sg');
+  if(sg)sg.innerHTML=[
+    {e:'🏢',l:'Empresas',v:emp.length,c:'#1E3A8A'},
+    {e:'📋',l:'Pólizas Colectivas',v:colPols.length,c:'#7C3AED'},
+    {e:'👥',l:'Asegurados',v:S.asegurados?.length||0,c:'#15803D'},
+    {e:'💰',l:'Prima Empresas',v:fmtM(totalPrima),c:'#D97706'},
+    {e:'💵',l:'Comisión',v:fmtM(totalCom),c:'#0891B2'},
+  ].map(x=>`<div class="st" style="cursor:default"><em>${x.e} ${x.l}</em><div class="n" style="color:${x.c};font-size:16px">${x.v}</div></div>`).join('');
+  // Views
+  if(empTab==='emp'){
+    if(!emp.length){document.getElementById('emp-view').innerHTML='<div class="card" style="padding:40px;text-align:center;color:var(--mu)">🏢 Sin empresas registradas. Crea un cliente de tipo "Empresa".</div>';return;}
+    let h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">';
+    emp.forEach(c=>{
+      const ps=polsByC(c.id);
+      const tP=ps.reduce((s,p)=>s+(+p.prima||0),0);
+      const tC=ps.reduce((s,p)=>s+(+p.comision||0),0);
+      const vigentes=ps.filter(p=>dFrom(p.fechaFin)>=0&&p.estado!=='Cancelada');
+      const vence30=ps.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';});
+      const tel=c.cel||c.tel||'';
+      const wu=tel?waL(tel,`Hola ${(c.nombre||'').split(' ')[0]}, soy Jely de JAC Seguros.`):null;
+      h+=`<div class="card" style="padding:0;overflow:hidden">
+        <div style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8);padding:14px 16px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:14px;font-weight:800">${esc(c.nombre||'—')}</div>
+            <div style="font-size:10px;opacity:.75;margin-top:2px">RUC: ${esc(c.cedula||'—')} · ${esc(c.ciudad||'Panamá')}</div>
+          </div>
+          <div style="background:rgba(255,255,255,.15);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700">${ps.length} póliza${ps.length!==1?'s':''}</div>
+        </div>
+        <div style="padding:12px 14px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div style="text-align:center;background:#F8FAFC;border-radius:6px;padding:8px">
+              <div style="font-size:15px;font-weight:800;color:#15803D">${fmtM(tP)}</div>
+              <div style="font-size:9px;color:var(--mu)">Prima Total</div>
+            </div>
+            <div style="text-align:center;background:#F8FAFC;border-radius:6px;padding:8px">
+              <div style="font-size:15px;font-weight:800;color:#1D4ED8">${fmtM(tC)}</div>
+              <div style="font-size:9px;color:var(--mu)">Comisión</div>
+            </div>
+          </div>
+          ${vigentes.length?`<div style="font-size:11px;margin-bottom:6px">✅ <strong>${vigentes.length}</strong> póliza${vigentes.length!==1?'s':''} vigente${vigentes.length!==1?'s':''}</div>`:''}
+          ${vence30.length?`<div style="font-size:11px;color:#DC2626;margin-bottom:6px">⚠️ <strong>${vence30.length}</strong> vence${vence30.length===1?'':'n'} en 30 días</div>`:''}
+          ${ps.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">${[...new Set(ps.map(p=>p.ramo))].slice(0,4).map(r=>`<span style="font-size:9px;background:#EEF4FF;color:#1D4ED8;border-radius:4px;padding:2px 6px;font-weight:600">${r}</span>`).join('')}</div>`:''}
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn bsm bp" onclick="OC('${c.id}')">✏️ Ver</button>
+            ${wu?`<a href="${wu}" target="_blank" class="btn bsm bwa">💬 WA</a>`:''}
+            ${c.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForClient('${c.id}')">📧</button>`:''}
+            <button class="btn bsm" style="background:#15803D;color:#fff;border-color:#15803D" onclick="empQuoteGroup('${c.id}')">📋 Cotizar</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    h+='</div>';
+    document.getElementById('emp-view').innerHTML=h;
+  } else if(empTab==='col'){
+    if(!colPols.length){document.getElementById('emp-view').innerHTML='<div class="card" style="padding:40px;text-align:center;color:var(--mu)">👥 Sin pólizas colectivas registradas.</div>';return;}
+    let h='<div class="card"><div class="tw"><table><thead><tr><th>Estado</th><th>Empresa</th><th>Aseg.</th><th>Ramo</th><th>N° Póliza</th><th>Prima</th><th>Vence</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
+    colPols.forEach(p=>{
+      const cl=GC(p.clienteId);const d=dFrom(p.fechaFin);
+      const col=d<0?'#DC2626':d<=30?'#D97706':'#15803D';
+      const stLbl=d<0?'Vencida':d<=30?`${d}d`:fmt(p.fechaFin);
+      const t=cl.cel||cl.tel||p.celCliente||'';
+      const wu=t?waL(t,waRenMsg(p,cl)):null;
+      h+=`<tr>
+        <td><span class="b" style="background:${col}18;color:${col}">${stLbl}</span></td>
+        <td style="font-weight:600">${esc(cl.nombre||p.nombreCliente||'—')}</td>
+        <td style="color:${ac(p.aseg)};font-weight:700;font-size:11px">${esc(p.aseg||'—')}</td>
+        <td style="font-size:11px">${esc(p.ramo||'—')}</td>
+        <td style="font-family:monospace;font-size:11px">${esc(p.polNum||p.num||'—')}</td>
+        <td style="font-weight:700">${fmtM(+p.prima||0)}</td>
+        <td style="font-size:11px">${p.fechaFin?fmt(p.fechaFin):'—'}</td>
+        <td>${wu?waBtn(wu,'cliente',cl.id||'','Renovación colectiva',cl.nombre||'','💬','bwa bsm'):''}</td>
+        <td style="display:flex;gap:4px"><button class="btn bsm bic" onclick="OP('${p.id}')">📋</button>${cl.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForPol('${p.id}')">📧</button>`:''}</td>
+      </tr>`;
+    });
+    h+='</tbody></table></div></div>';
+    document.getElementById('emp-view').innerHTML=h;
+  } else if(empTab==='asd'){
+    const asd=S.asegurados||[];
+    if(!asd.length){document.getElementById('emp-view').innerHTML='<div class="card" style="padding:30px;text-align:center;color:var(--mu)">📋 Sin asegurados registrados.<br><small>Los asegurados se agregan desde las pólizas colectivas.</small></div>';return;}
+    let h='<div class="card"><div class="tw"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Empresa</th><th>Póliza</th><th>Ramo</th><th>Aseg.</th><th>Fecha Nac.</th><th>Email</th></tr></thead><tbody>';
+    asd.forEach(a=>{
+      h+=`<tr><td style="font-weight:600">${esc(a.nombre||'—')}</td><td style="font-family:monospace;font-size:11px">${esc(a.cedula||'—')}</td><td style="font-size:11px">${esc(a.empresa||'—')}</td><td style="font-family:monospace;font-size:11px">${esc(a.polNum||'—')}</td><td style="font-size:11px">${esc(a.ramo||'—')}</td><td style="font-size:11px;font-weight:700;color:${ac(a.aseg)}">${esc(a.aseg||'—')}</td><td style="font-size:11px">${a.fechaNac?fmt(a.fechaNac):'—'}</td><td style="font-size:11px">${esc(a.email||'—')}</td></tr>`;
+    });
+    h+='</tbody></table></div></div>';
+    document.getElementById('emp-view').innerHTML=h;
+  } else if(empTab==='map'){
+    // Analysis tab
+    const ramoEmp={};
+    colPols.forEach(p=>{const r=p.ramo||'Otro';ramoEmp[r]=(ramoEmp[r]||0)+1;});
+    const asegEmp={};
+    colPols.forEach(p=>{const a=(p.aseg||'—').split(',')[0].trim();asegEmp[a]=(asegEmp[a]||0)+(+p.prima||0);});
+    let h=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card"><div class="ch"><h3>📊 Pólizas Colectivas por Ramo</h3></div><div style="padding:12px">`;
+    const maxR=Math.max(1,...Object.values(ramoEmp));
+    Object.entries(ramoEmp).sort((a,b)=>b[1]-a[1]).forEach(([r,n])=>{
+      const pct=Math.round(n/maxR*100);
+      h+=`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:600">${esc(r)}</span><span style="font-weight:700;color:#7C3AED">${n}</span></div><div style="height:7px;background:#F0F4FF;border-radius:4px;overflow:hidden"><div style="width:${pct}%;height:100%;background:#7C3AED;border-radius:4px"></div></div></div>`;
+    });
+    h+=`</div></div><div class="card"><div class="ch"><h3>🏛 Prima por Aseguradora</h3></div><div style="padding:12px">`;
+    const maxA=Math.max(1,...Object.values(asegEmp));
+    const asegClrs={'ASSA':'#005F9E','SURA':'#E85D04','MAPFRE':'#C8102E','IS':'#1A3A6B','PALIG':'#2D6A4F'};
+    Object.entries(asegEmp).sort((a,b)=>b[1]-a[1]).forEach(([a,v])=>{
+      const pct=Math.round(v/maxA*100);const col=asegClrs[a]||'#64748B';
+      h+=`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:600">${esc(a)}</span><span style="font-weight:700;color:${col}">${fmtM(v)}</span></div><div style="height:7px;background:#F0F4FF;border-radius:4px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:4px"></div></div></div>`;
+    });
+    h+='</div></div></div>';
+    document.getElementById('emp-view').innerHTML=h;
+  }
+}
+function empQuoteGroup(cid){
+  const c=GC(cid);
+  openComposeEmail(c.email||'',c.nombre,`JAC Seguros — Propuesta de seguros colectivos para ${c.nombre}`,'','cliente',cid);
+  setTimeout(()=>{
+    document.getElementById('cem-template').value='cotizacion';
+    cemApplyTemplate();
+  },200);
+}
+function exportEmpExcel(){
+  const emp=S.clientes.filter(c=>c.tipo==='Empresa');
+  if(!emp.length){toast('Sin empresas para exportar','warn');return;}
+  let csv='Empresa,RUC/Doc,Ciudad,Celular,Email,Pólizas,Prima Total,Comisión\n';
+  emp.forEach(c=>{
+    const ps=polsByC(c.id);
+    const tP=ps.reduce((s,p)=>s+(+p.prima||0),0);
+    const tC=ps.reduce((s,p)=>s+(+p.comision||0),0);
+    csv+=`"${c.nombre||''}","${c.cedula||''}","${c.ciudad||''}","${c.cel||''}","${c.email||''}",${ps.length},${tP.toFixed(2)},${tC.toFixed(2)}\n`;
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='JAC_Empresas_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  toast('📊 Excel exportado','ok');
 }
 function OAsd(polId){asdPolId=polId;['asd-no','asd-ce','asd-fn','asd-ca','asd-c2','asd-em'].forEach(id=>SVal(id,''));OM('masd');}
 function SAsd(){const nom=V('asd-no').trim();if(!nom){toast('Nombre obligatorio','err');return;}const i=S.polizas.findIndex(p=>p.id===asdPolId);if(i>=0){if(!S.polizas[i].asegurados)S.polizas[i].asegurados=[];S.polizas[i].asegurados.push({id:'ASD'+uid(),nombre:nom,cedula:V('asd-ce').trim(),fNac:V('asd-fn'),cargo:V('asd-ca').trim(),cel:V('asd-c2').trim(),email:V('asd-em').trim()});}save();CM('masd');REmp();toast('✓ Asegurado agregado');}
@@ -6761,87 +6919,162 @@ function wamUpdatePreview(){
  prev.textContent=samples[tipo]||samples.ren;
 }
 
-function wamBuildMsg(tipo,cl,pol){
- const fn=(cl.nombre||'Cliente').split(' ')[0];
- const sig=`\n\n📞 +507 6292-6010\n🌐 www.jacsegurospa.com\n_Jely An Castro Pérez · JAC Seguros_`;
- if(tipo==='ren'){
- const dias=pol&&pol.fechaFin?dFrom(pol.fechaFin):'?';
- return`Hola ${fn} 👋🏼\n\nTe escribimos desde *JAC Seguros* | *Jely An Castro* para avisarte que tu póliza de *${pol?.ramo||''}* con *${pol?.aseg||''}* (N° ${pol?.polNum||pol?.id||''}) vence el *${pol?.fechaFin?fmt(pol.fechaFin):'pronto'}* (${dias} días).\n\n¡No te quedes sin cobertura! Comunícate con nosotros para renovar.${sig}`;
- }
- if(tipo==='bday'){
- return`🎂 ¡Feliz Cumpleaños, ${fn}! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟${sig}`;
- }
- if(tipo==='cobro'){
- return`Hola ${fn} 👋🏼\n\nTe recordamos desde *JAC Seguros* | *Jely An Castro* que tienes un pago pendiente de tu póliza de *${pol?.ramo||''}* por *${pol?.prima?fmtM(pol.prima):'—'}*.${sig}`;
- }
- const customTpl=document.getElementById('wam-custom-msg')?.value||'Hola {nombre}, te contacta JAC Seguros.';
- return customTpl.replace(/{nombre}/gi,fn)+sig;
+function wamBuildMsg(tipo,cl,pol,customMsg){
+  const fn=(cl.nombre||'Cliente').split(' ')[0];
+  const sig=`\n\n📞 +507 6292-6010\n🌐 jacsegurospa.com\n_Jely An Castro · JAC Seguros · Lic. #6175_`;
+  switch(tipo){
+    case 'ren':{
+      const dias=pol?.fechaFin?dFrom(pol.fechaFin):'?';
+      const urgente=typeof dias==='number'&&dias<=7;
+      return`Hola ${fn} 👋\n\n${urgente?'🚨 *URGENTE* — ':''}Te escribo de *JAC Seguros* para avisarte que tu póliza de *${pol?.ramo||'seguro'}* con *${pol?.aseg||'la aseguradora'}*${pol?.polNum||pol?.num?' (N° '+(pol.polNum||pol.num)+')':''} vence el *${pol?.fechaFin?fmt(pol.fechaFin):'próximamente'}*${typeof dias==='number'?' — en '+dias+' día'+(dias!==1?'s':'')+'.':'.'}\n\n¡No te quedes sin cobertura! Te ayudo a renovar rápido y sin complicaciones.${sig}`;
+    }
+    case 'bday':
+      return`¡Hola ${fn}! 🎂\n\nEn nombre de *JAC Seguros* te deseo un muy *¡Feliz Cumpleaños!* 🎉🎊\n\nQue este nuevo año de vida esté lleno de salud, éxitos y mucha protección. ¡Es un privilegio contar con tu confianza!${sig}`;
+    case 'cobro':{
+      return`Hola ${fn} 👋\n\nTe recuerdo desde *JAC Seguros* que tienes un pago pendiente de tu póliza de *${pol?.ramo||'seguro'}* con *${pol?.aseg||'la aseguradora'}*${pol?.prima?' por *'+fmtM(+pol.prima||0)+'*':''}.\n\nPara evitar la suspensión de tu cobertura, te recomiendo realizar el pago a la brevedad. ¿Tienes alguna consulta?${sig}`;
+    }
+    case 'soat':{
+      return`Hola ${fn} 👋\n\nTe aviso de *JAC Seguros* que tu *SOAT* está próximo a vencer${pol?.fechaFin?' el *'+fmt(pol.fechaFin)+'*':''}.\n\nRecuerda que circular sin SOAT vigente es infracción. ¡Renuévalo hoy mismo! Te lo gestiono en minutos.${sig}`;
+    }
+    case 'nuevapoliza':
+      return`Hola ${fn} 👋\n\nSoy *Jely* de *JAC Seguros* y te escribo para presentarte nuestra asesoría.\n\nComparamos TODAS las aseguradoras de Panamá para encontrarte la mejor cobertura al mejor precio, *sin costo adicional*. 🛡️\n\n¿Te gustaría recibir una cotización gratuita? ¡Con gusto te atiendo!${sig}`;
+    case 'siniestro':
+      return`Hola ${fn} 👋\n\nTe contacto de *JAC Seguros* para darte seguimiento a tu siniestro. Estamos trabajando para resolverlo lo antes posible.\n\n¿Tienes alguna duda o necesitas documentación adicional? Estoy aquí para ayudarte.${sig}`;
+    case 'custom':
+      return(customMsg||'').replace(/\{nombre\}/g,fn).replace(/\{fn\}/g,fn)+sig;
+    default:
+      return`Hola ${fn} 👋, soy Jely de JAC Seguros. ¿En qué te puedo ayudar?${sig}`;
+  }
 }
 
 function wamGenerate(){
- const tipo=document.getElementById('wam-tipo')?.value||'ren';
- const ramo=document.getElementById('wam-ramo')?.value||'';
- const aseg=document.getElementById('wam-aseg')?.value||'';
- const dias=parseInt(document.getElementById('wam-dias')?.value||'30');
- const bdayDias=parseInt(document.getElementById('wam-bday-per')?.value||'7');
- wamData=[];
+  const tipo=document.getElementById('wam-tipo')?.value||'ren';
+  const ramo=document.getElementById('wam-ramo')?.value||'';
+  const aseg=document.getElementById('wam-aseg')?.value||'';
+  const dias=parseInt(document.getElementById('wam-dias')?.value||'30');
+  const bdayDias=parseInt(document.getElementById('wam-bday-per')?.value||'7');
+  const customMsg=document.getElementById('wam-custom-msg')?.value||'';
+  wamData=[];
+  const today=new Date();
 
- if(tipo==='ren'||tipo==='cobro'){
- const today=new Date();
- (S.polizas||[]).forEach(p=>{
- if(p.estado==='Cancelada')return;
- if(ramo&&p.ramo!==ramo)return;
- if(aseg&&p.aseg!==aseg)return;
- const d=typeof dFrom==='function'?dFrom(p.fechaFin):9999;
- if(d<0||d>dias)return;
- const cl=GC(p.clienteId)||{nombre:p.nombreCliente||'Cliente',cel:p.celCliente||''};
- const tel=cl.cel||cl.tel||'';
- if(!tel)return;
- const msg=wamBuildMsg(tipo,cl,p);
- wamData.push({id:p.id+'_'+cl.id,nombre:cl.nombre||'—',tel,dias:d,info:`${p.ramo||''} · ${p.aseg||''} · ${fmt(p.fechaFin)}`,msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
- });
- wamData.sort((a,b)=>a.dias-b.dias);
- } else if(tipo==='bday'){
- const today=new Date();
- (S.clientes||[]).forEach(c=>{
- if(!c.fNac)return;
- const tel=c.cel||c.tel||'';if(!tel)return;
- const bday=new Date(c.fNac);bday.setFullYear(today.getFullYear());
- if(bday<new Date(today.toISOString().split('T')[0]))bday.setFullYear(today.getFullYear()+1);
- const diff=Math.round((bday-today)/(864e5));
- if(diff<0||diff>bdayDias)return;
- const msg=wamBuildMsg('bday',c,null);
- wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:diff,info:`Cumpleaños en ${diff===0?'HOY':diff+' días'} · ${fmt(c.fNac)}`,msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
- });
- } else {
- (S.clientes||[]).forEach(c=>{
- const tel=c.cel||c.tel||'';if(!tel)return;
- const msg=wamBuildMsg('custom',c,null);
- wamData.push({id:c.id,nombre:c.nombre||'—',tel,dias:0,info:'Cliente',msg,sel:true,url:`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(msg)}`});
- });
- }
-
- wamRenderList();
+  if(tipo==='ren'||tipo==='cobro'||tipo==='soat'){
+    (S.polizas||[]).forEach(p=>{
+      if(p.estado==='Cancelada')return;
+      if(ramo&&p.ramo!==ramo)return;
+      if(aseg&&(p.aseg||p.aseguradora)!==aseg)return;
+      if(tipo==='soat'&&!['SOAT','DAÑOS A TERCEROS','SOAT/DAÑOS A TERCEROS'].includes(p.ramo))return;
+      const d=typeof dFrom==='function'?dFrom(p.fechaFin):-999;
+      if(typeof d!=='number'||d<0||d>dias)return;
+      const cl=GC(p.clienteId)||{};
+      const tel=fmtWANum(cl.cel||cl.tel||p.celCliente||'');
+      wamData.push({
+        id:p.id,tipo,
+        nombre:cl.nombre||p.nombreCliente||'—',
+        tel,email:cl.email||'',
+        msg:wamBuildMsg(tipo,cl,p,customMsg),
+        dias:d,pol:p,cli:cl,sel:!!tel,
+        noTel:!tel
+      });
+    });
+    wamData.sort((a,b)=>a.dias-b.dias);
+  } else if(tipo==='bday'){
+    const lim=new Date(today); lim.setDate(lim.getDate()+bdayDias);
+    (S.clientes||[]).forEach(c=>{
+      if(!c.fechaNac)return;
+      const parts=c.fechaNac.split('-');if(parts.length<3)return;
+      const mm=parseInt(parts[1]),dd=parseInt(parts[2]);
+      const bday=new Date(today.getFullYear(),mm-1,dd);
+      if(bday<today)bday.setFullYear(today.getFullYear()+1);
+      const diff=Math.round((bday-today)/86400000);
+      if(diff>bdayDias)return;
+      const tel=fmtWANum(c.cel||c.tel||'');
+      wamData.push({id:c.id,tipo,nombre:c.nombre||'—',tel,email:c.email||'',msg:wamBuildMsg('bday',c,null,customMsg),dias:diff,pol:null,cli:c,sel:!!tel,noTel:!tel});
+    });
+    wamData.sort((a,b)=>a.dias-b.dias);
+  } else if(tipo==='nuevapoliza'){
+    (S.prospectos||[]).filter(p=>p.etapaVenta!=='Cliente ganado'&&p.etapaVenta!=='Perdido').forEach(p=>{
+      const tel=fmtWANum(p.cel||'');
+      wamData.push({id:p.id,tipo,nombre:p.nombre||'—',tel,email:p.email||'',msg:wamBuildMsg('nuevapoliza',p,null,customMsg),pol:null,cli:p,sel:!!tel,noTel:!tel});
+    });
+  } else if(tipo==='siniestro'){
+    (S.siniestros||[]).filter(s=>['En proceso','Pendiente docs'].includes(s.estado)).forEach(s=>{
+      const cl=GC(s.clienteId)||{};
+      const tel=fmtWANum(cl.cel||cl.tel||'');
+      wamData.push({id:s.id,tipo,nombre:cl.nombre||'—',tel,email:cl.email||'',msg:wamBuildMsg('siniestro',cl,null,customMsg),pol:null,cli:cl,sel:!!tel,noTel:!tel});
+    });
+  } else if(tipo==='custom'){
+    (S.clientes||[]).forEach(c=>{
+      const tel=fmtWANum(c.cel||c.tel||'');
+      wamData.push({id:c.id,tipo,nombre:c.nombre||'—',tel,email:c.email||'',msg:wamBuildMsg('custom',c,null,customMsg),pol:null,cli:c,sel:!!tel,noTel:!tel});
+    });
+  }
+  wamRenderList();
+  const conTel=wamData.filter(w=>w.tel).length;
+  const sinTel=wamData.filter(w=>!w.tel).length;
+  if(!wamData.length){toast('Sin destinatarios con esos filtros','warn');return;}
+  toast(`✅ ${wamData.length} destinatarios (${conTel} con WA${sinTel?' · ⚠️ '+sinTel+' sin tel':''})`,'ok',4000);
 }
 
 function wamRenderList(){
- const cnt=document.getElementById('wam-cnt');
- const tot=document.getElementById('wam-total-cnt');
- const sel=wamData.filter(x=>x.sel).length;
- if(cnt)cnt.textContent=`${wamData.length} destinatarios · ${sel} seleccionados`;
- if(tot)tot.textContent=`${sel} seleccionados de ${wamData.length}`;
- const el=document.getElementById('wam-list');
- if(!el)return;
- if(!wamData.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">Sin destinatarios con los filtros seleccionados</div>';return;}
- el.innerHTML=wamData.map((w,i)=>`
- <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #F1F5F9;${w.sel?'':'opacity:.5'}">
- <input type="checkbox" ${w.sel?'checked':''} onchange="wamData[${i}].sel=this.checked;wamRenderList()" style="width:16px;height:16px;cursor:pointer">
- <div style="flex:1;min-width:0">
- <div style="font-weight:700;font-size:12px">${esc(w.nombre)}</div>
- <div style="font-size:10px;color:var(--mu)">${esc(w.info)} · 📞 ${esc(w.tel)}</div>
- </div>
- <a href="${w.url}" target="_blank" rel="noopener" class="btn bwa bsm" style="white-space:nowrap" title="Abrir WhatsApp">💬 Enviar</a>
- </div>`).join('');
+  const cnt=document.getElementById('wam-cnt');
+  const tot=document.getElementById('wam-total-cnt');
+  const sel=wamData.filter(x=>x.sel).length;
+  const sinTel=wamData.filter(x=>x.noTel).length;
+  if(cnt)cnt.textContent=`${wamData.length} destinatarios · ${sel} seleccionados${sinTel?' · ⚠️ '+sinTel+' sin teléfono':''}`;
+  if(tot)tot.textContent=`${sel} de ${wamData.length}`;
+  const el=document.getElementById('wam-list');
+  if(!el)return;
+  if(!wamData.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--mu);font-size:12px">Sin destinatarios</div>';return;}
+  el.innerHTML=`
+    <div style="display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--bd);background:#F8FAFC;flex-wrap:wrap;align-items:center">
+      <button class="btn bsm bgn" onclick="wamSendSelected()" style="font-weight:700">⚡ Enviar seleccionados (${sel})</button>
+      <button class="btn bsm" onclick="wamSelectAll(true)">✅ Todos</button>
+      <button class="btn bsm" onclick="wamSelectAll(false)">⬜ Ninguno</button>
+      ${sinTel?`<span style="font-size:10px;color:#DC2626;font-weight:600">⚠️ ${sinTel} sin teléfono</span>`:''}
+    </div>`+
+    wamData.map((w,i)=>{
+      const dias=w.dias;
+      const urgente=typeof dias==='number'&&dias<=7;
+      const msgLen=w.msg.length;
+      return`<div style="padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:10px;${w.noTel?'opacity:.5':''}${urgente?'background:#FFF9F9':''}">
+        <input type="checkbox" ${w.sel?'checked':''} ${w.noTel?'disabled':''} onchange="wamData[${i}].sel=this.checked;wamRenderList()" style="margin-top:3px;flex-shrink:0;accent-color:#25D366">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(w.nombre)}</span>
+            <div style="display:flex;gap:4px;flex-shrink:0">
+              ${urgente?'<span style="font-size:9px;background:#FEE2E2;color:#DC2626;border-radius:4px;padding:1px 5px;font-weight:700">URGENTE</span>':''}
+              ${typeof dias==='number'?`<span style="font-size:10px;color:var(--mu)">${dias===0?'HOY':dias+'d'}</span>`:''}
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--mu);margin-top:1px">
+            ${w.noTel?'<span style="color:#DC2626;font-weight:600">⚠️ Sin teléfono</span>':esc(w.tel)}
+            ${w.pol?` · ${esc(w.pol.ramo||'')} · ${esc(w.pol.aseg||'')}`:w.cli.etapaVenta?` · ${esc(w.cli.etapaVenta)}`:''}
+          </div>
+          <div style="font-size:9px;color:var(--mu);margin-top:2px">📝 ${msgLen} caracteres${msgLen>1024?` · <span style="color:#D97706">largo para WA</span>`:''}</div>
+        </div>
+        ${!w.noTel?`<a href="${waL(w.tel,w.msg)}" target="_blank" class="btn bsm bwa" onclick="wamMarkSent(${i})" title="Enviar por WhatsApp">💬</a>`:''}
+      </div>`;
+    }).join('');
+}
+
+function wamMarkSent(i){
+  if(wamData[i])wamData[i]._sent=true;
+  setTimeout(()=>{
+    const items=document.querySelectorAll('#wam-list > div[style*="border-bottom"]');
+    if(items[i])items[i].style.background='#F0FDF4';
+  },200);
+}
+
+function wamSendSelected(){
+  const sel=wamData.filter(w=>w.sel&&w.tel);
+  if(!sel.length){toast('Selecciona al menos un destinatario con teléfono','warn');return;}
+  if(sel.length>5){
+    toast(`⚡ Abriendo ${sel.length} chats — confirma cada envío en WhatsApp`,'ok',4000);
+    sel.forEach((w,i)=>setTimeout(()=>window.open(waL(w.tel,w.msg),'_blank'),i*800));
+  } else {
+    sel.forEach(w=>window.open(waL(w.tel,w.msg),'_blank'));
+    toast(`✅ ${sel.length} WhatsApp${sel.length>1?'s':''} abierto${sel.length>1?'s':''}. ¡Envía cada uno!`,'ok',4000);
+  }
 }
 
 function wamSelectAll(v){wamData.forEach(w=>w.sel=v);wamRenderList();}
@@ -10515,6 +10748,128 @@ function sendEmailViaMailto() {
   toast('📨 Abriendo cliente de correo...', 'ok', 2000);
 }
 // END JAC EMAIL MODULE v2
+
+
+// ══════════════════════════════════════════════════════════════
+// MEJORAS ADICIONALES JAC CRM v5
+// ══════════════════════════════════════════════════════════════
+
+// ── 1. Ctrl+N = Nueva entrada rápida según módulo activo ──
+document.addEventListener('keydown', function(eN){
+  if((eN.ctrlKey||eN.metaKey)&&eN.key==='n'&&!eN.shiftKey){
+    const active=document.querySelector('.pg.on');
+    if(!active)return;
+    eN.preventDefault();
+    const id=active.id;
+    if(id==='pg-cli')OC();
+    else if(id==='pg-pol')OP();
+    else if(id==='pg-pros')OPros();
+    else if(id==='pg-tar')OT_open();
+    else if(id==='pg-sin')OS();
+    else if(id==='pg-pag')OPag();
+    else if(id==='pg-not')ONot();
+    else if(id==='pg-com')OCom();
+    else toast('Ctrl+N: nueva entrada rápida','ok',1500);
+  }
+});
+
+// ── 2. Quick-copy para números de póliza y cédula ──
+function copyToClipboard(text,label){
+  navigator.clipboard.writeText(text).then(()=>toast('📋 '+label+' copiado','ok',1500)).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    toast('📋 '+label+' copiado','ok',1500);
+  });
+}
+
+// ── 3. Scroll-to-top button ──
+(function(){
+  const btn=document.createElement('button');
+  btn.id='scroll-top-btn';
+  btn.innerHTML='▲';
+  btn.title='Volver arriba';
+  btn.style.cssText='position:fixed;bottom:72px;right:16px;width:36px;height:36px;border-radius:50%;background:var(--bl);color:#fff;border:none;cursor:pointer;font-size:14px;display:none;align-items:center;justify-content:center;z-index:90;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:.2s;opacity:.8';
+  btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+  document.body.appendChild(btn);
+  window.addEventListener('scroll',()=>{
+    btn.style.display=window.scrollY>300?'flex':'none';
+  },{passive:true});
+})();
+
+// ── 4. Auto-save indicator ──
+const _origSaveX=save;
+if(typeof save==='function'){
+  window.save=function(){
+    _origSaveX();
+    const ind=document.getElementById('save-indicator');
+    if(ind){ind.textContent='💾 Guardado';ind.style.opacity='1';setTimeout(()=>ind.style.opacity='0',2000);}
+  };
+}
+
+// ── 5. Mejoras WAM: wamUpdatePreview mejorado ──
+const _origWAMPreview=wamUpdatePreview;
+function wamUpdatePreview(){
+  const tipo=document.getElementById('wam-tipo')?.value||'ren';
+  ['wam-filter-ren','wam-filter-bday','wam-custom-wrap'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  if(tipo==='ren'||tipo==='cobro'||tipo==='soat'){const el=document.getElementById('wam-filter-ren');if(el)el.style.display='';}
+  else if(tipo==='bday'){const el=document.getElementById('wam-filter-bday');if(el)el.style.display='';}
+  else if(tipo==='custom'){const el=document.getElementById('wam-custom-wrap');if(el)el.style.display='';}
+  // Build preview
+  const prev=document.getElementById('wam-preview');
+  if(!prev)return;
+  const sampleCli={nombre:'María González',cel:'+50762001234'};
+  const samplePol={ramo:'Automóvil',aseg:'ASSA',polNum:'POL-2024-001',fechaFin:new Date(Date.now()+15*86400000).toISOString().slice(0,10),prima:350};
+  const customMsg=document.getElementById('wam-custom-msg')?.value||'Hola {nombre}, te contacto de JAC Seguros.';
+  prev.textContent=wamBuildMsg(tipo,sampleCli,tipo==='bday'?null:samplePol,customMsg);
+  // Character count
+  const len=prev.textContent.length;
+  const lenEl=document.getElementById('wam-preview-len');
+  if(lenEl)lenEl.textContent=len+' caracteres'+(len>1024?' ⚠️ largo':'');
+}
+
+// ── 6. Atajos teclado adicionales ──
+document.addEventListener('keydown',function(eX){
+  if((eX.ctrlKey||eX.metaKey)&&eX.shiftKey&&eX.key==='E'){
+    eX.preventDefault();
+    openComposeEmail('','','','','','');
+    toast('📧 Nuevo email','ok',1500);
+  }
+  if((eX.ctrlKey||eX.metaKey)&&eX.shiftKey&&eX.key==='W'){
+    eX.preventDefault();
+    SH('wam');
+    toast('📣 WA Masivo','ok',1500);
+  }
+});
+
+// ── 7. wamUpdatePreview on tipo change + auto-preview on load ──
+setTimeout(()=>{
+  try{wamUpdatePreview();}catch(e){}
+  // Add char count div to WAM preview if not exists
+  const wp=document.getElementById('wam-preview');
+  if(wp&&!document.getElementById('wam-preview-len')){
+    const d=document.createElement('div');
+    d.id='wam-preview-len';
+    d.style.cssText='font-size:10px;color:var(--mu);text-align:right;margin:4px 10px 0';
+    wp.parentElement.appendChild(d);
+  }
+},500);
+
+// ── 8. Función de estadísticas rápidas para el header ──
+function quickStats(){
+  const p30=S.polizas.filter(p=>{const d=dFrom(p.fechaFin);return d>=0&&d<=30&&p.estado!=='Cancelada';}).length;
+  const tPend=S.tareas.filter(t=>t.etapaTarea!=='Hecho'&&t._autoTipo!=='comision').length;
+  const comPend=S.comisiones.filter(c=>c.estado==='pendiente').reduce((s,c)=>s+(c.monto||0),0);
+  const bdays=getTodayBirthdays().length;
+  let msg=`📊 JAC Seguros — Resumen rápido:
+• ${p30} póliza${p30!==1?'s':''} por vencer en 30d
+• ${tPend} tarea${tPend!==1?'s':''} pendiente${tPend!==1?'s':''}
+• ${fmtM(comPend)} por cobrar`;
+  if(bdays)msg+=`
+• 🎂 ${bdays} cumpleaño${bdays!==1?'s':''} HOY`;
+  toast(msg,'ok',6000);
+}
+// END MEJORAS ADICIONALES v5
 
 </script>
 </div><div id="pg-is" class="pg">
