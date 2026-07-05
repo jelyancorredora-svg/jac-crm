@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v99 -->
+<!DOCTYPE html><!-- v100 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -292,7 +292,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
  <a onclick="SH('pag')">ð³ Pagos</a>
  <a onclick="SH('sin')">ð Siniestros</a>
  <a onclick="SH('veh')">ð Autos/Motos</a>
- <a onclick="SH('com')">ð° Comisiones</a>
+ <a onclick="SH('com');renderCom()">ð° Comisiones</a>
  <a onclick="SH('tar')">â Tareas</a>
  <a onclick="SH('emp')">ð¢ Empresas</a>
  <a onclick="SH('aseg')">ð Aseg.</a>
@@ -511,7 +511,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
 </div>
 
 <!-- COMISIONES -->
-<div class="pg" id="pg-com">
+<div class="pg" id="pg-com-old">
  <div class="ph">
  <div><h2>ð° Comisiones</h2></div>
  <div style="display:flex;gap:6px">
@@ -9977,7 +9977,58 @@ h+='</tr>';
 h+='</tbody></table></div>';
 }
 GI('wamas-body').innerHTML=h;
-}</script>
+}
+function renderCom(view){
+view=view||'pol';
+GI('com-bpol').className='btn'+(view==='pol'?' bpr':'');
+GI('com-baseg').className='btn'+(view==='aseg'?' bpr':'');
+var rows=[];
+(S.polizas||[]).forEach(function(p){
+if(p.estado==='cancelada')return;
+var cl=GC(p.clienteId)||{};
+var pa=parseFloat(p.prima)||0;
+var pm=parseFloat(p.primaMensual)||pa/12;
+var pct=parseFloat(p.comisionPct)||0;
+var ca=pa*pct/100,cm=pm*pct/100;
+rows.push({p:p,cl:cl,pa:pa,pm:pm,pct:pct,ca:ca,cm:cm,aseg:p.aseguradora||'Sin aseg.'});
+});
+rows.sort(function(a,b){return b.ca-a.ca;});
+var tPa=rows.reduce(function(s,r){return s+r.pa;},0);
+var tCa=rows.reduce(function(s,r){return s+r.ca;},0);
+var tCm=rows.reduce(function(s,r){return s+r.cm;},0);
+GI('com-kpi').innerHTML='<div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Primas Anuales</div><div style="font-size:22px;font-weight:800;color:#1E293B">'+fmtM(tPa)+'</div></div><div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Comision Anual Est.</div><div style="font-size:22px;font-weight:800;color:#2563EB">'+fmtM(tCa)+'</div></div><div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Comision Mensual Est.</div><div style="font-size:22px;font-weight:800;color:#059669">'+fmtM(tCm)+'</div></div>';
+if(view==='pol'){
+var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #EEF2F8;border-radius:10px;overflow:hidden">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Cliente</th><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Poliza</th><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseguradora</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Prima Anual</th><th style="padding:10px 12px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Com%</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Anual</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Mensual</th></tr></thead><tbody>';
+rows.forEach(function(r){
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:9px 12px;font-size:12px">'+esc(r.cl.nombre||'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:11px;font-family:monospace">'+esc(r.p.numero||'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:11px;color:#64748B">'+esc(r.aseg)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right">'+fmtM(r.pa)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:center">'+(r.pct?r.pct+'%':'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right;font-weight:600;color:#2563EB">'+fmtM(r.ca)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right;color:#059669">'+fmtM(r.cm)+'</td>';
+h+='</tr>';});
+h+='</tbody></table></div>';
+GI('com-body').innerHTML=h;
+}else{
+var byA={};
+rows.forEach(function(r){if(!byA[r.aseg])byA[r.aseg]={aseg:r.aseg,cnt:0,pa:0,ca:0,cm:0};byA[r.aseg].cnt++;byA[r.aseg].pa+=r.pa;byA[r.aseg].ca+=r.ca;byA[r.aseg].cm+=r.cm;});
+var arows=Object.values(byA).sort(function(a,b){return b.ca-a.ca;});
+var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #EEF2F8;border-radius:10px;overflow:hidden">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseguradora</th><th style="padding:10px 12px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Polizas</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Total Prima</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Anual Est.</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Mensual Est.</th></tr></thead><tbody>';
+arows.forEach(function(a){
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:10px 12px;font-size:13px;font-weight:600">'+esc(a.aseg)+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:center">'+a.cnt+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:right">'+fmtM(a.pa)+'</td>';
+h+='<td style="padding:10px 12px;font-size:13px;text-align:right;font-weight:700;color:#2563EB">'+fmtM(a.ca)+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:right;color:#059669">'+fmtM(a.cm)+'</td>';
+h+='</tr>';});
+h+='</tbody></table></div>';
+GI('com-body').innerHTML=h;
+}}</script>
 </div><div id="pg-is" class="pg">
 <style>
 .is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
@@ -10034,6 +10085,12 @@ GI('wamas-body').innerHTML=h;
 <div id="cal-detail" style="display:none;margin-top:16px;background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"></div>
 </div>
 <div id="modWAmas" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center" onclick="if(event.target===this)closeWAMas()"><div style="background:#fff;border-radius:12px;width:90%;max-width:720px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)"><div style="padding:16px 20px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;justify-content:space-between"><span style="font-size:16px;font-weight:700;color:#1E293B">Recordatorios WA de Renovacion</span><button onclick="closeWAMas()" style="background:transparent;border:none;cursor:pointer;font-size:22px;color:#94A3B8;line-height:1">&times;</button></div><div style="padding:16px 20px;overflow-y:auto;flex:1"><div id="wamas-body"></div></div></div></div>
+<div id="pg-com" class="pg">
+<h1 style="font-size:20px;font-weight:700;color:#1E293B;margin:0 0 20px">Comisiones</h1>
+<div id="com-kpi" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
+<div style="display:flex;gap:8px;margin-bottom:14px"><button id="com-bpol" class="btn bpr" onclick="renderCom('pol')" style="font-size:12px">Por Poliza</button><button id="com-baseg" class="btn" onclick="renderCom('aseg')" style="font-size:12px">Por Aseguradora</button></div>
+<div id="com-body"></div>
+</div>
 <div id="gSearch" onclick="if(event.target===this)closeSearch()">
 <div class="gs-box">
 <div class="gs-inw"><span style="font-size:20px">&#128269;</span><input id="gsInp" type="text" placeholder="Buscar clientes, p�lizas, tareas..." oninput="doSearch(this.value)" onkeydown="gsKey(event)" autocomplete="off"><kbd style="padding:2px 8px;border:1px solid #CBD5E1;border-radius:4px;font-size:11px;color:#64748B;cursor:pointer" onclick="closeSearch()">Esc</kbd></div>
