@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v95 -->
+<!DOCTYPE html><!-- v96 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -3142,19 +3142,41 @@ function RD(){
  const t=cl.cel||cl.tel||p.celCliente||'';const wu=t?waL(t,waRenMsg(p,cl)):null;
  const nom=(cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' ');
  rh+=`<div class="renew-row">${dot(col)}<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(nom)}</div><div style="font-size:10px;color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div></div><span class="b" style="background:${col}18;color:${col}">${d===0?'HOY':d+'d'}</span>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm'):''}`;
+ rh+=(cl.email?'<button class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB;font-size:10px" onclick="openEmailForClient(this.dataset.id)" data-id="'+cl.id+'">📧</button>':'');
+ rh+='<button class="btn bsm bic" style="font-size:10px" onclick="OP(this.dataset.id)" data-id="'+p.id+'">&#9998;</button>';
  rh+='</div>';});rh+='</div>';}
  const dren=document.getElementById('dren');if(dren)dren.innerHTML=rh;
  // dcom removed from dashboard — commissions managed in Comisiones module
  const pTar=S.tareas.filter(t=>t.etapaTarea!=='Hecho');
  let th=`<div class="ch"><h3>✅ Tareas</h3><button class="btn bsm" onclick="SH('tar')">Ver →</button></div>`;
  if(!pTar.length)th+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin tareas pendientes ✓</div>';
- else{th+='<div>';pTar.slice(0,6).forEach(t=>{th+=`<div style="padding:8px 13px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;gap:7px">${dot(pcol(t.prioridad))}<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.titulo)}</div><div style="font-size:10px;color:var(--mu)">${t.tipo||''}</div></div>${t.fechaLimite?`<span style="font-size:10px;color:var(--mu)">${fmt(t.fechaLimite)}</span>`:''}</div>`;});th+='</div>';}
+ else{th+='<div>';pTar.slice(0,10).forEach(t=>{
+var tc=t._autoTipo==='cliente'?GC(t._autoRef):(t._autoTipo==='poliza'?GC((GP(t._autoRef)||{}).clienteId):null);
+var tp=t._autoTipo==='poliza'?GP(t._autoRef):null;
+var twu=tc&&tc.cel?tc.cel.replace(/[^0-9]/g,''):'';
+th+='<div style="padding:8px 13px;border-bottom:1px solid #EEF2F8">';
+th+='<div style="display:flex;align-items:center;gap:6px">'+dot(pcol(t.prioridad));
+th+='<div style="flex:1;min-width:0">';
+th+='<div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(t.titulo||t.desc||'')+'</div>';
+if(tc)th+='<div style="font-size:10px;color:var(--mu)">'+esc(tc.nombre||'')+(tp?' � P�l:'+esc(tp.numero||''):'')+'</div>';
+if(t.fechaLimite)th+='<span style="font-size:10px;color:var(--mu)">'+fmt(t.fechaLimite)+'</span>';
+th+='</div></div>';
+th+='<div style="display:flex;gap:4px;padding-top:4px">';
+if(twu)th+=waBtn(twu,'cliente',tc?tc.id||'':'','Tarea',tc?tc.nombre||'':'','💬','bwa bsm');
+if(tc&&tc.email)th+='<button class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB;font-size:10px" onclick="openEmailForClient(this.dataset.id)" data-id="'+tc.id+'">&#128231;</button>';
+th+='<button class="btn bsm bic" style="font-size:10px" onclick="OT(this.dataset.id)" data-id="'+t.id+'">&#9998;</button>';
+th+='</div></div>';
+});th+='</div>';}
  const dtar=document.getElementById('dtar');if(dtar)dtar.innerHTML=th;
  const venc=S.polizas.filter(p=>dFrom(p.fechaFin)<0&&p.estado!=='Cancelada'&&(p.estado||'').toLowerCase()!=='vigente');
  let vh=`<div class="ch"><h3>🔴 Vencidas (${venc.length})</h3></div>`;
  if(!venc.length)vh+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin vencidas ✓</div>';
- else{vh+='<div style="padding:10px;display:flex;flex-wrap:wrap;gap:6px">';venc.forEach(p=>{const cl=GC(p.clienteId);const t=cl.cel||cl.tel||p.celCliente||'';const wu=t?waL(t,waRenMsg(p,cl)):null;vh+=`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 10px;font-size:11px;flex:1;min-width:130px"><div style="font-weight:700">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</div><div style="color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm')+'':''}</div>`;});vh+='</div>';}
- const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;const cancel=S.polizas.filter(p=>(p.etapa||p.estado||'').toLowerCase().includes('cancel'));let vc='<div class="ch"><h3>🚫 Canceladas ('+cancel.length+')</h3></div>';if(!cancel.length){vc+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin canceladas ✓</div>';}else{vc+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#FEE2E2"><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Póliza</th><th>Asegurado</th><th>Ramo</th><th>Aseguradora</th><th>Vencimiento</th><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Etiquetas</th></tr></thead><tbody>';cancel.forEach(function(p){var cl=GC(p.clienteId),nm=cl?cl.nombre:'—';vc+='<tr style="border-bottom:1px solid #FECACA"><td style="padding:5px;font-weight:600">'+(p.numeroPol||p.numPol||'—')+'</td><td>'+nm+'</td><td>'+(p.ramo||'—')+'</td><td>'+(p.aseguradora||'—')+'</td><td>'+(p.fechaFin||'—')+'</td><td style="padding:3px">'+renderTags(p.etiquetas||[])+'</td></tr>';});vc+='</tbody></table></div>';}const dcan=document.getElementById('dcan');if(dcan)dcan.innerHTML=vc;
+ else{vh+='<div style="padding:10px;display:flex;flex-wrap:wrap;gap:6px">';venc.forEach(p=>{const cl=GC(p.clienteId);const t=cl.cel||cl.tel||p.celCliente||'';const wu=t?waL(t,waRenMsg(p,cl)):null;vh+=`<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 10px;font-size:11px;flex:1;min-width:130px"><div style="font-weight:700">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</div><div style="color:var(--mu)">${esc(p.ramo)} · ${esc(p.aseg)}</div>${wu?waBtn(wu,'cliente',cl.id||'','Renovación',cl.nombre||'','💬','bwa bsm')+'':''}`;
+ vh+=(cl&&cl.email?'<button class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB;font-size:10px" onclick="openEmailForClient(this.dataset.id)" data-id="'+cl.id+'">&#128231;</button>':'');
+ vh+='<button class="btn bsm bic" style="font-size:10px" onclick="OP(this.dataset.id)" data-id="'+p.id+'">&#9998;</button></div>';
+});vh+='</div>';}
+ const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;const cancel=S.polizas.filter(p=>(p.etapa||p.estado||'').toLowerCase().includes('cancel'));let vc='<div class="ch"><h3>🚫 Canceladas ('+cancel.length+')</h3></div>';if(!cancel.length){vc+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin canceladas ✓</div>';}else{vc+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#FEE2E2"><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Póliza</th><th>Asegurado</th><th>Ramo</th><th>Aseguradora</th><th>Vencimiento</th><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Etiquetas</th><th style="padding:6px">Acc.</th></tr></thead><tbody>';cancel.forEach(function(p){var cl=GC(p.clienteId),nm=cl?cl.nombre:'—';
+var wu=cl&&cl.cel?cl.cel.replace(/[^0-9]/g,''):'';vc+='<tr style="border-bottom:1px solid #FECACA"><td style="padding:5px;font-weight:600">'+(p.numeroPol||p.numPol||'—')+'</td><td>'+nm+'</td><td>'+(p.ramo||'—')+'</td><td>'+(p.aseguradora||'—')+'</td><td>'+(p.fechaFin||'—')+'</td><td style="padding:3px">'+renderTags(p.etiquetas||[])+'</td>'+'<td style="padding:4px;white-space:nowrap">'+(wu?waBtn(wu,'cliente',cl?cl.id||'':'','P�liza',nm||'','💬','bwa bsm'):'')+(cl&&cl.email?'<button class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB;font-size:10px" onclick="openEmailForClient(this.dataset.id)" data-id="'+cl.id+'">&#128231;</button>':'')+'<button class="btn bsm bic" style="font-size:10px" onclick="OP(this.dataset.id)" data-id="'+p.id+'">&#9998;</button></td></tr>';});vc+='</tbody></table></div>';}const dcan=document.getElementById('dcan');if(dcan)dcan.innerHTML=vc;
  // Auto-run alert panels
  try{renderDashReminders();}catch(e){}
  try{if(typeof renderDashBirthdays==='function')renderDashBirthdays();}catch(e){}
