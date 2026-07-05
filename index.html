@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v101 -->
+<!DOCTYPE html><!-- v102 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -292,7 +292,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
  <a onclick="SH('pag')">ð³ Pagos</a>
  <a onclick="SH('sin')">ð Siniestros</a>
  <a onclick="SH('veh')">ð Autos/Motos</a>
- <a onclick="SH('com');renderCom()">ð° Comisiones</a>
+ <a onclick="SH('com');renderCom()">ð° Comisiones</a><a class="nav-item" onclick="SH('rep');renderRep()" title="Reportes">📊 <span>Reportes</span></a>
  <a onclick="SH('tar')">â Tareas</a>
  <a onclick="SH('emp')">ð¢ Empresas</a>
  <a onclick="SH('aseg')">ð Aseg.</a>
@@ -10068,6 +10068,77 @@ function renderHist(tipo,id){
   html+='</div>';
   body.innerHTML=html;
 }
+
+var _repTipo='pol',_repData=[];
+function renderRep(){
+  SH('rep');
+  repShow('pol');
+}
+function repShow(tipo){
+  _repTipo=tipo;
+  ['pol','pag','cli','com'].forEach(function(t){
+    var b=GI('rep-btn-'+t);
+    if(b){b.style.background=t===tipo?'#4361ee':'#fff';b.style.color=t===tipo?'#fff':'#333';b.style.borderColor=t===tipo?'#4361ee':'#ddd';}
+  });
+  var body=GI('rep-body');
+  var filt=GI('rep-filter');
+  filt.innerHTML='';
+  var rows=[];
+  if(tipo==='pol'){
+    rows=(S.polizas||[]).map(function(p){
+      var c=GC(p.clienteId)||{};
+      return {aseg:p.aseg||'—',ramo:p.ramo||'—',num:p.num||p.id,cliente:c.nombre||p.clienteId||'—',estado:p.estado||'Activa',ini:fmt(p.fechaIni||p.fechaInicio),fin:fmt(p.fechaFin),prima:fmtM(+(p.primaMensual||p.prima||0)),letrap:p.letraPrima||'—'};
+    });
+    var html='<table class="t"><thead><tr><th>Póliza</th><th>Aseg.</th><th>Ramo</th><th>Cliente</th><th>Estado</th><th>Inicio</th><th>Vence</th><th>Prima</th><th>Letra</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.num)+'</td><td>'+esc(r.aseg)+'</td><td>'+esc(r.ramo)+'</td><td>'+esc(r.cliente)+'</td><td>'+esc(r.estado)+'</td><td>'+esc(r.ini)+'</td><td>'+esc(r.fin)+'</td><td>'+esc(r.prima)+'</td><td>'+esc(r.letrap)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Póliza,Aseguradora,Ramo,Cliente,Estado,Inicio,Vence,Prima,Letra'.split(',')].concat(rows.map(function(r){return[r.num,r.aseg,r.ramo,r.cliente,r.estado,r.ini,r.fin,r.prima,r.letrap];}));
+  }else if(tipo==='pag'){
+    rows=(S.pagos||[]).map(function(p){
+      var pol=GP(p.polizaId)||{};var c=GC(pol.clienteId||p.cliente)||{};
+      return {fecha:fmt(p.fecha||p.fechaPago),cliente:c.nombre||p.cliente||'—',poliza:pol.num||p.polizaId||'—',aseg:pol.aseg||p.aseg||'—',monto:fmtM(+(p.monto||0)),cuota:p.cuota||'—',notas:p.notas||'—'};
+    }).sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'')||0;});
+    var html='<table class="t"><thead><tr><th>Fecha</th><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Monto</th><th>Cuota</th><th>Notas</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.fecha)+'</td><td>'+esc(r.cliente)+'</td><td>'+esc(r.poliza)+'</td><td>'+esc(r.aseg)+'</td><td>'+esc(r.monto)+'</td><td>'+esc(r.cuota)+'</td><td>'+esc(r.notas)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Fecha,Cliente,Póliza,Aseg,Monto,Cuota,Notas'.split(',')].concat(rows.map(function(r){return[r.fecha,r.cliente,r.poliza,r.aseg,r.monto,r.cuota,r.notas];}));
+  }else if(tipo==='cli'){
+    rows=(S.clientes||[]).map(function(c){
+      var pols=(S.polizas||[]).filter(function(p){return p.clienteId===c.id;});
+      return {nombre:c.nombre||'—',tel:c.tel||c.telefono||'—',email:c.email||'—',nPols:pols.length,activas:pols.filter(function(p){return (p.estado||'A')!=='Cancelada';}).length};
+    });
+    var html='<table class="t"><thead><tr><th>Cliente</th><th>Teléfono</th><th>Email</th><th>Pólizas</th><th>Activas</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.nombre)+'</td><td>'+esc(r.tel)+'</td><td>'+esc(r.email)+'</td><td>'+r.nPols+'</td><td>'+r.activas+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Cliente,Teléfono,Email,Total Pólizas,Activas'.split(',')].concat(rows.map(function(r){return[r.nombre,r.tel,r.email,r.nPols,r.activas];}));
+  }else if(tipo==='com'){
+    var map={};
+    (S.polizas||[]).filter(function(p){return (p.estado||'A')!=='Cancelada';}).forEach(function(p){
+      var k=p.aseg||'Sin aseg';
+      if(!map[k])map[k]={aseg:k,pols:0,primaMen:0,comEsp:0};
+      map[k].pols++;
+      map[k].primaMen+=+(p.primaMensual||p.prima||0);
+      map[k].comEsp+=+(p.comisionEsp||0);
+    });
+    rows=Object.values(map).sort(function(a,b){return b.primaMen-a.primaMen;});
+    var html='<table class="t"><thead><tr><th>Aseguradora</th><th>Pólizas</th><th>Prima Mensual</th><th>Com. Esp.</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.aseg)+'</td><td>'+r.pols+'</td><td>'+fmtM(r.primaMen)+'</td><td>'+fmtM(r.comEsp)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Aseguradora,Pólizas,Prima Mensual,Com.Esp'.split(',')].concat(rows.map(function(r){return[r.aseg,r.pols,fmtM(r.primaMen),fmtM(r.comEsp)];}));
+  }
+}
+function repExportCSV(){
+  if(!_repData||!_repData.length)return;
+  var csv=_repData.map(function(r){return r.map(function(c){return '"'+String(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='reporte_crm_'+_repTipo+'_'+(new Date).toISOString().slice(0,10)+'.csv';a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+}
 </script>
 </div><div id="pg-is" class="pg">
 <style>
@@ -10093,6 +10164,15 @@ function renderHist(tipo,id){
 .is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
 .is-btn:hover{background:#2980b9}
 .is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
+
+@media print{
+  nav,.nav-item,button:not(.print-show),#rep-filter{display:none!important;}
+  .pg{display:none!important;}
+  #pg-rep{display:block!important;}
+  body{background:#fff;}
+  .t{width:100%;border-collapse:collapse;font-size:11px;}
+  .t th,.t td{border:1px solid #ccc;padding:4px;text-align:left;}
+}
 </style>
 <div class="is-hdr">
 <h2>ð¥ Internacional de Seguros / BlueCross</h2>
@@ -10145,6 +10225,23 @@ function renderHist(tipo,id){
 <h2 id="hist-title" style="margin:0;font-size:20px;font-weight:700;color:#1a1a2e"></h2>
 </div>
 <div id="hist-body" style="min-height:200px"></div>
+</div>
+</div>
+
+<div class="pg" id="pg-rep" style="display:none">
+<div style="max-width:1100px;margin:0 auto;padding:16px">
+<h2 style="font-size:20px;font-weight:700;margin-bottom:16px;color:#1a1a2e">📊 Reportes</h2>
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+<button id="rep-btn-pol" onclick="repShow('pol')" style="padding:8px 16px;border-radius:8px;border:2px solid #4361ee;background:#4361ee;color:#fff;font-weight:600;cursor:pointer">📄 Pólizas</button>
+<button id="rep-btn-pag" onclick="repShow('pag')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">💳 Pagos</button>
+<button id="rep-btn-cli" onclick="repShow('cli')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">👤 Clientes</button>
+<button id="rep-btn-com" onclick="repShow('com')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">💰 Comisiones</button>
+<div style="flex:1"></div>
+<button onclick="repExportCSV()" style="padding:8px 16px;border-radius:8px;border:2px solid #28a745;background:#28a745;color:#fff;font-weight:600;cursor:pointer">⬇ Excel/CSV</button>
+<button onclick="window.print()" style="padding:8px 16px;border-radius:8px;border:2px solid #dc3545;background:#dc3545;color:#fff;font-weight:600;cursor:pointer">🖨 PDF</button>
+</div>
+<div id="rep-filter" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>
+<div id="rep-body" style="overflow-x:auto"></div>
 </div>
 </div>
 </body>
