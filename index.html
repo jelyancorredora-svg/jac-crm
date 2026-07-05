@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v94 -->
+<!DOCTYPE html><!-- v95 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -3225,7 +3225,7 @@ function RC(){
  <td>${ps.length?`<button class="btn bsm bok" onclick="showCliDP('${c.id}')">${ps.length} →</button>`:'—'}</td>
  <td onclick="event.stopPropagation()">${wa||'<span style="color:var(--mu);font-size:10px">Sin tel.</span>'}</td>
  <td onclick="event.stopPropagation()">${c.email?`<button class="btn bsm bin" onclick="openEmailForClient('${c.id}')" title="Enviar correo">📧 Email</button>`:'<span style="color:var(--mu);font-size:10px">—</span>'}</td>
- <td onclick="event.stopPropagation()"><div class="ab"><button class="btn bsm bic" onclick="OC('${c.id}')">✏️</button><button class="btn bsm bic" onclick="DC('${c.id}')" style="color:var(--rd)">🗑</button></div></td>
+ <td onclick="event.stopPropagation()"><div class="ab">${c.email?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8;font-size:11px" onclick="openEmailForClient('${c.id}')">📧</button>`:''}${(c.cel||c.tel)?`<a href="https://wa.me/507${(c.cel||c.tel).replace(/[^0-9]/g,'')}" target="_blank" class="btn bsm" style="background:#25d366;color:#fff;border-color:#25d366;font-size:11px">📱</a>`:''}<button class="btn bsm bic" onclick="OC('${c.id}')">✏️</button><button class="btn bsm bic" onclick="DC('${c.id}')" style="color:var(--rd)">🗑</button></div></td>
  </tr>`;
  });
  if(!h)h='<tr><td colspan="10" style="padding:24px;text-align:center;color:var(--mu)">Sin clientes</td></tr>';
@@ -4095,13 +4095,57 @@ function RRen(){
 }
 
 // ── PAGOS ──
+function RTpp(){
+  var el=document.getElementById('tpp');
+  if(!el)return;
+  var today=new Date();
+  var mesActual=today.toISOString().substring(0,7);
+  var mesLabel=today.toLocaleString('es-PA',{month:'long',year:'numeric'});
+  var pols=(S.polizas||[]).filter(function(p){
+    return p.estado!=='Cancelada'&&p.estado!=='Anulada'&&(p.letraPrima>0||p.numPagos>0);
+  }).sort(function(a,b){return(a.nombreCliente||'').localeCompare(b.nombreCliente||'')||0;});
+  if(!pols.length){
+    el.innerHTML='<tr><td colspan="9" style="text-align:center;padding:24px;color:#888">Sin cuotas configuradas. Edite las pólizas y defina Num. de Pagos y Letra/Prima.</td></tr>';
+    return;
+  }
+  el.innerHTML=pols.map(function(pol){
+    var cli=GC(pol.clienteId)||{};
+    var tel=(cli.cel||cli.tel||pol.telAsegurado||'').replace(/[^0-9]/g,'');
+    var nombre=pol.nombreCliente||cli.nombre||'';
+    var cedula=cli.cedula||pol.docAsegurado||'';
+    var cuota=pol.letraPrima>0?fmtM(pol.letraPrima):(pol.prima>0?fmtM(pol.prima):'—');
+    var pagado=(S.pagos||[]).some(function(pg){
+      return pg.polizaId===pol.id&&(pg.periodo||pg.fecha||'').substring(0,7)===mesActual;
+    });
+    var estStyle=pagado?'color:#16a34a;font-weight:bold':'color:#d97706;font-weight:bold';
+    var estTxt=pagado?'Cobrado':'Pendiente';
+    var waMsg='Estimado/a '+nombre+', le recordamos el cobro de su póliza '+pol.num+' ('+pol.aseg+'), cuota '+cuota+', correspondiente a '+mesLabel+'.';
+    var waLink=tel?'https://wa.me/507'+tel+'?text='+encodeURIComponent(waMsg):'';
+    var regBtn=pagado?'':' <button class="btn bsm bgn" style="font-size:10px" onclick="OPag()">+ Cobro</button>';
+    return '<tr>'+
+      '<td><div style="font-weight:600;line-height:1.4">'+esc(nombre)+'</div>'+
+      (cedula?'<div style="font-size:11px;color:var(--mu)">'+esc(cedula)+'</div>':'')+
+      (tel?'<div style="font-size:11px;color:var(--mu)">'+tel+'</div>':'')+
+      '</td>'+
+      '<td style="font-family:monospace;font-size:12px;font-weight:600">'+esc(pol.num||'—')+'</td>'+
+      '<td style="font-size:12px">'+esc(pol.aseg||'—')+'</td>'+
+      '<td style="font-size:12px">'+esc(pol.ramo||'—')+'</td>'+
+      '<td style="font-weight:700;color:var(--ac)">'+cuota+'</td>'+
+      '<td style="font-weight:600;color:#7C3AED">'+mesActual+'</td>'+
+      '<td style="font-size:11px">'+fmt(pol.fechaFin)+'</td>'+
+      '<td>'+(waLink?'<a href="'+waLink+'" target="_blank" class="btn bsm" style="background:#25d366;color:#fff;border-color:#25d366;font-size:11px">WA</a>':'<span style="color:#bbb;font-size:10px">Sin tel</span>')+'</td>'+
+      '<td><span style="'+estStyle+'">'+estTxt+'</span>'+regBtn+'</td>'+
+      '</tr>';
+  }).join('');
+}
 function RPag(){
+  RTpp();
   var shown=S.pagos.slice().sort(function(a,b){return (b.fecha||"").localeCompare(a.fecha||"");});
   var ps=document.getElementById("pagsub");if(ps)ps.textContent=shown.length+" pago"+(shown.length!==1?"s":"");
   var el=document.getElementById("tpag");if(!el)return;
   if(!shown.length){el.innerHTML='<tr><td colspan="11" style="text-align:center;color:#888;padding:20px">No hay pagos registrados. Haz clic en + para agregar.</td></tr>';return;}
   el.innerHTML=shown.map(function(p){
-    var pol=GP(p.polizaId)||{};
+    var pol=GP(p.polizaId)||{};var _c2=GC(pol.clienteId)||{};var ctel=(_c2.cel||_c2.tel||'').replace(/[^0-9]/g,'');
     var per=p.periodo||pol.periodo||"—";
     var num=pol.num||"—";
     var est=p.estado||"Pendiente";
