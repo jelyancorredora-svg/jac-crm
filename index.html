@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v98 -->
+<!DOCTYPE html><!-- v99 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -306,7 +306,8 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
 <a onclick="SH('cfg')">âï¸</a>
  
 <a onclick="openSearch()" title="Buscar Ctrl+K" style="cursor:pointer">🔍</a>
-<a onclick="SH('cal');renderCal()" title="Calendario">📅</a></nav>
+<a onclick="SH('cal');renderCal()" title="Calendario">📅</a>
+<a onclick="openWAMas()" title="Recordatorios WA Masivos">📲</a></nav>
  <div class="ha" id="ha">
  <div id="gsearch-wrap" style="position:relative">
  <input id="gsearch-inp" class="fc" placeholder="ð Buscar..." 
@@ -9933,7 +9934,50 @@ de.forEach(function(e){if(e.tp==='pol'){
 h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#FFFBEB;border-radius:6px;margin-bottom:6px"><div><span style="font-size:10px;font-weight:700;color:#92400E;background:#FEF3C7;padding:2px 6px;border-radius:10px;margin-right:6px">VENCIMIENTO</span>'+e.nm+'</div><button class="btn bsm bic" onclick="OP(this.dataset.id)" data-id="'+e.id+'">&#9998;</button></div>';
 }else{
 h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#F5F3FF;border-radius:6px;margin-bottom:6px"><div><span style="font-size:10px;font-weight:700;color:#5B21B6;background:#EDE9FE;padding:2px 6px;border-radius:10px;margin-right:6px">TAREA</span>'+e.nm+'</div><button class="btn bsm bic" onclick="OT(this.dataset.id)" data-id="'+e.id+'">&#9998;</button></div>';
-}});var det=GI('cal-detail');det.innerHTML=h;det.style.display='';}</script>
+}});var det=GI('cal-detail');det.innerHTML=h;det.style.display='';}
+function openWAMas(){GI('modWAmas').style.display='flex';renderWAMasivo(30);}
+function closeWAMas(){GI('modWAmas').style.display='none';}
+function renderWAMasivo(dias){
+var now=new Date(),lim=new Date(now.getTime()+dias*86400000);
+var items=[];
+(S.polizas||[]).forEach(function(p){
+if(p.estado==='cancelada'||!p.vencimiento)return;
+var exp=new Date(p.vencimiento+'T12:00:00');
+if(exp>=now&&exp<=lim){
+var cl=GC(p.clienteId)||{};
+var wu=cl.cel?cl.cel.replace(/[^0-9]/g,''):'';
+var dl=Math.ceil((exp-now)/86400000);
+items.push({p:p,cl:cl,wu:wu,exp:exp,days:dl});
+}});
+items.sort(function(a,b){return a.exp-b.exp;});
+var h='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span style="font-size:12px;color:#64748B">Vencen en:</span>';
+[7,15,30,60,90].forEach(function(d){h+='<button class="btn" style="font-size:11px'+(d===dias?';background:#2563EB;color:#fff;border-color:#2563EB':'')+'" onclick="renderWAMasivo('+d+')">'+d+' dias</button>';});
+h+='</div>';
+if(!items.length){
+h+='<div style="text-align:center;padding:32px;color:#94A3B8">No hay polizas por vencer en los proximos '+dias+' dias</div>';
+}else{
+var nWA=items.filter(function(i){return i.wu;}).length;
+h+='<div style="font-size:12px;color:#64748B;margin-bottom:8px">'+items.length+' poliza(s) — '+nWA+' con WhatsApp disponible</div>';
+h+='<div style="border:1px solid #EEF2F8;border-radius:8px;overflow:hidden"><table style="width:100%;border-collapse:collapse">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Cliente</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Poliza</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseg.</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Vence</th><th style="padding:8px 10px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Dias</th><th style="padding:8px 10px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">WA</th></tr></thead><tbody>';
+items.forEach(function(it){
+var msg='Hola '+esc(it.cl.nombre||'')+', le recordamos que su poliza '+(it.p.numero||'')+(it.p.aseguradora?' con '+esc(it.p.aseguradora):'')+' vence el '+fmt(it.p.vencimiento)+'. Para renovarla contactenos al 66714215. - JAC Seguros';
+var wurl=it.wu?'https://wa.me/507'+it.wu+'?text='+encodeURIComponent(msg):'';
+var dc=it.days<=7?'#FEE2E2':it.days<=15?'#FEF3C7':'#DCFCE7';
+var tc=it.days<=7?'#991B1B':it.days<=15?'#92400E':'#166534';
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:8px 10px;font-size:12px">'+esc(it.cl.nombre||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:12px;font-family:monospace">'+esc(it.p.numero||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:11px;color:#64748B">'+esc(it.p.aseguradora||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:12px">'+fmt(it.p.vencimiento)+'</td>';
+h+='<td style="padding:8px 10px;text-align:center"><span style="background:'+dc+';color:'+tc+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+it.days+'</span></td>';
+h+='<td style="padding:8px 10px;text-align:center">'+(wurl?'<a href="'+wurl+'" target="_blank" class="btn bsm" style="background:#25D366;color:#fff;border-color:#25D366;text-decoration:none">WA</a>':'-')+'</td>';
+h+='</tr>';
+});
+h+='</tbody></table></div>';
+}
+GI('wamas-body').innerHTML=h;
+}</script>
 </div><div id="pg-is" class="pg">
 <style>
 .is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
@@ -9989,6 +10033,7 @@ h+='<div style="display:flex;align-items:center;justify-content:space-between;pa
 <div id="cal-body"></div>
 <div id="cal-detail" style="display:none;margin-top:16px;background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"></div>
 </div>
+<div id="modWAmas" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center" onclick="if(event.target===this)closeWAMas()"><div style="background:#fff;border-radius:12px;width:90%;max-width:720px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)"><div style="padding:16px 20px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;justify-content:space-between"><span style="font-size:16px;font-weight:700;color:#1E293B">Recordatorios WA de Renovacion</span><button onclick="closeWAMas()" style="background:transparent;border:none;cursor:pointer;font-size:22px;color:#94A3B8;line-height:1">&times;</button></div><div style="padding:16px 20px;overflow-y:auto;flex:1"><div id="wamas-body"></div></div></div></div>
 <div id="gSearch" onclick="if(event.target===this)closeSearch()">
 <div class="gs-box">
 <div class="gs-inw"><span style="font-size:20px">&#128269;</span><input id="gsInp" type="text" placeholder="Buscar clientes, p�lizas, tareas..." oninput="doSearch(this.value)" onkeydown="gsKey(event)" autocomplete="off"><kbd style="padding:2px 8px;border:1px solid #CBD5E1;border-radius:4px;font-size:11px;color:#64748B;cursor:pointer" onclick="closeSearch()">Esc</kbd></div>
