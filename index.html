@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v97 -->
+<!DOCTYPE html><!-- v98 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -305,7 +305,8 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
 <a onclick="SH('is');isRender('cartera')">ð¥ iSeguros</a>
 <a onclick="SH('cfg')">âï¸</a>
  
-<a onclick="openSearch()" title="Buscar Ctrl+K" style="cursor:pointer">🔍</a></nav>
+<a onclick="openSearch()" title="Buscar Ctrl+K" style="cursor:pointer">🔍</a>
+<a onclick="SH('cal');renderCal()" title="Calendario">📅</a></nav>
  <div class="ha" id="ha">
  <div id="gsearch-wrap" style="position:relative">
  <input id="gsearch-inp" class="fc" placeholder="ð Buscar..." 
@@ -9894,7 +9895,45 @@ if(tars.length){html+='<div class="gs-gt">Tareas ('+tars.length+')</div>';tars.s
 if(!html)html='<div class="gs-mt">Sin resultados para &ldquo;'+esc(q)+'&rdquo;</div>';
 res.innerHTML=html;}
 document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}if(e.key==='Escape'&&document.getElementById('gSearch').classList.contains('active'))closeSearch();});
-</script>
+
+window.calDate=new Date();
+function renderCal(){
+var y=window.calDate.getFullYear(),m=window.calDate.getMonth();
+var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var evs={};
+(S.polizas||[]).forEach(function(p){if(p.estado!=='cancelada'&&p.vencimiento){var d=new Date(p.vencimiento+'T12:00:00');if(d.getFullYear()===y&&d.getMonth()===m){var k=d.getDate();if(!evs[k])evs[k]=[];var cl=GC(p.clienteId)||{};evs[k].push({tp:'pol',nm:esc(cl.nombre||'')+(p.numero?' #'+esc(p.numero):''),id:p.id});}}});
+(S.tareas||[]).forEach(function(t){if(t.estado!=='completada'&&t.fechaLimite){var d=new Date(t.fechaLimite+'T12:00:00');if(d.getFullYear()===y&&d.getMonth()===m){var k=d.getDate();if(!evs[k])evs[k]=[];evs[k].push({tp:'tar',nm:esc(t.titulo||t.desc||'Tarea'),id:t.id});}}});
+var today=new Date(),itm=today.getFullYear()===y&&today.getMonth()===m,tod=today.getDate();
+var first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
+var dias=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+var h='<div style="max-width:860px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><button class="btn bic" onclick="calNav(-1)">&#8592;</button>';
+h+='<span style="font-size:18px;font-weight:700;color:#1E293B">'+meses[m]+' '+y+'</span>';
+h+='<button class="btn bic" onclick="calNav(1)">&#8594;</button></div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px">';
+dias.forEach(function(d){h+='<div style="text-align:center;font-size:11px;font-weight:700;color:#94A3B8;padding:4px">'+d+'</div>';});
+h+='</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+for(var i=0;i<first;i++)h+='<div></div>';
+for(var dd=1;dd<=last;dd++){var de=evs[dd]||[],isT=itm&&dd===tod;
+var nP=de.filter(function(e){return e.tp==='pol';}).length;
+var nT=de.filter(function(e){return e.tp==='tar';}).length;
+h+=calCH(dd,isT,de.length>0);
+h+='<div style="font-size:12px;font-weight:'+(isT?'700':'500')+';color:'+(isT?'#2563EB':'#1E293B')+';margin-bottom:3px">'+dd+'</div>';
+if(nP)h+='<div style="background:#FEF3C7;border-radius:3px;font-size:9px;font-weight:600;padding:2px 4px;margin-bottom:2px">&#128196; '+nP+'</div>';
+if(nT)h+='<div style="background:#EDE9FE;border-radius:3px;font-size:9px;font-weight:600;padding:2px 4px">&#10003; '+nT+'</div>';
+h+='</div>';}
+h+='</div>';
+h+='<div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:#64748B"><span><span style="display:inline-block;width:10px;height:10px;background:#FEF3C7;border-radius:2px;margin-right:4px;vertical-align:middle"></span>Vencimientos</span><span><span style="display:inline-block;width:10px;height:10px;background:#EDE9FE;border-radius:2px;margin-right:4px;vertical-align:middle"></span>Tareas</span></div></div>';
+GI('cal-body').innerHTML=h;GI('cal-detail').style.display='none';window._calEvs=evs;}
+function calCH(dd,isT,hasEv){
+return '<div onclick="calDay('+dd+')" style="border:1px solid '+(isT?'#2563EB':'#EEF2F8')+';border-radius:8px;padding:6px;min-height:64px;cursor:'+(hasEv?'pointer':'default')+';background:'+(isT?'#EFF6FF':'#fff')+'">';
+}
+function calNav(d){window.calDate.setMonth(window.calDate.getMonth()+d);renderCal();}
+function calDay(d){var de=(window._calEvs||{})[d]||[];if(!de.length)return;
+var h='<div style="font-weight:700;color:#1E293B;margin-bottom:12px">Eventos del dia '+d+' ('+de.length+')</div>';
+de.forEach(function(e){if(e.tp==='pol'){
+h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#FFFBEB;border-radius:6px;margin-bottom:6px"><div><span style="font-size:10px;font-weight:700;color:#92400E;background:#FEF3C7;padding:2px 6px;border-radius:10px;margin-right:6px">VENCIMIENTO</span>'+e.nm+'</div><button class="btn bsm bic" onclick="OP(this.dataset.id)" data-id="'+e.id+'">&#9998;</button></div>';
+}else{
+h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#F5F3FF;border-radius:6px;margin-bottom:6px"><div><span style="font-size:10px;font-weight:700;color:#5B21B6;background:#EDE9FE;padding:2px 6px;border-radius:10px;margin-right:6px">TAREA</span>'+e.nm+'</div><button class="btn bsm bic" onclick="OT(this.dataset.id)" data-id="'+e.id+'">&#9998;</button></div>';
+}});var det=GI('cal-detail');det.innerHTML=h;det.style.display='';}</script>
 </div><div id="pg-is" class="pg">
 <style>
 .is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
@@ -9945,6 +9984,11 @@ document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key
 </div>
 </div>
 
+<div id="pg-cal" class="pg">
+<h1 style="font-size:20px;font-weight:700;color:#1E293B;margin:0 0 20px">Calendario</h1>
+<div id="cal-body"></div>
+<div id="cal-detail" style="display:none;margin-top:16px;background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"></div>
+</div>
 <div id="gSearch" onclick="if(event.target===this)closeSearch()">
 <div class="gs-box">
 <div class="gs-inw"><span style="font-size:20px">&#128269;</span><input id="gsInp" type="text" placeholder="Buscar clientes, p�lizas, tareas..." oninput="doSearch(this.value)" onkeydown="gsKey(event)" autocomplete="off"><kbd style="padding:2px 8px;border:1px solid #CBD5E1;border-radius:4px;font-size:11px;color:#64748B;cursor:pointer" onclick="closeSearch()">Esc</kbd></div>
