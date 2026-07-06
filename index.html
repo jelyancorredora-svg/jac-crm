@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v102b -->
+<!DOCTYPE html><!-- v103 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -299,7 +299,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
  <a onclick="SH('wam')">📣 WA Masivo</a>
  <a onclick="SH('not')">📝 Notas</a>
  <a onclick="SH('men')">📦 Mensajero</a>
- <a onclick="SH('inf')">📊 Informes</a>
+ <a onclick="SH('inf');renderInformes()">📊 Informes</a>
  <a onclick="SH('cotp')" style="background:linear-gradient(135deg,#7C3AED,#1D4ED8);color:#fff;border-radius:8px;font-weight:700">🧮 Cotizador Pro</a>
  <a onclick="SH('uv')">🔗 UniVivir</a>
 <a onclick="SH('is');isRender('cartera')">🏥 iSeguros</a>
@@ -5885,6 +5885,7 @@ function renderDashReminders(){
  ${waUrl?`<a href="${waUrl}" target="_blank" class="btn bwa bsm" title="WA renovación" style="padding:4px 8px;font-size:11px">💬</a>`:''}
  <button class="btn bsm" onclick="openRen('${p.id}')" title="Registrar renovación" style="padding:4px 8px;font-size:11px">🔄</button>
  <button class="btn bsm bic" onclick="showPolDP('${p.id}')" title="Ver póliza" style="padding:4px 8px;font-size:11px">👁</button>
+ <button class="btn bsm bic" onclick="OP('${p.id}')" title="Editar póliza" style="padding:4px 8px;font-size:11px">✏️</button>
  </div>
  </div>`;
  });
@@ -9902,7 +9903,7 @@ function renderCal(){
 var y=window.calDate.getFullYear(),m=window.calDate.getMonth();
 var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var evs={};
-(S.polizas||[]).forEach(function(p){if(p.estado!=='cancelada'&&p.vencimiento){var d=new Date(p.vencimiento+'T12:00:00');if(d.getFullYear()===y&&d.getMonth()===m){var k=d.getDate();if(!evs[k])evs[k]=[];var cl=GC(p.clienteId)||{};evs[k].push({tp:'pol',nm:esc(cl.nombre||'')+(p.numero?' #'+esc(p.numero):''),id:p.id});}}});
+(S.polizas||[]).forEach(function(p){if(p.estado!=='cancelada'&&(p.fechaFin||p.vencimiento)){var d=new Date((p.fechaFin||p.vencimiento)+'T12:00:00');if(d.getFullYear()===y&&d.getMonth()===m){var k=d.getDate();if(!evs[k])evs[k]=[];var cl=GC(p.clienteId)||{};evs[k].push({tp:'pol',nm:esc(cl.nombre||'')+(p.numero?' #'+esc(p.numero):''),id:p.id});}}});
 (S.tareas||[]).forEach(function(t){if(t.estado!=='completada'&&t.fechaLimite){var d=new Date(t.fechaLimite+'T12:00:00');if(d.getFullYear()===y&&d.getMonth()===m){var k=d.getDate();if(!evs[k])evs[k]=[];evs[k].push({tp:'tar',nm:esc(t.titulo||t.desc||'Tarea'),id:t.id});}}});
 var today=new Date(),itm=today.getFullYear()===y&&today.getMonth()===m,tod=today.getDate();
 var first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
@@ -10082,6 +10083,7 @@ function repShow(tipo){
   });
   var body=GI('rep-body');
   var filt=GI('rep-filter');
+  if(!body||!filt)return;
   filt.innerHTML='';
   var rows=[];
   if(tipo==='pol'){
