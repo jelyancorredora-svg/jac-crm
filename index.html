@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v102 -->
+<!DOCTYPE html><!-- v102b -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -1726,7 +1726,7 @@ async function autoBirthdayCheck(){
  try{
  await emailjs.send(cfg['ejs-svc'],cfg['ejs-tpl-bday'],{
  to_name:c.nombre||'Cliente',to_email:c.email,client_name:nombre,
- from_name:'Desde JAC Seguros | Jely An Castro | Jely An Castro',from_email:'jcastro@jacsegurospa.com',
+ from_name:'Desde JAC Seguros | Jely An Castro',from_email:'jcastro@jacsegurospa.com',
  subject:`🎂 ¡Feliz Cumpleaños, ${nombre}!`,
  message:'En este día tan especial, todo el equipo de JAC Seguros | Jely An Castro te desea un maravilloso cumpleaños lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🎉',
  company:'JAC Seguros',phone:'+507 6292-6010'
@@ -1744,7 +1744,7 @@ async function autoBirthdayCheck(){
  const waRows=pending.map(c=>{
  const nombre=(c.nombre||'').split(' ')[0];
  const tel=(c.telefono||'').replace(/\D/g,'');
- const waMsg=encodeURIComponent(`🎂 ¡Feliz Cumpleaños, ${nombre}! 🎉\n\nDesde *JAC Seguros · Jely An Castro* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟\n\n_Jely An Castro · +507 6292-6010_`);
+ const waMsg=encodeURIComponent(`🎂 ¡Feliz Cumpleaños, ${nombre}! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟\n\n_Jely An Castro · +507 6292-6010_`);
  const waLink=tel?`<a href="https://wa.me/507${tel}?text=${waMsg}" target="_blank" style="display:inline-block;margin-top:4px;padding:5px 12px;background:#25D366;color:#fff;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">📲 WhatsApp a ${c.nombre}</a>`:`<span style="font-size:11px;color:#94a3b8">Sin teléfono registrado</span>`;
  const emailOk=ejsReady&&c.email;
  return `<div style="padding:10px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
@@ -2362,7 +2362,7 @@ function showCalDay(fecha,polIds,tarIds,bdayIds){
  h+=`<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:${(pols.length||tars.length)?12:0}px;padding-bottom:4px;border-bottom:1px solid var(--bd)">🎂 Cumpleaños</div>`;
  bdays.forEach(c=>{
  const tel=c.cel||c.tel||'';
- const waMsg=encodeURIComponent(`🎂 ¡Feliz Cumpleaños, ${(c.nombre||'').split(' ')[0]}! 🎉\n\nDesde *JAC Seguros · Jely An Castro* | *Jely An Castro* te deseamos un maravilloso día. ¡Que cumplas muchos más! 🌟\n\n_Jely An Castro · +507 6292-6010_`);
+ const waMsg=encodeURIComponent(`🎂 ¡Feliz Cumpleaños, ${(c.nombre||'').split(' ')[0]}! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* te deseamos un maravilloso día. ¡Que cumplas muchos más! 🌟\n\n_Jely An Castro · +507 6292-6010_`);
  h+=`<div style="background:#FDF4FF;border:1px solid #E9D5FF;border-radius:10px;padding:12px;margin-bottom:8px">
  <div style="display:flex;justify-content:space-between;align-items:center">
  <div>
@@ -2709,7 +2709,7 @@ function waBtn(url,eType,eId,msgType,nombre,label,cls){
  const safe=url.replace(/'/g,"\\'");
  return`<button onclick="event.stopPropagation();waClick('${safe}','${eType}','${eId}','${esc(msgType)}','${esc(nombre)}')" class="btn bsm ${cls||'bwa'}">${label||'💬 WA'}</button>`;
 }
-function waRenMsg(p,cl){const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];return`Hola ${fn} 👋🏼\n\nTe contacto de *JAC Seguros · Jely An Castro* para informarte que tu póliza de *${p.ramo}* con *${p.aseg}* (N° ${p.num}) vence el *${fmt(p.fechaFin)}*.\n\nPara renovarla sin interrupciones comunícate conmigo 😊\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;}
+function waRenMsg(p,cl){const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];return`Hola ${fn} 👋🏼\n\nTe contacto de *JAC Seguros | Jely An Castro* para informarte que tu póliza de *${p.ramo}* con *${p.aseg}* (N° ${p.num}) vence el *${fmt(p.fechaFin)}*.\n\nPara renovarla sin interrupciones comunícate conmigo 😊\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;}
 function waCobMsg(p,cl){const fn=(cl.nombre||p.nombreCliente||'').split(' ')[0];return`Hola ${fn} 👋🏼\n\nTe recordamos el pago de tu póliza de *${p.ramo}* con *${p.aseg}* (N° ${p.num}) por *${fmtM(p.prima)}*.\n\n_Jely An Castro Pérez · JAC Seguros · 📞 +507 6292-6010_`;}
 function waBtnC(c){
  const t=c.cel||c.tel||'';if(!t)return'';
@@ -2732,7 +2732,7 @@ function openWAForPros(pid){
  waComposePid=pid;waComposeCid=null;
  const nombre=(p.nombre||'').split(' ')[0];
  const interes=(p.interes||[]).join(', ')||'seguros';
- const defMsg=`Hola ${nombre} 👋🏼\n\nTe contacto de *JAC Seguros · Jely An Castro* por el seguro de *${interes}* que te interesa.\n\n¿Podemos coordinar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+ const defMsg=`Hola ${nombre} 👋🏼\n\nTe contacto de *JAC Seguros | Jely An Castro* por el seguro de *${interes}* que te interesa.\n\n¿Podemos coordinar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
  const el=document.getElementById('wap-nombre');if(el)el.textContent=p.nombre||'';
  const el2=document.getElementById('wap-tel');if(el2)el2.textContent=formatTel(t);
  SVal('wap-msg',defMsg);
@@ -2769,7 +2769,7 @@ function openWAForCli(cid){
  const t=c.cel||c.tel||'';if(!t){toast('Este cliente no tiene teléfono registrado','err');return;}
  waComposeCid=cid;waComposePid=null;
  const nombre=(c.nombre||'').split(' ')[0];
- const defMsg=`Hola ${nombre} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros · Jely An Castro*.\n\n¿En qué podemos ayudarte hoy?\n\n_📞 +507 6292-6010_`;
+ const defMsg=`Hola ${nombre} 👋🏼\n\nTe saluda *Jely An Castro* de *JAC Seguros | Jely An Castro*.\n\n¿En qué podemos ayudarte hoy?\n\n_📞 +507 6292-6010_`;
  const el=document.getElementById('wap-nombre');if(el)el.textContent=c.nombre||'';
  const el2=document.getElementById('wap-tel');if(el2)el2.textContent=formatTel(t);
  SVal('wap-msg',defMsg);
@@ -2793,15 +2793,15 @@ function setWATemplate(tipo){
  const fn=(nombre||'').split(' ')[0]||'';
  let msg='';
  if(tipo==='bienvenida'){
- msg=`Hola ${fn} 👋🏼\n\nMucho gusto, soy *Jely An Castro* de *JAC Seguros · Jely An Castro*.\n\nGracias por tu interés en nuestros servicios. Con mucho gusto te asesoro.\n\n¿Cuándo tienes disponibilidad para conversar?\n\n_📞 +507 6292-6010_`;
+ msg=`Hola ${fn} 👋🏼\n\nMucho gusto, soy *Jely An Castro* de *JAC Seguros | Jely An Castro*.\n\nGracias por tu interés en nuestros servicios. Con mucho gusto te asesoro.\n\n¿Cuándo tienes disponibilidad para conversar?\n\n_📞 +507 6292-6010_`;
  }else if(tipo==='seguimiento'){
- msg=`Hola ${fn} 👋🏼\n\nTe escribe *Jely An Castro* de *JAC Seguros · Jely An Castro*.\n\nQuería hacer seguimiento a nuestra última conversación. ¿Tienes alguna pregunta o necesitas más información?\n\n_📞 +507 6292-6010_`;
+ msg=`Hola ${fn} 👋🏼\n\nTe escribe *Jely An Castro* de *JAC Seguros | Jely An Castro*.\n\nQuería hacer seguimiento a nuestra última conversación. ¿Tienes alguna pregunta o necesitas más información?\n\n_📞 +507 6292-6010_`;
  }else if(tipo==='cotizacion'){
- msg=`Hola ${fn} 👋🏼\n\nTe comparto la *cotización de seguro* que preparé para ti desde *JAC Seguros · Jely An Castro*.\n\nCualquier consulta, con gusto la atiendo.\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+ msg=`Hola ${fn} 👋🏼\n\nTe comparto la *cotización de seguro* que preparé para ti desde *JAC Seguros | Jely An Castro*.\n\nCualquier consulta, con gusto la atiendo.\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
  }else if(tipo==='recordatorio'){
- msg=`Hola ${fn} 👋🏼\n\nTe escribe *JAC Seguros · Jely An Castro*.\n\nTe recordamos que tu póliza está próxima a vencer. ¡No te quedes sin cobertura!\n\nComúnícate con nosotros para renovarla.\n\n_Jely An Castro · 📞 +507 6292-6010_`;
+ msg=`Hola ${fn} 👋🏼\n\nTe escribe *JAC Seguros | Jely An Castro*.\n\nTe recordamos que tu póliza está próxima a vencer. ¡No te quedes sin cobertura!\n\nComúnícate con nosotros para renovarla.\n\n_Jely An Castro · 📞 +507 6292-6010_`;
  }else if(tipo==='poliza'){
- msg=`Hola ${fn} 👋🏼\n\n*¡Tu póliza está lista!* 🎉 desde *JAC Seguros · Jely An Castro*.\n\nPuedes escribirme para coordinar la entrega de tu documentación.\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+ msg=`Hola ${fn} 👋🏼\n\n*¡Tu póliza está lista!* 🎉 desde *JAC Seguros | Jely An Castro*.\n\nPuedes escribirme para coordinar la entrega de tu documentación.\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
  }
  SVal('wap-msg',msg);
 }
@@ -2890,7 +2890,7 @@ function openWAForPolCli(polId,cliId,msgType){
  else if(msgType==='Cobro'){defMsg=waCobMsg(pol,cl);}
  else{defMsg=`Hola ${nombre} 👋🏼
 
-Te contacto de *JAC Seguros · Jely An Castro* respecto a tu póliza de *${pol.ramo||''}* con *${pol.aseg||''}* (N° ${pol.num||''}).
+Te contacto de *JAC Seguros | Jely An Castro* respecto a tu póliza de *${pol.ramo||''}* con *${pol.aseg||''}* (N° ${pol.num||''}).
 
 _Jely An Castro Pérez · 📞 +507 6292-6010_`;}
  const el=document.getElementById('wap-nombre');if(el)el.textContent=cl.nombre||pol.nombreCliente||'';
@@ -3800,7 +3800,7 @@ function RVC(){
  opps.slice(0,30).forEach(o=>{
  const cl=GC(o.clienteId),t=cl.cel||cl.tel||'';
  const score=Math.round(o.score),scCol=score>=70?'#15803D':score>=40?'#D97706':'#64748B';
- const msg=`Hola ${cl.nombre.split(' ')[0]} 👋🏼\n\nTe contacto de *JAC Seguros · Jely An Castro*.\n\nBasado en tu perfil te recomiendo agregar *${o.ramo}* para complementar tu protección.\n\n¿Podemos hablar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
+ const msg=`Hola ${cl.nombre.split(' ')[0]} 👋🏼\n\nTe contacto de *JAC Seguros | Jely An Castro*.\n\nBasado en tu perfil te recomiendo agregar *${o.ramo}* para complementar tu protección.\n\n¿Podemos hablar?\n\n_Jely An Castro Pérez · 📞 +507 6292-6010_`;
  const waUrl=t?waL(t,msg):null;
  h+=`<div style="background:linear-gradient(135deg,#EEF4FF,#F0F9FF);border:1px solid #C7D7FF;border-radius:var(--r6);padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px">
 <div style="width:36px;height:36px;border-radius:50%;background:${scCol}18;color:${scCol};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${score}</div>
@@ -4598,7 +4598,7 @@ function REmp(){
  const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
  }else{
  let h='<div class="card"><div class="tw"><table><thead><tr><th>Póliza</th><th>Empresa</th><th>Nombre Asegurado</th><th>Doc.</th><th>Cargo</th><th>Celular</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';let tot=0;
- S.polizas.forEach(p=>{(p.asegurados||[]).forEach(a=>{tot++;const cl=GC(p.clienteId);const wu=a.cel?waL(a.cel,`Hola ${a.nombre.split(' ')[0]} 👋🏼, te contactamos de *JAC Seguros · Jely An Castro*.\n\n_JAC Seguros · 📞 +507 6292-6010_`):null;h+=`<tr><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td style="font-size:11px">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</td><td style="font-weight:600">${esc(a.nombre)}</td><td style="font-size:11px">${esc(a.cedula||'—')}</td><td style="font-size:11px">${esc(a.cargo||'—')}</td><td style="font-size:11px">${esc(a.cel||'—')}</td><td>${wu?waBtn(wu,'','','Asegurado',a.nombre,'💬','bwa bsm'):'—'}</td><td><button class="btn bsm bic brd2" onclick="DAsd('${p.id}','${a.id||a.cedula}')">🗑</button></td></tr>`;});});
+ S.polizas.forEach(p=>{(p.asegurados||[]).forEach(a=>{tot++;const cl=GC(p.clienteId);const wu=a.cel?waL(a.cel,`Hola ${a.nombre.split(' ')[0]} 👋🏼, te contactamos de *JAC Seguros | Jely An Castro*.\n\n_JAC Seguros · 📞 +507 6292-6010_`):null;h+=`<tr><td style="font-family:monospace;font-size:11px">${esc(p.num)}</td><td style="font-size:11px">${esc((cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' '))}</td><td style="font-weight:600">${esc(a.nombre)}</td><td style="font-size:11px">${esc(a.cedula||'—')}</td><td style="font-size:11px">${esc(a.cargo||'—')}</td><td style="font-size:11px">${esc(a.cel||'—')}</td><td>${wu?waBtn(wu,'','','Asegurado',a.nombre,'💬','bwa bsm'):'—'}</td><td><button class="btn bsm bic brd2" onclick="DAsd('${p.id}','${a.id||a.cedula}')">🗑</button></td></tr>`;});});
  if(!tot)h+='<tr><td colspan="8" style="padding:24px;text-align:center;color:var(--mu)">Sin asegurados</td></tr>';
  const ev=document.getElementById('emp-view');if(ev)ev.innerHTML=h+'</tbody></table></div></div>';
  }
@@ -5463,7 +5463,7 @@ async function sendBirthdayEmail(client) {
  to_name: client.nombre || 'Cliente',
  to_email: client.email,
  client_name: nombre,
- from_name: 'Desde JAC Seguros | Jely An Castro | Jely An Castro',
+ from_name: 'Desde JAC Seguros | Jely An Castro',
  from_email: 'jcastro@jacsegurospa.com',
  subject: `🎂 ¡Feliz Cumpleaños, ${nombre}!`,
  message: `En este día tan especial, todo el equipo de JAC Seguros | Jely An Castro te deseamos un maravilloso cumpleaños lleno de salud, felicidad y bendiciones. Gracias por confiar en nosotros para proteger lo que más valoras. ¡Que cumplas muchos más! 🎉`,
@@ -5502,7 +5502,7 @@ async function sendRenewalEmail(pol, client) {
  const sub2 = diasRestantes >= 0 ? `⚠️ Tu póliza ${pol.ramo} vence en ${diasRestantes} días — JAC Seguros` : `Renovación póliza ${pol.ramo} — JAC Seguros`;
  openComposeEmail(email, client.nombre || pol.nombreCliente || '',
  sub2,
- `Hola ${nombre} 👋\n\nTe contacto desde *JAC Seguros · Jely An Castro* para recordarte que tu póliza de *${pol.ramo}* con *${pol.aseg}* (N° ${pol.polNum || pol.id}) vence el *${fechaFmt2}*.\n${diasRestantes >= 0 ? `⚠️ Faltan solo ${diasRestantes} días para vencer.` : '⚠️ Tu póliza ya venció.'}\n\nPara renovarla y mantener tu cobertura sin interrupciones, contáctame de inmediato.\n\nAtentamente,\nJely An Castro Pérez\nJely An Castro\nJAC Seguros | Lic. #6175\n📞 +507 6292-6010`,
+ `Hola ${nombre} 👋\n\nTe contacto desde *JAC Seguros | Jely An Castro* para recordarte que tu póliza de *${pol.ramo}* con *${pol.aseg}* (N° ${pol.polNum || pol.id}) vence el *${fechaFmt2}*.\n${diasRestantes >= 0 ? `⚠️ Faltan solo ${diasRestantes} días para vencer.` : '⚠️ Tu póliza ya venció.'}\n\nPara renovarla y mantener tu cobertura sin interrupciones, contáctame de inmediato.\n\nAtentamente,\nJely An Castro Pérez\nJely An Castro\nJAC Seguros | Lic. #6175\n📞 +507 6292-6010`,
  'poliza', pol.id);
  return;
  }
@@ -5512,7 +5512,7 @@ async function sendRenewalEmail(pol, client) {
  to_name: client.nombre || 'Cliente',
  to_email: email,
  client_name: nombre,
- from_name: 'Desde JAC Seguros | Jely An Castro | Jely An Castro',
+ from_name: 'Desde JAC Seguros | Jely An Castro',
  from_email: 'jcastro@jacsegurospa.com',
  subject: `⚠️ Tu póliza vence en ${diasRestantes} días — JAC Seguros`,
  policy_number: pol.polNum || pol.id,
@@ -5587,7 +5587,7 @@ function renderBirthdayCard(c, daysUntil) {
  const isDone = (S.actDone||[]).some(x=>x.type==='bday'&&x.id===c.id&&x.yr===yr);
  const waMsg = `🎂 ¡Feliz Cumpleaños, ${(c.nombre||'').split(' ')[0]}! 🎉
 
-Desde *JAC Seguros · Jely An Castro* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟
+Desde *JAC Seguros* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟
 
 _Con cariño,
 Jely An Castro Pérez
@@ -5853,7 +5853,7 @@ function renderDashReminders(){
  const nom=(cl.nombre||p.nombreCliente||'cliente').split(' ')[0];
  return `• ${nom}: ${p.ramo} / ${p.aseg} — vence ${fmt(p.fechaFin)}`;
  }).join('\n');
- return `⚠️ *JAC Seguros · Jely An Castro* | Recordatorio de Renovación\n\nEstimado/a cliente,\n\nTe recordamos que las siguientes pólizas están próximas a vencer:\n\n${lines}\n\nComunícate con nosotros para renovar:\n📞 +507 6292-6010\n📧 jcastro@jacsegurospa.com\n🌐 jacsegurospa.com`;
+ return `⚠️ *JAC Seguros | Jely An Castro* | Recordatorio de Renovación\n\nEstimado/a cliente,\n\nTe recordamos que las siguientes pólizas están próximas a vencer:\n\n${lines}\n\nComunícate con nosotros para renovar:\n📞 +507 6292-6010\n📧 jcastro@jacsegurospa.com\n🌐 jacsegurospa.com`;
  }
  let h=`<div class="ch" style="background:linear-gradient(90deg,#FFF7ED,#FEF3C7)">
  <h3>⚠️ Renovaciones Próximas</h3>
@@ -5873,7 +5873,7 @@ function renderDashReminders(){
  const dias=dFrom(p.fechaFin);
  const nom=(cl.nombre||p.nombreCliente||'—').split(' ').slice(0,3).join(' ');
  const tel=cl.cel||cl.tel||p.celCliente||'';
- const waMsg=`⚠️ Hola ${(cl.nombre||p.nombreCliente||'Cliente').split(' ')[0]} 👋🏼\n\nTe recordamos desde *JAC Seguros · Jely An Castro* | *Jely An Castro* que tu póliza de *${p.ramo}* con *${p.aseg}* vence el *${fmt(p.fechaFin)}*. Para renovarla y continuar protegido/a, contáctame lo antes posible.\n\n📞 +507 6292-6010\n📧 jcastro@jacsegurospa.com\n🌐 jacsegurospa.com`;
+ const waMsg=`⚠️ Hola ${(cl.nombre||p.nombreCliente||'Cliente').split(' ')[0]} 👋🏼\n\nTe recordamos desde *JAC Seguros* | *Jely An Castro* que tu póliza de *${p.ramo}* con *${p.aseg}* vence el *${fmt(p.fechaFin)}*. Para renovarla y continuar protegido/a, contáctame lo antes posible.\n\n📞 +507 6292-6010\n📧 jcastro@jacsegurospa.com\n🌐 jacsegurospa.com`;
  const waUrl=tel?`https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}`:null;
  h+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #EEF2F8;background:#fff">
  <div style="width:34px;height:34px;border-radius:50%;background:${tier.color}18;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:${tier.color};flex-shrink:0">${dias===0?'HOY':dias+'d'}</div>
@@ -5960,7 +5960,7 @@ function showBirthdayCard(clientId) {
  </div>`;
  const waMsg = `🎂 ¡Feliz Cumpleaños, ${primerNombre}! 🎉
 
-Desde *JAC Seguros · Jely An Castro* | *Jely An Castro* te deseamos un día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! — Jely An Castro, JAC Seguros · jacsegurospa.com`;
+Desde *JAC Seguros* | *Jely An Castro* te deseamos un día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! — Jely An Castro, JAC Seguros · jacsegurospa.com`;
  const tel = c.cel || c.tel || '';
  const waUrl = tel ? `https://wa.me/${fmtWANum(tel,'507')}?text=${encodeURIComponent(waMsg)}` : null;
  const dp = document.getElementById('dpanel');
@@ -6585,9 +6585,9 @@ function wamUpdatePreview(){
  const prev=document.getElementById('wam-preview');
  if(!prev)return;
  const samples={
- ren:`Hola [Nombre] 👋🏼\n\nTe escribimos desde *JAC Seguros · Jely An Castro* | *Jely An Castro* para avisarte que tu póliza de *[Ramo]* con *[Aseg.]* vence el *[Fecha]*.\n\n¡No te quedes sin cobertura! Contáctanos para renovar.\n\n📞 +507 6292-6010\n🌐 www.jacsegurospa.com\n\n_Jely An Castro Pérez · JAC Seguros_`,
- bday:`🎂 ¡Feliz Cumpleaños, [Nombre]! 🎉\n\nDesde *JAC Seguros · Jely An Castro* | *Jely An Castro* te deseamos un día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟\n\n📞 +507 6292-6010\n\n_Con cariño,\nJely An Castro Pérez · JAC Seguros_`,
- cobro:`Hola [Nombre] 👋🏼\n\nTe recordamos desde *JAC Seguros · Jely An Castro* | *Jely An Castro* que tienes un pago pendiente de tu póliza de *[Ramo]* por *[Monto]*.\n\nCualquier consulta, estamos a tu disposición.\n\n📞 +507 6292-6010\n\n_Jely An Castro Pérez · JAC Seguros_`,
+ ren:`Hola [Nombre] 👋🏼\n\nTe escribimos desde *JAC Seguros* | *Jely An Castro* para avisarte que tu póliza de *[Ramo]* con *[Aseg.]* vence el *[Fecha]*.\n\n¡No te quedes sin cobertura! Contáctanos para renovar.\n\n📞 +507 6292-6010\n🌐 www.jacsegurospa.com\n\n_Jely An Castro Pérez · JAC Seguros_`,
+ bday:`🎂 ¡Feliz Cumpleaños, [Nombre]! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* te deseamos un día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟\n\n📞 +507 6292-6010\n\n_Con cariño,\nJely An Castro Pérez · JAC Seguros_`,
+ cobro:`Hola [Nombre] 👋🏼\n\nTe recordamos desde *JAC Seguros* | *Jely An Castro* que tienes un pago pendiente de tu póliza de *[Ramo]* por *[Monto]*.\n\nCualquier consulta, estamos a tu disposición.\n\n📞 +507 6292-6010\n\n_Jely An Castro Pérez · JAC Seguros_`,
  custom:`[Tu mensaje personalizado aquí]\n\n📞 +507 6292-6010\n_Jely An Castro Pérez · JAC Seguros_`
  };
  prev.textContent=samples[tipo]||samples.ren;
@@ -6598,13 +6598,13 @@ function wamBuildMsg(tipo,cl,pol){
  const sig=`\n\n📞 +507 6292-6010\n🌐 www.jacsegurospa.com\n_Jely An Castro Pérez · JAC Seguros_`;
  if(tipo==='ren'){
  const dias=pol&&pol.fechaFin?dFrom(pol.fechaFin):'?';
- return`Hola ${fn} 👋🏼\n\nTe escribimos desde *JAC Seguros · Jely An Castro* | *Jely An Castro* para avisarte que tu póliza de *${pol?.ramo||''}* con *${pol?.aseg||''}* (N° ${pol?.polNum||pol?.id||''}) vence el *${pol?.fechaFin?fmt(pol.fechaFin):'pronto'}* (${dias} días).\n\n¡No te quedes sin cobertura! Comunícate con nosotros para renovar.${sig}`;
+ return`Hola ${fn} 👋🏼\n\nTe escribimos desde *JAC Seguros* | *Jely An Castro* para avisarte que tu póliza de *${pol?.ramo||''}* con *${pol?.aseg||''}* (N° ${pol?.polNum||pol?.id||''}) vence el *${pol?.fechaFin?fmt(pol.fechaFin):'pronto'}* (${dias} días).\n\n¡No te quedes sin cobertura! Comunícate con nosotros para renovar.${sig}`;
  }
  if(tipo==='bday'){
- return`🎂 ¡Feliz Cumpleaños, ${fn}! 🎉\n\nDesde *JAC Seguros · Jely An Castro* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟${sig}`;
+ return`🎂 ¡Feliz Cumpleaños, ${fn}! 🎉\n\nDesde *JAC Seguros* | *Jely An Castro* te deseamos un maravilloso día lleno de salud, felicidad y bendiciones. ¡Que cumplas muchos más! 🌟${sig}`;
  }
  if(tipo==='cobro'){
- return`Hola ${fn} 👋🏼\n\nTe recordamos desde *JAC Seguros · Jely An Castro* | *Jely An Castro* que tienes un pago pendiente de tu póliza de *${pol?.ramo||''}* por *${pol?.prima?fmtM(pol.prima):'—'}*.${sig}`;
+ return`Hola ${fn} 👋🏼\n\nTe recordamos desde *JAC Seguros* | *Jely An Castro* que tienes un pago pendiente de tu póliza de *${pol?.ramo||''}* por *${pol?.prima?fmtM(pol.prima):'—'}*.${sig}`;
  }
  const customTpl=document.getElementById('wam-custom-msg')?.value||'Hola {nombre}, te contacta JAC Seguros.';
  return customTpl.replace(/{nombre}/gi,fn)+sig;
@@ -8981,7 +8981,7 @@ function cotpGenReport(){
  <strong>⚠️ Importante:</strong> Las primas son estimadas y de referencia. La prima final está sujeta a la evaluación de riesgo por cada aseguradora. Cotización válida por 30 días a partir de ${fecha}.
  </div>
  <div style="text-align:center;font-size:10px;color:#94A3B8;padding:14px 0;border-top:1px solid #E2E8F0">
-        JAC Seguros · Jely An Castro Pérez · Lic. SSRP N° 6175 · +507 6292-6010 · jcastro@jacsegurospa.com · jacsegurospa.com
+        JAC Seguros | Jely An Castro Pérez · Lic. SSRP N° 6175 · +507 6292-6010 · jcastro@jacsegurospa.com · jacsegurospa.com
  </div>
  </div>
  </div>
