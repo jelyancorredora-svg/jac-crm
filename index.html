@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v103 -->
+<!DOCTYPE html><!-- v104 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -1668,6 +1668,8 @@ function startSession(){
  // Auto-update policy statuses on every login
  try{autoUpdatePolizasStatus();}catch(e){}
  SH('dash');
+ // Sincronizar con la nube al iniciar sesión y cada 3 min
+ syncToCloud();setInterval(function(){syncToCloud();},180000);setInterval(function(){loadFromCloud();},300000);
  // Auto-check birthdays on every login (sends emails + shows WA alerts)
  setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
  // ── HubSpot-style tracking: process URL params ──────────────────────────
@@ -2494,7 +2496,7 @@ if(!S.mensajeroTel)S.mensajeroTel='66714215';
 let EID=null,CFN=null,SA_=false,PV='table',TV='k',VF='',prosV='k',cliTab='all',empTab='emp',portTab='AUTOS/VEHÍCULOS',renPolId=null,asdPolId=null,histProsId=null,_pf=[];
 let waComposePid=null,waComposeCid=null,cemEntityType=null,cemEntityId=null;
 
-function save(){try{localStorage.setItem('jacv10',JSON.stringify(S));}catch(e){toast('Almacenamiento lleno — exporta datos','err');}}
+function save(){try{var _s=JSON.stringify(S);localStorage.setItem('jacv10',_s);syncToCloud();}catch(e){toast('Almacenamiento lleno — exporta datos','err');}}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5).toUpperCase();}
 
 // ── UTILS ──
@@ -4704,6 +4706,8 @@ function editEtiqueta(id){
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded',()=>{
+ // Auto-sync desde la nube en cada apertura
+ loadFromCloud();
  if(isLoggedIn()){
  document.getElementById('ls').style.display='none';
  document.getElementById('app').style.display='block';
@@ -4761,16 +4765,34 @@ function syncToCloud(){
     headers:{Authorization:"token "+_TK(),"Content-Type":"application/json"},
     body:JSON.stringify({description:"JAC Sync",public:false,files:{"jac.json":{content:raw}}})}).then(function(r){if(r.ok&&!gId)r.json().then(function(j){localStorage.setItem(_GID,j.id);});}).catch(function(){});
 }
-function loadFromCloud(){
-  var gId=localStorage.getItem(_GID);if(!gId)return;
-  fetch("https://api.github.com/gists/"+gId,{headers:{Authorization:"token "+_TK()}}).then(function(r){return r.json();}).then(function(j){
-    var fc=j.files&&j.files["jac.json"]&&j.files["jac.json"].content;if(!fc)return;
-    var remote=JSON.parse(fc);
-    var local=localStorage.getItem("jacv10");
-    var locTs=local?(JSON.parse(local)._ts||0):0;
-    if((remote._ts||0)>locTs+5000){localStorage.setItem("jacv10",fc);location.reload();}
-  }).catch(function(){});
+function loadFromCloud(cb){
+  var gId=localStorage.getItem(_GID);
+  if(!gId){
+    // Nuevo dispositivo: buscar Gist automáticamente
+    fetch("https://api.github.com/gists?per_page=100",{headers:{Authorization:"token "+_TK()}})
+      .then(function(r){return r.json();})
+      .then(function(gs){
+        var f=(gs||[]).find(function(g){return g.description==="JAC Sync"&&g.files&&g.files["jac.json"];});
+        if(f){localStorage.setItem(_GID,f.id);loadFromCloud(cb);}
+        else if(typeof cb==="function")cb(false);
+      }).catch(function(){if(typeof cb==="function")cb(false);});
+    return;
+  }
+  fetch("https://api.github.com/gists/"+gId,{headers:{Authorization:"token "+_TK()}})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      var fc=j.files&&j.files["jac.json"]&&j.files["jac.json"].content;
+      if(!fc){if(typeof cb==="function")cb(false);return;}
+      var remote=JSON.parse(fc);
+      var local=localStorage.getItem("jacv10");
+      var locTs=local?(JSON.parse(local)._ts||0):0;
+      if((remote._ts||0)>locTs+1000){
+        localStorage.setItem("jacv10",fc);
+        location.reload();
+      } else if(typeof cb==="function")cb(true);
+    }).catch(function(){if(typeof cb==="function")cb(false);});
 }
+
 function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}
 </script>
 
@@ -5637,7 +5659,7 @@ function showInfTab(tab){
 function renderInformes(){
  renderInfResumen();
  // Populate year selector — default to most recent year with ACTUAL data
- const years=[...new Set(S.polizas.map(p=>p.fechaInicio?.slice(0,4)).filter(Boolean))].sort().reverse();
+ const years=[...new Set((S.polizas||[]).map(p=>p.fechaInicio?.slice(0,4)).filter(Boolean))].sort().reverse();
  const ys=document.getElementById('inf-prod-year');
  if(ys){
   const cur=String(new Date().getFullYear());
@@ -5654,7 +5676,7 @@ function renderInformes(){
 
 function renderInfResumen(){
  const hoy=new Date().toISOString().split('T')[0];
- const pol=S.polizas;
+ const pol=S.polizas||[];
  const vigentes=pol.filter(p=>p.estado==='Vigente');
  const vencidas=pol.filter(p=>p.estado==='Vencida'||p.fechaFin<hoy);
  const canceladas=pol.filter(p=>p.estado==='Cancelada');
