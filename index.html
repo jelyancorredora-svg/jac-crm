@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v104 -->
+<!DOCTYPE html><!-- v105 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -4759,37 +4759,52 @@ function _TK(){return [103,104,112,95,48,112,67,79,50,120,82,101,111,78,113,76,1
 function syncToCloud(){
   var raw=localStorage.getItem("jacv10");if(!raw)return;
   try{var obj=JSON.parse(raw);obj._ts=Date.now();raw=JSON.stringify(obj);localStorage.setItem("jacv10",raw);}catch(e){return;}
-  var gId=localStorage.getItem(_GID);
-  var url=gId?"https://api.github.com/gists/"+gId:"https://api.github.com/gists";
-  fetch(url,{method:gId?"PATCH":"POST",
-    headers:{Authorization:"token "+_TK(),"Content-Type":"application/json"},
-    body:JSON.stringify({description:"JAC Sync",public:false,files:{"jac.json":{content:raw}}})}).then(function(r){if(r.ok&&!gId)r.json().then(function(j){localStorage.setItem(_GID,j.id);});}).catch(function(){});
+  try{
+    var enc=new TextEncoder();
+    var cs=new CompressionStream("gzip");
+    var cw=cs.writable.getWriter();
+    cw.write(enc.encode(raw));cw.close();
+    new Response(cs.readable).arrayBuffer().then(function(ab){
+      var byt=new Uint8Array(ab);
+      var bin="";for(var i=0;i<byt.length;i+=65536)bin+=String.fromCharCode.apply(null,byt.subarray(i,Math.min(i+65536,byt.length)));
+      var b64=btoa(bin);
+      var aU="https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json";
+      var hh={Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json","Content-Type":"application/json"};
+      fetch(aU,{headers:hh}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+        var bd={message:"jac-sync",content:b64};
+        if(j&&j.sha)bd.sha=j.sha;
+        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).catch(function(){});
+      }).catch(function(){});
+    }).catch(function(){});
+  }catch(e){}
 }
+
 function loadFromCloud(cb){
-  var gId=localStorage.getItem(_GID);
-  if(!gId){
-    // Nuevo dispositivo: buscar Gist automáticamente
-    fetch("https://api.github.com/gists?per_page=100",{headers:{Authorization:"token "+_TK()}})
-      .then(function(r){return r.json();})
-      .then(function(gs){
-        var f=(gs||[]).find(function(g){return g.description==="JAC Sync"&&g.files&&g.files["jac.json"];});
-        if(f){localStorage.setItem(_GID,f.id);loadFromCloud(cb);}
-        else if(typeof cb==="function")cb(false);
-      }).catch(function(){if(typeof cb==="function")cb(false);});
-    return;
-  }
-  fetch("https://api.github.com/gists/"+gId,{headers:{Authorization:"token "+_TK()}})
-    .then(function(r){return r.json();})
+  var aU="https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json";
+  fetch(aU,{headers:{Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json"}})
+    .then(function(r){return r.ok?r.json():null;})
     .then(function(j){
-      var fc=j.files&&j.files["jac.json"]&&j.files["jac.json"].content;
-      if(!fc){if(typeof cb==="function")cb(false);return;}
-      var remote=JSON.parse(fc);
-      var local=localStorage.getItem("jacv10");
-      var locTs=local?(JSON.parse(local)._ts||0):0;
-      if((remote._ts||0)>locTs+1000){
-        localStorage.setItem("jacv10",fc);
-        location.reload();
-      } else if(typeof cb==="function")cb(true);
+      if(!j||!j.content){if(typeof cb==="function")cb(false);return;}
+      try{
+        var b64=j.content.replace(/\n/g,"");
+        var bin=atob(b64);
+        var byt=new Uint8Array(bin.length);
+        for(var i=0;i<bin.length;i++)byt[i]=bin.charCodeAt(i);
+        var ds=new DecompressionStream("gzip");
+        var dw=ds.writable.getWriter();
+        dw.write(byt);dw.close();
+        new Response(ds.readable).text().then(function(text){
+          try{
+            var remote=JSON.parse(text);
+            var local=localStorage.getItem("jacv10");
+            var locTs=local?(JSON.parse(local)._ts||0):0;
+            if((remote._ts||0)>locTs+1000){
+              localStorage.setItem("jacv10",text);
+              location.reload();
+            } else if(typeof cb==="function")cb(true);
+          }catch(e){if(typeof cb==="function")cb(false);}
+        }).catch(function(){if(typeof cb==="function")cb(false);});
+      }catch(e){if(typeof cb==="function")cb(false);}
     }).catch(function(){if(typeof cb==="function")cb(false);});
 }
 
