@@ -4786,7 +4786,7 @@ function loadFromCloud(cb){
     .then(function(j){
       if(!j){if(typeof cb==="function")cb(false);return;}
       if(j.content&&j.content.length>10){try{var bin=atob(j.content.replace(/\n/g,""));var byt=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)byt[i]=bin.charCodeAt(i);decomp(byt.buffer).then(apply).catch(function(){if(typeof cb==="function")cb(false);});}catch(e){if(typeof cb==="function")cb(false);}}
-      else if(j.download_url){fetch(j.download_url+"?cb="+Date.now()).then(function(r){return r.arrayBuffer();}).then(function(ab){return decomp(ab);}).then(apply).catch(function(){if(typeof cb==="function")cb(false);});}
+      else if(j.sha){fetch("https://api.github.com/repos/jelyancorredora-svg/jac-crm/git/blobs/"+j.sha,{cache:"no-store",headers:{Authorization:"token "+_TK(),Accept:"application/vnd.github.v3.raw"}}).then(function(r){return r.arrayBuffer();}).then(function(ab){return decomp(ab);}).then(apply).catch(function(){if(typeof cb==="function")cb(false);});}
       else{if(typeof cb==="function")cb(false);}
     }).catch(function(){if(typeof cb==="function")cb(false);});
 }
