@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v109 -->
+<!DOCTYPE html><!-- v110 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -1671,7 +1671,7 @@ function startSession(){
  try{autoUpdatePolizasStatus();}catch(e){}
  SH('dash');
  // Sincronizar con la nube al iniciar sesión y cada 3 min
- syncToCloud();setInterval(function(){syncToCloud();},180000);setInterval(function(){loadFromCloud();},300000);
+ syncToCloud();setInterval(function(){syncToCloud();},60000);setInterval(function(){loadFromCloud();},90000);
  // Auto-check birthdays on every login (sends emails + shows WA alerts)
  setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
  // ── HubSpot-style tracking: process URL params ──────────────────────────
@@ -1707,7 +1707,7 @@ async function autoBirthdayCheck(){
 
  // Find clients with birthday TODAY
  const bdayClients=S.clientes.filter(c=>{
- if(!c.fechaNac||c.tipo==='Empresa')return false;
+ if(!c.fechaNac||(c.tipo==='Persona Jur\u00eddica'||c.tipo==='Empresa'))return false;
  const parts=c.fechaNac.split('-');
  return parts[1]===mm && parts[2]===dd;
  });
@@ -3455,7 +3455,7 @@ function SC(){
  etiquetas:getSelTags('c-tag-sel')};
  if(EID){const i=S.clientes.findIndex(c=>c.id===EID);if(i>=0){if(!S.clientes[i].archivos)S.clientes[i].archivos=[];S.clientes[i].archivos.push(..._pf);S.clientes[i]={...S.clientes[i],...d};}toast('✓ Cliente actualizado');}
  else{S.clientes.push({id:'C'+uid(),...d,archivos:[..._pf],alias:'',historialWA:[]});toast('✓ Cliente creado');}
- _pf=[];save();CM('mc');RC();
+ _pf=[];save();syncToCloud();CM('mc');RC();
  // Ecosystem sync on status change
  if(EID){
  const saved=S.clientes.find(c=>c.id===EID);
