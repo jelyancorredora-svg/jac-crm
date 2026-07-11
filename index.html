@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v115 -->
+<!DOCTYPE html><!-- v116 -->
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
@@ -4556,20 +4556,81 @@ ${(t.tipoRel&&t.relId&&(t.tipoRel==='cliente'?GC(t.relId).email:GPros(t.relId).e
 const TAR_STATUS_CLR={'Por Hacer':'#1D4ED8','Normal':'#64748B','En Proceso':'#D97706','En Seguimiento':'#7E22CE','Delegado':'#0891B2','Reenviado':'#B45309','Completado':'#15803D','Realizado':'#15803D','Finalizado':'#15803D','Hecho':'#15803D','Cancelada':'#B91C1C'};
 const TAR_DONE_STATES=new Set(['Completado','Realizado','Finalizado','Hecho','Cancelada']);
 function renderTarL(){
- const sorted=[...S.tareas.filter(function(t){return t._autoTipo!=='comision';})].sort((a,z)=>({'Alta':0,'Media':1,'Baja':2}[a.prioridad]||1)-({'Alta':0,'Media':1,'Baja':2}[z.prioridad]||1));
- const allEtapas=['Por Hacer','Normal','En Proceso','En Seguimiento','Delegado','Reenviado','Completado','Realizado','Finalizado','Hecho','Cancelada'];
- let h='<div class="card"><div class="tw"><table><thead><tr><th>Prior.</th><th>Título</th><th>Tipo</th><th>Estado ▾</th><th>Relacionado</th><th>Fecha</th><th>WA</th><th>Acc.</th></tr></thead><tbody>';
- sorted.forEach(t=>{
- const isDone=TAR_DONE_STATES.has(t.etapaTarea);
- const pc2=pcol(t.prioridad);const atrasada=t.fechaLimite&&dAgo(t.fechaLimite)>0&&!isDone;
- const relNom=t.tipoRel==='cliente'?(GC(t.relId||'').nombre||''):t.tipoRel==='prospecto'?(GPros(t.relId||'').nombre||''):'';
- const relTel=t.tipoRel==='cliente'?(GC(t.relId||'').cel||''):t.tipoRel==='prospecto'?(GPros(t.relId||'').cel||''):'';
- const wu=relTel?waL(relTel,`Hola ${relNom.split(' ')[0]}, te contacto de JAC Seguros | Jely An Castro: ${t.titulo}`):null;
- const stClr=TAR_STATUS_CLR[t.etapaTarea]||'#1D4ED8';
- const stOpts=allEtapas.map(e=>`<option${e===t.etapaTarea?' selected':''}>${e}</option>`).join('');
- h+=`<tr style="${atrasada?'background:#FEF2F2':''}${isDone?'opacity:.7':''}"><td><span style="color:${pc2};font-weight:700;font-size:11px">● ${t.prioridad||'—'}</span></td><td style="font-weight:600">${esc(t.titulo)}</td><td>${b('bgr',t.tipo||'')}</td><td><select style="border:none;border-radius:12px;padding:2px 6px;font-size:10px;font-weight:700;background:${stClr}18;color:${stClr};cursor:pointer;outline:none" onchange="setTarEtapa('${t.id}',this.value)">${stOpts}</select></td><td style="font-size:11px">${esc(relNom||'—')}</td><td style="font-size:11px;color:${atrasada?'#DC2626':'inherit'}">${fmt(t.fechaLimite)}</td><td>${wu?waBtn(wu,t.tipoRel||'',t.relId||'','Tarea',relNom,'💬','bwa bsm'):'—'}</td><td><div class="ab">${(t.tipoRel&&t.relId&&(t.tipoRel==='cliente'?GC(t.relId).email:GPros(t.relId).email))?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForTarea('${t.id}')">📧</button>`:''}<button class="btn bsm bic" onclick="OT_open('${t.id}')">✏️</button><button class="btn bsm bic" onclick="DTar('${t.id}')" style="color:var(--rd)">🗑</button></div></td></tr>`;
+ if(!window.tarFilt)window.tarFilt='pend';
+ var allT=S.tareas.slice();
+ var viewT=window.tarFilt==='todas'?allT:window.tarFilt==='hechas'?allT.filter(function(t){return TAR_DONE_STATES.has(t.etapaTarea);}):allT.filter(function(t){return !TAR_DONE_STATES.has(t.etapaTarea);});
+ var sorted=viewT.sort(function(a,z){
+  var pd={'Alta':0,'Media':1,'Baja':2};
+  var da=TAR_DONE_STATES.has(a.etapaTarea)?1:0,dz=TAR_DONE_STATES.has(z.etapaTarea)?1:0;
+  if(da!==dz)return da-dz;
+  return (pd[a.prioridad]||1)-(pd[z.prioridad]||1);
  });
- const tv=document.getElementById('tar-view');if(tv)tv.innerHTML=h+'</tbody></table></div></div>';
+ var allEtapas=['Por Hacer','Normal','En Proceso','En Seguimiento','Delegado','Reenviado','Completado','Realizado','Finalizado','Hecho','Cancelada'];
+ var pCnt=S.tareas.filter(function(t){return !TAR_DONE_STATES.has(t.etapaTarea);}).length;
+ var fBtns='<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap">'
+  +'<button class="btn bsm'+(window.tarFilt==='pend'?' btn-primary':'')+'" onclick="window.tarFilt=\'pend\';renderTarL()">Pendientes ('+pCnt+')</button>'
+  +'<button class="btn bsm'+(window.tarFilt==='todas'?' btn-primary':'')+'" onclick="window.tarFilt=\'todas\';renderTarL()">Todas ('+S.tareas.length+')</button>'
+  +'<button class="btn bsm'+(window.tarFilt==='hechas'?' btn-primary':'')+'" onclick="window.tarFilt=\'hechas\';renderTarL()">Completadas</button>'
+ +'</div>';
+ var h=fBtns+'<div class="card" style="overflow:auto"><table style="width:100%;min-width:900px"><thead><tr>'
+  +'<th style="width:22px"></th>'
+  +'<th style="min-width:220px">T\u00edtulo / Especificaci\u00f3n</th>'
+  +'<th>Tipo</th>'
+  +'<th style="min-width:150px">Para qui\u00e9n</th>'
+  +'<th>P\u00f3liza ref.</th>'
+  +'<th>Creaci\u00f3n</th>'
+  +'<th>Fecha l\u00edmite</th>'
+  +'<th>Estado</th>'
+  +'<th>Acc.</th>'
+  +'</tr></thead><tbody>';
+ sorted.forEach(function(t){
+  var isDone=TAR_DONE_STATES.has(t.etapaTarea);
+  var pc2=pcol(t.prioridad);
+  var atrasada=t.fechaLimite&&dAgo(t.fechaLimite)>0&&!isDone;
+  var cli=t.tipoRel==='cliente'?GC(t.relId||''): null;
+  var pros=t.tipoRel==='prospecto'?GPros(t.relId||''): null;
+  var relObj=cli||pros||{};
+  var relNom=relObj.nombre||'';
+  var relTel=relObj.cel||relObj.telefono||'';
+  var relEmail=relObj.email||'';
+  var tipoLbl=t.tipoRel==='cliente'?'Cliente':t.tipoRel==='prospecto'?'Prospecto':'';
+  var wu=relTel?waL(relTel,'Hola '+(relNom.split(' ')[0]||relNom)+', te contacto de JAC Seguros | Jely An Castro: '+t.titulo):null;
+  var stClr=TAR_STATUS_CLR[t.etapaTarea]||'#1D4ED8';
+  var stOpts=allEtapas.map(function(e){return '<option'+(e===t.etapaTarea?' selected':'')+'>'+e+'</option>';}).join('');
+  var relPol=t.polizaId?S.polizas.find(function(p){return p.id===t.polizaId;}):null;
+  var polCell=relPol?('<b style="font-size:11px;color:#1D4ED8">'+esc(relPol.numeroPol||relPol.id)+'</b><br><span style="font-size:9px;color:#6B7280">'+esc(relPol.ramo||'')+'</span>'):'<span style="color:#CBD5E1">&#8212;</span>';
+  var descCell=(t.desc&&t.desc.trim()&&t.desc!==t.titulo)?'<div style="font-size:10px;color:#4B5563;margin-top:3px;line-height:1.35;border-left:2px solid #E2E8F0;padding-left:5px">'+esc(t.desc)+'</div>':'';
+  var autoChip=t._autoTipo?'<span style="font-size:9px;background:#F1F5F9;color:#64748B;padding:1px 5px;border-radius:10px;margin-top:3px;display:inline-block">'+esc(t._autoTipo)+'</span>':''
+  var rowBg=atrasada&&!isDone?'background:#FEF2F2;border-left:3px solid #EF4444;':isDone?'background:#F8FAFC;opacity:.6;':'';
+  h+='<tr style="vertical-align:top;'+rowBg+'">'
+   +'<td style="padding-top:8px;text-align:center"><span title="Prioridad: '+(t.prioridad||'Media')+'" style="color:'+pc2+';font-size:16px">&#9679;</span></td>'
+   +'<td style="padding:6px 8px">'
+    +'<div style="font-weight:600;font-size:12px;line-height:1.4">'+esc(t.titulo)+'</div>'
+    +descCell+autoChip
+   +'</td>'
+   +'<td style="padding:6px 4px;white-space:nowrap">'+b('bgr',t.tipo||t._autoTipo||'')+'</td>'
+   +'<td style="padding:6px 8px;font-size:11px">'
+    +(relNom
+      ?'<div style="font-weight:600;color:#1E293B">'+esc(relNom)+'</div>'
+       +'<div style="font-size:10px;color:#94A3B8">'+tipoLbl+(relEmail?' &middot; '+esc(relEmail):'')+'</div>'
+      :'<span style="color:#CBD5E1">&#8212;</span>'
+    )
+   +'</td>'
+   +'<td style="padding:6px 8px;font-size:11px">'+polCell+'</td>'
+   +'<td style="padding:6px 8px;font-size:10px;color:#94A3B8;white-space:nowrap">'+fmt(t.fechaCreacion)+'</td>'
+   +'<td style="padding:6px 8px;font-size:11px;white-space:nowrap;color:'+(atrasada?'#DC2626':'#374151')+';font-weight:'+(atrasada?700:400)+'">'
+    +(t.fechaLimite?fmt(t.fechaLimite)+(atrasada?'<br><span style="font-size:9px;color:#DC2626">&#9888; '+dAgo(t.fechaLimite)+'d atrasada</span>':'')+'</td>':'<span style="color:#CBD5E1">&#8212;</span></td>')
+   +'<td style="padding:6px 4px;white-space:nowrap"><select style="border:none;border-radius:12px;padding:2px 8px;font-size:10px;font-weight:700;background:'+stClr+'18;color:'+stClr+';cursor:pointer;outline:none" onchange="setTarEtapa(\''+ t.id +'\',this.value)">'+stOpts+'</select></td>'
+   +'<td style="padding:6px 4px;white-space:nowrap"><div class="ab">'
+    +(wu?'<a href="'+esc(wu)+'" target="_blank" class="btn bwa bsm">&#128172;</a>':'')
+    +((t.tipoRel&&t.relId&&relEmail)?'<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForTarea(\''+ t.id +'\')"  >&#128231;</button>':'')
+    +'<button class="btn bsm bic" onclick="OT_open(\''+ t.id +'\')">&#9999;&#65039;</button>'
+    +'<button class="btn bsm bic" onclick="DTar(\''+ t.id +'\')" style="color:var(--rd)">&#128465;</button>'
+   +'</div></td>'
+  +'</tr>';
+ });
+ var tv=document.getElementById('tar-view');
+ if(tv)tv.innerHTML=h+'</tbody></table></div>';
 }
 function advTask(id){const t=S.tareas.find(x=>x.id===id);if(!t)return;const n={'Por Hacer':'En Proceso','Normal':'En Proceso','En Proceso':'Hecho','En Seguimiento':'Hecho','Delegado':'Hecho','Reenviado':'Hecho'}[t.etapaTarea]||'Hecho';t.etapaTarea=n;if(TAR_DONE_STATES.has(n))t.estado='completada';save();RTar();toast('✓ Avanzada');}
 function setTarEtapa(id,etapa){const t=S.tareas.find(x=>x.id===id);if(!t)return;t.etapaTarea=etapa;if(TAR_DONE_STATES.has(etapa))t.estado='completada';else t.estado='pendiente';save();RTar();toast('✓ Estado: '+etapa);}
