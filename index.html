@@ -3,36 +3,7 @@
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}
-// v117: Auto-sync on startup - push local data to GitHub for cross-device sync
-(function(){
-  var lsRaw=localStorage.getItem('jacv10');
-  if(!lsRaw)return;
-  try{
-    var obj=JSON.parse(lsRaw);
-    var localTs=obj._ts||0;
-    var aU='https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json';
-    var hh={Authorization:'token '+_TK(),Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
-    // Check if local is newer than cloud
-    fetch(aU,{cache:'no-store',headers:hh}).then(function(r){return r.ok?r.json():null;}).then(function(j){
-      if(!j)return;
-      try{
-        // Decode cloud timestamp
-        var cRaw=atob(j.content.replace(/\n/g,''));
-        var cTs=0;
-        // Try to find _ts in compressed (skip) or raw json
-        var tsM=cRaw.match(/"_ts":(d+)/);
-        if(tsM)cTs=parseInt(tsM[1]);
-        // If local is newer by more than 60 seconds, push to cloud
-        if(localTs>cTs+60000){
-          console.log('[JAC v117] Local data newer, pushing to cloud...');
-          syncToCloud();
-        } else if(cTs>localTs+60000){
-          console.log('[JAC v117] Cloud data newer, consider refreshing');
-        }
-      }catch(e){}
-    }).catch(function(){});
-  }catch(e){}
-})();
+// v119: Startup sync en main script (después de _TK y funciones definidas)
 </script>
 <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
@@ -1704,7 +1675,32 @@ function startSession(){
  SH('dash');
  // Sincronizar con la nube al iniciar sesión y cada 3 min
  syncToCloud();setInterval(function(){syncToCloud();},60000);setInterval(function(){loadFromCloud();},90000);
- // Auto-check birthdays on every login (sends emails + shows WA alerts)
+ // v119: Sync bidireccional al inicio
+ try{(async function _j119(){
+  var tk2=_TK();if(!tk2)return;
+  var lsr=localStorage.getItem('jacv10');
+  var lsh=localStorage.getItem('jacv10_csha')||'';
+  var j2=await fetch('https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json',
+    {cache:'no-store',headers:{Authorization:'token '+tk2,Accept:'application/vnd.github.v3+json'}}
+  ).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  if(!j2||!j2.sha)return;
+  if(!lsr){
+    console.log('[JAC v119] localStorage vacío → restaurando de nube...');
+    localStorage.setItem('jacv10_csha',j2.sha);
+    if(typeof loadFromCloud==='function')loadFromCloud(function(ok){console.log('[JAC v119] Restore:'+ok);});
+  } else if(j2.sha!==lsh){
+    console.log('[JAC v119] SHA nube cambió → verificando datos...');
+    localStorage.setItem('jacv10_csha',j2.sha);
+    if(typeof loadFromCloud==='function')loadFromCloud(function(ok){console.log('[JAC v119] Pull:'+ok);});
+  } else {
+    var lt2=(JSON.parse(lsr)||{})._ts||0;
+    if(Date.now()-lt2<600000&&typeof syncToCloud==='function'){
+      console.log('[JAC v119] Datos recientes → subiendo...');
+      setTimeout(syncToCloud,2000);
+    }
+  }
+ })();}catch(e){console.log('[JAC v119] startup err:',e);}
+  // Auto-check birthdays on every login (sends emails + shows WA alerts)
  setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
  // ── HubSpot-style tracking: process URL params ──────────────────────────
  setTimeout(()=>{
@@ -2449,7 +2445,7 @@ function delEtiqueta(id){confirm2('¿Eliminar etiqueta?',()=>{S.etiquetas=S.etiq
 // ── CONSTANTS ──
 // RAMOS NORMALIZADOS: SALUD/MÉDICOS (unificado), VIDA (unificado), MOTOS (renombrado de OTROS)
 const GENERALES=new Set(['AUTOS/VEHÍCULOS','MOTOS','INCENDIO Y LÍNEAS ALIADAS','HOGAR','FIANZAS/ROBO/SUSTRACCIÓN','RESPONSABILIDAD CIVIL','SOAT','MULTIRIESGO','TODO RIESGO','CUMPLIMIENTO','VIAJES/TURISMO']);
-const TODAY=new Date();
+const APP_VER="v119";const TODAY=new Date();
 const MON=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const ACOL={ASSA:'#005F9E',SURA:'#E85D04',IS:'#1A3A6B',MAPFRE:'#C8102E',PALIG:'#2D6A4F',UNIVIVIR:'#7B2D8B',FEDPA:'#8B5E00','Ancón':'#3D405B','WW Medical':'#0D7377',Acerta:'#5C4033',Generali:'#C62828',Chubb:'#2E7D32',Aliados:'#0277BD','La Regional':'#E65100',General:'#4E342E',VUMI:'#00548B','VUMI-LA REGIONAL DE SEGUROS':'#00548B'};
 // PIPELINE CORREGIDO: Contacto primero
@@ -4883,7 +4879,7 @@ function syncToCloud(){
       var hh={Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json","Content-Type":"application/json"};
       fetch(aU,{cache:"no-store",headers:hh}).then(function(r){return r.ok?r.json():null;}).then(function(j){
         var bd={message:"jac-sync",content:b64};if(j&&j.sha)bd.sha=j.sha;
-        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).then(function(r){if(r.ok){var b=document.getElementById('syncBadge');if(b){b.textContent='✓ Sincronizado '+new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});b.style.display='block';clearTimeout(window._badgeT);window._badgeT=setTimeout(function(){b.style.display='none';},3000);}}}).catch(function(){});
+        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).then(function(r){if(r.ok){r.clone().json().then(function(jj){if(jj&&jj.content&&jj.content.sha)localStorage.setItem('jacv10_csha',jj.content.sha);}).catch(function(){});var b=document.getElementById('syncBadge');if(b){b.textContent='✓ Sincronizado '+new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});b.style.display='block';clearTimeout(window._badgeT);window._badgeT=setTimeout(function(){b.style.display='none';},3000);}}}).catch(function(){});
       }).catch(function(){});
     }).catch(function(){});
   }catch(e){}
