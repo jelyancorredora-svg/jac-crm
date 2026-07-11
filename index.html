@@ -1,7 +1,39 @@
-<!DOCTYPE html><!-- v116 -->
+<!DOCTYPE html><!-- v117 -->
 <html lang="es">
 <head>
-<script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+<script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}
+// v117: Auto-sync on startup - push local data to GitHub for cross-device sync
+(function(){
+  var lsRaw=localStorage.getItem('jacv10');
+  if(!lsRaw)return;
+  try{
+    var obj=JSON.parse(lsRaw);
+    var localTs=obj._ts||0;
+    var aU='https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json';
+    var hh={Authorization:'token '+_TK(),Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
+    // Check if local is newer than cloud
+    fetch(aU,{cache:'no-store',headers:hh}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+      if(!j)return;
+      try{
+        // Decode cloud timestamp
+        var cRaw=atob(j.content.replace(/\n/g,''));
+        var cTs=0;
+        // Try to find _ts in compressed (skip) or raw json
+        var tsM=cRaw.match(/"_ts":(d+)/);
+        if(tsM)cTs=parseInt(tsM[1]);
+        // If local is newer by more than 60 seconds, push to cloud
+        if(localTs>cTs+60000){
+          console.log('[JAC v117] Local data newer, pushing to cloud...');
+          syncToCloud();
+        } else if(cTs>localTs+60000){
+          console.log('[JAC v117] Cloud data newer, consider refreshing');
+        }
+      }catch(e){}
+    }).catch(function(){});
+  }catch(e){}
+})();
+</script>
 <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#1A3A6B">
@@ -4851,7 +4883,7 @@ function syncToCloud(){
       var hh={Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json","Content-Type":"application/json"};
       fetch(aU,{cache:"no-store",headers:hh}).then(function(r){return r.ok?r.json():null;}).then(function(j){
         var bd={message:"jac-sync",content:b64};if(j&&j.sha)bd.sha=j.sha;
-        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).catch(function(){});
+        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).then(function(r){if(r.ok){var b=document.getElementById('syncBadge');if(b){b.textContent='✓ Sincronizado '+new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});b.style.display='block';clearTimeout(window._badgeT);window._badgeT=setTimeout(function(){b.style.display='none';},3000);}}}).catch(function(){});
       }).catch(function(){});
     }).catch(function(){});
   }catch(e){}
@@ -5338,7 +5370,7 @@ function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||""
  _syncTimer = setTimeout(async () => {
  try {
  const { data: { session } } = await db.auth.getSession();
- if (!session) return;
+ if (!session) { syncToCloud(); return; }
 
  const { error } = await db
  .from('jac_crm_data')
@@ -5347,9 +5379,10 @@ function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||""
  { onConflict: 'user_id' }
  );
 
- if (error) console.error('[JAC Supabase save]', error.message);
+ if (error) { console.error('[JAC Supabase save]', error.message); syncToCloud(); }
  } catch (err) {
  console.error('[JAC save error]', err);
+ syncToCloud();
  }
  }, 2000);
  };
@@ -5895,7 +5928,7 @@ function exportInformePDF(){
  <h3>Pólizas Activas</h3><table><tr><th>Póliza</th><th>Cliente</th><th>Aseg.</th><th>Ramo</th><th>Prima</th><th>Comisión</th><th>Vence</th></tr>
  ${S.polizas.filter(p=>p.estado==='Vigente').map(p=>{const cl=S.clientes.find(c=>c.id===p.clienteId)||{nombre:'—'};return`<tr><td>${p.numero||'—'}</td><td>${cl.nombre}</td><td>${p.aseg||'—'}</td><td>${p.ramo||'—'}</td><td>$${fmt2(p.prima||0)}</td><td>$${fmt2(p.comision||0)}</td><td>${p.fechaFin||'—'}</td></tr>`;}).join('')}
  </table>
-</body></html>`);
+<span id="syncBadge" style="display:none;position:fixed;bottom:12px;right:12px;z-index:9999;background:#22c55e;color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.2)">✓ Sincronizado</span></body></html>`);
  w.document.close();w.print();
 }
 
