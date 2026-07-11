@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}</script>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#1A3A6B">
 <title>JAC Seguros CRM</title>
@@ -203,7 +203,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
 
 /* === BUSQUEDA GLOBAL === */
 #gSearch{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;align-items:flex-start;justify-content:center;padding-top:80px}
-#gSearch.active{display:flex}
+#gSearch.active{display:flex;width:100vw;height:100vh;box-sizing:border-box}
 .gs-box{background:#fff;border-radius:12px;width:90%;max-width:600px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
 .gs-inw{display:flex;align-items:center;padding:16px;border-bottom:1px solid #EEF2F8;gap:10px}
 .gs-inw input{flex:1;border:none;outline:none;font-size:16px;color:#1E293B;background:transparent}
@@ -3070,7 +3070,7 @@ function SH(id){
  closeDP();
  // Use small delay to avoid blank flicker
  requestAnimationFrame(()=>{
- const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,men:RMen,wam:RWam}[id];
+ const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,men:RMen,wam:RWam,cal:renderCal}[id];
  if(typeof fn==='function')try{fn();}catch(e){console.warn('[SH]',id,e);}
  });
 }
@@ -8103,7 +8103,7 @@ function cotpGeneratePDF(filterAsegId){
  var rows = res.map(function(r,i){
  return '<tr style="background:'+(i%2===0?'#F8FAFC':'#FFFFFF')+'"><td style="padding:10px 14px;font-weight:700;color:#1E3A5F;border-bottom:1px solid #E2E8F0">'+(i+1)+'. '+r.aseg.nombre+'</td><td style="padding:10px 14px;text-align:center;border-bottom:1px solid #E2E8F0;color:#64748B">'+r.aseg.rating+'/5</td><td style="padding:10px 14px;text-align:right;font-weight:800;color:#1E3A5F;font-size:16px;border-bottom:1px solid #E2E8F0">$'+r.total.toFixed(2)+'/ano</td><td style="padding:10px 14px;text-align:right;color:#64748B;border-bottom:1px solid #E2E8F0">$'+r.neta.toFixed(2)+'</td><td style="padding:10px 14px;font-size:12px;color:#475569;border-bottom:1px solid #E2E8F0">'+(r.cobertura||'---')+'</td><td style="padding:10px 14px;text-align:center;font-size:12px;color:#64748B;border-bottom:1px solid #E2E8F0">'+(r.deducible||'---')+'</td></tr>';
  }).join('');
- var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Cotizacion '+ramoLabel+' - JAC Seguros<\/title>'
+ var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><title>Cotizacion '+ramoLabel+' - JAC Seguros<\/title>'
  +'<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:\'Segoe UI\',Helvetica,Arial,sans-serif;color:#1E293B;font-size:13px;background:#fff}.hdr{background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 100%);color:#fff;padding:24px 32px;display:flex;justify-content:space-between;align-items:center}.hdr-logo{font-size:24px;font-weight:900;letter-spacing:2px;color:#FCD34D;font-family:Georgia,serif}.hdr-sub{font-size:11px;color:#93C5FD;margin-top:3px;letter-spacing:1px;text-transform:uppercase}.hdr-contact{text-align:right;font-size:11px;color:#CBD5E1;line-height:2}.body{padding:28px 32px}.qtitle{font-size:22px;font-weight:900;color:#0F172A;margin-bottom:4px}.qsub{font-size:12px;color:#64748B;margin-bottom:20px}.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;background:#F1F5F9;border-radius:10px;padding:16px 20px;margin-bottom:22px}.info-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#64748B;font-weight:700}.info-val{font-size:15px;font-weight:800;color:#0F172A;margin-top:4px}table{width:100%;border-collapse:collapse;margin-bottom:20px;border-radius:8px;overflow:hidden}thead tr{background:linear-gradient(90deg,#1E3A5F,#1E40AF);color:#fff}thead th{padding:11px 14px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700}.nota{background:#EFF6FF;border-left:4px solid #3B82F6;border-radius:0 8px 8px 0;padding:12px 16px;font-size:11px;color:#1E40AF;line-height:1.7;margin-bottom:20px}.ftr{border-top:2px solid #E2E8F0;padding:14px 32px;font-size:10px;color:#94A3B8;display:flex;justify-content:space-between;background:#F8FAFC}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{margin:10mm;size:A4}}<\/style><\/head><body>'
  +'<div class="hdr"><div><div class="hdr-logo">JAC SEGUROS<\/div><div class="hdr-sub">Jely An Castro Perez &middot; Agente Autorizado de Seguros<\/div><\/div><div class="hdr-contact">+507 6292-6010<br>jcastro@jacsegurospa.com<br>jacsegurospa.com<\/div><\/div>'
  +'<div class="body"><div class="qtitle">Cotizacion Comparativa &mdash; '+ramoLabel+'<\/div><div class="qsub">Generado el '+fecha+' &middot; '+res.length+' aseguradora'+( res.length!==1?'s':'')+' analizadas &middot; Tarifas mercado panameno 2026<\/div>'
@@ -9938,7 +9938,7 @@ res.innerHTML=html;}
 document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}if(e.key==='Escape'&&document.getElementById('gSearch').classList.contains('active'))closeSearch();});
 
 window.calDate=new Date();
-function renderCal(){
+function renderCal(){if(!window.calDate)window.calDate=new Date();if(!window._calSel)window._calSel=new Date().getDate();
 var y=window.calDate.getFullYear(),m=window.calDate.getMonth();
 var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var dnames=['Domingo','Lunes','Martes','Mi\u00e9rcoles','Jueves','Viernes','S\u00e1bado'];
