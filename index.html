@@ -4603,7 +4603,7 @@ function DTar(id){confirm2('¿Eliminar?',()=>{S.tareas=S.tareas.filter(x=>x.id!=
 // ── EMPRESAS ──
 function switchEmpTab(t,el){empTab=t;document.querySelectorAll('#emp-tabs a').forEach(a=>a.classList.remove('on'));el.classList.add('on');REmp();}
 function REmp(){
- const emp=S.clientes.filter(c=>c.tipo==='Empresa');
+ const emp=S.clientes.filter(c=>c.tipo==='Empresa'||c.tipo==='Persona Jurídica');
  const colPols=S.polizas.filter(p=>['SALUD/MÉDICOS','VIDA','ACCIDENTES PERSONALES'].includes(p.ramo));
  const cnt=document.getElementById('empcnt');if(cnt)cnt.textContent=`${emp.length} empresas · ${colPols.length} pólizas colectivas`;
  if(empTab==='emp'){
