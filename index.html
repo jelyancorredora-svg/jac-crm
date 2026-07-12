@@ -3,6 +3,7 @@
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}
+// v120: Fix PJ tipo preserve
 // v119: Startup sync en main script (después de _TK y funciones definidas)
 </script>
 <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
@@ -3464,7 +3465,8 @@ function SC(){
  const nom=(V('c-nom')||'').trim(),ced=(V('c-ced')||'').trim();
  if(!nom||!ced){toast('Nombre y Documento son obligatorios','err');return;}
  const td=V('c-td');
- const tipoSel=(document.getElementById('c-tipo')?.value)||'Persona Natural';
+ let tipoSel=(document.getElementById('c-tipo')?.value)||'Persona Natural';
+ if(EID){const _ec=S.clientes.find(c=>c.id===EID);if(_ec&&(_ec.tipo==='Empresa'||_ec.tipo==='Persona Jurídica')&&tipoSel==='Persona Natural')tipoSel=_ec.tipo;}
  const d={nombre:nom,cedula:ced,tipoDoc:td,tipo:tipoSel,
  cel:V('c-cel').trim(),celSec:V('c-cel2').trim(),tel:V('c-tel').trim(),telSec:V('c-tel2').trim(),
  email:V('c-em').trim().toLowerCase(),emailSec:V('c-em2').trim().toLowerCase(),
@@ -4074,7 +4076,7 @@ function OP(id){
  const hcc=!!(p.coCor);const phc=document.getElementById('p-hc');if(phc)phc.checked=hcc;const cob3=document.getElementById('cob3');if(cob3)cob3.className='cob'+(hcc?' on':'');
  SVal('p-cc',p.coCor);SVal('p-cp',p.coCorPart);SVal('p-cc2',p.coCorCom);
  const pfl=document.getElementById('p-file-list');if(pfl)pfl.innerHTML=renderFL(p.archivos||[],id||'','poliza');
- onRC();loadBens(p.beneficiarios||[]);OM('mp');initFileInp('p-file-inp','p-file-pending');
+ onRC();loadBens(p.beneficiarios||[]);if(id&&p.clienteId){const _oc=GC(p.clienteId);if(_oc&&(_oc.tipo==='Empresa'||_oc.tipo==='Persona Jurídica')){if(typeof setCtipoPJ==='function')setCtipoPJ();}else if(typeof setCtipoPN==='function')setCtipoPN();}OM('mp');initFileInp('p-file-inp','p-file-pending');
  // Populate WA + Email history in policy form
  if(id) setTimeout(()=>renderPolicyHistSections(id),120);
  else {
@@ -4132,7 +4134,7 @@ function SP(){
  if(_pros){
  // Move prospecto to clientes if not already there
  if(!S.clientes.find(x=>x.id===cId)){
- const newCli={..._pros,tipo:_pros.tipo||'Personal',estadoComercial:'activo',
+ const newCli={..._pros,tipo:_pros.tipo||'Persona Natural',estadoComercial:'activo',
  historial:[...((_pros.historial)||[]),{id:'H'+uid(),fecha:TODAY.toISOString().split('T')[0],
  accion:`🎉 Convertido a cliente — Póliza ${d.num||''} ${d.aseg||''} ${d.ramo||''}`,
  tipo:'conversion',resultado:'Prospecto convertido a cliente'}]};
