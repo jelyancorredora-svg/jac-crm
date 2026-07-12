@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v118 -->
+<!DOCTYPE html><!-- v124 -->
 <html lang="es">
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
@@ -1300,7 +1300,17 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
  <div class="fl"><label>Aviso de operaciones 2</label><input class="fc" id="c-avisop"></div>
  <div class="fl ff"><label>Observaciones</label><textarea class="fc" id="c-obs" rows="2"></textarea></div>
  <div class="fl ff"><label>Notas internas</label><textarea class="fc" id="c-notas" rows="2"></textarea></div>
- <span class="sl">🏷️ Etiquetas</span>
+  <span class="sl">👥 Colectivo</span>
+ <div class="fl"><label>¿Es plan colectivo?</label><select class="fc" id="c-col-activo" onchange="toggleColectivo('c')"><option value="">— No —</option><option value="Si">Sí, es colectivo</option></select></div>
+ <div class="fl" id="c-col-tipo-row" style="display:none"><label>Tipo de póliza colectiva</label><select class="fc" id="c-col-tipo"><option value="">— Seleccionar —</option><option>Salud</option><option>Vida</option><option>Vehículo</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Fianzas</option><option>General</option></select></div>
+ <div class="fl ff" id="c-col-empresa-row" style="display:none"><label>Empresa / Grupo</label><input class="fc" id="c-col-empresa" placeholder="Empresa o grupo colectivo"></div>
+ <div class="fl" id="c-col-npers-row" style="display:none"><label>Nro. de asegurados</label><input class="fc" id="c-col-npers" type="number" inputmode="numeric" placeholder="Total de personas"></div>
+ <span class="sl">👥 Colectivo</span>
+ <div class="fl"><label>¿Es plan colectivo?</label><select class="fc" id="c-col-activo" onchange="toggleColectivo('c')"><option value="">— No —</option><option value="Si">Sí, es colectivo</option></select></div>
+ <div class="fl" id="c-col-tipo-row" style="display:none"><label>Tipo de póliza colectiva</label><select class="fc" id="c-col-tipo"><option value="">— Seleccionar —</option><option>Salud</option><option>Vida</option><option>Vehículo</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Fianzas</option><option>General</option></select></div>
+ <div class="fl ff" id="c-col-empresa-row" style="display:none"><label>Empresa / Grupo</label><input class="fc" id="c-col-empresa" placeholder="Empresa o grupo colectivo"></div>
+ <div class="fl" id="c-col-npers-row" style="display:none"><label>Nro. de asegurados</label><input class="fc" id="c-col-npers" type="number" inputmode="numeric" placeholder="Total de personas"></div>
+<span class="sl">🏷️ Etiquetas</span>
  <div class="ff"><div id="c-tag-sel" class="tag-sel"></div></div>
  <span class="sl">📎 Archivos Adjuntos</span>
  <div class="ff" id="c-file-list"></div>
@@ -1364,7 +1374,17 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
  <div class="fl"><label>Monto estimado ($)</label><input class="fc" id="pro-mon" type="number" step="0.01" inputmode="decimal"></div>
  <div class="fl ff"><label>Aseguradoras preferidas</label><div id="pro-aseg-chips" style="display:flex;flex-wrap:wrap;gap:5px;padding:6px;border:1px solid var(--bd);border-radius:var(--r6);min-height:36px;background:var(--wh);cursor:pointer"></div></div>
  <div class="fl ff"><label>Seguros de interés</label><div id="pro-int-sel" style="display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--bd);border-radius:6px;padding:7px"></div></div>
- <span class="sl">📅 SEGUIMIENTO</span>
+  <span class="sl">👥 Colectivo</span>
+ <div class="fl"><label>¿Es plan colectivo?</label><select class="fc" id="pro-col-activo" onchange="toggleColectivo('pro')"><option value="">— No —</option><option value="Si">Sí, es colectivo</option></select></div>
+ <div class="fl" id="pro-col-tipo-row" style="display:none"><label>Tipo de póliza colectiva</label><select class="fc" id="pro-col-tipo"><option value="">— Seleccionar —</option><option>Salud</option><option>Vida</option><option>Vehículo</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Fianzas</option><option>General</option></select></div>
+ <div class="fl ff" id="pro-col-empresa-row" style="display:none"><label>Empresa / Grupo</label><input class="fc" id="pro-col-empresa" placeholder="Empresa o grupo colectivo"></div>
+ <div class="fl" id="pro-col-npers-row" style="display:none"><label>Nro. de asegurados</label><input class="fc" id="pro-col-npers" type="number" inputmode="numeric" placeholder="Total de personas"></div>
+ <span class="sl">👥 Colectivo</span>
+ <div class="fl"><label>¿Es plan colectivo?</label><select class="fc" id="pro-col-activo" onchange="toggleColectivo('pro')"><option value="">— No —</option><option value="Si">Sí, es colectivo</option></select></div>
+ <div class="fl" id="pro-col-tipo-row" style="display:none"><label>Tipo de póliza colectiva</label><select class="fc" id="pro-col-tipo"><option value="">— Seleccionar —</option><option>Salud</option><option>Vida</option><option>Vehículo</option><option>Accidentes Personales</option><option>Incendio</option><option>Responsabilidad Civil</option><option>Fianzas</option><option>General</option></select></div>
+ <div class="fl ff" id="pro-col-empresa-row" style="display:none"><label>Empresa / Grupo</label><input class="fc" id="pro-col-empresa" placeholder="Empresa o grupo colectivo"></div>
+ <div class="fl" id="pro-col-npers-row" style="display:none"><label>Nro. de asegurados</label><input class="fc" id="pro-col-npers" type="number" inputmode="numeric" placeholder="Total de personas"></div>
+<span class="sl">📅 SEGUIMIENTO</span>
  <div class="fl"><label>Primer contacto</label><input class="fc" id="pro-fc" type="date"></div>
  <div class="fl"><label>Próximo seguimiento</label><input class="fc" id="pro-fs" type="date"></div>
  <div class="fl"><label>Aseguradora actual</label><input class="fc" id="pro-aact" placeholder="Si tiene seguro vigente"></div>
@@ -3437,7 +3457,7 @@ function OC(id){
  {const _tp=c.tipo||'Persona Natural';if(typeof setCtipoPJ==='function'){if(_tp==='Empresa'||_tp==='Persona Jurídica'){if(typeof setCtipoEmp==='function')setCtipoEmp();}else setCtipoPN();}}
  // Código de país WA
  const cpSel=document.getElementById('c-codPais');if(cpSel)cpSel.value=c.codPais||'507';
- renderTagSel('c-tag-sel',c.etiquetas||[]);
+ renderTagSel('c-tag-sel',c.etiquetas||[]); SVal('c-col-activo',c.colectivo||'');SVal('c-col-tipo',c.colectivoTipo||'');SVal('c-col-empresa',c.colectivoEmpresa||'');SVal('c-col-npers',c.colectivoNpers||'');if(typeof toggleColectivo==='function')toggleColectivo('c');
  const fl=document.getElementById('c-file-list');if(fl)fl.innerHTML=renderFL(c.archivos||[],id||'','cliente');
  OM('mc');initFileInp('c-file-inp','c-file-pending');
  // Populate WA + Email history sections
@@ -3463,6 +3483,13 @@ function setCtipoEmp(){
  if(be){be.style.background='#2563EB';be.style.color='#fff';be.style.borderColor='#2563EB';}
  const cn=document.getElementById('c-nom');if(cn)cn.placeholder='Razón social / nombre de empresa';
 }
+function toggleColectivo(pfx){
+ var v=document.getElementById(pfx+'-col-activo')?.value||'';
+ var show=v==='Si';
+ ['tipo','empresa','npers'].forEach(function(f){
+  var r=document.getElementById(pfx+'-col-'+f+'-row');if(r)r.style.display=show?'':('none');
+ });
+}
 function SC(){
  const nom=(V('c-nom')||'').trim(),ced=(V('c-ced')||'').trim();
  if(!nom||!ced){toast('Nombre y Documento son obligatorios','err');return;}
@@ -3485,7 +3512,7 @@ function SC(){
  obs:V('c-obs').trim(),notas:V('c-notas').trim(),
  origenCliente:V('c-origen').trim(),referidoPor:V('c-referido').trim(),
  codPais:(document.getElementById('c-codPais')?.value||'507'),
- etiquetas:getSelTags('c-tag-sel')};
+ etiquetas:getSelTags('c-tag-sel'),colectivo:V('c-col-activo').trim(),colectivoTipo:V('c-col-tipo').trim(),colectivoEmpresa:V('c-col-empresa').trim(),colectivoNpers:V('c-col-npers').trim()};
  if(EID){const i=S.clientes.findIndex(c=>c.id===EID);if(i>=0){if(!S.clientes[i].archivos)S.clientes[i].archivos=[];S.clientes[i].archivos.push(..._pf);S.clientes[i]={...S.clientes[i],...d};}toast('✓ Cliente actualizado');}
  else{S.clientes.push({id:'C'+uid(),...d,archivos:[..._pf],alias:'',historialWA:[]});toast('✓ Cliente creado');}
  _pf=[];save();syncToCloud();CM('mc');RC();
@@ -3674,7 +3701,7 @@ function OPros(id){
  /* aseg chips */
  const isel=document.getElementById('pro-int-sel');
  if(isel)isel.innerHTML=RAMOS_ALL.map(r=>`<span style="display:inline-block;font-size:11px;cursor:pointer;padding:3px 8px;border:1px solid var(--bd);border-radius:5px;margin:2px;background:${(p.interes||[]).includes(r)?'var(--inl)':'transparent'};color:${(p.interes||[]).includes(r)?'var(--in)':'var(--mu)'}" onclick="this.dataset.sel=this.dataset.sel==='1'?'0':'1';this.style.background=this.dataset.sel==='1'?'var(--inl)':'transparent';this.style.color=this.dataset.sel==='1'?'var(--in)':'var(--mu)'" data-val="${esc(r)}" data-sel="${(p.interes||[]).includes(r)?'1':'0'}">${esc(r)}</span>`).join('');
- renderTagSel('pro-tag-sel',p.etiquetas||[]);
+ renderTagSel('pro-tag-sel',p.etiquetas||[]); SVal('pro-col-activo',p.colectivo||'');SVal('pro-col-tipo',p.colectivoTipo||'');SVal('pro-col-empresa',p.colectivoEmpresa||'');SVal('pro-col-npers',p.colectivoNpers||'');if(typeof toggleColectivo==='function')toggleColectivo('pro');
  const fl=document.getElementById('pro-file-list');if(fl)fl.innerHTML=renderFL(p.archivos||[],id||'','prospecto');
  // Load cotizaciones
  const cotList=document.getElementById('pro-cotizaciones-list');if(cotList)cotList.innerHTML='';
@@ -3773,7 +3800,7 @@ function addMiembroRow(btn){
 }
 function SPros(){
  const nom=(V('pro-n')||'').trim();if(!nom){toast('Nombre obligatorio','err');return;}
- const d={nombre:nom,tipoDoc:V('pro-td'),cedula:V('pro-ced').trim(),cel:V('pro-cel').trim(),tel:V('pro-tel').trim(),email:V('pro-em').trim().toLowerCase(),fNac:V('pro-fn'),genero:V('pro-ge'),ocupacion:V('pro-ocu').trim(),ciudad:V('pro-ciu').trim(),provincia:V('pro-prov').trim(),tipo:V('pro-tipo')||'Personal',fuente:V('pro-fue'),etapaVenta:V('pro-eta')||'Contacto inicial',prioridad:V('pro-pri')||'Media',probabilidad:parseFloat(V('pro-prob'))||0,montoEstimado:parseFloat(V('pro-mon'))||0,asegPreferidas:getProAsegSel(),interes:getIntSel(),fContacto:V('pro-fc'),fSeguimiento:V('pro-fs'),asegActual:V('pro-aact'),venceActual:V('pro-vact'),notas:V('pro-not').trim(),etiquetas:getSelTags('pro-tag-sel'),cotizaciones:getCotizaciones(),codPais:(document.getElementById('pro-codPais')?.value||'507')};
+ const d={nombre:nom,tipoDoc:V('pro-td'),cedula:V('pro-ced').trim(),cel:V('pro-cel').trim(),tel:V('pro-tel').trim(),email:V('pro-em').trim().toLowerCase(),fNac:V('pro-fn'),genero:V('pro-ge'),ocupacion:V('pro-ocu').trim(),ciudad:V('pro-ciu').trim(),provincia:V('pro-prov').trim(),tipo:V('pro-tipo')||'Personal',fuente:V('pro-fue'),etapaVenta:V('pro-eta')||'Contacto inicial',prioridad:V('pro-pri')||'Media',probabilidad:parseFloat(V('pro-prob'))||0,montoEstimado:parseFloat(V('pro-mon'))||0,asegPreferidas:getProAsegSel(),interes:getIntSel(),fContacto:V('pro-fc'),fSeguimiento:V('pro-fs'),asegActual:V('pro-aact'),venceActual:V('pro-vact'),notas:V('pro-not').trim(),etiquetas:getSelTags('pro-tag-sel'),cotizaciones:getCotizaciones(),codPais:(document.getElementById('pro-codPais')?.value||'507'),colectivo:V('pro-col-activo').trim(),colectivoTipo:V('pro-col-tipo').trim(),colectivoEmpresa:V('pro-col-empresa').trim(),colectivoNpers:V('pro-col-npers').trim()};
  if(EID){const i=S.prospectos.findIndex(p=>p.id===EID);if(i>=0){if(!S.prospectos[i].archivos)S.prospectos[i].archivos=[];S.prospectos[i].archivos.push(..._pf);S.prospectos[i]={...S.prospectos[i],...d};}toast('✓ Actualizado');}
  else{S.prospectos.push({id:'PR'+uid(),...d,historial:[{fecha:TODAY.toISOString().split('T')[0],accion:'✨ Prospecto creado',resultado:'',tipo:'sistema'}],tareas:[],archivos:[..._pf],esVentaCruzada:false,clienteIdVinculado:''});toast('✓ Prospecto creado');}
  // Auto advance to Client ganado si corresponde
