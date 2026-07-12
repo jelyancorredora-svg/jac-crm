@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v124 -->
+<!DOCTYPE html><!-- v125 -->
 <html lang="es">
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
@@ -10050,91 +10050,293 @@ res.innerHTML=html;}
 document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}if(e.key==='Escape'&&document.getElementById('gSearch').classList.contains('active'))closeSearch();});
 
 window.calDate=new Date();
-function renderCal(){if(!window.calDate)window.calDate=new Date();if(!window._calSel)window._calSel=new Date().getDate();
-var y=window.calDate.getFullYear(),m=window.calDate.getMonth();
-var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-var dnames=['Domingo','Lunes','Martes','Mi\u00e9rcoles','Jueves','Viernes','S\u00e1bado'];
-var dias=['Dom','Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b'];
-var evs={};
-(S.polizas||[]).forEach(function(p){
-if(p.estado!=='cancelada'&&(p.fechaFin||p.vencimiento)){
-var d=new Date((p.fechaFin||p.vencimiento)+'T12:00:00');
-if(d.getFullYear()===y&&d.getMonth()===m){
-var k=d.getDate();
-if(!evs[k])evs[k]={pols:[],tareas:[]};
-var cl=GC(p.clienteId)||{};
-evs[k].pols.push({nm:esc(cl.nombre||'')+(p.numero?' #'+esc(p.numero):''),id:p.id});
-}}});
-(S.tareas||[]).forEach(function(t){
-if(t.estado!=='completada'&&t.fechaLimite){
-var d=new Date(t.fechaLimite+'T12:00:00');
-if(d.getFullYear()===y&&d.getMonth()===m){
-var k=d.getDate();
-if(!evs[k])evs[k]={pols:[],tareas:[]};
-evs[k].tareas.push({nm:esc(t.titulo||t.desc||'Tarea'),id:t.id});
-}}});
-window._calEvs=evs;
-var today=new Date(),itm=today.getFullYear()===y&&today.getMonth()===m,tod=today.getDate();
-if(!window._calSel)window._calSel=itm?tod:1;
-var selDay=window._calSel;
-var dispDate=new Date(y,m,selDay);
-var dnmEl=document.getElementById('cal-dnm');
-var ddyEl=document.getElementById('cal-ddy');
-var dmoEl=document.getElementById('cal-dmo');
-var titleEl=document.getElementById('cal-title');
-if(dnmEl)dnmEl.textContent=dnames[dispDate.getDay()];
-if(ddyEl)ddyEl.textContent=selDay;
-if(dmoEl)dmoEl.textContent=meses[m]+' '+y;
-if(titleEl)titleEl.textContent=meses[m]+' '+y;
-var first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
-var h='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px">';
-dias.forEach(function(d){h+='<div style="text-align:center;font-size:10px;font-weight:700;color:#94A3B8;padding:3px 0">'+d+'</div>';});
-h+='</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
-for(var i=0;i<first;i++)h+='<div></div>';
-for(var dd=1;dd<=last;dd++){
-var de=evs[dd]||{pols:[],tareas:[]};
-var isT=itm&&dd===tod;
-var isSel=dd===selDay;
-var bg=isSel?'#2563EB':(isT?'#DBEAFE':'#fff');
-var tc=isSel?'#fff':(isT?'#1D4ED8':'#1E293B');
-var brd=isSel?'2px solid #1D4ED8':(isT?'2px solid #93C5FD':'1px solid #EEF2F8');
-h+='<div onclick="calDay('+dd+')" style="cursor:pointer;padding:6px 4px;border-radius:8px;background:'+bg+';border:'+brd+';min-height:54px;text-align:center">';
-h+='<div style="font-size:13px;font-weight:'+(isT||isSel?'700':'400')+';color:'+tc+'">'+dd+'</div>';
-if(de.pols.length)h+='<div style="width:7px;height:7px;border-radius:50%;background:'+(isSel?'#FCD34D':'#F59E0B')+';margin:3px auto 1px"></div>';
-if(de.tareas.length)h+='<div style="width:7px;height:7px;border-radius:50%;background:'+(isSel?'#C4B5FD':'#8B5CF6')+';margin:1px auto"></div>';
-h+='</div>';
-}
-h+='</div>';
-document.getElementById('cal-body').innerHTML=h;
-var ltEl=document.getElementById('cal-ltasks');
-if(ltEl){
-var de2=evs[selDay]||{pols:[],tareas:[]};
-var lh='';
-if(de2.pols.length||de2.tareas.length){
-de2.pols.forEach(function(e){
-lh+='<div style="padding:7px;background:#FFFBEB;border-radius:6px;margin-bottom:5px">';
-lh+='<div style="display:flex;align-items:center;justify-content:space-between">';
-lh+='<span style="font-size:9px;font-weight:700;color:#92400E;background:#FEF3C7;padding:1px 5px;border-radius:8px">VENC.</span>';
-lh+='<button class="btn bsm bic" onclick="OP(this.dataset.id)" data-id="'+e.id+'">&#9998;</button></div>';
-lh+='<div style="font-size:11px;color:#1E293B;margin-top:3px">'+e.nm+'</div></div>';
-});
-de2.tareas.forEach(function(e){
-lh+='<div style="padding:7px;background:#F5F3FF;border-radius:6px;margin-bottom:5px">';
-lh+='<div style="display:flex;align-items:center;justify-content:space-between">';
-lh+='<span style="font-size:9px;font-weight:700;color:#5B21B6;background:#EDE9FE;padding:1px 5px;border-radius:8px">TAREA</span>';
-lh+='<button class="btn bsm bic" onclick="OT(this.dataset.id)" data-id="'+e.id+'">&#9998;</button></div>';
-lh+='<div style="font-size:11px;color:#1E293B;margin-top:3px">'+e.nm+'</div></div>';
-});
-}else{lh='<div style="color:#94A3B8;font-size:11px;text-align:center;padding:16px 0">Sin eventos</div>';}
-ltEl.innerHTML=lh;
-}}
-
-function calCH(dd,isT,hasEv){
-return '<div onclick="calDay('+dd+')" style="border:1px solid '+(isT?'#2563EB':'#EEF2F8')+';border-radius:8px;padding:6px;min-height:64px;cursor:'+(hasEv?'pointer':'default')+';background:'+(isT?'#EFF6FF':'#fff')+'">';
-}
-function calNav(d){window.calDate.setMonth(window.calDate.getMonth()+d);renderCal();}
-function calGoToday(){window._calSel=new Date().getDate();window.calDate=new Date();renderCal();}
+window._calSel=new Date().getDate();
+window._calTab='agenda';
+window._calWeekOffset=0;
+window._calTarFilter='all';
+var CAL_MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var CAL_DNAMES=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+var CAL_DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+var CAL_QUOTES=['La disciplina es el puente entre metas y logros.','El éxito es la suma de pequeños esfuerzos repetidos cada día.','Hoy es un buen día para tener un buen día.','Cada día es una nueva oportunidad.','La felicidad es la clave del éxito.'];
+function renderCal(){
+  if(!window.calDate)window.calDate=new Date();
+  if(!S.metas)S.metas=[];
+  if(!S.diarios)S.diarios={};
+  var y=window.calDate.getFullYear(),m=window.calDate.getMonth();
+  if(!window._calSel)window._calSel=new Date().getDate();
+  var sel=window._calSel;
+  var evs={};
+  (S.polizas||[]).forEach(function(p){
+    if(p.estado==='cancelada')return;
+    var fd=p.fechaFin||p.vencimiento;if(!fd)return;
+    var d=new Date(fd+'T12:00:00');
+    if(d.getFullYear()===y&&d.getMonth()===m){
+      var k=d.getDate();if(!evs[k])evs[k]={pols:[],tareas:[],pros:[]};
+      var cl=GC(p.clienteId)||{};
+      evs[k].pols.push({nm:(cl.nombre||'Póliza')+(p.numero?' #'+p.numero:''),id:p.id});}});
+  (S.tareas||[]).forEach(function(t){
+    if(t.estado==='completada')return;if(!t.fechaLimite)return;
+    var d=new Date(t.fechaLimite+'T12:00:00');
+    if(d.getFullYear()===y&&d.getMonth()===m){
+      var k=d.getDate();if(!evs[k])evs[k]={pols:[],tareas:[],pros:[]};
+      evs[k].tareas.push({nm:t.titulo||t.desc||'Tarea',id:t.id,urgente:t.urgente});}});
+  (S.prospectos||[]).forEach(function(p){
+    if(p.estado==='ganado'||p.estado==='perdido')return;
+    var fd=p.proxContacto||p.fechaSeg;if(!fd)return;
+    var d=new Date(fd+'T12:00:00');
+    if(d.getFullYear()===y&&d.getMonth()===m){
+      var k=d.getDate();if(!evs[k])evs[k]={pols:[],tareas:[],pros:[]};
+      evs[k].pros.push({nm:p.nombre||'Prospecto',id:p.id});}});
+  window._calEvs=evs;
+  var today=new Date(),itm=today.getFullYear()===y&&today.getMonth()===m,tod=today.getDate();
+  var selDate=new Date(y,m,sel);
+  var el=function(id){return document.getElementById(id);};
+  if(el('cal-day-num'))el('cal-day-num').textContent=sel;
+  if(el('cal-day-name'))el('cal-day-name').textContent=CAL_DNAMES[selDate.getDay()];
+  if(el('cal-month-year'))el('cal-month-year').textContent=CAL_MESES[m]+' '+y;
+  if(el('cal-title'))el('cal-title').textContent=CAL_MESES[m]+' '+y;
+  var first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
+  var h='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px">';
+  CAL_DIAS.forEach(function(d){h+='<div style="text-align:center;font-size:9px;font-weight:700;color:#94A3B8;padding:3px 0">'+d+'</div>';});
+  h+='</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">';
+  for(var i=0;i<first;i++)h+='<div></div>';
+  for(var dd=1;dd<=last;dd++){
+    var de=evs[dd]||{pols:[],tareas:[],pros:[]};
+    var isT=itm&&dd===tod,isSel=dd===sel;
+    var bg=isSel?'#1D4ED8':(isT?'#DBEAFE':'#fff');
+    var tc=isSel?'#fff':(isT?'#1D4ED8':'#334155');
+    var brd=isSel?'2px solid #1D4ED8':(isT?'1.5px solid #93C5FD':'1px solid #E2E8F0');
+    h+='<div onclick="calDay('+dd+')" style="cursor:pointer;padding:5px 3px;border-radius:7px;background:'+bg+';border:'+brd+';min-height:46px;text-align:center;transition:all .15s">';
+    h+='<div style="font-size:12px;font-weight:'+(isT||isSel?'800':'400')+';color:'+tc+'">'+dd+'</div>';
+    if(de.pols.length)h+='<div style="width:5px;height:5px;border-radius:50%;background:'+(isSel?'#FCD34D':'#F59E0B')+';margin:1px auto 0"></div>';
+    if(de.tareas.length)h+='<div style="width:5px;height:5px;border-radius:50%;background:'+(isSel?'#C4B5FD':'#8B5CF6')+';margin:1px auto 0"></div>';
+    if(de.pros.length)h+='<div style="width:5px;height:5px;border-radius:50%;background:'+(isSel?'#6EE7B7':'#10B981')+';margin:1px auto 0"></div>';
+    h+='</div>';}
+  h+='</div>';
+  if(el('cal-body'))el('cal-body').innerHTML=h;
+  calRenderDayTasks(y,m,sel);
+  calRenderTimeline(y,m,sel);
+  calRenderMini('cal-mini1',y,m);
+  calRenderMini('cal-mini2',m===11?y+1:y,m===11?0:m+1);
+  calRenderCurrentPane();}
+function calRenderDayTasks(y,m,sel){
+  var evs=window._calEvs||{};
+  var de=evs[sel]||{pols:[],tareas:[],pros:[]};
+  var h='';
+  if(!de.pols.length&&!de.tareas.length&&!de.pros.length){
+    h='<div style="text-align:center;padding:20px 10px;color:#94A3B8"><div style="font-size:24px;margin-bottom:6px">&#10024;</div><div style="font-size:11px">Sin eventos este día</div></div>';
+  }else{
+    de.pols.forEach(function(e){
+      h+='<div style="padding:8px 10px;background:#FFFBEB;border-radius:8px;margin-bottom:6px;border-left:3px solid #F59E0B">';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:9px;font-weight:700;color:#92400E;background:#FEF3C7;padding:1px 6px;border-radius:6px">VENCE</span>';
+      h+='<button class="btn bsm" onclick="OP(\''+e.id+'\')" style="font-size:9px;padding:1px 6px">&#9998;</button></div>';
+      h+='<div style="font-size:11px;color:#1E293B;margin-top:3px;line-height:1.3">'+esc(e.nm)+'</div></div>';});
+    de.tareas.forEach(function(e){
+      h+='<div style="padding:8px 10px;background:#F5F3FF;border-radius:8px;margin-bottom:6px;border-left:3px solid #8B5CF6">';
+      h+='<div style="font-size:9px;font-weight:700;color:#5B21B6;background:#EDE9FE;padding:1px 6px;border-radius:6px;display:inline-block;margin-bottom:3px">'+(e.urgente?'&#128308; ':'')+'TAREA</div>';
+      h+='<div style="font-size:11px;color:#1E293B;line-height:1.3">'+esc(e.nm)+'</div></div>';});
+    de.pros.forEach(function(e){
+      h+='<div style="padding:8px 10px;background:#ECFDF5;border-radius:8px;margin-bottom:6px;border-left:3px solid #10B981">';
+      h+='<div style="font-size:9px;font-weight:700;color:#065F46;background:#D1FAE5;padding:1px 6px;border-radius:6px;display:inline-block;margin-bottom:3px">SEGUIM.</div>';
+      h+='<div style="font-size:11px;color:#1E293B;line-height:1.3">'+esc(e.nm)+'</div></div>';});}
+  var el2=document.getElementById('cal-day-tasks');if(el2)el2.innerHTML=h;}
+function calRenderTimeline(y,m,sel){
+  var evs=window._calEvs||{};
+  var de=evs[sel]||{pols:[],tareas:[],pros:[]};
+  var el=document.getElementById('cal-timeline');if(!el)return;
+  var allEvs=[];
+  de.pols.forEach(function(e){allEvs.push({nm:e.nm,icon:'&#128203;',bg:'#FFFBEB',bc:'#F59E0B'});});
+  de.tareas.forEach(function(e){allEvs.push({nm:e.nm,icon:'&#9989;',bg:'#F5F3FF',bc:'#8B5CF6'});});
+  de.pros.forEach(function(e){allEvs.push({nm:e.nm,icon:'&#128100;',bg:'#ECFDF5',bc:'#10B981'});});
+  if(!allEvs.length){el.innerHTML='<div style="color:#94A3B8;font-size:11px;text-align:center;padding:12px 0">Sin eventos este día</div>';return;}
+  var h='';
+  allEvs.forEach(function(e){
+    h+='<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;padding:8px;background:'+e.bg+';border-radius:8px;border-left:3px solid '+e.bc+'">';
+    h+='<span style="font-size:16px;flex-shrink:0">'+e.icon+'</span>';
+    h+='<div style="font-size:11px;color:#1E293B;line-height:1.4">'+esc(e.nm)+'</div></div>';});
+  el.innerHTML=h;}
+function calRenderMini(elId,y,m){
+  var el=document.getElementById(elId);if(!el)return;
+  var today=new Date(),itm=today.getFullYear()===y&&today.getMonth()===m,tod=today.getDate();
+  var caly=window.calDate.getFullYear(),calm=window.calDate.getMonth(),csel=window._calSel||1;
+  var isCurMonth=(y===caly&&m===calm);
+  var first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();
+  var meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var dias=['D','L','M','X','J','V','S'];
+  var h='<div style="font-size:10px;font-weight:700;color:#64748B;text-align:center;margin-bottom:4px">'+meses[m]+' '+y+'</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px">';
+  dias.forEach(function(d){h+='<div style="text-align:center;font-size:8px;color:#94A3B8;padding:1px 0">'+d+'</div>';});
+  for(var i=0;i<first;i++)h+='<div></div>';
+  for(var dd=1;dd<=last;dd++){
+    var evs=window._calEvs||{};
+    var hasEv=isCurMonth&&evs[dd]&&(evs[dd].pols.length||evs[dd].tareas.length||evs[dd].pros.length);
+    var isT=itm&&dd===tod,isSel=isCurMonth&&dd===csel;
+    var bg=isSel?'#2563EB':(isT?'#DBEAFE':'transparent');
+    var tc=isSel?'#fff':(isT?'#1D4ED8':hasEv?'#7C3AED':'#475569');
+    var fw=isT||isSel?'700':'400';
+    h+='<div onclick="calDay('+dd+')" style="cursor:pointer;text-align:center;font-size:8px;width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;background:'+bg+';color:'+tc+';font-weight:'+fw+'">'+dd+'</div>';}
+  h+='</div>';el.innerHTML=h;}
+function calRenderCurrentPane(){
+  var tab=window._calTab||'agenda';
+  if(tab==='tareas')calRenderAllTareas();
+  else if(tab==='metas')calRenderMetas();
+  else if(tab==='diario')calLoadDiario();
+  else if(tab==='semana')calRenderWeek();}
+function calRenderAllTareas(){
+  var el=document.getElementById('cal-all-tareas');if(!el)return;
+  var f=window._calTarFilter||'all';
+  var now=new Date();now.setHours(0,0,0,0);
+  var wend=new Date(now);wend.setDate(wend.getDate()+7);
+  var tareas=(S.tareas||[]).filter(function(t){
+    if(t.estado==='completada')return false;
+    if(f==='all')return true;
+    if(!t.fechaLimite)return f==='all';
+    var d=new Date(t.fechaLimite+'T12:00:00');
+    if(f==='hoy')return d.toDateString()===now.toDateString();
+    if(f==='sem')return d>=now&&d<=wend;
+    if(f==='ven')return d<now;return true;});
+  tareas.sort(function(a,b){
+    var da=a.fechaLimite?new Date(a.fechaLimite):new Date('2099-01-01');
+    var db=b.fechaLimite?new Date(b.fechaLimite):new Date('2099-01-01');
+    return da-db;});
+  if(!tareas.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px">Sin tareas pendientes &#127881;</div>';return;}
+  var h='';
+  tareas.forEach(function(t){
+    var venc=t.fechaLimite&&new Date(t.fechaLimite+'T12:00:00')<new Date();
+    var bg=venc?'#FEF2F2':(t.urgente?'#FFF7ED':'#F8FAFC');
+    var bc=venc?'#EF4444':(t.urgente?'#F97316':'#CBD5E1');
+    h+='<div style="padding:9px 12px;background:'+bg+';border-radius:8px;margin-bottom:6px;border-left:3px solid '+bc+'">';
+    h+='<div style="font-size:12px;font-weight:600;color:#1E293B;line-height:1.3">'+esc(t.titulo||t.desc||'Tarea')+'</div>';
+    if(t.paraQuien)h+='<div style="font-size:10px;color:#64748B;margin-top:2px">&#128100; '+esc(t.paraQuien)+'</div>';
+    if(t.fechaLimite)h+='<div style="font-size:10px;color:'+(venc?'#EF4444':'#64748B')+';margin-top:2px">&#128197; '+t.fechaLimite+(venc?' &#9888; VENCIDA':'')+'</div>';
+    h+='</div>';});el.innerHTML=h;}
+function calTarFilter(f){
+  window._calTarFilter=f;
+  ['all','hoy','sem','ven'].forEach(function(x){
+    var b=document.getElementById('cal-tf-'+x);
+    if(b){b.style.background=(x===f?'#1E293B':'');b.style.color=(x===f?'#fff':'');b.style.borderColor=(x===f?'#1E293B':'');}});
+  calRenderAllTareas();}
+function calRenderMetas(){
+  if(!S.metas)S.metas=[];
+  var el=document.getElementById('cal-metas-list');
+  var el2=document.getElementById('cal-logros-list');if(!el)return;
+  var activas=S.metas.filter(function(m){return m.estado!=='completada';});
+  var logros=S.metas.filter(function(m){return m.estado==='completada';});
+  if(!activas.length){
+    el.innerHTML='<div style="text-align:center;padding:16px;color:#94A3B8;font-size:12px">No hay metas activas<br><button onclick="calAddMeta()" class="btn bsm" style="margin-top:8px;font-size:11px">+ Agregar primera meta</button></div>';
+  }else{
+    var h='';
+    activas.forEach(function(mt){
+      var pct=Math.round((mt.tareasHechas||0)/Math.max(1,mt.tareasTotales||1)*100);
+      var venc=mt.fechaLimite&&new Date(mt.fechaLimite+'T12:00:00')<new Date();
+      h+='<div style="padding:12px;background:#F8FAFC;border-radius:10px;margin-bottom:10px;border:1px solid #E2E8F0">';
+      h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">';
+      h+='<div style="font-size:13px;font-weight:700;color:#1E293B;flex:1">'+esc(mt.titulo||'Meta')+'</div>';
+      h+='<div style="display:flex;gap:4px"><button onclick="calCompleteMeta(\''+mt.id+'\')" class="btn bsm" style="font-size:10px;color:#10B981" title="Logro">&#10004;</button>';
+      h+='<button onclick="calDelMeta(\''+mt.id+'\')" class="btn bsm" style="font-size:10px;color:#EF4444">&#10005;</button></div></div>';
+      if(mt.fechaLimite)h+='<div style="font-size:10px;color:'+(venc?'#EF4444':'#64748B')+';margin-top:4px">&#128197; '+mt.fechaLimite+(venc?' — VENCIDA':'')+'</div>';
+      h+='<div style="margin-top:8px;background:#E2E8F0;border-radius:99px;height:6px;overflow:hidden">';
+      h+='<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#2563EB,#7C3AED);border-radius:99px;transition:width .4s"></div></div>';
+      h+='<div style="font-size:10px;color:#64748B;margin-top:3px;text-align:right">'+pct+'% completado</div></div>';});
+    el.innerHTML=h;}
+  if(el2){
+    if(!logros.length){el2.innerHTML='<div style="font-size:11px;color:#94A3B8">Aún no hay logros registrados</div>';}
+    else{var h2='';logros.forEach(function(mt){
+      h2+='<div style="padding:8px 10px;background:#F0FDF4;border-radius:8px;margin-bottom:6px;border-left:3px solid #10B981">';
+      h2+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">&#11088;</span><span style="font-size:12px;font-weight:600;color:#1E293B">'+esc(mt.titulo||'Meta')+'</span></div>';
+      if(mt.fechaCompleta)h2+='<div style="font-size:10px;color:#64748B;margin-top:2px">Completado: '+mt.fechaCompleta+'</div>';
+      h2+='</div>';});el2.innerHTML=h2;}}}
+function calAddMeta(){
+  var t=prompt('Título de la meta:');if(!t||!t.trim())return;
+  var f=prompt('Fecha límite (YYYY-MM-DD):','');
+  if(!S.metas)S.metas=[];
+  S.metas.push({id:'m'+Date.now(),titulo:t.trim(),fechaLimite:f?f.trim():'',estado:'activa',tareasHechas:0,tareasTotales:0});
+  save();calRenderMetas();}
+function calCompleteMeta(id){
+  var mt=(S.metas||[]).find(function(x){return x.id===id;});if(!mt)return;
+  mt.estado='completada';mt.fechaCompleta=new Date().toISOString().substring(0,10);
+  save();calRenderMetas();}
+function calDelMeta(id){
+  if(!confirm('¿Eliminar esta meta?'))return;
+  S.metas=(S.metas||[]).filter(function(x){return x.id!==id;});
+  save();calRenderMetas();}
+function calLoadDiario(){
+  if(!S.diarios)S.diarios={};
+  var el=document.getElementById('cal-diario-txt');
+  var fe=document.getElementById('cal-diario-fecha');
+  var qe=document.getElementById('cal-quote');if(!el)return;
+  var y=window.calDate.getFullYear(),m=window.calDate.getMonth(),sel=window._calSel||1;
+  var key='d_'+y+'_'+(m+1)+'_'+sel;
+  el.value=S.diarios[key]||'';
+  var selDate=new Date(y,m,sel);
+  if(fe)fe.textContent=CAL_DNAMES[selDate.getDay()]+', '+sel+' de '+CAL_MESES[m]+' de '+y;
+  if(qe)qe.textContent=CAL_QUOTES[sel%CAL_QUOTES.length];}
+function calSaveDiario(){
+  if(!S.diarios)S.diarios={};
+  var el=document.getElementById('cal-diario-txt');if(!el)return;
+  var y=window.calDate.getFullYear(),m=window.calDate.getMonth(),sel=window._calSel||1;
+  var key='d_'+y+'_'+(m+1)+'_'+sel;
+  S.diarios[key]=el.value;save();}
+function calRenderWeek(){
+  if(window._calWeekOffset===undefined)window._calWeekOffset=0;
+  var today=new Date();today.setHours(0,0,0,0);
+  var sw=new Date(today);
+  var dow=sw.getDay();
+  sw.setDate(sw.getDate()-(dow===0?6:dow-1));
+  sw.setDate(sw.getDate()+(window._calWeekOffset*7));
+  var ew=new Date(sw);ew.setDate(ew.getDate()+6);
+  var meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var te=document.getElementById('cal-week-title');
+  if(te)te.textContent=sw.getDate()+' '+meses[sw.getMonth()]+' — '+ew.getDate()+' '+meses[ew.getMonth()]+' '+ew.getFullYear();
+  var weekEvs={};
+  for(var d=0;d<7;d++){
+    var day=new Date(sw);day.setDate(day.getDate()+d);
+    var dk=day.toISOString().substring(0,10);
+    weekEvs[dk]={pols:[],tareas:[],pros:[]};}
+  (S.polizas||[]).forEach(function(p){
+    if(p.estado==='cancelada')return;
+    var fd=p.fechaFin||p.vencimiento;if(!fd||!weekEvs[fd])return;
+    var cl=GC(p.clienteId)||{};
+    weekEvs[fd].pols.push(cl.nombre||p.numero||'Póliza');});
+  (S.tareas||[]).forEach(function(t){
+    if(t.estado==='completada')return;
+    if(t.fechaLimite&&weekEvs[t.fechaLimite])
+      weekEvs[t.fechaLimite].tareas.push(t.titulo||t.desc||'Tarea');});
+  (S.prospectos||[]).forEach(function(p){
+    var fd=p.proxContacto||p.fechaSeg;if(!fd||!weekEvs[fd])return;
+    weekEvs[fd].pros.push(p.nombre||'Prospecto');});
+  var dnames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  var h='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+  for(var d=0;d<7;d++){
+    var day=new Date(sw);day.setDate(day.getDate()+d);
+    var dk=day.toISOString().substring(0,10);
+    var ev=weekEvs[dk];
+    var isT=day.toDateString()===today.toDateString();
+    h+='<div style="background:'+(isT?'#EFF6FF':'#F8FAFC')+';border:1px solid '+(isT?'#93C5FD':'#E2E8F0')+';border-radius:8px;padding:6px;min-height:120px">';
+    h+='<div style="font-size:10px;font-weight:700;color:'+(isT?'#2563EB':'#64748B')+';text-align:center;margin-bottom:4px">'+dnames[d]+'<br><span style="font-size:14px;color:'+(isT?'#2563EB':'#1E293B')+'">'+day.getDate()+'</span></div>';
+    ev.pols.forEach(function(nm){h+='<div style="font-size:9px;background:#FEF3C7;color:#92400E;border-radius:4px;padding:2px 4px;margin-bottom:2px;line-height:1.3">&#128203; '+esc(nm.substring(0,18))+'</div>';});
+    ev.tareas.forEach(function(nm){h+='<div style="font-size:9px;background:#EDE9FE;color:#5B21B6;border-radius:4px;padding:2px 4px;margin-bottom:2px;line-height:1.3">&#9989; '+esc(nm.substring(0,18))+'</div>';});
+    ev.pros.forEach(function(nm){h+='<div style="font-size:9px;background:#D1FAE5;color:#065F46;border-radius:4px;padding:2px 4px;margin-bottom:2px;line-height:1.3">&#128100; '+esc(nm.substring(0,18))+'</div>';});
+    h+='</div>';}
+  h+='</div>';
+  var we=document.getElementById('cal-week-body');if(we)we.innerHTML=h;}
+function calWeekNav(dir){window._calWeekOffset=(window._calWeekOffset||0)+dir;calRenderWeek();}
+function calNav(d){window.calDate.setMonth(window.calDate.getMonth()+d);window._calSel=1;renderCal();}
+function calGoToday(){window._calSel=new Date().getDate();window._calWeekOffset=0;window.calDate=new Date();renderCal();}
 function calDay(d){window._calSel=d;renderCal();}
+function calTab(t){
+  window._calTab=t;
+  ['agenda','semana','tareas','metas','diario'].forEach(function(x){
+    var tb=document.getElementById('cal-tab-'+x);
+    var pn=document.getElementById('cal-pane-'+x);
+    if(tb){tb.style.borderBottomColor=(x===t?'#2563EB':'transparent');tb.style.background=(x===t?'#EEF2FF':'transparent');tb.style.color=(x===t?'#2563EB':'#78716C');tb.style.fontWeight=(x===t?'700':'400');}
+    if(pn)pn.style.display=(x===t?'':'none');});
+  calRenderCurrentPane();}
+function calAddTask(){
+  var y=window.calDate.getFullYear(),m=window.calDate.getMonth(),sel=window._calSel||1;
+  var dateStr=y+'-'+(m+1<10?'0':'')+(m+1)+'-'+(sel<10?'0':'')+sel;
+  OT(null,dateStr,'','');}
+
 function openWAMas(){GI('modWAmas').style.display='flex';renderWAMasivo(30);}
 function closeWAMas(){GI('modWAmas').style.display='none';}
 function renderWAMasivo(dias){
@@ -10400,8 +10602,7 @@ function repExportCSV(){
 </div>
 </div>
 
-<div id="pg-cal" class="pg"><h1 style="font-size:20px;font-weight:700;color:#1E293B;margin:0 0 16px">Calendario</h1><div style="display:flex;gap:20px;align-items:flex-start"><div style="width:240px;flex-shrink:0;background:#F8FAFC;border-radius:14px;padding:16px;border:1px solid #EEF2F8"><div style="text-align:center;padding:8px 0 12px"><div id="cal-dnm" style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px"></div><div id="cal-ddy" style="font-size:64px;font-weight:800;color:#1E293B;line-height:1;margin-bottom:2px"></div><div id="cal-dmo" style="font-size:13px;color:#64748B;font-weight:500"></div></div><button class="btn bic" onclick="calGoToday()" style="width:100%;margin-bottom:12px;font-size:12px">&#128198; Hoy</button><div style="font-size:12px;font-weight:600;color:#64748B;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #EEF2F8">Eventos del d&#237;a</div><div id="cal-ltasks" style="max-height:360px;overflow-y:auto"></div></div><div style="flex:1"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><button class="btn bic" onclick="calNav(-1)">&#8592;</button><span id="cal-title" style="font-size:16px;font-weight:700;color:#1E293B"></span><button class="btn bic" onclick="calNav(1)">&#8594;</button></div><div id="cal-body"></div><div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:#64748B"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-right:4px"></span>Vencimientos</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8B5CF6;margin-right:4px"></span>Tareas</span></div></div></div></div>
-<div id="modWAmas" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center" onclick="if(event.target===this)closeWAMas()"><div style="background:#fff;border-radius:12px;width:90%;max-width:720px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)"><div style="padding:16px 20px;border-bottom:1px solid #EEF2F8;display:flex;align-items:center;justify-content:space-between"><span style="font-size:16px;font-weight:700;color:#1E293B">Recordatorios WA de Renovacion</span><button onclick="closeWAMas()" style="background:transparent;border:none;cursor:pointer;font-size:22px;color:#94A3B8;line-height:1">&times;</button></div><div style="padding:16px 20px;overflow-y:auto;flex:1"><div id="wamas-body"></div></div></div></div>
+<div id="pg-cal" class="pg" style="padding:0!important"><div style="display:flex;height:calc(100vh - 140px);background:linear-gradient(135deg,#F5F0E8,#EDE8DF);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #C8B89A"><div style="width:260px;flex-shrink:0;background:linear-gradient(180deg,#FAF7F2,#F2EDE4);border-right:2px solid #C8B89A;display:flex;flex-direction:column;overflow:hidden"><div style="padding:20px 20px 12px"><div id="cal-day-num" style="font-size:80px;font-weight:900;color:#1E293B;line-height:1;font-family:Georgia,serif;letter-spacing:-4px"></div><div id="cal-day-name" style="font-size:18px;font-weight:600;color:#475569;text-transform:lowercase;margin-top:-4px"></div><div id="cal-month-year" style="font-size:13px;color:#94A3B8;font-weight:400;margin-top:2px"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px"><span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px">Agregar Tarea</span><button onclick="calAddTask()" style="width:26px;height:26px;border-radius:50%;background:#2563EB;border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0">+</button></div></div><div id="cal-day-tasks" style="flex:1;overflow-y:auto;padding:0 14px 12px"></div><div style="border-top:1px solid #C8B89A;padding:10px;background:rgba(255,255,255,.4)"><div id="cal-mini1" style="margin-bottom:8px"></div><div id="cal-mini2"></div></div></div><div style="width:32px;flex-shrink:0;background:linear-gradient(90deg,#7A5C42 0%,#B8895A 40%,#A07548 60%,#7A5C42 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:30px 0"><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div></div><div style="flex:1;display:flex;flex-direction:column;background:#FAFAF8;overflow:hidden"><div style="display:flex;border-bottom:2px solid #D4C5A9;background:#F5F0E8;flex-shrink:0"><button id="cal-tab-agenda" onclick="calTab('agenda')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid #2563EB;background:#EEF2FF;color:#2563EB;font-weight:700;font-size:11px;cursor:pointer">&#128197; Agenda</button><button id="cal-tab-semana" onclick="calTab('semana')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128198; Semana</button><button id="cal-tab-tareas" onclick="calTab('tareas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#9989; Tareas</button><button id="cal-tab-metas" onclick="calTab('metas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#127919; Metas</button><button id="cal-tab-diario" onclick="calTab('diario')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128221; Diario</button></div><div style="flex:1;overflow-y:auto"><div id="cal-pane-agenda" style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><button class="btn bsm" onclick="calNav(-1)" style="font-size:16px;padding:4px 10px">&#9664;</button><span id="cal-title" style="font-size:14px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calNav(1)" style="font-size:16px;padding:4px 10px">&#9654;</button></div><div id="cal-body"></div><div style="display:flex;gap:16px;margin-top:10px;font-size:10px;color:#64748B"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-right:3px"></span>P&#243;liza vence</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8B5CF6;margin-right:3px"></span>Tarea</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;margin-right:3px"></span>Seguimiento</span></div><div style="margin-top:14px;border-top:1px solid #E8DFD0;padding-top:10px"><div style="font-size:11px;font-weight:700;color:#78716C;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px">Eventos del d&#237;a</div><div id="cal-timeline"></div></div></div><div id="cal-pane-semana" style="display:none;padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><button class="btn bsm" onclick="calWeekNav(-1)">&#9664;</button><span id="cal-week-title" style="font-size:13px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calWeekNav(1)">&#9654;</button></div><div id="cal-week-body"></div></div><div id="cal-pane-tareas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:#1E293B">Tareas Pendientes</div><button onclick="SH('tar')" class="btn bsm" style="font-size:11px">Ver m&#243;dulo &#8599;</button></div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><button id="cal-tf-all" onclick="calTarFilter('all')" class="btn bsm" style="font-size:10px;background:#1E293B;color:#fff;border-color:#1E293B">Todas</button><button id="cal-tf-hoy" onclick="calTarFilter('hoy')" class="btn bsm" style="font-size:10px">Hoy</button><button id="cal-tf-sem" onclick="calTarFilter('sem')" class="btn bsm" style="font-size:10px">Esta semana</button><button id="cal-tf-ven" onclick="calTarFilter('ven')" class="btn bsm" style="font-size:10px">Vencidas</button></div><div id="cal-all-tareas"></div></div><div id="cal-pane-metas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Metas Activas</div><button onclick="calAddMeta()" class="btn bsm" style="font-size:11px">+ Nueva Meta</button></div><div id="cal-metas-list"></div><div style="margin-top:20px;padding-top:14px;border-top:1px solid #E8DFD0"><div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">&#127942; Logros</div><div id="cal-logros-list"></div></div></div><div id="cal-pane-diario" style="display:none;padding:14px"><div id="cal-diario-fecha" style="font-size:12px;color:#94A3B8;margin-bottom:6px;font-style:italic"></div><div id="cal-quote" style="font-size:11px;color:#78716C;margin-bottom:10px;font-style:italic;text-align:center;padding:6px;background:rgba(212,197,169,.3);border-radius:6px"></div><textarea id="cal-diario-txt" placeholder="Registro del d&#237;a..." onblur="calSaveDiario()" style="width:100%;min-height:320px;border:1px solid #D4C5A9;border-radius:10px;padding:14px;font-size:13px;resize:vertical;font-family:inherit;color:#1E293B;background:#FDFCFA;line-height:1.7;box-sizing:border-box"></textarea></div></div></div></div></div>
 <div id="pg-com" class="pg">
 <h1 style="font-size:20px;font-weight:700;color:#1E293B;margin:0 0 20px">Comisiones</h1>
 <div id="com-kpi" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
