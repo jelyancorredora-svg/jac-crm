@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v125 -->
+<!DOCTYPE html><!-- v126 -->
 <html lang="es">
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
@@ -10060,8 +10060,8 @@ var CAL_DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 var CAL_QUOTES=['La disciplina es el puente entre metas y logros.','El éxito es la suma de pequeños esfuerzos repetidos cada día.','Hoy es un buen día para tener un buen día.','Cada día es una nueva oportunidad.','La felicidad es la clave del éxito.'];
 function renderCal(){
   if(!window.calDate)window.calDate=new Date();
-  if(!S.metas)S.metas=[];
-  if(!S.diarios)S.diarios={};
+  if(!S.calMetas)S.calMetas=[];
+  if(!S.calDiarios)S.calDiarios={};
   var y=window.calDate.getFullYear(),m=window.calDate.getMonth();
   if(!window._calSel)window._calSel=new Date().getDate();
   var sel=window._calSel;
@@ -10217,11 +10217,11 @@ function calTarFilter(f){
     if(b){b.style.background=(x===f?'#1E293B':'');b.style.color=(x===f?'#fff':'');b.style.borderColor=(x===f?'#1E293B':'');}});
   calRenderAllTareas();}
 function calRenderMetas(){
-  if(!S.metas)S.metas=[];
+  if(!S.calMetas)S.calMetas=[];
   var el=document.getElementById('cal-metas-list');
   var el2=document.getElementById('cal-logros-list');if(!el)return;
-  var activas=S.metas.filter(function(m){return m.estado!=='completada';});
-  var logros=S.metas.filter(function(m){return m.estado==='completada';});
+  var activas=S.calMetas.filter(function(m){return m.estado!=='completada';});
+  var logros=S.calMetas.filter(function(m){return m.estado==='completada';});
   if(!activas.length){
     el.innerHTML='<div style="text-align:center;padding:16px;color:#94A3B8;font-size:12px">No hay metas activas<br><button onclick="calAddMeta()" class="btn bsm" style="margin-top:8px;font-size:11px">+ Agregar primera meta</button></div>';
   }else{
@@ -10249,34 +10249,34 @@ function calRenderMetas(){
 function calAddMeta(){
   var t=prompt('Título de la meta:');if(!t||!t.trim())return;
   var f=prompt('Fecha límite (YYYY-MM-DD):','');
-  if(!S.metas)S.metas=[];
-  S.metas.push({id:'m'+Date.now(),titulo:t.trim(),fechaLimite:f?f.trim():'',estado:'activa',tareasHechas:0,tareasTotales:0});
+  if(!S.calMetas)S.calMetas=[];
+  S.calMetas.push({id:'m'+Date.now(),titulo:t.trim(),fechaLimite:f?f.trim():'',estado:'activa',tareasHechas:0,tareasTotales:0});
   save();calRenderMetas();}
 function calCompleteMeta(id){
-  var mt=(S.metas||[]).find(function(x){return x.id===id;});if(!mt)return;
+  var mt=(S.calMetas||[]).find(function(x){return x.id===id;});if(!mt)return;
   mt.estado='completada';mt.fechaCompleta=new Date().toISOString().substring(0,10);
   save();calRenderMetas();}
 function calDelMeta(id){
   if(!confirm('¿Eliminar esta meta?'))return;
-  S.metas=(S.metas||[]).filter(function(x){return x.id!==id;});
+  S.calMetas=(S.calMetas||[]).filter(function(x){return x.id!==id;});
   save();calRenderMetas();}
 function calLoadDiario(){
-  if(!S.diarios)S.diarios={};
+  if(!S.calDiarios)S.calDiarios={};
   var el=document.getElementById('cal-diario-txt');
   var fe=document.getElementById('cal-diario-fecha');
   var qe=document.getElementById('cal-quote');if(!el)return;
   var y=window.calDate.getFullYear(),m=window.calDate.getMonth(),sel=window._calSel||1;
   var key='d_'+y+'_'+(m+1)+'_'+sel;
-  el.value=S.diarios[key]||'';
+  el.value=S.calDiarios[key]||'';
   var selDate=new Date(y,m,sel);
   if(fe)fe.textContent=CAL_DNAMES[selDate.getDay()]+', '+sel+' de '+CAL_MESES[m]+' de '+y;
   if(qe)qe.textContent=CAL_QUOTES[sel%CAL_QUOTES.length];}
 function calSaveDiario(){
-  if(!S.diarios)S.diarios={};
+  if(!S.calDiarios)S.calDiarios={};
   var el=document.getElementById('cal-diario-txt');if(!el)return;
   var y=window.calDate.getFullYear(),m=window.calDate.getMonth(),sel=window._calSel||1;
   var key='d_'+y+'_'+(m+1)+'_'+sel;
-  S.diarios[key]=el.value;save();}
+  S.calDiarios[key]=el.value;save();}
 function calRenderWeek(){
   if(window._calWeekOffset===undefined)window._calWeekOffset=0;
   var today=new Date();today.setHours(0,0,0,0);
