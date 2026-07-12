@@ -3,6 +3,7 @@
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}
+// v121: Fix cloud sync PJ tipo
 // v120: Fix PJ tipo preserve
 // v119: Startup sync en main script (después de _TK y funciones definidas)
 </script>
@@ -4890,7 +4891,7 @@ function syncToCloud(){
 function loadFromCloud(cb){
   var aU="https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json";
   function decomp(ab){var ds=new DecompressionStream("gzip");var dw=ds.writable.getWriter();dw.write(new Uint8Array(ab));dw.close();return new Response(ds.readable).text();}
-  function apply(text){try{var r=JSON.parse(text),l=localStorage.getItem("jacv10"),lt=l?(JSON.parse(l)._ts||0):0;if((r._ts||0)>lt+1000){if(r._uvSync)try{localStorage.setItem("uvSync",JSON.stringify(r._uvSync));}catch(e){}localStorage.setItem("jacv10",text);location.reload();}else if(typeof cb==="function")cb(true);}catch(e){if(typeof cb==="function")cb(false);}}
+  function apply(text){try{var r=JSON.parse(text),l=localStorage.getItem("jacv10"),lt=l?(JSON.parse(l)._ts||0):0;if((r._ts||0)>lt+1000){if(l&&r.clientes){try{var lObj=JSON.parse(l);if(lObj.clientes){r.clientes=r.clientes.map(function(rc){var lc=lObj.clientes.find(function(x){return x.id===rc.id;});if(lc&&(lc.tipo==='Empresa'||lc.tipo==='Persona Jurídica')&&(rc.tipo!=='Empresa'&&rc.tipo!=='Persona Jurídica'))rc.tipo=lc.tipo;return rc;});text=JSON.stringify(r);}}catch(me){}}if(r._uvSync)try{localStorage.setItem("uvSync",JSON.stringify(r._uvSync));}catch(e){}localStorage.setItem("jacv10",text);location.reload();}else if(typeof cb==="function")cb(true);}catch(e){if(typeof cb==="function")cb(false);}}
   fetch(aU,{cache:"no-store",headers:{Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json"}})
     .then(function(r){return r.ok?r.json():null;})
     .then(function(j){
