@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v126 -->
+<!DOCTYPE html><!-- v127 -->
 <html lang="es">
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
@@ -10176,12 +10176,14 @@ function calRenderMini(elId,y,m){
     var fw=isT||isSel?'700':'400';
     h+='<div onclick="calDay('+dd+')" style="cursor:pointer;text-align:center;font-size:8px;width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;background:'+bg+';color:'+tc+';font-weight:'+fw+'">'+dd+'</div>';}
   h+='</div>';el.innerHTML=h;}
-function calRenderCurrentPane(){
+function calFixSize(){var el=document.getElementById('pg-cal');if(!el)return;var inner=el.querySelector('div>div');if(!inner)return;var top=el.getBoundingClientRect().top;inner.style.height=(window.innerHeight-top-4)+'px';if(!window._calSzReg){window._calSzReg=1;window.addEventListener('resize',calFixSize);}}
+function calGetDate(){var d=window.calDate||new Date();return new Date(d.getFullYear(),d.getMonth(),(window._calSel||d.getDate())).toISOString().slice(0,10);}
+function calRenderCurrentPane(){calFixSize();
   var tab=window._calTab||'agenda';
   if(tab==='tareas')calRenderAllTareas();
   else if(tab==='metas')calRenderMetas();
   else if(tab==='diario')calLoadDiario();
-  else if(tab==='semana')calRenderWeek();}
+  else if(tab==='semana')calRenderWeek();else if(tab==='reun')calRenderReuniones();else if(tab==='notas')calRenderNotas();}
 function calRenderAllTareas(){
   var el=document.getElementById('cal-all-tareas');if(!el)return;
   var f=window._calTarFilter||'all';
@@ -10326,12 +10328,160 @@ function calGoToday(){window._calSel=new Date().getDate();window._calWeekOffset=
 function calDay(d){window._calSel=d;renderCal();}
 function calTab(t){
   window._calTab=t;
-  ['agenda','semana','tareas','metas','diario'].forEach(function(x){
+  ['agenda','semana','tareas','metas','diario','reun','notas'].forEach(function(x){
     var tb=document.getElementById('cal-tab-'+x);
     var pn=document.getElementById('cal-pane-'+x);
     if(tb){tb.style.borderBottomColor=(x===t?'#2563EB':'transparent');tb.style.background=(x===t?'#EEF2FF':'transparent');tb.style.color=(x===t?'#2563EB':'#78716C');tb.style.fontWeight=(x===t?'700':'400');}
     if(pn)pn.style.display=(x===t?'':'none');});
   calRenderCurrentPane();}
+var _calMMode=null,_calMId=null;
+function calOpenModal(mode,id){
+  _calMMode=mode;_calMId=id;
+  var m=document.getElementById('cal-modal');
+  var ttl=document.getElementById('cal-modal-ttl');
+  var body=document.getElementById('cal-modal-body');
+  if(!m)return;
+  var clientes=S.clientes||[];
+  if(mode==='reun'){
+    var r=id?(S.calReuniones||[]).find(function(x){return x.id===id;}):null;
+    ttl.innerHTML=id?'Editar Reunión':'Nueva Reunión';
+    var cOpts=clientes.map(function(c){return '<option value="'+c.id+'"'+(r&&r.clienteId===c.id?' selected':'')+'>'+esc(c.nombre)+'</option>';}).join('');
+    body.innerHTML='<div style="display:flex;flex-direction:column;gap:12px">'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Título *</label>'
+      +'<input id="crm-ri-tit" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?esc(r.titulo):'')+'"></div>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Hora</label>'
+      +'<input id="crm-ri-hora" type="time" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?r.hora:'')+'"></div>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Lugar</label>'
+      +'<input id="crm-ri-lugar" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?esc(r.lugar):'')+'"></div>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Participantes</label>'
+      +'<input id="crm-ri-partic" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?esc(r.partic):'')+'"></div>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Cliente (opcional)</label>'
+      +'<select id="crm-ri-cli" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box"><option value="">-- Sin cliente --</option>'+cOpts+'</select></div>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Notas</label>'
+      +'<textarea id="crm-ri-notas" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box">'+(r?esc(r.notas):'')+'</textarea></div>'
+      +'</div>';
+  } else {
+    var n=id?(S.calNotas||[]).find(function(x){return x.id===id;}):null;
+    ttl.innerHTML=id?'Editar Nota':'Nueva Nota';
+    var cols=['#FEF9C3','#DCFCE7','#DBEAFE','#FCE7F3','#FEE2E2','#EDE9FE'];
+    var curCol=(n&&n.color)||cols[0];
+    var cPicks=cols.map(function(c,i){return '<div id="crm-nc-'+i+'" onclick="calSelColor('+i+')" style="width:28px;height:28px;border-radius:50%;background:'+c+';cursor:pointer;border:3px solid '+(c===curCol?'#2563EB':'transparent')+';box-sizing:border-box"></div>';}).join('');
+    body.innerHTML='<div style="display:flex;flex-direction:column;gap:12px">'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Nota *</label>'
+      +'<textarea id="crm-ni-txt" rows="5" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box">'+(n?esc(n.texto):'')+'</textarea></div>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:8px">Color</label>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+cPicks+'</div>'
+      +'<input type="hidden" id="crm-ni-col" value="'+curCol+'"></div>'
+      +'</div>';
+  }
+  m.style.display='flex';
+}
+function calSelColor(i){
+  var cols=['#FEF9C3','#DCFCE7','#DBEAFE','#FCE7F3','#FEE2E2','#EDE9FE'];
+  document.getElementById('crm-ni-col').value=cols[i];
+  document.querySelectorAll('[id^="crm-nc-"]').forEach(function(p,j){p.style.border='3px solid '+(j===i?'#2563EB':'transparent');});
+}
+function calCloseModal(){
+  var m=document.getElementById('cal-modal');
+  if(m)m.style.display='none';
+  _calMMode=null;_calMId=null;
+}
+function calModalSave(){
+  if(_calMMode==='reun'){
+    var tit=(document.getElementById('crm-ri-tit')||{}).value||'';
+    if(!tit.trim()){alert('El título es requerido');return;}
+    var hora=(document.getElementById('crm-ri-hora')||{}).value||'';
+    var lugar=(document.getElementById('crm-ri-lugar')||{}).value||'';
+    var partic=(document.getElementById('crm-ri-partic')||{}).value||'';
+    var cli=(document.getElementById('crm-ri-cli')||{}).value||'';
+    var rNotas=(document.getElementById('crm-ri-notas')||{}).value||'';
+    S.calReuniones=S.calReuniones||[];
+    if(_calMId){
+      var idx=S.calReuniones.findIndex(function(x){return x.id===_calMId;});
+      if(idx>-1)S.calReuniones[idx]={id:_calMId,titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:calGetDate()};
+    } else {
+      S.calReuniones.push({id:'r'+Date.now(),titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:calGetDate()});
+    }
+    save();calCloseModal();calRenderReuniones();
+  } else if(_calMMode==='nota'){
+    var txt=(document.getElementById('crm-ni-txt')||{}).value||'';
+    if(!txt.trim()){alert('La nota no puede estar vacía');return;}
+    var col=(document.getElementById('crm-ni-col')||{}).value||'#FEF9C3';
+    S.calNotas=S.calNotas||[];
+    if(_calMId){
+      var idx=S.calNotas.findIndex(function(x){return x.id===_calMId;});
+      if(idx>-1)S.calNotas[idx]={id:_calMId,texto:txt,color:col,fecha:calGetDate()};
+    } else {
+      S.calNotas.push({id:'n'+Date.now(),texto:txt,color:col,fecha:calGetDate()});
+    }
+    save();calCloseModal();calRenderNotas();
+  }
+}
+function calWAReunion(id){
+  var r=(S.calReuniones||[]).find(function(x){return x.id===id;});
+  if(!r)return;
+  var msg='Hola! Te recuerdo nuestra reunión: '+r.titulo+(r.hora?' a las '+r.hora:'')+(r.lugar?' en '+r.lugar:'')+'.';
+  if(r.clienteId){
+    var c=(S.clientes||[]).find(function(x){return x.id===r.clienteId;});
+    if(c&&c.telefono){var tel=c.telefono.replace(/[^0-9]/g,'');if(tel.length>7){window.open('https://wa.me/507'+tel+'?text='+encodeURIComponent(msg),'_blank');return;}}
+  }
+  window._menMsg=msg;SH('men');
+}
+function calRenderReuniones(){
+  var el=document.getElementById('cal-reun-list');
+  if(!el)return;
+  var fecha=calGetDate();
+  var rr=(S.calReuniones||[]).filter(function(r){return r.fecha===fecha;}).sort(function(a,b){return (a.hora||'').localeCompare(b.hora||'');});
+  if(!rr.length){el.innerHTML='<div style="text-align:center;padding:32px;color:#94A3B8;font-size:13px">&#128101; No hay reuniones para este día.<br><span style="font-size:11px">Haz clic en &quot;+ Nueva Reunión&quot; para agregar una.</span></div>';return;}
+  el.innerHTML=rr.map(function(r){
+    var cl=(S.clientes||[]).find(function(x){return x.id===r.clienteId;});
+    var cBadge=cl?'<span style="font-size:11px;color:#2563EB;background:#EEF2FF;padding:2px 8px;border-radius:20px">&#128100; '+esc(cl.nombre)+'</span>':'';
+    return '<div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;border:1px solid #E8DFD0;box-shadow:0 2px 6px rgba(0,0,0,.05)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+      +'<div style="flex:1">'
+      +(r.hora?'<span style="display:inline-flex;align-items:center;background:#2563EB;color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:6px;margin-right:6px">&#128336; '+r.hora+'</span>':'')
+      +'<div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px">'+esc(r.titulo)+'</div>'
+      +(r.lugar?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128205; '+esc(r.lugar)+'</div>':'')
+      +(r.partic?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128101; '+esc(r.partic)+'</div>':'')
+      +(r.notas?'<div style="font-size:12px;color:#78716C;margin-top:4px;font-style:italic">'+esc(r.notas)+'</div>':'')
+      +(cBadge?'<div style="margin-top:6px">'+cBadge+'</div>':'')
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">'
+      +'<button onclick="calWAReunion(\''+r.id+'\');" title="WhatsApp" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:14px">&#128362;</button>'
+      +'<button onclick="calOpenModal(\'reun\',\''+r.id+'\');" style="background:#F1F5F9;border:1px solid #E2E8F0;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;color:#475569">&#9998;</button>'
+      +'<button onclick="calDelReunion(\''+r.id+'\');" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;color:#EF4444">&#128465;</button>'
+      +'</div></div></div>';
+  }).join('');
+}
+function calAddReunion(){calOpenModal('reun',null);}
+function calDelReunion(id){
+  if(!confirm('¿Eliminar esta reunión?'))return;
+  S.calReuniones=(S.calReuniones||[]).filter(function(r){return r.id!==id;});
+  save();calRenderReuniones();
+}
+function calRenderNotas(){
+  var el=document.getElementById('cal-notas-list');
+  if(!el)return;
+  var fecha=calGetDate();
+  var nn=(S.calNotas||[]).filter(function(n){return n.fecha===fecha;});
+  if(!nn.length){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:#94A3B8;font-size:13px">&#128203; No hay notas para este día.<br><span style="font-size:11px">Haz clic en &quot;+ Nueva Nota&quot; para agregar una.</span></div>';return;}
+  el.innerHTML=nn.map(function(n){
+    return '<div style="background:'+(n.color||'#FEF9C3')+';border-radius:12px;padding:14px;border:1px solid rgba(0,0,0,.07);box-shadow:0 2px 6px rgba(0,0,0,.07);position:relative;min-height:80px">'
+      +'<div style="position:absolute;top:8px;right:8px;display:flex;gap:4px">'
+      +'<button onclick="calOpenModal(\'nota\',\''+n.id+'\');" style="background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:3px 7px;cursor:pointer;font-size:12px">&#9998;</button>'
+      +'<button onclick="calDelNota(\''+n.id+'\');" style="background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:3px 7px;cursor:pointer;font-size:12px;color:#EF4444">&#10005;</button>'
+      +'</div>'
+      +'<div style="font-size:13px;color:#1E293B;line-height:1.6;padding-right:50px;white-space:pre-wrap">'+esc(n.texto)+'</div>'
+      +'</div>';
+  }).join('');
+}
+function calAddNota(){calOpenModal('nota',null);}
+function calDelNota(id){
+  if(!confirm('¿Eliminar esta nota?'))return;
+  S.calNotas=(S.calNotas||[]).filter(function(n){return n.id!==id;});
+  save();calRenderNotas();
+}
+
 function calAddTask(){
   var y=window.calDate.getFullYear(),m=window.calDate.getMonth(),sel=window._calSel||1;
   var dateStr=y+'-'+(m+1<10?'0':'')+(m+1)+'-'+(sel<10?'0':'')+sel;
@@ -10602,7 +10752,7 @@ function repExportCSV(){
 </div>
 </div>
 
-<div id="pg-cal" class="pg" style="padding:0!important"><div style="display:flex;height:calc(100vh - 140px);background:linear-gradient(135deg,#F5F0E8,#EDE8DF);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #C8B89A"><div style="width:260px;flex-shrink:0;background:linear-gradient(180deg,#FAF7F2,#F2EDE4);border-right:2px solid #C8B89A;display:flex;flex-direction:column;overflow:hidden"><div style="padding:20px 20px 12px"><div id="cal-day-num" style="font-size:80px;font-weight:900;color:#1E293B;line-height:1;font-family:Georgia,serif;letter-spacing:-4px"></div><div id="cal-day-name" style="font-size:18px;font-weight:600;color:#475569;text-transform:lowercase;margin-top:-4px"></div><div id="cal-month-year" style="font-size:13px;color:#94A3B8;font-weight:400;margin-top:2px"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px"><span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px">Agregar Tarea</span><button onclick="calAddTask()" style="width:26px;height:26px;border-radius:50%;background:#2563EB;border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0">+</button></div></div><div id="cal-day-tasks" style="flex:1;overflow-y:auto;padding:0 14px 12px"></div><div style="border-top:1px solid #C8B89A;padding:10px;background:rgba(255,255,255,.4)"><div id="cal-mini1" style="margin-bottom:8px"></div><div id="cal-mini2"></div></div></div><div style="width:32px;flex-shrink:0;background:linear-gradient(90deg,#7A5C42 0%,#B8895A 40%,#A07548 60%,#7A5C42 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:30px 0"><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div></div><div style="flex:1;display:flex;flex-direction:column;background:#FAFAF8;overflow:hidden"><div style="display:flex;border-bottom:2px solid #D4C5A9;background:#F5F0E8;flex-shrink:0"><button id="cal-tab-agenda" onclick="calTab('agenda')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid #2563EB;background:#EEF2FF;color:#2563EB;font-weight:700;font-size:11px;cursor:pointer">&#128197; Agenda</button><button id="cal-tab-semana" onclick="calTab('semana')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128198; Semana</button><button id="cal-tab-tareas" onclick="calTab('tareas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#9989; Tareas</button><button id="cal-tab-metas" onclick="calTab('metas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#127919; Metas</button><button id="cal-tab-diario" onclick="calTab('diario')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128221; Diario</button></div><div style="flex:1;overflow-y:auto"><div id="cal-pane-agenda" style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><button class="btn bsm" onclick="calNav(-1)" style="font-size:16px;padding:4px 10px">&#9664;</button><span id="cal-title" style="font-size:14px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calNav(1)" style="font-size:16px;padding:4px 10px">&#9654;</button></div><div id="cal-body"></div><div style="display:flex;gap:16px;margin-top:10px;font-size:10px;color:#64748B"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-right:3px"></span>P&#243;liza vence</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8B5CF6;margin-right:3px"></span>Tarea</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;margin-right:3px"></span>Seguimiento</span></div><div style="margin-top:14px;border-top:1px solid #E8DFD0;padding-top:10px"><div style="font-size:11px;font-weight:700;color:#78716C;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px">Eventos del d&#237;a</div><div id="cal-timeline"></div></div></div><div id="cal-pane-semana" style="display:none;padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><button class="btn bsm" onclick="calWeekNav(-1)">&#9664;</button><span id="cal-week-title" style="font-size:13px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calWeekNav(1)">&#9654;</button></div><div id="cal-week-body"></div></div><div id="cal-pane-tareas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:#1E293B">Tareas Pendientes</div><button onclick="SH('tar')" class="btn bsm" style="font-size:11px">Ver m&#243;dulo &#8599;</button></div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><button id="cal-tf-all" onclick="calTarFilter('all')" class="btn bsm" style="font-size:10px;background:#1E293B;color:#fff;border-color:#1E293B">Todas</button><button id="cal-tf-hoy" onclick="calTarFilter('hoy')" class="btn bsm" style="font-size:10px">Hoy</button><button id="cal-tf-sem" onclick="calTarFilter('sem')" class="btn bsm" style="font-size:10px">Esta semana</button><button id="cal-tf-ven" onclick="calTarFilter('ven')" class="btn bsm" style="font-size:10px">Vencidas</button></div><div id="cal-all-tareas"></div></div><div id="cal-pane-metas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Metas Activas</div><button onclick="calAddMeta()" class="btn bsm" style="font-size:11px">+ Nueva Meta</button></div><div id="cal-metas-list"></div><div style="margin-top:20px;padding-top:14px;border-top:1px solid #E8DFD0"><div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">&#127942; Logros</div><div id="cal-logros-list"></div></div></div><div id="cal-pane-diario" style="display:none;padding:14px"><div id="cal-diario-fecha" style="font-size:12px;color:#94A3B8;margin-bottom:6px;font-style:italic"></div><div id="cal-quote" style="font-size:11px;color:#78716C;margin-bottom:10px;font-style:italic;text-align:center;padding:6px;background:rgba(212,197,169,.3);border-radius:6px"></div><textarea id="cal-diario-txt" placeholder="Registro del d&#237;a..." onblur="calSaveDiario()" style="width:100%;min-height:320px;border:1px solid #D4C5A9;border-radius:10px;padding:14px;font-size:13px;resize:vertical;font-family:inherit;color:#1E293B;background:#FDFCFA;line-height:1.7;box-sizing:border-box"></textarea></div></div></div></div></div>
+<div id="pg-cal" class="pg" style="padding:0!important"><div style="display:flex;height:calc(100vh - 140px);background:linear-gradient(135deg,#F5F0E8,#EDE8DF);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #C8B89A"><div style="width:260px;flex-shrink:0;background:linear-gradient(180deg,#FAF7F2,#F2EDE4);border-right:2px solid #C8B89A;display:flex;flex-direction:column;overflow:hidden"><div style="padding:20px 20px 12px"><div id="cal-day-num" style="font-size:80px;font-weight:900;color:#1E293B;line-height:1;font-family:Georgia,serif;letter-spacing:-4px"></div><div id="cal-day-name" style="font-size:18px;font-weight:600;color:#475569;text-transform:lowercase;margin-top:-4px"></div><div id="cal-month-year" style="font-size:13px;color:#94A3B8;font-weight:400;margin-top:2px"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px"><span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px">Agregar Tarea</span><button onclick="calAddTask()" style="width:26px;height:26px;border-radius:50%;background:#2563EB;border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0">+</button></div></div><div id="cal-day-tasks" style="flex:1;overflow-y:auto;padding:0 14px 12px"></div><div style="border-top:1px solid #C8B89A;padding:10px;background:rgba(255,255,255,.4)"><div id="cal-mini1" style="margin-bottom:8px"></div><div id="cal-mini2"></div></div></div><div style="width:32px;flex-shrink:0;background:linear-gradient(90deg,#7A5C42 0%,#B8895A 40%,#A07548 60%,#7A5C42 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:30px 0"><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div></div><div style="flex:1;display:flex;flex-direction:column;background:#FAFAF8;overflow:hidden"><div style="display:flex;border-bottom:2px solid #D4C5A9;background:#F5F0E8;flex-shrink:0"><button id="cal-tab-agenda" onclick="calTab('agenda')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid #2563EB;background:#EEF2FF;color:#2563EB;font-weight:700;font-size:11px;cursor:pointer">&#128197; Agenda</button><button id="cal-tab-semana" onclick="calTab('semana')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128198; Semana</button><button id="cal-tab-tareas" onclick="calTab('tareas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#9989; Tareas</button><button id="cal-tab-metas" onclick="calTab('metas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#127919; Metas</button><button id="cal-tab-diario" onclick="calTab('diario')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128221; Diario</button><button id="cal-tab-reun" onclick="calTab('reun')" style="flex:1;padding:10px 4px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:10px;cursor:pointer">&#128101; Reuni.</button><button id="cal-tab-notas" onclick="calTab('notas')" style="flex:1;padding:10px 4px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:10px;cursor:pointer">&#128203; Notas</button></div><div style="flex:1;overflow-y:auto"><div id="cal-pane-agenda" style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><button class="btn bsm" onclick="calNav(-1)" style="font-size:16px;padding:4px 10px">&#9664;</button><span id="cal-title" style="font-size:14px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calNav(1)" style="font-size:16px;padding:4px 10px">&#9654;</button></div><div id="cal-body"></div><div style="display:flex;gap:16px;margin-top:10px;font-size:10px;color:#64748B"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-right:3px"></span>P&#243;liza vence</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8B5CF6;margin-right:3px"></span>Tarea</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;margin-right:3px"></span>Seguimiento</span></div><div style="margin-top:14px;border-top:1px solid #E8DFD0;padding-top:10px"><div style="font-size:11px;font-weight:700;color:#78716C;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px">Eventos del d&#237;a</div><div id="cal-timeline"></div></div></div><div id="cal-pane-semana" style="display:none;padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><button class="btn bsm" onclick="calWeekNav(-1)">&#9664;</button><span id="cal-week-title" style="font-size:13px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calWeekNav(1)">&#9654;</button></div><div id="cal-week-body"></div></div><div id="cal-pane-tareas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:#1E293B">Tareas Pendientes</div><button onclick="SH('tar')" class="btn bsm" style="font-size:11px">Ver m&#243;dulo &#8599;</button></div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><button id="cal-tf-all" onclick="calTarFilter('all')" class="btn bsm" style="font-size:10px;background:#1E293B;color:#fff;border-color:#1E293B">Todas</button><button id="cal-tf-hoy" onclick="calTarFilter('hoy')" class="btn bsm" style="font-size:10px">Hoy</button><button id="cal-tf-sem" onclick="calTarFilter('sem')" class="btn bsm" style="font-size:10px">Esta semana</button><button id="cal-tf-ven" onclick="calTarFilter('ven')" class="btn bsm" style="font-size:10px">Vencidas</button></div><div id="cal-all-tareas"></div></div><div id="cal-pane-metas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Metas Activas</div><button onclick="calAddMeta()" class="btn bsm" style="font-size:11px">+ Nueva Meta</button></div><div id="cal-metas-list"></div><div style="margin-top:20px;padding-top:14px;border-top:1px solid #E8DFD0"><div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">&#127942; Logros</div><div id="cal-logros-list"></div></div></div><div id="cal-pane-diario" style="display:none;padding:14px"><div id="cal-diario-fecha" style="font-size:12px;color:#94A3B8;margin-bottom:6px;font-style:italic"></div><div id="cal-quote" style="font-size:11px;color:#78716C;margin-bottom:10px;font-style:italic;text-align:center;padding:6px;background:rgba(212,197,169,.3);border-radius:6px"></div><textarea id="cal-diario-txt" placeholder="Registro del d&#237;a..." onblur="calSaveDiario()" style="width:100%;min-height:320px;border:1px solid #D4C5A9;border-radius:10px;padding:14px;font-size:13px;resize:vertical;font-family:inherit;color:#1E293B;background:#FDFCFA;line-height:1.7;box-sizing:border-box"></textarea></div><div id="cal-pane-reun" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Reuniones del Día</div><button onclick="calAddReunion()" class="btn bsm" style="font-size:11px;background:#2563EB;color:#fff;border-color:#2563EB">+ Nueva Reunión</button></div><div id="cal-reun-list"></div></div><div id="cal-pane-notas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Notas Rápidas</div><button onclick="calAddNota()" class="btn bsm" style="font-size:11px;background:#7C3AED;color:#fff;border-color:#7C3AED">+ Nueva Nota</button></div><div id="cal-notas-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div></div></div></div></div><div id="cal-modal" onclick="if(event.target===this)calCloseModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.65);z-index:9999;align-items:center;justify-content:center"><div style="background:#fff;border-radius:16px;padding:24px;width:480px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.35)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><div id="cal-modal-ttl" style="font-size:16px;font-weight:700;color:#1E293B"></div><button onclick="calCloseModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748B;padding:0;line-height:1">&#10005;</button></div><div id="cal-modal-body"></div><div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end"><button onclick="calCloseModal()" class="btn bsm">Cancelar</button><button onclick="calModalSave()" class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB">Guardar</button></div></div></div></div>
 <div id="pg-com" class="pg">
 <h1 style="font-size:20px;font-weight:700;color:#1E293B;margin:0 0 20px">Comisiones</h1>
 <div id="com-kpi" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
