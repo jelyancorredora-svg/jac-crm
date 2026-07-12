@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- v127 -->
+<!DOCTYPE html><!-- v128 -->
 <html lang="es">
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
@@ -3103,7 +3103,7 @@ function SH(id){
  document.querySelectorAll('.bni').forEach(a=>a.classList.remove('on'));
  const pg=document.getElementById('pg-'+id);
  if(id==='inf'){try{renderInformes();}catch(e){}} if(id==='cotp'){try{cotpInit();}catch(e){console.warn('cotpInit:',e);}} if(id==='not'){try{if(!S.notas)S.notas=[];RNot();}catch(e){}}
- if(id==='is'){try{isRender();}catch(e){}}
+ if(id==='is'){try{isRender();}catch(e){}} if(id==='cal'){try{setTimeout(calFixSize,50);}catch(e){}}
  if(pg){pg.classList.add('on');}
  document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
  document.getElementById('bn-'+id)?.classList.add('on');
@@ -10176,20 +10176,21 @@ function calRenderMini(elId,y,m){
     var fw=isT||isSel?'700':'400';
     h+='<div onclick="calDay('+dd+')" style="cursor:pointer;text-align:center;font-size:8px;width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;background:'+bg+';color:'+tc+';font-weight:'+fw+'">'+dd+'</div>';}
   h+='</div>';el.innerHTML=h;}
-function calFixSize(){var el=document.getElementById('pg-cal');if(!el)return;var inner=el.querySelector('div>div');if(!inner)return;var top=el.getBoundingClientRect().top;inner.style.height=(window.innerHeight-top-4)+'px';if(!window._calSzReg){window._calSzReg=1;window.addEventListener('resize',calFixSize);}}
+function calFixSize(){var el=document.getElementById('pg-cal');if(!el)return;var inner=el.querySelector('div>div');if(!inner)return;var top=el.getBoundingClientRect().top;if(top<10){setTimeout(calFixSize,100);return;}inner.style.height=(window.innerHeight-top-4)+'px';if(!window._calSzReg){window._calSzReg=1;window.addEventListener('resize',calFixSize);}}
 function calGetDate(){var d=window.calDate||new Date();return new Date(d.getFullYear(),d.getMonth(),(window._calSel||d.getDate())).toISOString().slice(0,10);}
 function calRenderCurrentPane(){calFixSize();
   var tab=window._calTab||'agenda';
   if(tab==='tareas')calRenderAllTareas();
   else if(tab==='metas')calRenderMetas();
   else if(tab==='diario')calLoadDiario();
-  else if(tab==='semana')calRenderWeek();else if(tab==='reun')calRenderReuniones();else if(tab==='notas')calRenderNotas();}
+  else if(tab==='semana')calRenderWeek();else if(tab==='reun')calRenderReuniones();else if(tab==='notas')calRenderNotas(); else if(tab==='cobros')calRenderCobros();}
 function calRenderAllTareas(){
   var el=document.getElementById('cal-all-tareas');if(!el)return;
   var f=window._calTarFilter||'all';
   var now=new Date();now.setHours(0,0,0,0);
   var wend=new Date(now);wend.setDate(wend.getDate()+7);
   var tareas=(S.tareas||[]).filter(function(t){
+    if(t._autoTipo==='comision')return false;
     if(t.estado==='completada')return false;
     if(f==='all')return true;
     if(!t.fechaLimite)return f==='all';
@@ -10207,11 +10208,20 @@ function calRenderAllTareas(){
     var venc=t.fechaLimite&&new Date(t.fechaLimite+'T12:00:00')<new Date();
     var bg=venc?'#FEF2F2':(t.urgente?'#FFF7ED':'#F8FAFC');
     var bc=venc?'#EF4444':(t.urgente?'#F97316':'#CBD5E1');
+    var pr=t.prioridad||'';
+    var prBg='#E2E8F0';var prCol='#64748B';
+    if(pr==='Alta'||/^A/.test(pr)){prBg='#FEE2E2';prCol='#DC2626';}
+    else if(pr==='Media'||/^B/.test(pr)){prBg='#FEF3C7';prCol='#D97706';}
+    else if(pr==='Baja'||/^C/.test(pr)){prBg='#DCFCE7';prCol='#16A34A';}
+    var prLabel=pr==='Alta'?'A1':pr==='Media'?'B1':pr==='Baja'?'C1':pr||'';
     h+='<div style="padding:9px 12px;background:'+bg+';border-radius:8px;margin-bottom:6px;border-left:3px solid '+bc+'">';
-    h+='<div style="font-size:12px;font-weight:600;color:#1E293B;line-height:1.3">'+esc(t.titulo||t.desc||'Tarea')+'</div>';
+    h+='<div style="display:flex;align-items:flex-start;gap:6px">';
+    if(prLabel)h+='<span style="font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;background:'+prBg+';color:'+prCol+';flex-shrink:0;margin-top:1px">'+esc(prLabel)+'</span>';
+    h+='<div style="flex:1"><div style="font-size:12px;font-weight:600;color:#1E293B;line-height:1.3">'+esc(t.titulo||t.desc||'Tarea')+'</div>';
     if(t.paraQuien)h+='<div style="font-size:10px;color:#64748B;margin-top:2px">&#128100; '+esc(t.paraQuien)+'</div>';
     if(t.fechaLimite)h+='<div style="font-size:10px;color:'+(venc?'#EF4444':'#64748B')+';margin-top:2px">&#128197; '+t.fechaLimite+(venc?' &#9888; VENCIDA':'')+'</div>';
-    h+='</div>';});el.innerHTML=h;}
+    h+='</div></div></div>';});
+  el.innerHTML=h;}
 function calTarFilter(f){
   window._calTarFilter=f;
   ['all','hoy','sem','ven'].forEach(function(x){
@@ -10328,7 +10338,7 @@ function calGoToday(){window._calSel=new Date().getDate();window._calWeekOffset=
 function calDay(d){window._calSel=d;renderCal();}
 function calTab(t){
   window._calTab=t;
-  ['agenda','semana','tareas','metas','diario','reun','notas'].forEach(function(x){
+  ['agenda','semana','tareas','metas','diario','reun','notas','cobros'].forEach(function(x){
     var tb=document.getElementById('cal-tab-'+x);
     var pn=document.getElementById('cal-pane-'+x);
     if(tb){tb.style.borderBottomColor=(x===t?'#2563EB':'transparent');tb.style.background=(x===t?'#EEF2FF':'transparent');tb.style.color=(x===t?'#2563EB':'#78716C');tb.style.fontWeight=(x===t?'700':'400');}
@@ -10482,11 +10492,699 @@ function calDelNota(id){
   save();calRenderNotas();
 }
 
-function calAddTask(){
-  var y=window.calDate.getFullYear(),m=window.calDate.getMonth(),sel=window._calSel||1;
-  var dateStr=y+'-'+(m+1<10?'0':'')+(m+1)+'-'+(sel<10?'0':'')+sel;
-  OT(null,dateStr,'','');}
+function calRenderCobros(){
+  var el=document.getElementById('cal-cobros-list');if(!el)return;
+  var h='';
+  var coms=(S.tareas||[]).filter(function(t){return t._autoTipo==='comision'&&t.estado!=='completada';});
+  if(coms.length){
+    h+='<div style="font-size:11px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Comisiones por cobrar ('+coms.length+')</div>';
+    coms.forEach(function(t){
+      h+='<div style="padding:10px 12px;background:#F0F0FF;border-radius:8px;margin-bottom:6px;border-left:3px solid #6366F1">';
+      h+='<div style="font-size:12px;font-weight:600;color:#1E293B">'+esc(t.titulo||t.desc)+'</div>';
+      h+='<div style="font-size:10px;color:#4338CA;margin-top:3px">'+esc(t.desc||'')+'</div>';
+      h+='</div>';});
+  }
+  var pags=(S.pagos||[]).filter(function(p){return !p.estado||p.estado==='Pendiente';});
+  if(pags.length){
+    var mt=coms.length?'14px':'0';
+    h+='<div style="font-size:11px;font-weight:700;color:#0EA5E9;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:'+mt+'">Pagos pendientes de clientes ('+pags.length+')</div>';
+    pags.forEach(function(p){
+      var pol=(S.polizas||[]).find(function(x){return x.id===p.polizaId;})||{};
+      var cl=pol.clienteId?GC(pol.clienteId):null;
+      var nom=cl?cl.nombre:(p.cliente||'Cliente');
+      var cel=cl?cl.cel:'';var email=cl?cl.email:'';
+      var ced=cl?cl.cedula:(pol.cedCliente||'');
+      var waNum=cel?cel.replace(/[^0-9]/g,''):'';
+      var waMsg=encodeURIComponent('Hola '+nom.split(' ')[0]+', le contacto de JAC Seguros sobre su pago de 
+function openWAMas(){GI('modWAmas').style.display='flex';renderWAMasivo(30);}
+function closeWAMas(){GI('modWAmas').style.display='none';}
+function renderWAMasivo(dias){
+var now=new Date(),lim=new Date(now.getTime()+dias*86400000);
+var items=[];
+(S.polizas||[]).forEach(function(p){
+if(p.estado==='cancelada'||!p.vencimiento)return;
+var exp=new Date(p.vencimiento+'T12:00:00');
+if(exp>=now&&exp<=lim){
+var cl=GC(p.clienteId)||{};
+var wu=cl.cel?cl.cel.replace(/[^0-9]/g,''):'';
+var dl=Math.ceil((exp-now)/86400000);
+items.push({p:p,cl:cl,wu:wu,exp:exp,days:dl});
+}});
+items.sort(function(a,b){return a.exp-b.exp;});
+var h='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span style="font-size:12px;color:#64748B">Vencen en:</span>';
+[7,15,30,60,90].forEach(function(d){h+='<button class="btn" style="font-size:11px'+(d===dias?';background:#2563EB;color:#fff;border-color:#2563EB':'')+'" onclick="renderWAMasivo('+d+')">'+d+' dias</button>';});
+h+='</div>';
+if(!items.length){
+h+='<div style="text-align:center;padding:32px;color:#94A3B8">No hay polizas por vencer en los proximos '+dias+' dias</div>';
+}else{
+var nWA=items.filter(function(i){return i.wu;}).length;
+h+='<div style="font-size:12px;color:#64748B;margin-bottom:8px">'+items.length+' poliza(s) — '+nWA+' con WhatsApp disponible</div>';
+h+='<div style="border:1px solid #EEF2F8;border-radius:8px;overflow:hidden"><table style="width:100%;border-collapse:collapse">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Cliente</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Poliza</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseg.</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Vence</th><th style="padding:8px 10px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Dias</th><th style="padding:8px 10px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">WA</th></tr></thead><tbody>';
+items.forEach(function(it){
+var msg='Hola '+esc(it.cl.nombre||'')+', le recordamos que su poliza '+(it.p.numero||'')+(it.p.aseguradora?' con '+esc(it.p.aseguradora):'')+' vence el '+fmt(it.p.vencimiento)+'. Para renovarla contactenos al 66714215. - JAC Seguros';
+var wurl=it.wu?'https://wa.me/507'+it.wu+'?text='+encodeURIComponent(msg):'';
+var dc=it.days<=7?'#FEE2E2':it.days<=15?'#FEF3C7':'#DCFCE7';
+var tc=it.days<=7?'#991B1B':it.days<=15?'#92400E':'#166534';
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:8px 10px;font-size:12px">'+esc(it.cl.nombre||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:12px;font-family:monospace">'+esc(it.p.numero||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:11px;color:#64748B">'+esc(it.p.aseguradora||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:12px">'+fmt(it.p.vencimiento)+'</td>';
+h+='<td style="padding:8px 10px;text-align:center"><span style="background:'+dc+';color:'+tc+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+it.days+'</span></td>';
+h+='<td style="padding:8px 10px;text-align:center">'+(wurl?'<a href="'+wurl+'" target="_blank" class="btn bsm" style="background:#25D366;color:#fff;border-color:#25D366;text-decoration:none">WA</a>':'-')+'</td>';
+h+='</tr>';
+});
+h+='</tbody></table></div>';
+}
+GI('wamas-body').innerHTML=h;
+}
+function renderCom(view){
+view=view||'pol';
+GI('com-bpol').className='btn'+(view==='pol'?' bpr':'');
+GI('com-baseg').className='btn'+(view==='aseg'?' bpr':'');
+var rows=[];
+(S.polizas||[]).forEach(function(p){
+if(p.estado==='cancelada')return;
+var cl=GC(p.clienteId)||{};
+var pa=parseFloat(p.prima)||0;
+var pm=parseFloat(p.primaMensual)||pa/12;
+var pct=parseFloat(p.comisionPct)||0;
+var ca=pa*pct/100,cm=pm*pct/100;
+rows.push({p:p,cl:cl,pa:pa,pm:pm,pct:pct,ca:ca,cm:cm,aseg:p.aseguradora||'Sin aseg.'});
+});
+rows.sort(function(a,b){return b.ca-a.ca;});
+var tPa=rows.reduce(function(s,r){return s+r.pa;},0);
+var tCa=rows.reduce(function(s,r){return s+r.ca;},0);
+var tCm=rows.reduce(function(s,r){return s+r.cm;},0);
+GI('com-kpi').innerHTML='<div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Primas Anuales</div><div style="font-size:22px;font-weight:800;color:#1E293B">'+fmtM(tPa)+'</div></div><div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Comision Anual Est.</div><div style="font-size:22px;font-weight:800;color:#2563EB">'+fmtM(tCa)+'</div></div><div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Comision Mensual Est.</div><div style="font-size:22px;font-weight:800;color:#059669">'+fmtM(tCm)+'</div></div>';
+if(view==='pol'){
+var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #EEF2F8;border-radius:10px;overflow:hidden">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Cliente</th><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Poliza</th><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseguradora</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Prima Anual</th><th style="padding:10px 12px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Com%</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Anual</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Mensual</th></tr></thead><tbody>';
+rows.forEach(function(r){
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:9px 12px;font-size:12px">'+esc(r.cl.nombre||'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:11px;font-family:monospace">'+esc(r.p.numero||'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:11px;color:#64748B">'+esc(r.aseg)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right">'+fmtM(r.pa)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:center">'+(r.pct?r.pct+'%':'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right;font-weight:600;color:#2563EB">'+fmtM(r.ca)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right;color:#059669">'+fmtM(r.cm)+'</td>';
+h+='</tr>';});
+h+='</tbody></table></div>';
+GI('com-body').innerHTML=h;
+}else{
+var byA={};
+rows.forEach(function(r){if(!byA[r.aseg])byA[r.aseg]={aseg:r.aseg,cnt:0,pa:0,ca:0,cm:0};byA[r.aseg].cnt++;byA[r.aseg].pa+=r.pa;byA[r.aseg].ca+=r.ca;byA[r.aseg].cm+=r.cm;});
+var arows=Object.values(byA).sort(function(a,b){return b.ca-a.ca;});
+var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #EEF2F8;border-radius:10px;overflow:hidden">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseguradora</th><th style="padding:10px 12px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Polizas</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Total Prima</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Anual Est.</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Mensual Est.</th></tr></thead><tbody>';
+arows.forEach(function(a){
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:10px 12px;font-size:13px;font-weight:600">'+esc(a.aseg)+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:center">'+a.cnt+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:right">'+fmtM(a.pa)+'</td>';
+h+='<td style="padding:10px 12px;font-size:13px;text-align:right;font-weight:700;color:#2563EB">'+fmtM(a.ca)+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:right;color:#059669">'+fmtM(a.cm)+'</td>';
+h+='</tr>';});
+h+='</tbody></table></div>';
+GI('com-body').innerHTML=h;
+}}
+function OHist(tipo,id){window._histBack=window._lastTab||'pol';renderHist(tipo,id);}
+function renderHist(tipo,id){
+  SH('hist');
+  var title=GI('hist-title'),body=GI('hist-body'),items=[];
+  if(tipo==='pol'){
+    var pol=GP(id);if(!pol){body.innerHTML='<p>No encontrado</p>';return;}
+    title.textContent='Historial Póliza '+(pol.num||id);
+    (S.tareas||[]).filter(function(t){return t._autoRef===id;}).forEach(function(t){
+      items.push({fecha:t.fechaCreacion||'',tipo:'tarea',icon:t.estado==='done'?'\u2705':'\uD83D\uDCCB',desc:t.titulo||t.desc||'Tarea',sub:t.desc||''});});
+    (S.pagos||[]).filter(function(p){return p.polizaId===id;}).forEach(function(p){
+      items.push({fecha:p.fecha||'',tipo:'pago',icon:'\uD83D\uDCB3',desc:'Pago: '+fmtM(+(p.monto||0)),sub:p.notas||''}); });
+  }else if(tipo==='cli'){
+    var cli=GC(id);if(!cli){body.innerHTML='<p>No encontrado</p>';return;}
+    title.textContent='Historial: '+(cli.nombre||id);
+    var pols=(S.polizas||[]).filter(function(p){return p.clienteId===id;});
+    var pids=pols.map(function(p){return p.id;});
+    pols.forEach(function(pol){
+      items.push({fecha:pol.fechaIni||pol.fechaCreacion||'',tipo:'poliza',icon:'\uD83D\uDCC4',desc:'Póliza '+(pol.num||pol.id)+' — '+(pol.aseg||'')+' '+(pol.ramo||''),sub:'Estado: '+(pol.estado||'Activa')});});
+    (S.tareas||[]).filter(function(t){return t._autoRef===id||pids.indexOf(t._autoRef)>=0;}).forEach(function(t){
+      items.push({fecha:t.fechaCreacion||'',tipo:'tarea',icon:t.estado==='done'?'\u2705':'\uD83D\uDCCB',desc:t.titulo||t.desc||'Tarea',sub:t.desc||''});});
+    (S.pagos||[]).filter(function(p){return pids.indexOf(p.polizaId)>=0||p.cliente===id;}).forEach(function(p){
+      items.push({fecha:p.fecha||'',tipo:'pago',icon:'\uD83D\uDCB3',desc:'Pago: '+fmtM(+(p.monto||0)),sub:p.notas||''});});
+  }
+  items.sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'');});
+  if(!items.length){body.innerHTML='<div style="text-align:center;padding:40px;color:#888">Sin actividad registrada</div>';return;}
+  var html='<div>';
+  items.forEach(function(item){
+    var bg={pago:'#e8f5e9',tarea:'#fff3e0',poliza:'#e3f2fd'}[item.tipo]||'#f9f9f9';
+    html+='<div style="display:flex;gap:16px;padding:14px;margin-bottom:8px;background:'+bg+';border-radius:10px">';
+    html+='<div style="font-size:22px;min-width:32px;text-align:center">'+item.icon+'</div>';
+    html+='<div style="flex:1">';
+    html+='<div style="font-weight:600;font-size:14px">'+esc(item.desc)+'</div>';
+    if(item.sub)html+='<div style="color:#666;font-size:12px;margin-top:2px">'+esc(item.sub)+'</div>';
+    html+='<div style="color:#aaa;font-size:11px;margin-top:4px">'+(item.fecha?fmt(item.fecha):'Sin fecha')+'</div>';
+    html+='</div></div>';
+  });
+  html+='</div>';
+  body.innerHTML=html;
+}
 
+var _repTipo='pol',_repData=[];
+function renderRep(){
+  SH('rep');
+  repShow('pol');
+}
+function repShow(tipo){
+  _repTipo=tipo;
+  ['pol','pag','cli','com'].forEach(function(t){
+    var b=GI('rep-btn-'+t);
+    if(b){b.style.background=t===tipo?'#4361ee':'#fff';b.style.color=t===tipo?'#fff':'#333';b.style.borderColor=t===tipo?'#4361ee':'#ddd';}
+  });
+  var body=GI('rep-body');
+  var filt=GI('rep-filter');
+  if(!body||!filt)return;
+  filt.innerHTML='';
+  var rows=[];
+  if(tipo==='pol'){
+    rows=(S.polizas||[]).map(function(p){
+      var c=GC(p.clienteId)||{};
+      return {aseg:p.aseg||'—',ramo:p.ramo||'—',num:p.num||p.id,cliente:c.nombre||p.clienteId||'—',estado:p.estado||'Activa',ini:fmt(p.fechaIni||p.fechaInicio),fin:fmt(p.fechaFin),prima:fmtM(+(p.primaMensual||p.prima||0)),letrap:p.letraPrima||'—'};
+    });
+    var html='<table class="t"><thead><tr><th>Póliza</th><th>Aseg.</th><th>Ramo</th><th>Cliente</th><th>Estado</th><th>Inicio</th><th>Vence</th><th>Prima</th><th>Letra</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.num)+'</td><td>'+esc(r.aseg)+'</td><td>'+esc(r.ramo)+'</td><td>'+esc(r.cliente)+'</td><td>'+esc(r.estado)+'</td><td>'+esc(r.ini)+'</td><td>'+esc(r.fin)+'</td><td>'+esc(r.prima)+'</td><td>'+esc(r.letrap)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Póliza,Aseguradora,Ramo,Cliente,Estado,Inicio,Vence,Prima,Letra'.split(',')].concat(rows.map(function(r){return[r.num,r.aseg,r.ramo,r.cliente,r.estado,r.ini,r.fin,r.prima,r.letrap];}));
+  }else if(tipo==='pag'){
+    rows=(S.pagos||[]).map(function(p){
+      var pol=GP(p.polizaId)||{};var c=GC(pol.clienteId||p.cliente)||{};
+      return {fecha:fmt(p.fecha||p.fechaPago),cliente:c.nombre||p.cliente||'—',poliza:pol.num||p.polizaId||'—',aseg:pol.aseg||p.aseg||'—',monto:fmtM(+(p.monto||0)),cuota:p.cuota||'—',notas:p.notas||'—'};
+    }).sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'')||0;});
+    var html='<table class="t"><thead><tr><th>Fecha</th><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Monto</th><th>Cuota</th><th>Notas</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.fecha)+'</td><td>'+esc(r.cliente)+'</td><td>'+esc(r.poliza)+'</td><td>'+esc(r.aseg)+'</td><td>'+esc(r.monto)+'</td><td>'+esc(r.cuota)+'</td><td>'+esc(r.notas)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Fecha,Cliente,Póliza,Aseg,Monto,Cuota,Notas'.split(',')].concat(rows.map(function(r){return[r.fecha,r.cliente,r.poliza,r.aseg,r.monto,r.cuota,r.notas];}));
+  }else if(tipo==='cli'){
+    rows=(S.clientes||[]).map(function(c){
+      var pols=(S.polizas||[]).filter(function(p){return p.clienteId===c.id;});
+      return {nombre:c.nombre||'—',tel:c.tel||c.telefono||'—',email:c.email||'—',nPols:pols.length,activas:pols.filter(function(p){return (p.estado||'A')!=='Cancelada';}).length};
+    });
+    var html='<table class="t"><thead><tr><th>Cliente</th><th>Teléfono</th><th>Email</th><th>Pólizas</th><th>Activas</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.nombre)+'</td><td>'+esc(r.tel)+'</td><td>'+esc(r.email)+'</td><td>'+r.nPols+'</td><td>'+r.activas+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Cliente,Teléfono,Email,Total Pólizas,Activas'.split(',')].concat(rows.map(function(r){return[r.nombre,r.tel,r.email,r.nPols,r.activas];}));
+  }else if(tipo==='com'){
+    var map={};
+    (S.polizas||[]).filter(function(p){return (p.estado||'A')!=='Cancelada';}).forEach(function(p){
+      var k=p.aseg||'Sin aseg';
+      if(!map[k])map[k]={aseg:k,pols:0,primaMen:0,comEsp:0};
+      map[k].pols++;
+      map[k].primaMen+=+(p.primaMensual||p.prima||0);
+      map[k].comEsp+=+(p.comisionEsp||0);
+    });
+    rows=Object.values(map).sort(function(a,b){return b.primaMen-a.primaMen;});
+    var html='<table class="t"><thead><tr><th>Aseguradora</th><th>Pólizas</th><th>Prima Mensual</th><th>Com. Esp.</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.aseg)+'</td><td>'+r.pols+'</td><td>'+fmtM(r.primaMen)+'</td><td>'+fmtM(r.comEsp)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Aseguradora,Pólizas,Prima Mensual,Com.Esp'.split(',')].concat(rows.map(function(r){return[r.aseg,r.pols,fmtM(r.primaMen),fmtM(r.comEsp)];}));
+  }
+}
+function repExportCSV(){
+  if(!_repData||!_repData.length)return;
+  var csv=_repData.map(function(r){return r.map(function(c){return '"'+String(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='reporte_crm_'+_repTipo+'_'+(new Date).toISOString().slice(0,10)+'.csv';a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+}
+</script>
+</div><div id="pg-is" class="pg">
+<style>
+.is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
+.is-hdr h2{margin:0;font-size:1.1em;font-weight:700}
+.is-hdr p{margin:4px 0 0;font-size:.78em;opacity:.8}
+.is-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:14px}
+.is-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center}
+.is-card .cv{font-size:1.45em;font-weight:700;color:#1a5276;margin:4px 0}
+.is-card .cl{font-size:.7em;color:#999;text-transform:uppercase;letter-spacing:.5px}
+.is-card.ok .cv{color:#1e8449}
+.is-card.warn .cv{color:#c0392b}
+.is-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.is-sel{padding:6px 12px;border-radius:6px;border:2px solid #2980b9;color:#1a5276;background:#fff;font-weight:600;cursor:pointer}
+.is-note{font-size:.75em;color:#999}
+.is-tbl{width:100%;border-collapse:collapse;font-size:.81em}
+.is-tbl th{background:#1a5276;color:#fff;padding:6px 8px;text-align:left;white-space:nowrap}
+.is-tbl td{padding:5px 8px;border-bottom:1px solid #eee}
+.is-tbl tr:hover td{background:#ebf5fb}
+.is-tbl .n{text-align:right;font-family:monospace}
+.is-tbl .tot{background:#d6eaf8;font-weight:700}
+.is-tbl .gpay{background:#d5f5e3;font-weight:700;color:#1e8449}
+.is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
+.is-btn:hover{background:#2980b9}
+.is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
+
+@media print{
+  nav,.nav-item,button:not(.print-show),#rep-filter{display:none!important;}
+  .pg{display:none!important;}
+  #pg-rep{display:block!important;}
+  body{background:#fff;}
+  .t{width:100%;border-collapse:collapse;font-size:11px;}
+  .t th,.t td{border:1px solid #ccc;padding:4px;text-align:left;}
+}
+</style>
+<div class="is-hdr">
+<h2>🏥 Internacional de Seguros / BlueCross</h2>
+<p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; Código: 117391</p>
+</div>
+<div class="is-cards">
+<div class="is-card"><div class="cv" id="is-cv-corte">--</div><div class="cl">Corte Activo</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-npol">0</div><div class="cl">Pólizas</div></div>
+<div class="is-card"><div class="cv" id="is-cv-saldo">$0.00</div><div class="cl">+ Saldo Anterior</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-pagar">$0.00</div><div class="cl">Total a Pagar</div></div>
+</div>
+<div class="is-row">
+<label style="font-weight:700;font-size:.88em;color:#1a5276">Corte:</label>
+<select class="is-sel" id="is-sel" onchange="isSelectCorte(this.value)">
+<option value="2026-06-26">2026-06-26</option>
+<option value="2026-06-19" selected>2026-06-19</option>
+</select>
+<span id="is-sync-info" class="is-note"></span>
+</div>
+<div id="is-wrap"></div>
+<div style="margin-top:14px;padding-top:10px;border-top:1px solid #ddd">
+<div class="is-note">💡 Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
+<button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">🔗 Abrir Portal iSeguros</button>
+</div>
+</div>
+
+<div id="pg-cal" class="pg" style="padding:0!important"><div style="display:flex;height:calc(100vh - 140px);background:linear-gradient(135deg,#F5F0E8,#EDE8DF);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #C8B89A"><div style="width:260px;flex-shrink:0;background:linear-gradient(180deg,#FAF7F2,#F2EDE4);border-right:2px solid #C8B89A;display:flex;flex-direction:column;overflow:hidden"><div style="padding:20px 20px 12px"><div id="cal-day-num" style="font-size:80px;font-weight:900;color:#1E293B;line-height:1;font-family:Georgia,serif;letter-spacing:-4px"></div><div id="cal-day-name" style="font-size:18px;font-weight:600;color:#475569;text-transform:lowercase;margin-top:-4px"></div><div id="cal-month-year" style="font-size:13px;color:#94A3B8;font-weight:400;margin-top:2px"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px"><span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px">Agregar Tarea</span><button onclick="calAddTask()" style="width:26px;height:26px;border-radius:50%;background:#2563EB;border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0">+</button></div></div><div id="cal-day-tasks" style="flex:1;overflow-y:auto;padding:0 14px 12px"></div><div style="border-top:1px solid #C8B89A;padding:10px;background:rgba(255,255,255,.4)"><div id="cal-mini1" style="margin-bottom:8px"></div><div id="cal-mini2"></div></div></div><div style="width:32px;flex-shrink:0;background:linear-gradient(90deg,#7A5C42 0%,#B8895A 40%,#A07548 60%,#7A5C42 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:30px 0"><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div></div><div style="flex:1;display:flex;flex-direction:column;background:#FAFAF8;overflow:hidden"><div style="display:flex;border-bottom:2px solid #D4C5A9;background:#F5F0E8;flex-shrink:0"><button id="cal-tab-agenda" onclick="calTab('agenda')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid #2563EB;background:#EEF2FF;color:#2563EB;font-weight:700;font-size:11px;cursor:pointer">&#128197; Agenda</button><button id="cal-tab-semana" onclick="calTab('semana')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128198; Semana</button><button id="cal-tab-tareas" onclick="calTab('tareas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#9989; Tareas</button><button id="cal-tab-metas" onclick="calTab('metas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#127919; Metas</button><button id="cal-tab-diario" onclick="calTab('diario')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128221; Diario</button><button id="cal-tab-reun" onclick="calTab('reun')" style="flex:1;padding:10px 4px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:10px;cursor:pointer">&#128101; Reuni.</button><button id="cal-tab-notas" onclick="calTab('notas')" style="flex:1;padding:10px 4px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:10px;cursor:pointer">&#128203; Notas</button><button id="cal-tab-cobros" onclick="calTab('cobros')" style="font-size:9px;padding:4px 6px;border:none;border-radius:5px;background:transparent;cursor:pointer;color:#64748B;font-weight:500;white-space:nowrap">&#128176; Cobros</button></div><div style="flex:1;overflow-y:auto"><div id="cal-pane-agenda" style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><button class="btn bsm" onclick="calNav(-1)" style="font-size:16px;padding:4px 10px">&#9664;</button><span id="cal-title" style="font-size:14px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calNav(1)" style="font-size:16px;padding:4px 10px">&#9654;</button></div><div id="cal-body"></div><div style="display:flex;gap:16px;margin-top:10px;font-size:10px;color:#64748B"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-right:3px"></span>P&#243;liza vence</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8B5CF6;margin-right:3px"></span>Tarea</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;margin-right:3px"></span>Seguimiento</span></div><div style="margin-top:14px;border-top:1px solid #E8DFD0;padding-top:10px"><div style="font-size:11px;font-weight:700;color:#78716C;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px">Eventos del d&#237;a</div><div id="cal-timeline"></div></div></div><div id="cal-pane-semana" style="display:none;padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><button class="btn bsm" onclick="calWeekNav(-1)">&#9664;</button><span id="cal-week-title" style="font-size:13px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calWeekNav(1)">&#9654;</button></div><div id="cal-week-body"></div></div><div id="cal-pane-tareas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:#1E293B">Tareas Pendientes</div><button onclick="SH('tar')" class="btn bsm" style="font-size:11px">Ver m&#243;dulo &#8599;</button></div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><button id="cal-tf-all" onclick="calTarFilter('all')" class="btn bsm" style="font-size:10px;background:#1E293B;color:#fff;border-color:#1E293B">Todas</button><button id="cal-tf-hoy" onclick="calTarFilter('hoy')" class="btn bsm" style="font-size:10px">Hoy</button><button id="cal-tf-sem" onclick="calTarFilter('sem')" class="btn bsm" style="font-size:10px">Esta semana</button><button id="cal-tf-ven" onclick="calTarFilter('ven')" class="btn bsm" style="font-size:10px">Vencidas</button></div><div id="cal-all-tareas"></div></div><div id="cal-pane-metas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Metas Activas</div><button onclick="calAddMeta()" class="btn bsm" style="font-size:11px">+ Nueva Meta</button></div><div id="cal-metas-list"></div><div style="margin-top:20px;padding-top:14px;border-top:1px solid #E8DFD0"><div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">&#127942; Logros</div><div id="cal-logros-list"></div></div></div><div id="cal-pane-diario" style="display:none;padding:14px"><div id="cal-diario-fecha" style="font-size:12px;color:#94A3B8;margin-bottom:6px;font-style:italic"></div><div id="cal-quote" style="font-size:11px;color:#78716C;margin-bottom:10px;font-style:italic;text-align:center;padding:6px;background:rgba(212,197,169,.3);border-radius:6px"></div><textarea id="cal-diario-txt" placeholder="Registro del d&#237;a..." onblur="calSaveDiario()" style="width:100%;min-height:320px;border:1px solid #D4C5A9;border-radius:10px;padding:14px;font-size:13px;resize:vertical;font-family:inherit;color:#1E293B;background:#FDFCFA;line-height:1.7;box-sizing:border-box"></textarea></div><div id="cal-pane-reun" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Reuniones del Día</div><button onclick="calAddReunion()" class="btn bsm" style="font-size:11px;background:#2563EB;color:#fff;border-color:#2563EB">+ Nueva Reunión</button></div><div id="cal-reun-list"></div></div><div id="cal-pane-notas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Notas Rápidas</div><button onclick="calAddNota()" class="btn bsm" style="font-size:11px;background:#7C3AED;color:#fff;border-color:#7C3AED">+ Nueva Nota</button></div><div id="cal-notas-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div></div></div></div></div><div id="cal-pane-cobros" style="display:none;padding:10px 14px;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="font-size:13px;font-weight:700;color:#1E293B">&#128176; Cobros Pendientes</div><button onclick="calRenderCobros()" style="font-size:10px;padding:4px 10px;border:1px solid #CBD5E1;border-radius:6px;background:#fff;cursor:pointer;color:#64748B">&#128260; Actualizar</button></div><div id="cal-cobros-list"><div style="text-align:center;padding:30px;color:#94A3B8;font-size:12px">Haz clic en Actualizar para cargar cobros</div></div></div><div id="cal-modal" onclick="if(event.target===this)calCloseModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.65);z-index:9999;align-items:center;justify-content:center"><div style="background:#fff;border-radius:16px;padding:24px;width:480px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.35)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><div id="cal-modal-ttl" style="font-size:16px;font-weight:700;color:#1E293B"></div><button onclick="calCloseModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748B;padding:0;line-height:1">&#10005;</button></div><div id="cal-modal-body"></div><div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end"><button onclick="calCloseModal()" class="btn bsm">Cancelar</button><button onclick="calModalSave()" class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB">Guardar</button></div></div></div></div>
+<div id="pg-com" class="pg">
+<h1 style="font-size:20px;font-weight:700;color:#1E293B;margin:0 0 20px">Comisiones</h1>
+<div id="com-kpi" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
+<div style="display:flex;gap:8px;margin-bottom:14px"><button id="com-bpol" class="btn bpr" onclick="renderCom('pol')" style="font-size:12px">Por Poliza</button><button id="com-baseg" class="btn" onclick="renderCom('aseg')" style="font-size:12px">Por Aseguradora</button></div>
+<div id="com-body"></div>
+</div>
+<div id="gSearch" onclick="if(event.target===this)closeSearch()">
+<div class="gs-box">
+<div class="gs-inw"><span style="font-size:20px">&#128269;</span><input id="gsInp" type="text" placeholder="Buscar clientes, p�lizas, tareas..." oninput="doSearch(this.value)" onkeydown="gsKey(event)" autocomplete="off"><kbd style="padding:2px 8px;border:1px solid #CBD5E1;border-radius:4px;font-size:11px;color:#64748B;cursor:pointer" onclick="closeSearch()">Esc</kbd></div>
+<div class="gs-res" id="gsRes"></div>
+<div class="gs-hint"><span>&#8595;&#8593; navegar</span><span>&#8629; abrir</span><span>Esc cerrar</span></div>
+</div></div>
+
+<div class="pg" id="pg-hist" style="display:none">
+<div style="padding:20px;max-width:900px;margin:0 auto">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+<button onclick="SH(window._histBack||'pol')" style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:14px;font-weight:500">← Volver</button>
+<h2 id="hist-title" style="margin:0;font-size:20px;font-weight:700;color:#1a1a2e"></h2>
+</div>
+<div id="hist-body" style="min-height:200px"></div>
+</div>
+</div>
+
+<div class="pg" id="pg-rep" style="display:none">
+<div style="max-width:1100px;margin:0 auto;padding:16px">
+<h2 style="font-size:20px;font-weight:700;margin-bottom:16px;color:#1a1a2e">📊 Reportes</h2>
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+<button id="rep-btn-pol" onclick="repShow('pol')" style="padding:8px 16px;border-radius:8px;border:2px solid #4361ee;background:#4361ee;color:#fff;font-weight:600;cursor:pointer">📄 Pólizas</button>
+<button id="rep-btn-pag" onclick="repShow('pag')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">💳 Pagos</button>
+<button id="rep-btn-cli" onclick="repShow('cli')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">👤 Clientes</button>
+<button id="rep-btn-com" onclick="repShow('com')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">💰 Comisiones</button>
+<div style="flex:1"></div>
+<button onclick="repExportCSV()" style="padding:8px 16px;border-radius:8px;border:2px solid #28a745;background:#28a745;color:#fff;font-weight:600;cursor:pointer">⬇ Excel/CSV</button>
+<button onclick="window.print()" style="padding:8px 16px;border-radius:8px;border:2px solid #dc3545;background:#dc3545;color:#fff;font-weight:600;cursor:pointer">🖨 PDF</button>
+</div>
+<div id="rep-filter" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>
+<div id="rep-body" style="overflow-x:auto"></div>
+</div>
+</div>
+</body>
+</html>+(p.monto||0).toFixed(2)+' con vencimiento '+esc(p.fecha||'')+'. Por favor coord\u00ednenos. Gracias.');
+      h+='<div style="padding:10px 12px;background:#F0F9FF;border-radius:8px;margin-bottom:8px;border-left:3px solid #0EA5E9">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+      h+='<div style="flex:1">';
+      h+='<div style="font-size:12px;font-weight:700;color:#0C4A6E">'+esc(nom)+'</div>';
+      if(ced)h+='<div style="font-size:10px;color:#64748B;margin-top:1px">&#128099; '+esc(ced)+'</div>';
+      if(pol.num||pol.aseg)h+='<div style="font-size:10px;color:#0369A1;margin-top:2px">&#128196; '+esc(pol.num||pol.id||'')+' &bull; '+esc(pol.aseg||'')+' &bull; '+esc(pol.ramo||pol.subramo||'')+'</div>';
+      h+='<div style="font-size:10px;color:#334155;margin-top:2px">&#128197; '+esc(p.fecha||'')+' '+(p.cuota?'&bull; '+esc(p.cuota):'')+'</div>';
+      h+='<div style="font-size:14px;font-weight:700;color:#0369A1;margin-top:3px">
+function openWAMas(){GI('modWAmas').style.display='flex';renderWAMasivo(30);}
+function closeWAMas(){GI('modWAmas').style.display='none';}
+function renderWAMasivo(dias){
+var now=new Date(),lim=new Date(now.getTime()+dias*86400000);
+var items=[];
+(S.polizas||[]).forEach(function(p){
+if(p.estado==='cancelada'||!p.vencimiento)return;
+var exp=new Date(p.vencimiento+'T12:00:00');
+if(exp>=now&&exp<=lim){
+var cl=GC(p.clienteId)||{};
+var wu=cl.cel?cl.cel.replace(/[^0-9]/g,''):'';
+var dl=Math.ceil((exp-now)/86400000);
+items.push({p:p,cl:cl,wu:wu,exp:exp,days:dl});
+}});
+items.sort(function(a,b){return a.exp-b.exp;});
+var h='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span style="font-size:12px;color:#64748B">Vencen en:</span>';
+[7,15,30,60,90].forEach(function(d){h+='<button class="btn" style="font-size:11px'+(d===dias?';background:#2563EB;color:#fff;border-color:#2563EB':'')+'" onclick="renderWAMasivo('+d+')">'+d+' dias</button>';});
+h+='</div>';
+if(!items.length){
+h+='<div style="text-align:center;padding:32px;color:#94A3B8">No hay polizas por vencer en los proximos '+dias+' dias</div>';
+}else{
+var nWA=items.filter(function(i){return i.wu;}).length;
+h+='<div style="font-size:12px;color:#64748B;margin-bottom:8px">'+items.length+' poliza(s) — '+nWA+' con WhatsApp disponible</div>';
+h+='<div style="border:1px solid #EEF2F8;border-radius:8px;overflow:hidden"><table style="width:100%;border-collapse:collapse">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Cliente</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Poliza</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseg.</th><th style="padding:8px 10px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Vence</th><th style="padding:8px 10px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Dias</th><th style="padding:8px 10px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">WA</th></tr></thead><tbody>';
+items.forEach(function(it){
+var msg='Hola '+esc(it.cl.nombre||'')+', le recordamos que su poliza '+(it.p.numero||'')+(it.p.aseguradora?' con '+esc(it.p.aseguradora):'')+' vence el '+fmt(it.p.vencimiento)+'. Para renovarla contactenos al 66714215. - JAC Seguros';
+var wurl=it.wu?'https://wa.me/507'+it.wu+'?text='+encodeURIComponent(msg):'';
+var dc=it.days<=7?'#FEE2E2':it.days<=15?'#FEF3C7':'#DCFCE7';
+var tc=it.days<=7?'#991B1B':it.days<=15?'#92400E':'#166534';
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:8px 10px;font-size:12px">'+esc(it.cl.nombre||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:12px;font-family:monospace">'+esc(it.p.numero||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:11px;color:#64748B">'+esc(it.p.aseguradora||'-')+'</td>';
+h+='<td style="padding:8px 10px;font-size:12px">'+fmt(it.p.vencimiento)+'</td>';
+h+='<td style="padding:8px 10px;text-align:center"><span style="background:'+dc+';color:'+tc+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+it.days+'</span></td>';
+h+='<td style="padding:8px 10px;text-align:center">'+(wurl?'<a href="'+wurl+'" target="_blank" class="btn bsm" style="background:#25D366;color:#fff;border-color:#25D366;text-decoration:none">WA</a>':'-')+'</td>';
+h+='</tr>';
+});
+h+='</tbody></table></div>';
+}
+GI('wamas-body').innerHTML=h;
+}
+function renderCom(view){
+view=view||'pol';
+GI('com-bpol').className='btn'+(view==='pol'?' bpr':'');
+GI('com-baseg').className='btn'+(view==='aseg'?' bpr':'');
+var rows=[];
+(S.polizas||[]).forEach(function(p){
+if(p.estado==='cancelada')return;
+var cl=GC(p.clienteId)||{};
+var pa=parseFloat(p.prima)||0;
+var pm=parseFloat(p.primaMensual)||pa/12;
+var pct=parseFloat(p.comisionPct)||0;
+var ca=pa*pct/100,cm=pm*pct/100;
+rows.push({p:p,cl:cl,pa:pa,pm:pm,pct:pct,ca:ca,cm:cm,aseg:p.aseguradora||'Sin aseg.'});
+});
+rows.sort(function(a,b){return b.ca-a.ca;});
+var tPa=rows.reduce(function(s,r){return s+r.pa;},0);
+var tCa=rows.reduce(function(s,r){return s+r.ca;},0);
+var tCm=rows.reduce(function(s,r){return s+r.cm;},0);
+GI('com-kpi').innerHTML='<div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Primas Anuales</div><div style="font-size:22px;font-weight:800;color:#1E293B">'+fmtM(tPa)+'</div></div><div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Comision Anual Est.</div><div style="font-size:22px;font-weight:800;color:#2563EB">'+fmtM(tCa)+'</div></div><div style="background:#fff;border:1px solid #EEF2F8;border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Comision Mensual Est.</div><div style="font-size:22px;font-weight:800;color:#059669">'+fmtM(tCm)+'</div></div>';
+if(view==='pol'){
+var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #EEF2F8;border-radius:10px;overflow:hidden">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Cliente</th><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Poliza</th><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseguradora</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Prima Anual</th><th style="padding:10px 12px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Com%</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Anual</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Mensual</th></tr></thead><tbody>';
+rows.forEach(function(r){
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:9px 12px;font-size:12px">'+esc(r.cl.nombre||'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:11px;font-family:monospace">'+esc(r.p.numero||'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:11px;color:#64748B">'+esc(r.aseg)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right">'+fmtM(r.pa)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:center">'+(r.pct?r.pct+'%':'-')+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right;font-weight:600;color:#2563EB">'+fmtM(r.ca)+'</td>';
+h+='<td style="padding:9px 12px;font-size:12px;text-align:right;color:#059669">'+fmtM(r.cm)+'</td>';
+h+='</tr>';});
+h+='</tbody></table></div>';
+GI('com-body').innerHTML=h;
+}else{
+var byA={};
+rows.forEach(function(r){if(!byA[r.aseg])byA[r.aseg]={aseg:r.aseg,cnt:0,pa:0,ca:0,cm:0};byA[r.aseg].cnt++;byA[r.aseg].pa+=r.pa;byA[r.aseg].ca+=r.ca;byA[r.aseg].cm+=r.cm;});
+var arows=Object.values(byA).sort(function(a,b){return b.ca-a.ca;});
+var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #EEF2F8;border-radius:10px;overflow:hidden">';
+h+='<thead><tr style="background:#F8FAFC"><th style="padding:10px 12px;text-align:left;font-size:11px;color:#94A3B8;font-weight:700">Aseguradora</th><th style="padding:10px 12px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">Polizas</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Total Prima</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Anual Est.</th><th style="padding:10px 12px;text-align:right;font-size:11px;color:#94A3B8;font-weight:700">Com. Mensual Est.</th></tr></thead><tbody>';
+arows.forEach(function(a){
+h+='<tr style="border-top:1px solid #EEF2F8">';
+h+='<td style="padding:10px 12px;font-size:13px;font-weight:600">'+esc(a.aseg)+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:center">'+a.cnt+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:right">'+fmtM(a.pa)+'</td>';
+h+='<td style="padding:10px 12px;font-size:13px;text-align:right;font-weight:700;color:#2563EB">'+fmtM(a.ca)+'</td>';
+h+='<td style="padding:10px 12px;font-size:12px;text-align:right;color:#059669">'+fmtM(a.cm)+'</td>';
+h+='</tr>';});
+h+='</tbody></table></div>';
+GI('com-body').innerHTML=h;
+}}
+function OHist(tipo,id){window._histBack=window._lastTab||'pol';renderHist(tipo,id);}
+function renderHist(tipo,id){
+  SH('hist');
+  var title=GI('hist-title'),body=GI('hist-body'),items=[];
+  if(tipo==='pol'){
+    var pol=GP(id);if(!pol){body.innerHTML='<p>No encontrado</p>';return;}
+    title.textContent='Historial Póliza '+(pol.num||id);
+    (S.tareas||[]).filter(function(t){return t._autoRef===id;}).forEach(function(t){
+      items.push({fecha:t.fechaCreacion||'',tipo:'tarea',icon:t.estado==='done'?'\u2705':'\uD83D\uDCCB',desc:t.titulo||t.desc||'Tarea',sub:t.desc||''});});
+    (S.pagos||[]).filter(function(p){return p.polizaId===id;}).forEach(function(p){
+      items.push({fecha:p.fecha||'',tipo:'pago',icon:'\uD83D\uDCB3',desc:'Pago: '+fmtM(+(p.monto||0)),sub:p.notas||''}); });
+  }else if(tipo==='cli'){
+    var cli=GC(id);if(!cli){body.innerHTML='<p>No encontrado</p>';return;}
+    title.textContent='Historial: '+(cli.nombre||id);
+    var pols=(S.polizas||[]).filter(function(p){return p.clienteId===id;});
+    var pids=pols.map(function(p){return p.id;});
+    pols.forEach(function(pol){
+      items.push({fecha:pol.fechaIni||pol.fechaCreacion||'',tipo:'poliza',icon:'\uD83D\uDCC4',desc:'Póliza '+(pol.num||pol.id)+' — '+(pol.aseg||'')+' '+(pol.ramo||''),sub:'Estado: '+(pol.estado||'Activa')});});
+    (S.tareas||[]).filter(function(t){return t._autoRef===id||pids.indexOf(t._autoRef)>=0;}).forEach(function(t){
+      items.push({fecha:t.fechaCreacion||'',tipo:'tarea',icon:t.estado==='done'?'\u2705':'\uD83D\uDCCB',desc:t.titulo||t.desc||'Tarea',sub:t.desc||''});});
+    (S.pagos||[]).filter(function(p){return pids.indexOf(p.polizaId)>=0||p.cliente===id;}).forEach(function(p){
+      items.push({fecha:p.fecha||'',tipo:'pago',icon:'\uD83D\uDCB3',desc:'Pago: '+fmtM(+(p.monto||0)),sub:p.notas||''});});
+  }
+  items.sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'');});
+  if(!items.length){body.innerHTML='<div style="text-align:center;padding:40px;color:#888">Sin actividad registrada</div>';return;}
+  var html='<div>';
+  items.forEach(function(item){
+    var bg={pago:'#e8f5e9',tarea:'#fff3e0',poliza:'#e3f2fd'}[item.tipo]||'#f9f9f9';
+    html+='<div style="display:flex;gap:16px;padding:14px;margin-bottom:8px;background:'+bg+';border-radius:10px">';
+    html+='<div style="font-size:22px;min-width:32px;text-align:center">'+item.icon+'</div>';
+    html+='<div style="flex:1">';
+    html+='<div style="font-weight:600;font-size:14px">'+esc(item.desc)+'</div>';
+    if(item.sub)html+='<div style="color:#666;font-size:12px;margin-top:2px">'+esc(item.sub)+'</div>';
+    html+='<div style="color:#aaa;font-size:11px;margin-top:4px">'+(item.fecha?fmt(item.fecha):'Sin fecha')+'</div>';
+    html+='</div></div>';
+  });
+  html+='</div>';
+  body.innerHTML=html;
+}
+
+var _repTipo='pol',_repData=[];
+function renderRep(){
+  SH('rep');
+  repShow('pol');
+}
+function repShow(tipo){
+  _repTipo=tipo;
+  ['pol','pag','cli','com'].forEach(function(t){
+    var b=GI('rep-btn-'+t);
+    if(b){b.style.background=t===tipo?'#4361ee':'#fff';b.style.color=t===tipo?'#fff':'#333';b.style.borderColor=t===tipo?'#4361ee':'#ddd';}
+  });
+  var body=GI('rep-body');
+  var filt=GI('rep-filter');
+  if(!body||!filt)return;
+  filt.innerHTML='';
+  var rows=[];
+  if(tipo==='pol'){
+    rows=(S.polizas||[]).map(function(p){
+      var c=GC(p.clienteId)||{};
+      return {aseg:p.aseg||'—',ramo:p.ramo||'—',num:p.num||p.id,cliente:c.nombre||p.clienteId||'—',estado:p.estado||'Activa',ini:fmt(p.fechaIni||p.fechaInicio),fin:fmt(p.fechaFin),prima:fmtM(+(p.primaMensual||p.prima||0)),letrap:p.letraPrima||'—'};
+    });
+    var html='<table class="t"><thead><tr><th>Póliza</th><th>Aseg.</th><th>Ramo</th><th>Cliente</th><th>Estado</th><th>Inicio</th><th>Vence</th><th>Prima</th><th>Letra</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.num)+'</td><td>'+esc(r.aseg)+'</td><td>'+esc(r.ramo)+'</td><td>'+esc(r.cliente)+'</td><td>'+esc(r.estado)+'</td><td>'+esc(r.ini)+'</td><td>'+esc(r.fin)+'</td><td>'+esc(r.prima)+'</td><td>'+esc(r.letrap)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Póliza,Aseguradora,Ramo,Cliente,Estado,Inicio,Vence,Prima,Letra'.split(',')].concat(rows.map(function(r){return[r.num,r.aseg,r.ramo,r.cliente,r.estado,r.ini,r.fin,r.prima,r.letrap];}));
+  }else if(tipo==='pag'){
+    rows=(S.pagos||[]).map(function(p){
+      var pol=GP(p.polizaId)||{};var c=GC(pol.clienteId||p.cliente)||{};
+      return {fecha:fmt(p.fecha||p.fechaPago),cliente:c.nombre||p.cliente||'—',poliza:pol.num||p.polizaId||'—',aseg:pol.aseg||p.aseg||'—',monto:fmtM(+(p.monto||0)),cuota:p.cuota||'—',notas:p.notas||'—'};
+    }).sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'')||0;});
+    var html='<table class="t"><thead><tr><th>Fecha</th><th>Cliente</th><th>Póliza</th><th>Aseg.</th><th>Monto</th><th>Cuota</th><th>Notas</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.fecha)+'</td><td>'+esc(r.cliente)+'</td><td>'+esc(r.poliza)+'</td><td>'+esc(r.aseg)+'</td><td>'+esc(r.monto)+'</td><td>'+esc(r.cuota)+'</td><td>'+esc(r.notas)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Fecha,Cliente,Póliza,Aseg,Monto,Cuota,Notas'.split(',')].concat(rows.map(function(r){return[r.fecha,r.cliente,r.poliza,r.aseg,r.monto,r.cuota,r.notas];}));
+  }else if(tipo==='cli'){
+    rows=(S.clientes||[]).map(function(c){
+      var pols=(S.polizas||[]).filter(function(p){return p.clienteId===c.id;});
+      return {nombre:c.nombre||'—',tel:c.tel||c.telefono||'—',email:c.email||'—',nPols:pols.length,activas:pols.filter(function(p){return (p.estado||'A')!=='Cancelada';}).length};
+    });
+    var html='<table class="t"><thead><tr><th>Cliente</th><th>Teléfono</th><th>Email</th><th>Pólizas</th><th>Activas</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.nombre)+'</td><td>'+esc(r.tel)+'</td><td>'+esc(r.email)+'</td><td>'+r.nPols+'</td><td>'+r.activas+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Cliente,Teléfono,Email,Total Pólizas,Activas'.split(',')].concat(rows.map(function(r){return[r.nombre,r.tel,r.email,r.nPols,r.activas];}));
+  }else if(tipo==='com'){
+    var map={};
+    (S.polizas||[]).filter(function(p){return (p.estado||'A')!=='Cancelada';}).forEach(function(p){
+      var k=p.aseg||'Sin aseg';
+      if(!map[k])map[k]={aseg:k,pols:0,primaMen:0,comEsp:0};
+      map[k].pols++;
+      map[k].primaMen+=+(p.primaMensual||p.prima||0);
+      map[k].comEsp+=+(p.comisionEsp||0);
+    });
+    rows=Object.values(map).sort(function(a,b){return b.primaMen-a.primaMen;});
+    var html='<table class="t"><thead><tr><th>Aseguradora</th><th>Pólizas</th><th>Prima Mensual</th><th>Com. Esp.</th></tr></thead><tbody>';
+    rows.forEach(function(r){html+='<tr><td>'+esc(r.aseg)+'</td><td>'+r.pols+'</td><td>'+fmtM(r.primaMen)+'</td><td>'+fmtM(r.comEsp)+'</td></tr>';});
+    html+='</tbody></table>';
+    body.innerHTML=html;
+    _repData=['Aseguradora,Pólizas,Prima Mensual,Com.Esp'.split(',')].concat(rows.map(function(r){return[r.aseg,r.pols,fmtM(r.primaMen),fmtM(r.comEsp)];}));
+  }
+}
+function repExportCSV(){
+  if(!_repData||!_repData.length)return;
+  var csv=_repData.map(function(r){return r.map(function(c){return '"'+String(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='reporte_crm_'+_repTipo+'_'+(new Date).toISOString().slice(0,10)+'.csv';a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+}
+</script>
+</div><div id="pg-is" class="pg">
+<style>
+.is-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:16px 22px;border-radius:10px;margin-bottom:14px}
+.is-hdr h2{margin:0;font-size:1.1em;font-weight:700}
+.is-hdr p{margin:4px 0 0;font-size:.78em;opacity:.8}
+.is-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:14px}
+.is-card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center}
+.is-card .cv{font-size:1.45em;font-weight:700;color:#1a5276;margin:4px 0}
+.is-card .cl{font-size:.7em;color:#999;text-transform:uppercase;letter-spacing:.5px}
+.is-card.ok .cv{color:#1e8449}
+.is-card.warn .cv{color:#c0392b}
+.is-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.is-sel{padding:6px 12px;border-radius:6px;border:2px solid #2980b9;color:#1a5276;background:#fff;font-weight:600;cursor:pointer}
+.is-note{font-size:.75em;color:#999}
+.is-tbl{width:100%;border-collapse:collapse;font-size:.81em}
+.is-tbl th{background:#1a5276;color:#fff;padding:6px 8px;text-align:left;white-space:nowrap}
+.is-tbl td{padding:5px 8px;border-bottom:1px solid #eee}
+.is-tbl tr:hover td{background:#ebf5fb}
+.is-tbl .n{text-align:right;font-family:monospace}
+.is-tbl .tot{background:#d6eaf8;font-weight:700}
+.is-tbl .gpay{background:#d5f5e3;font-weight:700;color:#1e8449}
+.is-btn{background:#1a5276;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.83em}
+.is-btn:hover{background:#2980b9}
+.is-empty{text-align:center;color:#bbb;padding:30px;font-style:italic}
+
+@media print{
+  nav,.nav-item,button:not(.print-show),#rep-filter{display:none!important;}
+  .pg{display:none!important;}
+  #pg-rep{display:block!important;}
+  body{background:#fff;}
+  .t{width:100%;border-collapse:collapse;font-size:11px;}
+  .t th,.t td{border:1px solid #ccc;padding:4px;text-align:left;}
+}
+</style>
+<div class="is-hdr">
+<h2>🏥 Internacional de Seguros / BlueCross</h2>
+<p>Agente: JELY AN CASTRO PEREZ &nbsp;|&nbsp; Código: 117391</p>
+</div>
+<div class="is-cards">
+<div class="is-card"><div class="cv" id="is-cv-corte">--</div><div class="cl">Corte Activo</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-npol">0</div><div class="cl">Pólizas</div></div>
+<div class="is-card"><div class="cv" id="is-cv-saldo">$0.00</div><div class="cl">+ Saldo Anterior</div></div>
+<div class="is-card ok"><div class="cv" id="is-cv-pagar">$0.00</div><div class="cl">Total a Pagar</div></div>
+</div>
+<div class="is-row">
+<label style="font-weight:700;font-size:.88em;color:#1a5276">Corte:</label>
+<select class="is-sel" id="is-sel" onchange="isSelectCorte(this.value)">
+<option value="2026-06-26">2026-06-26</option>
+<option value="2026-06-19" selected>2026-06-19</option>
+</select>
+<span id="is-sync-info" class="is-note"></span>
+</div>
+<div id="is-wrap"></div>
+<div style="margin-top:14px;padding-top:10px;border-top:1px solid #ddd">
+<div class="is-note">💡 Para sincronizar nuevos cortes, acceda al portal iSeguros y extraiga los datos.</div>
+<button class="is-btn" onclick="window.open('https://www.iseguros.com/corredor_web2/menu.aspx','_blank')" style="margin-top:6px">🔗 Abrir Portal iSeguros</button>
+</div>
+</div>
+
+<div id="pg-cal" class="pg" style="padding:0!important"><div style="display:flex;height:calc(100vh - 140px);background:linear-gradient(135deg,#F5F0E8,#EDE8DF);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #C8B89A"><div style="width:260px;flex-shrink:0;background:linear-gradient(180deg,#FAF7F2,#F2EDE4);border-right:2px solid #C8B89A;display:flex;flex-direction:column;overflow:hidden"><div style="padding:20px 20px 12px"><div id="cal-day-num" style="font-size:80px;font-weight:900;color:#1E293B;line-height:1;font-family:Georgia,serif;letter-spacing:-4px"></div><div id="cal-day-name" style="font-size:18px;font-weight:600;color:#475569;text-transform:lowercase;margin-top:-4px"></div><div id="cal-month-year" style="font-size:13px;color:#94A3B8;font-weight:400;margin-top:2px"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px"><span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:1px">Agregar Tarea</span><button onclick="calAddTask()" style="width:26px;height:26px;border-radius:50%;background:#2563EB;border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0">+</button></div></div><div id="cal-day-tasks" style="flex:1;overflow-y:auto;padding:0 14px 12px"></div><div style="border-top:1px solid #C8B89A;padding:10px;background:rgba(255,255,255,.4)"><div id="cal-mini1" style="margin-bottom:8px"></div><div id="cal-mini2"></div></div></div><div style="width:32px;flex-shrink:0;background:linear-gradient(90deg,#7A5C42 0%,#B8895A 40%,#A07548 60%,#7A5C42 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:30px 0"><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8D0B0,#8B6340);border:2px solid #5C3D20;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div></div><div style="flex:1;display:flex;flex-direction:column;background:#FAFAF8;overflow:hidden"><div style="display:flex;border-bottom:2px solid #D4C5A9;background:#F5F0E8;flex-shrink:0"><button id="cal-tab-agenda" onclick="calTab('agenda')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid #2563EB;background:#EEF2FF;color:#2563EB;font-weight:700;font-size:11px;cursor:pointer">&#128197; Agenda</button><button id="cal-tab-semana" onclick="calTab('semana')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128198; Semana</button><button id="cal-tab-tareas" onclick="calTab('tareas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#9989; Tareas</button><button id="cal-tab-metas" onclick="calTab('metas')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#127919; Metas</button><button id="cal-tab-diario" onclick="calTab('diario')" style="flex:1;padding:10px 6px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:11px;cursor:pointer">&#128221; Diario</button><button id="cal-tab-reun" onclick="calTab('reun')" style="flex:1;padding:10px 4px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:10px;cursor:pointer">&#128101; Reuni.</button><button id="cal-tab-notas" onclick="calTab('notas')" style="flex:1;padding:10px 4px;border:none;border-bottom:3px solid transparent;background:transparent;color:#78716C;font-size:10px;cursor:pointer">&#128203; Notas</button></div><div style="flex:1;overflow-y:auto"><div id="cal-pane-agenda" style="padding:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><button class="btn bsm" onclick="calNav(-1)" style="font-size:16px;padding:4px 10px">&#9664;</button><span id="cal-title" style="font-size:14px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calNav(1)" style="font-size:16px;padding:4px 10px">&#9654;</button></div><div id="cal-body"></div><div style="display:flex;gap:16px;margin-top:10px;font-size:10px;color:#64748B"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F59E0B;margin-right:3px"></span>P&#243;liza vence</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8B5CF6;margin-right:3px"></span>Tarea</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;margin-right:3px"></span>Seguimiento</span></div><div style="margin-top:14px;border-top:1px solid #E8DFD0;padding-top:10px"><div style="font-size:11px;font-weight:700;color:#78716C;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px">Eventos del d&#237;a</div><div id="cal-timeline"></div></div></div><div id="cal-pane-semana" style="display:none;padding:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><button class="btn bsm" onclick="calWeekNav(-1)">&#9664;</button><span id="cal-week-title" style="font-size:13px;font-weight:700;color:#1E293B"></span><button class="btn bsm" onclick="calWeekNav(1)">&#9654;</button></div><div id="cal-week-body"></div></div><div id="cal-pane-tareas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:14px;font-weight:700;color:#1E293B">Tareas Pendientes</div><button onclick="SH('tar')" class="btn bsm" style="font-size:11px">Ver m&#243;dulo &#8599;</button></div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><button id="cal-tf-all" onclick="calTarFilter('all')" class="btn bsm" style="font-size:10px;background:#1E293B;color:#fff;border-color:#1E293B">Todas</button><button id="cal-tf-hoy" onclick="calTarFilter('hoy')" class="btn bsm" style="font-size:10px">Hoy</button><button id="cal-tf-sem" onclick="calTarFilter('sem')" class="btn bsm" style="font-size:10px">Esta semana</button><button id="cal-tf-ven" onclick="calTarFilter('ven')" class="btn bsm" style="font-size:10px">Vencidas</button></div><div id="cal-all-tareas"></div></div><div id="cal-pane-metas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Metas Activas</div><button onclick="calAddMeta()" class="btn bsm" style="font-size:11px">+ Nueva Meta</button></div><div id="cal-metas-list"></div><div style="margin-top:20px;padding-top:14px;border-top:1px solid #E8DFD0"><div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:10px">&#127942; Logros</div><div id="cal-logros-list"></div></div></div><div id="cal-pane-diario" style="display:none;padding:14px"><div id="cal-diario-fecha" style="font-size:12px;color:#94A3B8;margin-bottom:6px;font-style:italic"></div><div id="cal-quote" style="font-size:11px;color:#78716C;margin-bottom:10px;font-style:italic;text-align:center;padding:6px;background:rgba(212,197,169,.3);border-radius:6px"></div><textarea id="cal-diario-txt" placeholder="Registro del d&#237;a..." onblur="calSaveDiario()" style="width:100%;min-height:320px;border:1px solid #D4C5A9;border-radius:10px;padding:14px;font-size:13px;resize:vertical;font-family:inherit;color:#1E293B;background:#FDFCFA;line-height:1.7;box-sizing:border-box"></textarea></div><div id="cal-pane-reun" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Reuniones del Día</div><button onclick="calAddReunion()" class="btn bsm" style="font-size:11px;background:#2563EB;color:#fff;border-color:#2563EB">+ Nueva Reunión</button></div><div id="cal-reun-list"></div></div><div id="cal-pane-notas" style="display:none;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:14px;font-weight:700;color:#1E293B">Notas Rápidas</div><button onclick="calAddNota()" class="btn bsm" style="font-size:11px;background:#7C3AED;color:#fff;border-color:#7C3AED">+ Nueva Nota</button></div><div id="cal-notas-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div></div></div></div></div><div id="cal-modal" onclick="if(event.target===this)calCloseModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.65);z-index:9999;align-items:center;justify-content:center"><div style="background:#fff;border-radius:16px;padding:24px;width:480px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.35)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><div id="cal-modal-ttl" style="font-size:16px;font-weight:700;color:#1E293B"></div><button onclick="calCloseModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748B;padding:0;line-height:1">&#10005;</button></div><div id="cal-modal-body"></div><div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end"><button onclick="calCloseModal()" class="btn bsm">Cancelar</button><button onclick="calModalSave()" class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB">Guardar</button></div></div></div></div>
+<div id="pg-com" class="pg">
+<h1 style="font-size:20px;font-weight:700;color:#1E293B;margin:0 0 20px">Comisiones</h1>
+<div id="com-kpi" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"></div>
+<div style="display:flex;gap:8px;margin-bottom:14px"><button id="com-bpol" class="btn bpr" onclick="renderCom('pol')" style="font-size:12px">Por Poliza</button><button id="com-baseg" class="btn" onclick="renderCom('aseg')" style="font-size:12px">Por Aseguradora</button></div>
+<div id="com-body"></div>
+</div>
+<div id="gSearch" onclick="if(event.target===this)closeSearch()">
+<div class="gs-box">
+<div class="gs-inw"><span style="font-size:20px">&#128269;</span><input id="gsInp" type="text" placeholder="Buscar clientes, p�lizas, tareas..." oninput="doSearch(this.value)" onkeydown="gsKey(event)" autocomplete="off"><kbd style="padding:2px 8px;border:1px solid #CBD5E1;border-radius:4px;font-size:11px;color:#64748B;cursor:pointer" onclick="closeSearch()">Esc</kbd></div>
+<div class="gs-res" id="gsRes"></div>
+<div class="gs-hint"><span>&#8595;&#8593; navegar</span><span>&#8629; abrir</span><span>Esc cerrar</span></div>
+</div></div>
+
+<div class="pg" id="pg-hist" style="display:none">
+<div style="padding:20px;max-width:900px;margin:0 auto">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+<button onclick="SH(window._histBack||'pol')" style="background:#f5f5f5;border:1px solid #ddd;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:14px;font-weight:500">← Volver</button>
+<h2 id="hist-title" style="margin:0;font-size:20px;font-weight:700;color:#1a1a2e"></h2>
+</div>
+<div id="hist-body" style="min-height:200px"></div>
+</div>
+</div>
+
+<div class="pg" id="pg-rep" style="display:none">
+<div style="max-width:1100px;margin:0 auto;padding:16px">
+<h2 style="font-size:20px;font-weight:700;margin-bottom:16px;color:#1a1a2e">📊 Reportes</h2>
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+<button id="rep-btn-pol" onclick="repShow('pol')" style="padding:8px 16px;border-radius:8px;border:2px solid #4361ee;background:#4361ee;color:#fff;font-weight:600;cursor:pointer">📄 Pólizas</button>
+<button id="rep-btn-pag" onclick="repShow('pag')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">💳 Pagos</button>
+<button id="rep-btn-cli" onclick="repShow('cli')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">👤 Clientes</button>
+<button id="rep-btn-com" onclick="repShow('com')" style="padding:8px 16px;border-radius:8px;border:2px solid #ddd;background:#fff;font-weight:600;cursor:pointer">💰 Comisiones</button>
+<div style="flex:1"></div>
+<button onclick="repExportCSV()" style="padding:8px 16px;border-radius:8px;border:2px solid #28a745;background:#28a745;color:#fff;font-weight:600;cursor:pointer">⬇ Excel/CSV</button>
+<button onclick="window.print()" style="padding:8px 16px;border-radius:8px;border:2px solid #dc3545;background:#dc3545;color:#fff;font-weight:600;cursor:pointer">🖨 PDF</button>
+</div>
+<div id="rep-filter" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>
+<div id="rep-body" style="overflow-x:auto"></div>
+</div>
+</div>
+</body>
+</html>+(p.monto||0).toFixed(2)+'</div>';
+      h+='</div>';
+      h+='<div style="display:flex;flex-direction:column;gap:5px;margin-left:8px;flex-shrink:0">';
+      if(waNum)h+='<a href="https://wa.me/507'+waNum+'?text='+waMsg+'" target="_blank" style="font-size:9px;padding:3px 8px;background:#22C55E;color:#fff;border-radius:5px;text-decoration:none;text-align:center;font-weight:600">&#128172; WA</a>';
+      if(email)h+='<a href="mailto:'+esc(email)+'" style="font-size:9px;padding:3px 8px;background:#3B82F6;color:#fff;border-radius:5px;text-decoration:none;text-align:center;font-weight:600">&#128140; Email</a>';
+      if(cl)h+='<button onclick="OP(\'' + (pol.clienteId||'') + '\')" style="font-size:9px;padding:3px 8px;background:#F1F5F9;border:1px solid #CBD5E1;border-radius:5px;cursor:pointer;font-weight:600">&#128100; Ver</button>';
+      h+='</div></div></div>';});
+  }
+  if(!h)h='<div style="text-align:center;padding:30px;color:#94A3B8;font-size:12px">Sin cobros pendientes &#127881;</div>';
+  el.innerHTML=h;
+}
+function calAddTask(){
+  var y=window.calDate?window.calDate.getFullYear():new Date().getFullYear();
+  var m=window.calDate?window.calDate.getMonth():new Date().getMonth();
+  var sel=window._calSel||1;
+  var dateStr=y+'-'+(m+1<10?'0':'')+(m+1)+'-'+(sel<10?'0':'')+sel;
+  var mo=document.createElement('div');
+  mo.style='position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:9999';
+  mo.innerHTML='<div style="background:#fff;border-radius:14px;padding:22px 24px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.18)">'
+  +'<div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:14px">&#10133; Nueva Tarea</div>'
+  +'<input id="_qTit" placeholder="T\u00edtulo de la tarea..." style="width:100%;padding:8px 10px;border:1px solid #CBD5E1;border-radius:7px;font-size:13px;margin-bottom:10px;box-sizing:border-box">'
+  +'<select id="_qPri" style="width:100%;padding:8px 10px;border:1px solid #CBD5E1;border-radius:7px;font-size:13px;margin-bottom:10px;box-sizing:border-box">'
+  +'<option value="">Sin prioridad</option>'
+  +'<option value="A1">A1 &#128308; Urgente</option><option value="A2">A2 &#128308; Alta</option><option value="A3">A3 &#128308;</option>'
+  +'<option value="B1">B1 &#128992; Media-alta</option><option value="B2">B2 &#128992; Media</option><option value="B3">B3 &#128992;</option>'
+  +'<option value="C1">C1 &#128994; Baja</option><option value="C2">C2 &#128994;</option><option value="C3">C3 &#128994; M\u00ednima</option>'
+  +'</select>'
+  +'<textarea id="_qDesc" placeholder="Descripci\u00f3n (opcional)..." rows="2" style="width:100%;padding:8px 10px;border:1px solid #CBD5E1;border-radius:7px;font-size:12px;margin-bottom:14px;box-sizing:border-box;resize:none"></textarea>'
+  +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+  +'<button onclick="this.closest(\'.overlay-task-add\').remove()" style="padding:7px 14px;border:1px solid #CBD5E1;border-radius:7px;background:#fff;font-size:12px;cursor:pointer">Cancelar</button>'
+  +'<button id="_qBtn" style="padding:7px 14px;border:none;border-radius:7px;background:#6366F1;color:#fff;font-size:12px;cursor:pointer;font-weight:600">Crear</button>'
+  +'</div></div>';
+  mo.className='overlay-task-add';
+  document.body.appendChild(mo);
+  setTimeout(function(){var el=document.getElementById('_qTit');if(el)el.focus();},50);
+  document.getElementById('_qBtn').onclick=function(){
+    var tit=document.getElementById('_qTit').value.trim();
+    if(!tit){document.getElementById('_qTit').style.borderColor='#EF4444';return;}
+    var pri=document.getElementById('_qPri').value;
+    var dsc=document.getElementById('_qDesc').value.trim();
+    var id='T'+Math.random().toString(36).slice(2,10);
+    var t={id:id,titulo:tit,desc:dsc||tit,fechaLimite:dateStr,prioridad:pri,etapaTarea:'Por hacer',fechaCreacion:new Date().toISOString().slice(0,10),estado:'pendiente'};
+    if(!S.tareas)S.tareas=[];
+    S.tareas.push(t);save();mo.remove();
+    calRenderAllTareas();
+  };
+  mo.addEventListener('click',function(e){if(e.target===mo)mo.remove();});
+}
 function openWAMas(){GI('modWAmas').style.display='flex';renderWAMasivo(30);}
 function closeWAMas(){GI('modWAmas').style.display='none';}
 function renderWAMasivo(dias){
