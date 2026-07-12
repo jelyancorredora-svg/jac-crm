@@ -1246,7 +1246,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
 <!-- MODAL CLIENTE (formulario completo) -->
 <div class="mo" id="mc"><div class="md mdl"><div class="mh"><h2 id="mct">Nuevo Cliente</h2><button class="btn bgh" onclick="CM('mc')">✕</button></div>
 <div class="mb"><div class="fg">
- <div class="fl" style="grid-column:1/-1;margin-bottom:4px"><label style="display:block;margin-bottom:6px;font-weight:600;color:#374151;font-size:13px">Tipo de cliente</label><div style="display:flex;gap:8px"><button type="button" id="c-tipo-btn-pn" onclick="setCtipoPN()" style="flex:1;padding:9px 8px;border:2px solid #2563EB;border-radius:8px;background:#2563EB;color:#fff;font-weight:700;cursor:pointer;font-size:13px">👤 Persona Natural</button><button type="button" id="c-tipo-btn-pj" onclick="setCtipoPJ()" style="flex:1;padding:9px 8px;border:2px solid #d1d5db;border-radius:8px;background:#f9fafb;color:#6b7280;font-weight:700;cursor:pointer;font-size:13px">🏢 Persona Jurídica</button></div><input type="hidden" id="c-tipo" value="Persona Natural"></div>
+ <div class="fl" style="grid-column:1/-1;margin-bottom:4px"><label style="display:block;margin-bottom:6px;font-weight:600;color:#374151;font-size:13px">Tipo de cliente</label><div style="display:flex;gap:8px"><button type="button" id="c-tipo-btn-pn" onclick="setCtipoPN()" style="flex:1;padding:9px 8px;border:2px solid #2563EB;border-radius:8px;background:#2563EB;color:#fff;font-weight:700;cursor:pointer;font-size:13px">👤 Persona Natural</button><button type="button" id="c-tipo-btn-pj" onclick="setCtipoPJ()" style="flex:1;padding:9px 8px;border:2px solid #d1d5db;border-radius:8px;background:#f9fafb;color:#6b7280;font-weight:700;cursor:pointer;font-size:13px">⚖️ Persona Jurídica</button><button type="button" id="c-tipo-btn-emp" onclick="setCtipoEmp()" style="flex:1;padding:9px 8px;border:2px solid #d1d5db;border-radius:8px;background:#f9fafb;color:#6b7280;font-weight:700;cursor:pointer;font-size:13px">🏢 Empresa</button></div><input type="hidden" id="c-tipo" value="Persona Natural"></div>
  <div class="fl ff"><label>Nombre completo <span>*</span></label><input class="fc" id="c-nom" placeholder="Nombre y apellidos completos"></div>
  <div class="fl"><label>Tipo documento</label><select class="fc" id="c-td"><option>Cédula</option><option>RUC</option><option>Pasaporte</option><option>Extranjero</option></select></div>
  <div class="fl"><label>Nro. Documento <span>*</span></label><input class="fc" id="c-ced" placeholder="X-XXX-XXXX / RUC"></div>
@@ -3434,7 +3434,7 @@ function OC(id){
  const mct=document.getElementById('mct');if(mct)mct.textContent=id?'Editar Cliente':'Nuevo Cliente';
  [['c-nom','nombre'],['c-td','tipoDoc'],['c-ced','cedula'],['c-cel','cel'],['c-cel2','celSec'],['c-tel','tel'],['c-tel2','telSec'],['c-em','email'],['c-em2','emailSec'],['c-fn','fNac'],['c-ge','genero'],['c-ocu','ocupacion'],['c-estcivil','estadoCivil'],['c-hijos','numHijos'],['c-empnom','empresaNom'],['c-cargo','cargo'],['c-ingresos','ingresoMensual'],['c-ciu','ciudad'],['c-prov','provincia'],['c-dis','distrito'],['c-cor','corregimiento'],['c-fec','fExpCed'],['c-fex','fExpirCed'],['c-ban','banco'],['c-bannum','bancoNum'],['c-dir','dir'],['c-dirs','dirSec'],['c-cat','categorias'],['c-est','estadoComercial'],['c-nc','nomContacto'],['c-nctel','nomContactoTel'],['c-ncrel','nomContactoRel'],['c-avo','avisOp'],['c-obs','obs'],['c-notas','notas'],['c-origen','origenCliente'],['c-referido','referidoPor'],['c-avisop','avisOp2']].forEach(([fid,key])=>SVal(fid,c[key]));
  // Init tipo toggle
- {const _tp=c.tipo||'Persona Natural';if(typeof setCtipoPJ==='function'){if(_tp==='Persona Jurídica'||_tp==='Empresa')setCtipoPJ();else setCtipoPN();}}
+ {const _tp=c.tipo||'Persona Natural';if(typeof setCtipoPJ==='function'){if(_tp==='Empresa'){if(typeof setCtipoEmp==='function')setCtipoEmp();}else if(_tp==='Persona Jurídica'){setCtipoPJ();}else setCtipoPN();}}
  // Código de país WA
  const cpSel=document.getElementById('c-codPais');if(cpSel)cpSel.value=c.codPais||'507';
  renderTagSel('c-tag-sel',c.etiquetas||[]);
@@ -3450,16 +3450,26 @@ function OC(id){
 function OP_forClient(cid){OP();setTimeout(()=>SVal('p-cl',cid),150);}
 function setCtipoPN(){
  const el=document.getElementById('c-tipo');if(el)el.value='Persona Natural';
- const bpn=document.getElementById('c-tipo-btn-pn'),bpj=document.getElementById('c-tipo-btn-pj');
+ const bpn=document.getElementById('c-tipo-btn-pn'),bpj=document.getElementById('c-tipo-btn-pj'),be=document.getElementById('c-tipo-btn-emp');
  if(bpn){bpn.style.background='#2563EB';bpn.style.color='#fff';bpn.style.borderColor='#2563EB';}
  if(bpj){bpj.style.background='#f9fafb';bpj.style.color='#6b7280';bpj.style.borderColor='#d1d5db';}
+ if(be){be.style.background='#f9fafb';be.style.color='#6b7280';be.style.borderColor='#d1d5db';}
  const cn=document.getElementById('c-nom');if(cn)cn.placeholder='Nombre y apellidos completos';
 }
 function setCtipoPJ(){
  const el=document.getElementById('c-tipo');if(el)el.value='Persona Jurídica';
- const bpn=document.getElementById('c-tipo-btn-pn'),bpj=document.getElementById('c-tipo-btn-pj');
+ const bpn=document.getElementById('c-tipo-btn-pn'),bpj=document.getElementById('c-tipo-btn-pj'),be=document.getElementById('c-tipo-btn-emp');
  if(bpn){bpn.style.background='#f9fafb';bpn.style.color='#6b7280';bpn.style.borderColor='#d1d5db';}
  if(bpj){bpj.style.background='#2563EB';bpj.style.color='#fff';bpj.style.borderColor='#2563EB';}
+ if(be){be.style.background='#f9fafb';be.style.color='#6b7280';be.style.borderColor='#d1d5db';}
+ const cn=document.getElementById('c-nom');if(cn)cn.placeholder='Razón social / nombre de empresa';
+}
+function setCtipoEmp(){
+ const el=document.getElementById('c-tipo');if(el)el.value='Empresa';
+ const bpn=document.getElementById('c-tipo-btn-pn'),bpj=document.getElementById('c-tipo-btn-pj'),be=document.getElementById('c-tipo-btn-emp');
+ if(bpn){bpn.style.background='#f9fafb';bpn.style.color='#6b7280';bpn.style.borderColor='#d1d5db';}
+ if(bpj){bpj.style.background='#f9fafb';bpj.style.color='#6b7280';bpj.style.borderColor='#d1d5db';}
+ if(be){be.style.background='#2563EB';be.style.color='#fff';be.style.borderColor='#2563EB';}
  const cn=document.getElementById('c-nom');if(cn)cn.placeholder='Razón social / nombre de empresa';
 }
 function SC(){
@@ -4077,7 +4087,7 @@ function OP(id){
  const hcc=!!(p.coCor);const phc=document.getElementById('p-hc');if(phc)phc.checked=hcc;const cob3=document.getElementById('cob3');if(cob3)cob3.className='cob'+(hcc?' on':'');
  SVal('p-cc',p.coCor);SVal('p-cp',p.coCorPart);SVal('p-cc2',p.coCorCom);
  const pfl=document.getElementById('p-file-list');if(pfl)pfl.innerHTML=renderFL(p.archivos||[],id||'','poliza');
- onRC();loadBens(p.beneficiarios||[]);if(id&&p.clienteId){const _oc=GC(p.clienteId);if(_oc&&(_oc.tipo==='Empresa'||_oc.tipo==='Persona Jurídica')){if(typeof setCtipoPJ==='function')setCtipoPJ();}else if(typeof setCtipoPN==='function')setCtipoPN();}OM('mp');initFileInp('p-file-inp','p-file-pending');
+ onRC();loadBens(p.beneficiarios||[]);if(id&&p.clienteId){const _oc=GC(p.clienteId);if(_oc&&_oc.tipo==='Empresa'){if(typeof setCtipoEmp==='function')setCtipoEmp();}else if(_oc&&_oc.tipo==='Persona Jurídica'){if(typeof setCtipoPJ==='function')setCtipoPJ();}else if(typeof setCtipoPN==='function')setCtipoPN();}OM('mp');initFileInp('p-file-inp','p-file-pending');
  // Populate WA + Email history in policy form
  if(id) setTimeout(()=>renderPolicyHistSections(id),120);
  else {
