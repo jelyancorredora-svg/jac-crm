@@ -9616,6 +9616,7 @@ SH=function(pg){
 .is-note{font-size:.75em;color:#888}
 </style>
 <script>
+var GI=function(id){return document.getElementById(id);};
 // ============================================================
 // JAC CRM - iSeguros Script Block (v63 - clean rewrite)
 // ============================================================
@@ -10777,8 +10778,8 @@ function calAddTask(){
   mo.addEventListener('click',function(e){if(e.target===mo)mo.remove();});
 }
 
-// === v129: Calendar — pantalla completa, edición de eventos, recordatorios, colores ===
-function calCheckReminderscalCheckReminders(){
+// === v130: Calendar (fix GI + nombres + colores) — pantalla completa, edición de eventos, recordatorios, colores ===
+function calCheckReminders(){
   var tareas=S.tareas||[];
   tareas.forEach(function(t){
     if(!t.reminder||t.reminder==='ninguno'||t.reminderSent||t.estado==='completado'||!t.fechaLimite)return;
@@ -10797,13 +10798,13 @@ function calCheckReminderscalCheckReminders(){
     }
   });
 }
-function calCloseTaskcalCloseTask(){var mo=document.getElementById('_ctm');if(mo)mo.style.display='none';}
-function calDelTaskcalDelTask(id){
+function calCloseTask(){var mo=document.getElementById('_ctm');if(mo)mo.style.display='none';}
+function calDelTask(id){
   if(!confirm('¿Eliminar esta tarea?'))return;
   S.tareas=(S.tareas||[]).filter(function(x){return x.id!==id;});
   save();calCloseTask();renderCal();
 }
-function calSaveTaskcalSaveTask(id){
+function calSaveTask(id){
   var t=(S.tareas||[]).filter(function(x){return x.id===id;})[0];if(!t)return;
   t.titulo=(document.getElementById('_ctit').value||'').trim();
   t.desc=(document.getElementById('_cdesc').value||'').trim();
@@ -10814,7 +10815,7 @@ function calSaveTaskcalSaveTask(id){
   t.reminderSent=false;
   save();calCloseTask();renderCal();calCheckReminders();
 }
-function calOpenTaskcalOpenTask(id){
+function calOpenTask(id){
   var t=(S.tareas||[]).filter(function(x){return x.id===id;})[0];
   if(!t)return;
   var PC={'A1':'#DC2626','A2':'#EA580C','A3':'#D97706','B1':'#CA8A04','B2':'#16A34A','B3':'#059669','C1':'#2563EB','C2':'#7C3AED','':'#94A3B8'};
@@ -10860,7 +10861,7 @@ function calOpenTaskcalOpenTask(id){
   mo.innerHTML=h;mo.style.display='block';
   setTimeout(function(){var el=document.getElementById('_ctit');if(el)el.focus();},50);
 }
-function calRenderTimelinecalRenderTimeline(y,m,sel){
+function calRenderTimeline(y,m,sel){
   var evs=window._calEvs||{};
   var de=evs[sel]||{pols:[],tareas:[],pros:[]};
   var el=document.getElementById('cal-timeline');if(!el)return;
@@ -10897,7 +10898,7 @@ function calRenderTimelinecalRenderTimeline(y,m,sel){
   });
   el.innerHTML=h;
 }
-function calAddTaskcalAddTask(){
+function calAddTask(){
   var y=window.calDate?window.calDate.getFullYear():new Date().getFullYear();
   var m=window.calDate?window.calDate.getMonth():new Date().getMonth();
   var sel=window._calSel||1;
@@ -10933,7 +10934,7 @@ function calAddTaskcalAddTask(){
   mo.innerHTML=h;mo.style.display='block';
   setTimeout(function(){var el=document.getElementById('_qTit');if(el)el.focus();},50);
 }
-function _qSaveCal_qSaveCal(){
+function _qSaveCal(){
   var tit=(document.getElementById('_qTit').value||'').trim();
   if(!tit){alert('Agrega un título.');return;}
   var dsc=(document.getElementById('_qDesc').value||'').trim();
@@ -10949,7 +10950,7 @@ function _qSaveCal_qSaveCal(){
 }
 // Auto-init reminders
 (function(){if(window.Notification&&Notification.permission==="default"){Notification.requestPermission().then(function(){calCheckReminders();});}else{setTimeout(calCheckReminders,3000);}})();
-// === end v129 ===
+// === end v130 ===
 </script>
 </div><div id="pg-is" class="pg">
 <style>
