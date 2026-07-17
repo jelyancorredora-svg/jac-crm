@@ -1701,10 +1701,18 @@ function startSession(){
  document.getElementById('ls').style.display='none';
  document.getElementById('app').style.display='block';
  // Auto-update policy statuses on every login
- try{autoUpdatePolizasStatus();}catch(e){__crmErr(e);}
  SH('dash');
- // Sincronizar con la nube al iniciar sesión y cada 3 min
- syncToCloud();setInterval(function(){syncToCloud();},60000);setInterval(function(){loadFromCloud();},90000);
+ // Pull primero de la nube para evitar subir datos locales desactualizados y sobrescribir la nube (fix v135)
+ if(typeof loadFromCloud==='function'){
+ loadFromCloud(function(){
+ try{autoUpdatePolizasStatus();}catch(e){__crmErr(e);}
+ syncToCloud();
+ });
+ }else{
+ try{autoUpdatePolizasStatus();}catch(e){__crmErr(e);}
+ syncToCloud();
+ }
+ setInterval(function(){syncToCloud();},60000);setInterval(function(){loadFromCloud();},90000);
  // v119: Sync bidireccional al inicio
  try{(async function _j119(){
   var tk2=_TK();if(!tk2)return;
