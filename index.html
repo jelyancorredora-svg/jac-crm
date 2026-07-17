@@ -4926,8 +4926,38 @@ function syncToCloud(){
       var aU="https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json";
       var hh={Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json","Content-Type":"application/json"};
       fetch(aU,{cache:"no-store",headers:hh}).then(function(r){return r.ok?r.json():null;}).then(function(j){
-        var bd={message:"jac-sync",content:b64};if(j&&j.sha)bd.sha=j.sha;
-        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).then(function(r){if(r.ok){r.clone().json().then(function(jj){if(jj&&jj.content&&jj.content.sha)localStorage.setItem('jacv10_csha',jj.content.sha);}).catch(function(e){__crmErr(e);});var b=document.getElementById('syncBadge');if(b){b.textContent='✓ Sincronizado '+new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});b.style.display='block';clearTimeout(window._badgeT);window._badgeT=setTimeout(function(){b.style.display='none';},3000);}}}).catch(function(e){__crmErr(e);});
+        function doPut(){
+          var bd={message:"jac-sync",content:b64};if(j&&j.sha)bd.sha=j.sha;
+          fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).then(function(r){if(r.ok){r.clone().json().then(function(jj){if(jj&&jj.content&&jj.content.sha)localStorage.setItem('jacv10_csha',jj.content.sha);}).catch(function(e){__crmErr(e);});var b=document.getElementById('syncBadge');if(b){b.textContent='✓ Sincronizado '+new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});b.style.display='block';clearTimeout(window._badgeT);window._badgeT=setTimeout(function(){b.style.display='none';},3000);}}}).catch(function(e){__crmErr(e);});
+        }
+        // GUARDA DE SEGURIDAD: si ya hay datos en la nube, comparar tamaños antes de subir.
+        // Si lo que vamos a subir tiene MUCHOS MENOS clientes/polizas que lo que ya existe en GitHub,
+        // esto casi siempre significa una pestaña vieja/desactualizada intentando sobrescribir datos buenos.
+        // En ese caso, NO subimos: avisamos y detenemos para proteger la informacion real.
+        if(j&&j.content&&j.content.length>10){
+          try{
+            var binR="";var bufR=atob(j.content.replace(/\n/g,""));for(var ir=0;ir<bufR.length;ir++)binR+=bufR.charAt(ir);
+            var bytR=new Uint8Array(binR.length);for(var jr=0;jr<binR.length;jr++)bytR[jr]=binR.charCodeAt(jr);
+            var dsR=new DecompressionStream("gzip");var dwR=dsR.writable.getWriter();dwR.write(bytR);dwR.close();
+            new Response(dsR.readable).text().then(function(remoteText){
+              try{
+                var remoteObj=JSON.parse(remoteText);
+                var rc=(remoteObj.clientes||[]).length, rp=(remoteObj.polizas||[]).length;
+                var lc=(obj.clientes||[]).length, lp=(obj.polizas||[]).length;
+                var luceSospechoso=((rc>10&&lc<rc*0.5)||(rp>10&&lp<rp*0.5));
+                if(luceSospechoso){
+                  console.warn('[JAC syncGuard] Se bloqueo el guardado: local tiene muchos menos registros que la nube',{lc,lp,rc,rp});
+                  if(typeof __crmErr==='function')__crmErr('BLOQUEADO: se intento guardar '+lc+' clientes/'+lp+' polizas, pero en la nube ya hay '+rc+'/'+rp+'. Para proteger tu informacion, NO se sobrescribio. Recarga la pagina para traer los datos correctos antes de seguir trabajando.','syncGuard');
+                  var b2=document.getElementById('syncBadge');if(b2){b2.textContent='⚠ Guardado bloqueado (datos locales incompletos) — recarga la pagina';b2.style.display='block';b2.style.background='#B91C1C';}
+                  return;
+                }
+                doPut();
+              }catch(pe){doPut();}
+            }).catch(function(){doPut();});
+          }catch(ge){doPut();}
+        } else {
+          doPut();
+        }
       }).catch(function(e){__crmErr(e);});
     }).catch(function(e){__crmErr(e);});
   }catch(e){__crmErr(e);}
