@@ -2519,6 +2519,15 @@ function loadS(){
  if(!p.mensajero)p.mensajero='Francisco Flores';
  if(!p.mensajeroTel)p.mensajeroTel='';
  p.clientes.forEach(c=>{if(!c.historialWA)c.historialWA=[];if(!c.historialComms)c.historialComms=[];if(!c.etiquetas)c.etiquetas=[];if(!c.archivos)c.archivos=[];});
+ if(p.polizas)p.polizas.forEach(function(pol){
+   ['fechaInicio','fechaFin','fechaExpedicion','fechaRecepcion'].forEach(function(campo){
+     var v=pol[campo];
+     if(v&&typeof v==='string'&&!/^\d{4}-\d{2}-\d{2}/.test(v)){
+       var m=v.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+       if(m)pol[campo]=m[3]+'-'+m[2]+'-'+m[1];
+     }
+   });
+ });
  p.prospectos.forEach(pr=>{if(!pr.historial)pr.historial=[];if(!pr.archivos)pr.archivos=[];if(!pr.etiquetas)pr.etiquetas=[];});
  return p;
  }
@@ -5267,14 +5276,39 @@ function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||""
  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6amV1YXV3cHNienFrbm1pZmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5MDc1NDYsImV4cCI6MjA5NDQ4MzU0Nn0.HtVsjtfCIEfULL3GH5rRaF0zUS5y6D37CGaBoipbM5s'; // clave pública (anon key)
 
  // ── CLIENTE SUPABASE ──────────────────────────────────────
- const { createClient } = window.supabase;
- const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
- auth: {
- autoRefreshToken: true,
- persistSession: true, // sesión persiste entre pestañas/recargas
- detectSessionInUrl: true,
+ var db;
+ try{
+   if(window.supabase && typeof window.supabase.createClient==='function'){
+     db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+       auth: {
+         autoRefreshToken: true,
+         persistSession: true, // sesión persiste entre pestañas/recargas
+         detectSessionInUrl: true,
+       }
+     });
+   } else {
+     throw new Error('SDK de Supabase no disponible (CDN bloqueado o sin conexión)');
+   }
+ }catch(supaInitErr){
+   console.warn('[JAC] Supabase no disponible, el CRM continua funcionando via GitHub sync:', supaInitErr);
+   db = {
+     auth: {
+       getSession: function(){ return Promise.resolve({data:{session:null}}); },
+       onAuthStateChange: function(){ return {data:{subscription:{unsubscribe:function(){}}}}; },
+       signInWithPassword: function(){ return Promise.resolve({data:null, error:{message:'Supabase no disponible'}}); }
+     },
+     from: function(){
+       var chain = {
+         select: function(){ return chain; },
+         eq: function(){ return chain; },
+         maybeSingle: function(){ return Promise.resolve({data:null, error:null}); },
+         upsert: function(){ return Promise.resolve({error:null}); },
+         delete: function(){ return chain; }
+       };
+       return chain;
+     }
+   };
  }
- });
 
  // ── AJUSTES DE UI DEL LOGIN ───────────────────────────────
  // Cambiar campo "USUARIO" por "EMAIL" y ocultar credenciales visibles
@@ -7058,7 +7092,7 @@ window.SH=function(id){
 // ── Init push on load ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
  setTimeout(()=>{
- if(Notification.permission==='granted')checkAndNotify();
+ if(('Notification' in window)&&Notification.permission==='granted')checkAndNotify();
  // Keyboard shortcut Ctrl+K / Cmd+K for global search
  document.addEventListener('keydown',e=>{
  if((e.ctrlKey||e.metaKey)&&e.key==='k'){
