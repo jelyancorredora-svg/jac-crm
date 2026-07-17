@@ -41,7 +41,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-s
 .lg2{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .lt b{font-size:12px;font-weight:900;color:var(--bl);letter-spacing:1.5px;display:block}
 .lt small{font-size:8.5px;color:var(--mu);display:block}
-nav{display:flex;gap:1px;flex-wrap:nowrap;margin-left:8px;overflow-x:auto;scrollbar-width:none}
+nav{display:flex;gap:1px;flex-wrap:nowrap;margin-left:8px;overflow-x:auto;scrollbar-width:none;cursor:grab}nav.__dragging{cursor:grabbing;user-select:none}
 nav::-webkit-scrollbar{display:none}
 nav a{padding:5px 9px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;background:transparent;color:rgba(255,255,255,.75);white-space:nowrap;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:2px;flex-shrink:0}
 nav a:hover{background:rgba(255,255,255,.18);color:#fff}
@@ -11073,5 +11073,46 @@ function _qSaveCal(){
 <div id="rep-body" style="overflow-x:auto"></div>
 </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    var nv = document.querySelector('nav');
+    if(!nv) return;
+    var isDown=false, startX=0, scrollLeft=0, moved=0;
+    nv.addEventListener('mousedown', function(e){
+      isDown=true; moved=0; nv.classList.add('__dragging');
+      startX = e.pageX; scrollLeft = nv.scrollLeft;
+    });
+    window.addEventListener('mouseup', function(){ isDown=false; nv.classList.remove('__dragging'); });
+    nv.addEventListener('mouseleave', function(){ isDown=false; nv.classList.remove('__dragging'); });
+    nv.addEventListener('mousemove', function(e){
+      if(!isDown) return;
+      var walk = e.pageX - startX;
+      moved = Math.max(moved, Math.abs(walk));
+      if(moved > 3) e.preventDefault();
+      nv.scrollLeft = scrollLeft - walk;
+    });
+    nv.addEventListener('click', function(e){
+      if(moved > 3){ e.stopPropagation(); e.preventDefault(); }
+    }, true);
+    nv.addEventListener('wheel', function(e){
+      if(Math.abs(e.deltaY) > Math.abs(e.deltaX) && nv.scrollWidth > nv.clientWidth){
+        nv.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    }, {passive:false});
+    // touch drag support (in case native touch scroll is inconsistent)
+    var touchStartX=0, touchScrollLeft=0;
+    nv.addEventListener('touchstart', function(e){
+      touchStartX = e.touches[0].pageX; touchScrollLeft = nv.scrollLeft;
+    }, {passive:true});
+    nv.addEventListener('touchmove', function(e){
+      var walk = e.touches[0].pageX - touchStartX;
+      nv.scrollLeft = touchScrollLeft - walk;
+    }, {passive:true});
+  }catch(__navFixErr){ if(typeof __crmErr==='function') __crmErr(__navFixErr,'navDragScroll'); }
+});
+</script>
 </body>
 </html>
