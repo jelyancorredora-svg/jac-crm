@@ -10023,7 +10023,7 @@ document.addEventListener('keydown',function(e){
     toast(typeof S!=='undefined'&&S.darkMode?'🌙 Modo oscuro':'☀️ Modo claro','ok',1500);
   }
   if(e.key==='Escape'){
-    document.querySelectorAll('.mo').forEach(m=>{if(m.style.display!=='none')m.style.display='none';});
+    document.querySelectorAll('.mo.on').forEach(m=>{m.classList.remove('on');});
     document.body.style.overflow='';
   }
 });
