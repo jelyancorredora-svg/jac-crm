@@ -3136,7 +3136,7 @@ function SH(id){
  closeDP();
  // Use small delay to avoid blank flicker
  requestAnimationFrame(()=>{
- const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,men:RMen,wam:RWam,cal:renderCal,rep:function(){repShow(_repTipo||'pol');}}[id];
+ const fn={dash:RD,cli:RC,pros:RPros,pol:RP,port:RPort,pipe:RPipe,vc:RVC,ren:RRen,pag:RPag,sin:RSin,veh:RV,com:RCom,tar:RTar,emp:REmp,aseg:RAseg,cfg:RCfg,men:RMen,wam:RWam,cal:renderCal,rep:function(){repShow(_repTipo||'pol');},uv:function(){if(typeof uvRenderStats==='function')uvRenderStats();if(typeof uvRenderTable==='function')uvRenderTable();}}[id];
  if(typeof fn==='function')try{fn();}catch(e){console.warn('[SH]',id,e);}
  });
 }
@@ -4915,7 +4915,7 @@ var _GID="_jgid";
 function _TK(){return [103,104,112,95,48,112,67,79,50,120,82,101,111,78,113,76,120,53,118,87,115,79,83,118,48,117,89,104,103,89,51,75,49,86,50,83,75,75,83,75].map(function(c){return String.fromCharCode(c);}).join("");}
 function syncToCloud(){
   var raw=localStorage.getItem("jacv10");if(!raw)return;
-  try{var obj=JSON.parse(raw);obj._ts=Date.now();try{var uv=localStorage.getItem("uvSync");if(uv)obj._uvSync=JSON.parse(uv);}catch(uve){__crmErr(uve);}raw=JSON.stringify(obj);localStorage.setItem("jacv10",raw);}catch(e){return;}
+  try{var obj=JSON.parse(raw);obj._ts=Date.now();raw=JSON.stringify(obj);localStorage.setItem("jacv10",raw);}catch(e){return;}
   try{
     var enc=new TextEncoder();
     var cs=new CompressionStream("gzip");
@@ -4978,7 +4978,7 @@ function loadFromCloud(cb){
     }).catch(function(){if(typeof cb==="function")cb(false);});
 }
 
-function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){__crmErr(e);}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}
+function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=(typeof S!=='undefined'&&S.univivir)||{};var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){__crmErr(e);}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}
 </script>
 
 <!-- MODAL: HISTORIAL COMPLETO EMAILS + WHATSAPP -->
@@ -9909,8 +9909,17 @@ function isSelectCorte(fec) {
 
 (function(){
 var _t='com',UV='uvSync';
-function gd(){try{return JSON.parse(localStorage.getItem(UV)||'null')}catch(e){return null}}
-function sd(d){localStorage.setItem(UV,JSON.stringify(d))}
+function _uvMigrateLegacy(){
+  try{var old=JSON.parse(localStorage.getItem(UV)||'null');if(old&&typeof old==='object')return old;}catch(e){}
+  return null;
+}
+function gd(){
+  if(S.univivir)return S.univivir;
+  var legacy=_uvMigrateLegacy();
+  if(legacy){S.univivir=legacy;save();return S.univivir;}
+  return null;
+}
+function sd(d){S.univivir=d;save();}
 function $i(id){return document.getElementById(id)}
 function mn(n){return '$'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 function nm(n){return (+(n||0)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
