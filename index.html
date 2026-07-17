@@ -2,6 +2,22 @@
 <html lang="es">
 <head>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+<style>
+#__crmErrBanner{position:fixed;bottom:14px;left:14px;right:14px;max-width:440px;margin:0 auto;background:#C8102E;color:#fff;padding:11px 16px;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;z-index:999999;box-shadow:0 6px 20px rgba(0,0,0,.35);display:none;line-height:1.4}
+</style>
+<script>
+function __crmErr(e){
+  try{ console.error('[CRM]', e); }catch(_){__crmErr(_);}
+  try{
+    var b=document.getElementById('__crmErrBanner');
+    if(!b){ b=document.createElement('div'); b.id='__crmErrBanner'; document.body.appendChild(b); }
+    b.textContent='⚠️ Ocurrió un error guardando o cargando datos. Verifica tu conexión e inténtalo de nuevo. Si persiste, contacta soporte.';
+    b.style.display='block';
+    clearTimeout(window.__crmErrTO);
+    window.__crmErrTO=setTimeout(function(){ b.style.display='none'; }, 7000);
+  }catch(_){__crmErr(_);}
+}
+</script>
 <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){location.replace('https://'+location.host+location.pathname+location.search+location.hash);}
 // v121: Fix cloud sync PJ tipo
 // v120: Fix PJ tipo preserve
@@ -1643,8 +1659,8 @@ const D={"clientes":[{"id":"2619663","nombre":"Ada Luz Camargo Falcon","alias":"
 // ═══════ JAC SEGUROS CRM v12 — JS PART 1 ═══════
 
 // ── AUTH (FIXED - login confiable) ──
-function getAuth(){try{const a=localStorage.getItem('jac_auth');if(a)return JSON.parse(a);}catch(e){}return{user:'jacseguros',pwd:'jac2024',pin:'6175'};}
-function saveAuth(a){try{localStorage.setItem('jac_auth',JSON.stringify(a));}catch(e){}}
+function getAuth(){try{const a=localStorage.getItem('jac_auth');if(a)return JSON.parse(a);}catch(e){__crmErr(e);}return{user:'jacseguros',pwd:'jac2024',pin:'6175'};}
+function saveAuth(a){try{localStorage.setItem('jac_auth',JSON.stringify(a));}catch(e){__crmErr(e);}}
 function isLoggedIn(){return sessionStorage.getItem('jac_s')==='ok';}
 function switchLT(t,el){
  document.querySelectorAll('.ltabs button').forEach(b=>b.classList.remove('on'));
@@ -1683,7 +1699,7 @@ function startSession(){
  document.getElementById('ls').style.display='none';
  document.getElementById('app').style.display='block';
  // Auto-update policy statuses on every login
- try{autoUpdatePolizasStatus();}catch(e){}
+ try{autoUpdatePolizasStatus();}catch(e){__crmErr(e);}
  SH('dash');
  // Sincronizar con la nube al iniciar sesión y cada 3 min
  syncToCloud();setInterval(function(){syncToCloud();},60000);setInterval(function(){loadFromCloud();},90000);
@@ -1713,7 +1729,7 @@ function startSession(){
   }
  })();}catch(e){console.log('[JAC v119] startup err:',e);}
   // Auto-check birthdays on every login (sends emails + shows WA alerts)
- setTimeout(()=>{try{autoBirthdayCheck();}catch(e){}},1200);
+ setTimeout(()=>{try{autoBirthdayCheck();}catch(e){__crmErr(e);}},1200);
  // ── HubSpot-style tracking: process URL params ──────────────────────────
  setTimeout(()=>{
    try{
@@ -1730,9 +1746,9 @@ function startSession(){
        const ok=markEmailEventByTrackId(clickId,'click');
        if(ok)toast('📧 Click de email registrado','ok');
        window.history.replaceState({},'',window.location.pathname);
-       if(redir){try{window.open(decodeURIComponent(redir),'_blank');}catch(e){}}
+       if(redir){try{window.open(decodeURIComponent(redir),'_blank');}catch(e){__crmErr(e);}}
      }
-   }catch(e){}
+   }catch(e){__crmErr(e);}
  },800);
 }
 
@@ -2298,7 +2314,7 @@ function renderCalMonth(year,month){
  const k=`${year}-${String(month+1).padStart(2,'0')}-${String(bd).padStart(2,'0')}`;
  ensureDay(k);map[k].bdays.push(c);
  }
- }catch(e){}
+ }catch(e){__crmErr(e);}
  });
  const first=new Date(year,month,1);
  const last=new Date(year,month+1,0);
@@ -2522,7 +2538,7 @@ window.addEventListener('unhandledrejection',function(ev){
 let S=loadS();
 // Safety: ensure S always has all required fields
 if(!S||typeof S!=='object'||!Array.isArray(S.clientes)){
- try{localStorage.removeItem('jacv10');}catch(e){}
+ try{localStorage.removeItem('jacv10');}catch(e){__crmErr(e);}
  const _n=JSON.parse(JSON.stringify(D));
  _n.pagos=[];_n.plantillas=[];_n.metas={mensual:0,anual:0};_n.darkMode=false;
  _n.vcReglas=JSON.parse(JSON.stringify(D.vcReglas||[]));
@@ -3102,8 +3118,8 @@ function SH(id){
  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('on'));
  document.querySelectorAll('.bni').forEach(a=>a.classList.remove('on'));
  const pg=document.getElementById('pg-'+id);
- if(id==='inf'){try{renderInformes();}catch(e){}} if(id==='cotp'){try{cotpInit();}catch(e){console.warn('cotpInit:',e);}} if(id==='not'){try{if(!S.notas)S.notas=[];RNot();}catch(e){}}
- if(id==='is'){try{isRender();}catch(e){}} if(id==='cal'){try{setTimeout(calFixSize,50);}catch(e){}}
+ if(id==='inf'){try{renderInformes();}catch(e){__crmErr(e);}} if(id==='cotp'){try{cotpInit();}catch(e){console.warn('cotpInit:',e);}} if(id==='not'){try{if(!S.notas)S.notas=[];RNot();}catch(e){__crmErr(e);}}
+ if(id==='is'){try{isRender();}catch(e){__crmErr(e);}} if(id==='cal'){try{setTimeout(calFixSize,50);}catch(e){__crmErr(e);}}
  if(pg){pg.classList.add('on');}
  document.querySelectorAll('nav a').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+id+"'"))a.classList.add('on');});
  document.getElementById('bn-'+id)?.classList.add('on');
@@ -3242,8 +3258,8 @@ th+='</div></div>';
  const dven=document.getElementById('dven');if(dven)dven.innerHTML=vh;const cancel=S.polizas.filter(p=>(p.etapa||p.estado||'').toLowerCase().includes('cancel'));let vc='<div class="ch"><h3>🚫 Canceladas ('+cancel.length+')</h3></div>';if(!cancel.length){vc+='<div style="padding:18px;text-align:center;color:var(--mu);font-size:12px">Sin canceladas ✓</div>';}else{vc+='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#FEE2E2"><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Póliza</th><th>Asegurado</th><th>Ramo</th><th>Aseguradora</th><th>Vencimiento</th><th style="padding:6px;text-align:left;border-bottom:1px solid #FECACA">Etiquetas</th><th style="padding:6px">Acc.</th></tr></thead><tbody>';cancel.forEach(function(p){var cl=GC(p.clienteId),nm=cl?cl.nombre:'—';
 var wu=cl&&cl.cel?cl.cel.replace(/[^0-9]/g,''):'';vc+='<tr style="border-bottom:1px solid #FECACA"><td style="padding:5px;font-weight:600">'+(p.numeroPol||p.numPol||'—')+'</td><td>'+nm+'</td><td>'+(p.ramo||'—')+'</td><td>'+(p.aseguradora||'—')+'</td><td>'+(p.fechaFin||'—')+'</td><td style="padding:3px">'+renderTags(p.etiquetas||[])+'</td>'+'<td style="padding:4px;white-space:nowrap">'+(wu?waBtn(wu,'cliente',cl?cl.id||'':'','Póliza',nm||'','💬','bwa bsm'):'')+(cl&&cl.email?'<button class="btn bsm" style="background:#2563EB;color:#fff;border-color:#2563EB;font-size:10px" onclick="openEmailForClient(this.dataset.id)" data-id="'+cl.id+'">&#128231;</button>':'')+'<button class="btn bsm bic" style="font-size:10px" onclick="OP(this.dataset.id)" data-id="'+p.id+'">&#9998;</button></td></tr>';});vc+='</tbody></table></div>';}const dcan=document.getElementById('dcan');if(dcan)dcan.innerHTML=vc;
  // Auto-run alert panels
- try{renderDashReminders();}catch(e){}
- try{if(typeof renderDashBirthdays==='function')renderDashBirthdays();}catch(e){}
+ try{renderDashReminders();}catch(e){__crmErr(e);}
+ try{if(typeof renderDashBirthdays==='function')renderDashBirthdays();}catch(e){__crmErr(e);}
  // "Tareas de hoy" quick banner
  try{
  const _hoy=TODAY.toISOString().split('T')[0];
@@ -3257,7 +3273,7 @@ var wu=cl&&cl.cel?cl.cel.replace(/[^0-9]/g,''):'';vc+='<tr style="border-bottom:
  _el.onclick=()=>SH('tar');
  if(!document.getElementById('dash-tareas-hoy'))_dsh.parentNode.insertBefore(_el,_dsh);
  }
- }catch(e){}
+ }catch(e){__crmErr(e);}
 }
 
 // ── CLIENTES ──
@@ -4315,7 +4331,7 @@ function addPagReminder(pagId){
   
   if(typeof save==="function")save();
   toast("📅 Recordatorio agregado al calendario","ok");
-  try{if(typeof renderCalMonth==="function")renderCalMonth();}catch(e){}
+  try{if(typeof renderCalMonth==="function")renderCalMonth();}catch(e){__crmErr(e);}
 }
 function delPag(id){
   if(!confirm("\u00BFEliminar este pago?"))return;
@@ -4850,8 +4866,8 @@ document.addEventListener('DOMContentLoaded',()=>{
      const clickId=params.get('jem_click');
      const redir=params.get('url');
      if(openId){const ok=markEmailEventByTrackId(openId,'open');if(ok)toast('📧 Email marcado como abierto','ok');window.history.replaceState({},'',window.location.pathname);}
-     if(clickId){markEmailEventByTrackId(clickId,'click');window.history.replaceState({},'',window.location.pathname);if(redir){try{window.open(decodeURIComponent(redir),'_blank');}catch(e){}}}
-   }catch(e){}
+     if(clickId){markEmailEventByTrackId(clickId,'click');window.history.replaceState({},'',window.location.pathname);if(redir){try{window.open(decodeURIComponent(redir),'_blank');}catch(e){__crmErr(e);}}}
+   }catch(e){__crmErr(e);}
  },1000);
  }
  // Enter key support for login
@@ -4861,7 +4877,7 @@ document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key
 });
 
 
-function syncPolComPct(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!aseg){toast("Selecciona aseguradora primero","err");return;}var pct=null;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var pv=(_sv&&_sv.polizasVigentes)||[];var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var found=pv.find(function(p){return p.n===n;});if(found)pct=found.com;}catch(e){}}if(aseg==="IS"||aseg.toLowerCase().indexOf("blue")>=0||aseg.toLowerCase().indexOf("bcbs")>=0)pct=12;if(["ASSA","SURA","MAPFRE","La Regional","La Regional De Seguros, S.A."].indexOf(aseg)>=0)pct=15;if(pct!==null){var el=document.getElementById("p-cb");if(el){el.value=pct;if(typeof CT==="function")CT();}toast("% Comisión: "+pct+"%","ok");}else toast("No hay % para "+aseg+". Ingrésalo manualmente.","");}
+function syncPolComPct(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!aseg){toast("Selecciona aseguradora primero","err");return;}var pct=null;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var pv=(_sv&&_sv.polizasVigentes)||[];var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var found=pv.find(function(p){return p.n===n;});if(found)pct=found.com;}catch(e){__crmErr(e);}}if(aseg==="IS"||aseg.toLowerCase().indexOf("blue")>=0||aseg.toLowerCase().indexOf("bcbs")>=0)pct=12;if(["ASSA","SURA","MAPFRE","La Regional","La Regional De Seguros, S.A."].indexOf(aseg)>=0)pct=15;if(pct!==null){var el=document.getElementById("p-cb");if(el){el.value=pct;if(typeof CT==="function")CT();}toast("% Comisión: "+pct+"%","ok");}else toast("No hay % para "+aseg+". Ingrésalo manualmente.","");}
 function normRamo(r){
   if(!r)return r;
   var AV="AUTOS/VEHÍCULOS",SM="SALUD/MÉDICOS";
@@ -4888,7 +4904,7 @@ var _GID="_jgid";
 function _TK(){return [103,104,112,95,48,112,67,79,50,120,82,101,111,78,113,76,120,53,118,87,115,79,83,118,48,117,89,104,103,89,51,75,49,86,50,83,75,75,83,75].map(function(c){return String.fromCharCode(c);}).join("");}
 function syncToCloud(){
   var raw=localStorage.getItem("jacv10");if(!raw)return;
-  try{var obj=JSON.parse(raw);obj._ts=Date.now();try{var uv=localStorage.getItem("uvSync");if(uv)obj._uvSync=JSON.parse(uv);}catch(uve){}raw=JSON.stringify(obj);localStorage.setItem("jacv10",raw);}catch(e){return;}
+  try{var obj=JSON.parse(raw);obj._ts=Date.now();try{var uv=localStorage.getItem("uvSync");if(uv)obj._uvSync=JSON.parse(uv);}catch(uve){__crmErr(uve);}raw=JSON.stringify(obj);localStorage.setItem("jacv10",raw);}catch(e){return;}
   try{
     var enc=new TextEncoder();
     var cs=new CompressionStream("gzip");
@@ -4901,16 +4917,16 @@ function syncToCloud(){
       var hh={Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json","Content-Type":"application/json"};
       fetch(aU,{cache:"no-store",headers:hh}).then(function(r){return r.ok?r.json():null;}).then(function(j){
         var bd={message:"jac-sync",content:b64};if(j&&j.sha)bd.sha=j.sha;
-        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).then(function(r){if(r.ok){r.clone().json().then(function(jj){if(jj&&jj.content&&jj.content.sha)localStorage.setItem('jacv10_csha',jj.content.sha);}).catch(function(){});var b=document.getElementById('syncBadge');if(b){b.textContent='✓ Sincronizado '+new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});b.style.display='block';clearTimeout(window._badgeT);window._badgeT=setTimeout(function(){b.style.display='none';},3000);}}}).catch(function(){});
-      }).catch(function(){});
-    }).catch(function(){});
-  }catch(e){}
+        fetch(aU,{method:"PUT",headers:hh,body:JSON.stringify(bd)}).then(function(r){if(r.ok){r.clone().json().then(function(jj){if(jj&&jj.content&&jj.content.sha)localStorage.setItem('jacv10_csha',jj.content.sha);}).catch(function(__e){__crmErr(__e);});var b=document.getElementById('syncBadge');if(b){b.textContent='✓ Sincronizado '+new Date().toLocaleTimeString('es-PA',{hour:'2-digit',minute:'2-digit'});b.style.display='block';clearTimeout(window._badgeT);window._badgeT=setTimeout(function(){b.style.display='none';},3000);}}}).catch(function(__e){__crmErr(__e);});
+      }).catch(function(__e){__crmErr(__e);});
+    }).catch(function(__e){__crmErr(__e);});
+  }catch(e){__crmErr(e);}
 }
 
 function loadFromCloud(cb){
   var aU="https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json";
   function decomp(ab){var ds=new DecompressionStream("gzip");var dw=ds.writable.getWriter();dw.write(new Uint8Array(ab));dw.close();return new Response(ds.readable).text();}
-  function apply(text){try{var r=JSON.parse(text),l=localStorage.getItem("jacv10"),lt=l?(JSON.parse(l)._ts||0):0;if((r._ts||0)>lt+1000){if(l&&r.clientes){try{var lObj=JSON.parse(l);if(lObj.clientes){r.clientes=r.clientes.map(function(rc){var lc=lObj.clientes.find(function(x){return x.id===rc.id;});if(rc.tipo==='Persona Jurídica')rc.tipo='Empresa';if(lc&&(lc.tipo==='Empresa'||lc.tipo==='Persona Jurídica')&&rc.tipo!=='Empresa')rc.tipo='Empresa';return rc;});text=JSON.stringify(r);}}catch(me){}}if(r._uvSync)try{localStorage.setItem("uvSync",JSON.stringify(r._uvSync));}catch(e){}localStorage.setItem("jacv10",text);location.reload();}else if(typeof cb==="function")cb(true);}catch(e){if(typeof cb==="function")cb(false);}}
+  function apply(text){try{var r=JSON.parse(text),l=localStorage.getItem("jacv10"),lt=l?(JSON.parse(l)._ts||0):0;if((r._ts||0)>lt+1000){if(l&&r.clientes){try{var lObj=JSON.parse(l);if(lObj.clientes){r.clientes=r.clientes.map(function(rc){var lc=lObj.clientes.find(function(x){return x.id===rc.id;});if(rc.tipo==='Persona Jurídica')rc.tipo='Empresa';if(lc&&(lc.tipo==='Empresa'||lc.tipo==='Persona Jurídica')&&rc.tipo!=='Empresa')rc.tipo='Empresa';return rc;});text=JSON.stringify(r);}}catch(me){__crmErr(me);}}if(r._uvSync)try{localStorage.setItem("uvSync",JSON.stringify(r._uvSync));}catch(e){__crmErr(e);}localStorage.setItem("jacv10",text);location.reload();}else if(typeof cb==="function")cb(true);}catch(e){if(typeof cb==="function")cb(false);}}
   fetch(aU,{cache:"no-store",headers:{Authorization:"token "+_TK(),Accept:"application/vnd.github.v3+json"}})
     .then(function(r){return r.ok?r.json():null;})
     .then(function(j){
@@ -4921,7 +4937,7 @@ function loadFromCloud(cb){
     }).catch(function(){if(typeof cb==="function")cb(false);});
 }
 
-function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}
+function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||"";var num=(document.getElementById("p-nu")||{}).value||"";if(!num){toast("Ingresa Nro. Póliza primero","err");return;}var cnt=0;if(aseg==="UNIVIVIR"||aseg.toLowerCase().indexOf('vivir')>=0){try{var parts=num.split("-");var n=parseInt(parts[parts.length-1]);var bc=JSON.parse(localStorage.getItem("uvSync")||"{}");var all=(bc.comisiones||[]);cnt=all.filter(function(c){return c.recibo&&parseInt(c.recibo)===n;}).length;}catch(e){__crmErr(e);}var el=document.getElementById("p-npag");if(el)el.value=cnt;toast("Pagos UniVivir: "+cnt,"ok");}else{var el=document.getElementById("p-npag");if(el&&!el.value)el.value=0;toast("Ingresa pagos manualmente o consulta "+aseg,"");}}
 </script>
 
 <!-- MODAL: HISTORIAL COMPLETO EMAILS + WHATSAPP -->
@@ -5275,7 +5291,7 @@ function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||""
  if (raw.includes('@')) {
  db.auth.signInWithPassword({ email: raw, password: pwd })
  .then(({ data }) => { if (data?.session) localStorage.setItem('jac_email', raw); })
- .catch(() => {});
+ .catch(function(__e){__crmErr(__e);});
  }
  setLoading('lbtn-pwd', false);
  startSession();
@@ -5294,7 +5310,7 @@ function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||""
  await initAfterLogin(data.session);
  return;
  }
- } catch(e) {}
+ } catch(e){__crmErr(e);}
  }
 
  setLoading('lbtn-pwd', false);
@@ -5325,8 +5341,8 @@ function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||""
  setLoading('lbtn-pin', false);
  // Intentar conectar Supabase en background (no bloquea)
  db.auth.getSession().then(({ data: { session } }) => {
- if (session) initAfterLogin(session).catch(() => {});
- }).catch(() => {});
+ if (session) initAfterLogin(session).catch(function(__e){__crmErr(__e);});
+ }).catch(function(__e){__crmErr(__e);});
  startSession();
  };
 
@@ -5437,7 +5453,7 @@ function syncPolPagos(){var aseg=(document.getElementById("p-as")||{}).value||""
  Object.assign(S, sbData);
  }
  // Actualizar caché local
- try { localStorage.setItem('jacv10', JSON.stringify(sbData)); } catch (e) {}
+ try { localStorage.setItem('jacv10', JSON.stringify(sbData)); } catch(e){__crmErr(e);}
  } else {
  // Primera vez o sin datos en Supabase: migrar localStorage si existe
  const localRaw = localStorage.getItem('jacv10');
@@ -5797,10 +5813,10 @@ function renderInformes(){
   ys.innerHTML=allYears.map(y=>`<option value="${y}"${y===defaultYear?' selected':''}>${y}</option>`).join('');
  }
  // Pre-render all tabs so they're ready when clicked
- try{renderInfProd();}catch(e){}
- try{renderInfRen();}catch(e){}
- try{renderInfCli();}catch(e){}
- try{renderInfAseg();}catch(e){}
+ try{renderInfProd();}catch(e){__crmErr(e);}
+ try{renderInfRen();}catch(e){__crmErr(e);}
+ try{renderInfCli();}catch(e){__crmErr(e);}
+ try{renderInfAseg();}catch(e){__crmErr(e);}
 }
 
 function renderInfResumen(){
@@ -9216,7 +9232,7 @@ function cotpSaveProspe(){
  cre:TODAY.toISOString()};
  if(!S.tareas)S.tareas=[];S.tareas.unshift(_tarea);save();
  toast(`📋 Tarea de seguimiento creada para el ${_followDate.toLocaleDateString('es-PA',{day:'2-digit',month:'short'})} ✓`,'ok');
- }catch(e){}
+ }catch(e){__crmErr(e);}
  toast(`✅ ${savedNom} guardado como prospecto`,'ok');
  // Show navigation button in save area
  const saveArea=document.getElementById('cotp-save-feedback');
@@ -9681,7 +9697,7 @@ function isRender(tabId) {
     if (lp2) { var pp = JSON.parse(lp2); if (pp && pp.length) window._ISLivePols = pp; }
     var lb = localStorage.getItem('bcbsSync');
     if (lb) window._BCBSData = JSON.parse(lb);
-  } catch(e) {}
+  } catch(e){__crmErr(e);}
   var tab = tabId || window._isTab || 'cartera';
   window._isTab = tab;
   var el = document.getElementById('pg-is');
@@ -9982,7 +9998,7 @@ setTimeout(loadFromCloud,2000);
 
 // v84 drag kanban
 var _pkDragId=null;
-function pkDragStart(ev,pid){_pkDragId=pid;try{ev.dataTransfer.setData('text',pid);}catch(e){}}
+function pkDragStart(ev,pid){_pkDragId=pid;try{ev.dataTransfer.setData('text',pid);}catch(e){__crmErr(e);}}
 function pkDrop(ev,col){ev.preventDefault();if(!_pkDragId)return;var p=(S.polizas||[]).find(function(x){return x.id===_pkDragId;});if(p&&p.estado!==col){p.estado=col;save();syncToCloud();RP();}(_pkDragId=null);}
 // v84 beneficiarios
 function addBen(dat){var list=document.getElementById('p-ben-list');if(!list)return;var d=dat||{};var row=document.createElement('div');row.style.cssText='display:flex;gap:5px;align-items:center;margin-bottom:3px;flex-wrap:wrap';var mk=function(tag,attrs){var el=document.createElement(tag);Object.keys(attrs).forEach(function(k){if(k==='data')Object.keys(attrs[k]).forEach(function(dk){el.setAttribute('data-'+dk,attrs[k][dk]);});else el[k]=attrs[k];});return el;};var i1=mk('input',{className:'fc',placeholder:'Nombre',value:d.nombre||'',data:{f:'bnombre'}});i1.style='flex:2;min-width:120px';var i2=mk('input',{className:'fc',placeholder:'Cedula',value:d.cedula||'',data:{f:'bcedula'}});i2.style='flex:1;min-width:80px';var i3=mk('input',{className:'fc',type:'date',value:d.fechaNac||'',data:{f:'bfechaNac'}});i3.style='flex:1;min-width:110px';var i4=mk('input',{className:'fc',type:'number',placeholder:'%',value:d.pct!=null?d.pct:'',data:{f:'bpct'}});i4.min='0';i4.max='100';i4.step='0.01';i4.style='width:60px';i4.oninput=updBenPct;var btn=document.createElement('button');btn.type='button';btn.className='btn';btn.style.padding='2px 8px';btn.textContent='x';btn.onclick=function(){this.parentElement.remove();updBenPct();};[i1,i2,i3,i4,btn].forEach(function(el){row.appendChild(el);});list.appendChild(row);updBenPct();}
