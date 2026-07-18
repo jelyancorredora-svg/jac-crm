@@ -320,6 +320,14 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
  oninput="gsearchLive(this.value)" onblur="setTimeout(()=>gsearchHide(),200)" autocomplete="off">
  <div id="gsearch-results" style="display:none;position:absolute;top:32px;right:0;background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;max-height:400px;overflow-y:auto;min-width:340px"></div>
  </div>
+ <a href="https://wa.me/50762926010" target="_blank" rel="noopener" class="btn bgh" style="padding:6px 10px;font-size:16px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center" title="WhatsApp">💬</a>
+ <div style="position:relative;display:inline-block">
+ <button onclick="var d=document.getElementById('hdrEmailDD');if(d)d.style.display=(d.style.display==='block'?'none':'block');" class="btn bgh" style="padding:6px 10px;font-size:16px" title="Correo">✉️</button>
+ <div id="hdrEmailDD" style="display:none;position:absolute;top:36px;right:0;background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:9999;min-width:230px;overflow:hidden">
+ <a href="mailto:jcastro@jacsegurospa.com" style="display:block;padding:10px 14px;font-size:12px;color:#1E293B;text-decoration:none;border-bottom:1px solid #F1F5F9">📧 jcastro@jacsegurospa.com</a>
+ <a href="mailto:jelyancorredora@gmail.com" style="display:block;padding:10px 14px;font-size:12px;color:#1E293B;text-decoration:none">📧 jelyancorredora@gmail.com</a>
+ </div>
+ </div>
  <button onclick="toggleDarkMode()" id="dark-btn" class="btn bgh" style="padding:6px 10px;font-size:16px" title="Modo oscuro">🌙</button> <button class="btn bsm" onclick="doLogout()">🚪</button>
 </div>
 </div></div>
@@ -11221,6 +11229,20 @@ document.addEventListener('DOMContentLoaded', function(){
       nv.scrollLeft = touchScrollLeft - walk;
     }, {passive:true});
   }catch(__navFixErr){ if(typeof __crmErr==='function') __crmErr(__navFixErr,'navDragScroll'); }
+});
+</script>
+
+<script>
+document.addEventListener('click', function(e){
+  try{
+    var dd = document.getElementById('hdrEmailDD');
+    if(dd && dd.style.display==='block' && !dd.contains(e.target) && e.target.id!=='hdrEmailDD'){
+      var btn = e.target.closest ? e.target.closest('button') : null;
+      if(!btn || btn.getAttribute('onclick')==null || btn.getAttribute('onclick').indexOf('hdrEmailDD')===-1){
+        dd.style.display='none';
+      }
+    }
+  }catch(__hdrMailErr){ if(typeof __crmErr==='function') __crmErr(__hdrMailErr,'hdrEmailDD'); }
 });
 </script>
 </body>
