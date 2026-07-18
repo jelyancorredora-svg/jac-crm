@@ -1712,6 +1712,7 @@ function startSession(){
  SH('dash');
  // Pull primero de la nube para evitar subir datos locales desactualizados y sobrescribir la nube (fix v135)
  if(typeof loadFromCloud==='function'){
+ try{var __sb=document.getElementById('syncBadge');if(__sb){__sb.textContent='⏳ Sincronizando...';__sb.style.background='#2563EB';__sb.style.display='block';}}catch(__sbe){}
  loadFromCloud(function(){
  try{autoUpdatePolizasStatus();}catch(e){__crmErr(e);}
  syncToCloud();
@@ -4880,7 +4881,8 @@ function editEtiqueta(id){
 // ── INIT ──
 document.addEventListener('DOMContentLoaded',()=>{
  // Auto-sync desde la nube en cada apertura
- loadFromCloud();
+ try{var __sb2=document.getElementById('syncBadge');if(__sb2){__sb2.textContent='⏳ Sincronizando...';__sb2.style.background='#2563EB';__sb2.style.display='block';}}catch(__sbe2){}
+ loadFromCloud(function(){try{var __sb3=document.getElementById('syncBadge');if(__sb3){__sb3.textContent='✓ Actualizado';__sb3.style.background='#22c55e';clearTimeout(window.__sb3TO);window.__sb3TO=setTimeout(function(){__sb3.style.display='none';},2000);}}catch(__sbe3){}});
  if(isLoggedIn()){
  document.getElementById('ls').style.display='none';
  document.getElementById('app').style.display='block';
