@@ -10562,13 +10562,15 @@ function calOpenModal(mode,id){
       +'<input id="crm-ri-fecha" type="date" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?r.fecha:calGetDate())+'"></div>'
       +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Hora</label>'
       +'<input id="crm-ri-hora" type="time" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?r.hora:'')+'"></div>'
-      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Lugar</label>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Tipo de reunión</label><select id="crm-ri-tipo" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box"><option value="presencial"'+((r&&r.tipo==='virtual')?'':' selected')+'>Presencial</option><option value="virtual"'+((r&&r.tipo==='virtual')?' selected':'')+'>Virtual (Zoom)</option></select></div>'
+      +'<div id="crm-ri-lugar-wrap"><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Dirección</label>'
       +'<input id="crm-ri-lugar" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?esc(r.lugar):'')+'"></div>'
+      +'<div id="crm-ri-zoom-wrap"><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Link de Zoom</label><input id="crm-ri-zoom" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" placeholder="https://zoom.us/j/..." value="'+(r?esc(r.zoom||''):'')+'"></div>'
       +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Participantes</label>'
       +'<input id="crm-ri-partic" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?esc(r.partic):'')+'"></div>'
       +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Cliente (opcional)</label>'
       +'<select id="crm-ri-cli" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box"><option value="">-- Sin cliente --</option>'+cOpts+'</select></div>'
-      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Notas</label>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Comentarios</label>'
       +'<textarea id="crm-ri-notas" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box">'+(r?esc(r.notas):'')+'</textarea></div>'
       +'</div>';
   } else {
@@ -10604,15 +10606,17 @@ function calModalSave(){
     var fecha=((document.getElementById('crm-ri-fecha')||{}).value)||calGetDate();
     var hora=(document.getElementById('crm-ri-hora')||{}).value||'';
     var lugar=(document.getElementById('crm-ri-lugar')||{}).value||'';
+    var tipo=(document.getElementById('crm-ri-tipo')||{}).value||'presencial';
+    var zoom=(document.getElementById('crm-ri-zoom')||{}).value||'';
     var partic=(document.getElementById('crm-ri-partic')||{}).value||'';
     var cli=(document.getElementById('crm-ri-cli')||{}).value||'';
     var rNotas=(document.getElementById('crm-ri-notas')||{}).value||'';
     S.calReuniones=S.calReuniones||[];
     if(_calMId){
       var idx=S.calReuniones.findIndex(function(x){return x.id===_calMId;});
-      if(idx>-1)S.calReuniones[idx]={id:_calMId,titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:fecha};
+      if(idx>-1)S.calReuniones[idx]={id:_calMId,titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:fecha,tipo:tipo,zoom:zoom};
     } else {
-      S.calReuniones.push({id:'r'+Date.now(),titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:fecha});
+      S.calReuniones.push({id:'r'+Date.now(),titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:fecha,tipo:tipo,zoom:zoom});
     }
     save();calCloseModal();calRenderReuniones();
   } else if(_calMMode==='nota'){
@@ -10653,13 +10657,15 @@ function calRenderReuniones(){
       +'<div style="flex:1">'
       +(r.hora?'<span style="display:inline-flex;align-items:center;background:#2563EB;color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:6px;margin-right:6px">&#128336; '+r.hora+'</span>':'')
       +'<div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px">'+esc(r.titulo)+'</div>'
-      +(r.lugar?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128205; '+esc(r.lugar)+'</div>':'')
+      +(r.tipo==='virtual'?(r.zoom?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128279; '+'<a href="'+esc(r.zoom)+'" target="_blank" style="color:#2563EB">'+esc(r.zoom)+'</a>'+'</div>':''):(r.lugar?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128205; '+esc(r.lugar)+'</div>':''))
       +(r.partic?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128101; '+esc(r.partic)+'</div>':'')
       +(r.notas?'<div style="font-size:12px;color:#78716C;margin-top:4px;font-style:italic">'+esc(r.notas)+'</div>':'')
       +(cBadge?'<div style="margin-top:6px">'+cBadge+'</div>':'')
       +'</div>'
       +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">'
       +'<button onclick="calWAReunion(\''+r.id+'\');" title="WhatsApp" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:14px">&#128362;</button>'
+      +(cl&&cl.telefono?('<button onclick="window.open(\'https://wa.me/507'+((cl.telefono||'').replace(/\D/g,''))+'\',\'_blank\')" style="background:#DCFCE7;border:1px solid #BBF7D0;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:14px" title="WhatsApp">&#128241;</button>'):'')
+      +(cl&&cl.email?('<button onclick="window.location.href=\'mailto:'+cl.email+'\'" style="background:#DBEAFE;border:1px solid #BFDBFE;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:14px" title="Email">&#9993;</button>'):'')
       +'<button onclick="calOpenModal(\'reun\',\''+r.id+'\');" style="background:#F1F5F9;border:1px solid #E2E8F0;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;color:#475569">&#9998;</button>'
       +'<button onclick="calDelReunion(\''+r.id+'\');" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;color:#EF4444">&#128465;</button>'
       +'</div></div></div>';
