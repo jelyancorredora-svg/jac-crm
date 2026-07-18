@@ -10484,6 +10484,9 @@ function calRenderDiarioHistorico(){
    if(e.contactoLibre.telefono)cBtns+='<button class="btn bsm" onclick="calWaFree(\''+e.contactoLibre.telefono+'\')" style="font-size:9px;padding:1px 6px" title="WhatsApp">&#128241;</button>';
    if(e.contactoLibre.email)cBtns+='<button class="btn bsm" onclick="calMailFree(\''+e.contactoLibre.email+'\')" style="font-size:9px;padding:1px 6px" title="Email">&#9993;</button>';
   }
+    var __hkey='d_'+item.y+'_'+item.mo+'_'+item.d;
+  cBtns+='<button class="btn bsm" onclick="event.stopPropagation();calEditDiarioEntry('+e.ts+',\''+__hkey+'\')" style="font-size:9px;padding:1px 6px" title="Editar">&#9998;</button>';
+  cBtns+='<button class="btn bsm" onclick="event.stopPropagation();calDelDiarioEntry('+e.ts+',\''+__hkey+'\')" style="font-size:9px;padding:1px 6px;color:#DC2626" title="Eliminar">&#128465;</button>';
   return '<div style="background:#FDFCFA;border:1px solid #E8DFD0;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer" onclick="calDiarioJumpTo('+item.y+','+item.mo+','+item.d+')" title="Click para ir a este d\u00eda">'
    +'<div style="font-size:10px;font-weight:700;color:#B8895A;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">'+when+'</div>'
    +'<div style="font-size:13px;color:#1E293B;white-space:pre-wrap;line-height:1.6">'+esc(e.texto||'')+'</div>'
@@ -10516,8 +10519,8 @@ function calLoadDiario(){
   calRenderDiarioEntries();
 }
 
-function calEditDiarioEntry(ts){
- var key=calDiarioKey();
+function calEditDiarioEntry(ts,key){
+ key=key||calDiarioKey();
  var lista=calDiarioEntries(key);
  var idx=-1;
  for(var i=0;i<lista.length;i++){if(lista[i].ts===ts){idx=i;break;}}
@@ -10531,9 +10534,9 @@ function calEditDiarioEntry(ts){
  save();
  calRenderDiarioEntries();
 }
-function calDelDiarioEntry(ts){
+function calDelDiarioEntry(ts,key){
  if(!confirm('¿Eliminar esta anotación?'))return;
- var key=calDiarioKey();
+ key=key||calDiarioKey();
  var lista=calDiarioEntries(key).filter(function(e){return e.ts!==ts;});
  S.calDiarios[key]=lista;
  save();
