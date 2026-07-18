@@ -10499,6 +10499,8 @@ function calOpenModal(mode,id){
     body.innerHTML='<div style="display:flex;flex-direction:column;gap:12px">'
       +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Título *</label>'
       +'<input id="crm-ri-tit" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?esc(r.titulo):'')+'"></div>'
+      +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Fecha *</label>'
+      +'<input id="crm-ri-fecha" type="date" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?r.fecha:calGetDate())+'"></div>'
       +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Hora</label>'
       +'<input id="crm-ri-hora" type="time" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box" value="'+(r?r.hora:'')+'"></div>'
       +'<div><label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Lugar</label>'
@@ -10540,6 +10542,7 @@ function calModalSave(){
   if(_calMMode==='reun'){
     var tit=(document.getElementById('crm-ri-tit')||{}).value||'';
     if(!tit.trim()){alert('El título es requerido');return;}
+    var fecha=((document.getElementById('crm-ri-fecha')||{}).value)||calGetDate();
     var hora=(document.getElementById('crm-ri-hora')||{}).value||'';
     var lugar=(document.getElementById('crm-ri-lugar')||{}).value||'';
     var partic=(document.getElementById('crm-ri-partic')||{}).value||'';
@@ -10548,9 +10551,9 @@ function calModalSave(){
     S.calReuniones=S.calReuniones||[];
     if(_calMId){
       var idx=S.calReuniones.findIndex(function(x){return x.id===_calMId;});
-      if(idx>-1)S.calReuniones[idx]={id:_calMId,titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:calGetDate()};
+      if(idx>-1)S.calReuniones[idx]={id:_calMId,titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:fecha};
     } else {
-      S.calReuniones.push({id:'r'+Date.now(),titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:calGetDate()});
+      S.calReuniones.push({id:'r'+Date.now(),titulo:tit,hora:hora,lugar:lugar,partic:partic,clienteId:cli,notas:rNotas,fecha:fecha});
     }
     save();calCloseModal();calRenderReuniones();
   } else if(_calMMode==='nota'){
