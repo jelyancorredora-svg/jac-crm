@@ -10225,12 +10225,12 @@ function calRenderDayTasks(y,m,sel){
       h+='<div style="font-size:11px;color:#1E293B;margin-top:3px;line-height:1.3">'+esc(e.nm)+'</div></div>';});
     de.tareas.forEach(function(e){
       h+='<div style="padding:8px 10px;background:#F5F3FF;border-radius:8px;margin-bottom:6px;border-left:3px solid #8B5CF6">';
-      h+='<div style="font-size:9px;font-weight:700;color:#5B21B6;background:#EDE9FE;padding:1px 6px;border-radius:6px;display:inline-block;margin-bottom:3px">'+(e.urgente?'&#128308; ':'')+'TAREA</div>';
-      h+='<div style="font-size:11px;color:#1E293B;line-height:1.3">'+esc(e.nm)+'</div></div>';});
+      h+='<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:9px;font-weight:700;color:#5B21B6;background:#EDE9FE;padding:1px 6px;border-radius:6px;display:inline-block">'+(e.urgente?'&#128308; ':'')+'TAREA</span><button class="btn bsm" onclick="calOpenTask(\''+e.id+'\')" style="font-size:9px;padding:1px 6px">&#9998;</button></div>';
+      h+='<div style="font-size:11px;color:#1E293B;margin-top:3px;line-height:1.3">'+esc(e.nm)+'</div></div>';});
     de.pros.forEach(function(e){
       h+='<div style="padding:8px 10px;background:#ECFDF5;border-radius:8px;margin-bottom:6px;border-left:3px solid #10B981">';
-      h+='<div style="font-size:9px;font-weight:700;color:#065F46;background:#D1FAE5;padding:1px 6px;border-radius:6px;display:inline-block;margin-bottom:3px">SEGUIM.</div>';
-      h+='<div style="font-size:11px;color:#1E293B;line-height:1.3">'+esc(e.nm)+'</div></div>';});}
+      h+='<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:9px;font-weight:700;color:#065F46;background:#D1FAE5;padding:1px 6px;border-radius:6px;display:inline-block">SEGUIM.</span><button class="btn bsm" onclick="OPros(\''+e.id+'\')" style="font-size:9px;padding:1px 6px">&#9998;</button></div>';
+      h+='<div style="font-size:11px;color:#1E293B;margin-top:3px;line-height:1.3">'+esc(e.nm)+'</div></div>';});}
   var el2=document.getElementById('cal-day-tasks');if(el2)el2.innerHTML=h;}
 function calRenderTimeline(y,m,sel){
   var evs=window._calEvs||{};
