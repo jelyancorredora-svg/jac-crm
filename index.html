@@ -4639,9 +4639,9 @@ function RTar(){
  if(TV==='k')renderTarK();else renderTarL();
 }
 function renderTarK(){
- const clr={'Por Hacer':'#1D4ED8','En Proceso':'#D97706','Hecho':'#15803D'};
+ const clr={'Por Hacer':'#1D4ED8','En Proceso':'#D97706','Hecho':'#15803D','Cancelada':'#B91C1C','Reprogramada':'#7C3AED','Eliminada':'#64748B'};
  let h='<div class="tboard">';
- ['Por Hacer','En Proceso','Hecho'].forEach(et=>{
+ ['Por Hacer','En Proceso','Hecho','Cancelada','Reprogramada','Eliminada'].forEach(et=>{
  const items=S.tareas.filter(t=>t.etapaTarea===et&&t._autoTipo!=='comision'),col=clr[et];
  h+=`<div class="tcol"><div class="tch" style="background:${col}18;color:${col}">${esc(et)} <span style="background:${col}30;border-radius:10px;padding:1px 6px;font-size:10px">${items.length}</span></div><div class="tbody2">`;
  items.forEach(t=>{
@@ -4665,8 +4665,8 @@ ${(t.tipoRel&&t.relId&&(t.tipoRel==='cliente'?GC(t.relId).email:GPros(t.relId).e
  });
  const tv=document.getElementById('tar-view');if(tv)tv.innerHTML=h+'</div>';
 }
-const TAR_STATUS_CLR={'Por Hacer':'#1D4ED8','Normal':'#64748B','En Proceso':'#D97706','En Seguimiento':'#7E22CE','Delegado':'#0891B2','Reenviado':'#B45309','Completado':'#15803D','Realizado':'#15803D','Finalizado':'#15803D','Hecho':'#15803D','Cancelada':'#B91C1C'};
-const TAR_DONE_STATES=new Set(['Completado','Realizado','Finalizado','Hecho','Cancelada']);
+const TAR_STATUS_CLR={'Por Hacer':'#1D4ED8','Normal':'#64748B','En Proceso':'#D97706','En Seguimiento':'#7E22CE','Delegado':'#0891B2','Reenviado':'#B45309','Completado':'#15803D','Realizado':'#15803D','Finalizado':'#15803D','Hecho':'#15803D','Cancelada':'#B91C1C','Reprogramada':'#7C3AED','Eliminada':'#64748B'};
+const TAR_DONE_STATES=new Set(['Completado','Realizado','Finalizado','Hecho','Cancelada','Eliminada']);
 function renderTarL(){
  if(!window.tarFilt)window.tarFilt='pend';
  var allT=S.tareas.slice();
@@ -4677,7 +4677,7 @@ function renderTarL(){
   if(da!==dz)return da-dz;
   return (pd[a.prioridad]||1)-(pd[z.prioridad]||1);
  });
- var allEtapas=['Por Hacer','Normal','En Proceso','En Seguimiento','Delegado','Reenviado','Completado','Realizado','Finalizado','Hecho','Cancelada'];
+ var allEtapas=['Por Hacer','Normal','En Proceso','En Seguimiento','Delegado','Reenviado','Completado','Realizado','Finalizado','Hecho','Cancelada','Reprogramada','Eliminada'];
  var pCnt=S.tareas.filter(function(t){return !TAR_DONE_STATES.has(t.etapaTarea);}).length;
  var fBtns='<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap">'
   +'<button class="btn bsm'+(window.tarFilt==='pend'?' btn-primary':'')+'" onclick="window.tarFilt=\'pend\';renderTarL()">Pendientes ('+pCnt+')</button>'
