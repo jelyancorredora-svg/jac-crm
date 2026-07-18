@@ -1706,6 +1706,29 @@ function showErr(msg){
 }
 function startSession(){
  sessionStorage.setItem('jac_s','ok');
+ try{
+ var __sbU='https://gzjeuauwpsbzqknmifki.supabase.co/rest/v1/jac_crm_data?select=data&user_id=eq.df11ca77-c38d-41a4-b2fe-380ea4d9bea6';
+ var __sbK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6amV1YXV3cHNienFrbm1pZmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5MDc1NDYsImV4cCI6MjA5NDQ4MzU0Nn0.HtVsjtfCIEfULL3GH5rRaF0zUS5y6D37CGaBoipbM5s';
+ fetch(__sbU,{headers:{apikey:__sbK,Authorization:'Bearer '+__sbK}}).then(function(r){return r.json();}).then(function(rows){
+  try{
+   var sbData=(rows&&rows[0]&&rows[0].data)?rows[0].data:null;
+   if(sbData){
+    var lraw=localStorage.getItem('jacv10');
+    var lobj=null; try{lobj=lraw?JSON.parse(lraw):null;}catch(__pe){lobj=null;}
+    var reject=false;
+    if(lobj&&lobj.clientes&&sbData.clientes&&lobj.clientes.length>10&&sbData.clientes.length<lobj.clientes.length*0.5) reject=true;
+    if(lobj&&lobj.polizas&&sbData.polizas&&lobj.polizas.length>10&&sbData.polizas.length<lobj.polizas.length*0.5) reject=true;
+    if(!reject){
+     sbData._ts=sbData._ts||Date.now();
+     localStorage.setItem('jacv10', JSON.stringify(sbData));
+     if(typeof S!=='undefined'){ try{Object.assign(S, sbData);}catch(__ae){} }
+    }
+   }
+  }catch(__me){ if(typeof __crmErr==='function') __crmErr(__me); }
+  __jacRestStart();
+ }).catch(function(__fe){ if(typeof __crmErr==='function') __crmErr(__fe); __jacRestStart(); });
+ }catch(__te){ if(typeof __crmErr==='function') __crmErr(__te); __jacRestStart(); }
+ function __jacRestStart(){
  document.getElementById('ls').style.display='none';
  document.getElementById('app').style.display='block';
  // Auto-update policy statuses on every login
@@ -1842,6 +1865,8 @@ async function autoBirthdayCheck(){
  <div style="padding:12px 16px;background:#f8fafc;border-radius:0 0 16px 16px;font-size:11px;color:#94a3b8;text-align:center">Los emails se enviaron automáticamente. Haz clic en WhatsApp para enviar tu mensaje de felicitación.</div>
  </div>`;
  document.body.appendChild(modal);
+
+}
 }
 function resetLoginEmergency(){
  if(!confirm('¿Restablecer acceso a valores por defecto?\n\nEsto restaurará las credenciales originales del sistema.'))return;
@@ -4935,6 +4960,12 @@ function _TK(){return [103,104,112,95,48,112,67,79,50,120,82,101,111,78,113,76,1
 function syncToCloud(){
   var raw=localStorage.getItem("jacv10");if(!raw)return;
   try{var obj=JSON.parse(raw);obj._ts=Date.now();raw=JSON.stringify(obj);localStorage.setItem("jacv10",raw);}catch(e){return;}
+ try{
+ var __sbU2='https://gzjeuauwpsbzqknmifki.supabase.co/rest/v1/jac_crm_data?on_conflict=user_id';
+ var __sbK2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6amV1YXV3cHNienFrbm1pZmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5MDc1NDYsImV4cCI6MjA5NDQ4MzU0Nn0.HtVsjtfCIEfULL3GH5rRaF0zUS5y6D37CGaBoipbM5s';
+ fetch(__sbU2,{method:'POST',headers:{apikey:__sbK2,Authorization:'Bearer '+__sbK2,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:'df11ca77-c38d-41a4-b2fe-380ea4d9bea6',data:obj,updated_at:new Date().toISOString()})}).catch(function(__pe2){ if(typeof __crmErr==='function') __crmErr(__pe2); });
+ }catch(__pte){ if(typeof __crmErr==='function') __crmErr(__pte); }
+
   try{
     var enc=new TextEncoder();
     var cs=new CompressionStream("gzip");
