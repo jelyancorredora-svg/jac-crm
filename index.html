@@ -4638,6 +4638,44 @@ function RTar(){
  const cnt=document.getElementById('tarcnt');if(cnt)cnt.textContent=`${S.tareas.length} tareas · ${pend} pendientes${atrasadas?' · ⚠️ '+atrasadas+' atrasadas':''}`;
  if(TV==='k')renderTarK();else renderTarL();
 }
+function calTaskDone(id){
+ var t=(S.tareas||[]).find(function(x){return x.id===id;});
+ if(!t)return;
+ t.etapaTarea='Hecho';t.estado='completada';
+ save();
+ if(typeof RTar==='function')RTar();
+ if(typeof calRenderDayTasks==='function')calRenderDayTasks();
+ if(typeof toast==='function')toast('✓ Tarea completada');
+}
+function calReprogramarTarea(id){
+ var t=(S.tareas||[]).find(function(x){return x.id===id;});
+ if(!t)return;
+ var inp=document.createElement('input');
+ inp.type='date';
+ inp.value=t.fechaLimite||'';
+ inp.style.cssText='position:fixed;top:-100px;left:0;opacity:0;';
+ document.body.appendChild(inp);
+ inp.addEventListener('change',function(){
+  if(inp.value){
+   t.fechaLimite=inp.value;t.etapaTarea='Reprogramada';
+   save();
+   if(typeof RTar==='function')RTar();
+   if(typeof calRenderDayTasks==='function')calRenderDayTasks();
+   if(typeof toast==='function')toast('📅 Tarea reprogramada a '+inp.value);
+  }
+  if(document.body.contains(inp))document.body.removeChild(inp);
+ });
+ if(inp.showPicker){try{inp.showPicker();}catch(e){inp.focus();inp.click();}}else{inp.focus();inp.click();}
+}
+function calCancelarTarea(id){
+ if(!confirm('¿Cancelar esta tarea?'))return;
+ var t=(S.tareas||[]).find(function(x){return x.id===id;});
+ if(!t)return;
+ t.etapaTarea='Cancelada';t.estado='cancelada';
+ save();
+ if(typeof RTar==='function')RTar();
+ if(typeof calRenderDayTasks==='function')calRenderDayTasks();
+}
 function renderTarK(){
  const clr={'Por Hacer':'#1D4ED8','En Proceso':'#D97706','Hecho':'#15803D','Cancelada':'#B91C1C','Reprogramada':'#7C3AED','Eliminada':'#64748B'};
  let h='<div class="tboard">';
@@ -4656,7 +4694,10 @@ ${t.fechaLimite?`<div style="font-size:10px;color:${atrasada?'#DC2626':'var(--mu
 <div style="display:flex;gap:3px;margin-top:6px;flex-wrap:wrap">
 ${et!=='Hecho'?`<button class="btn bsm bgn" onclick="advTask('${t.id}')">→</button>`:''}
 <button class="btn bsm bic" onclick="OT_open('${t.id}')">✏️</button>
-<button class="btn bsm bic" onclick="DTar('${t.id}')" style="color:var(--rd)">🗑</button>
+<button class="btn bsm bic" onclick="DTar('${t.id}')" style="color:var(--rd)">🗑</button><button class="btn bsm bic" onclick="calTaskDone('${t.id}')" title="Marcar realizada" style="color:#15803D">✓</button>
+<button class="btn bsm bic" onclick="calReprogramarTarea('${t.id}')" title="Reprogramar" style="color:#7C3AED">📅</button>
+<button class="btn bsm bic" onclick="calCancelarTarea('${t.id}')" title="Cancelar" style="color:#B91C1C">✕</button>
+
 ${wu?waBtn(wu,t.tipoRel||'',t.relId||'','Tarea: '+t.titulo,relNom,'💬','bwa bsm'):''}
 ${(t.tipoRel&&t.relId&&(t.tipoRel==='cliente'?GC(t.relId).email:GPros(t.relId).email))?`<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForTarea('${t.id}')">📧</button>`:''}
 </div></div>`;
@@ -4737,7 +4778,7 @@ function renderTarL(){
     +(wu?'<a href="'+esc(wu)+'" target="_blank" class="btn bwa bsm">&#128172;</a>':'')
     +((t.tipoRel&&t.relId&&relEmail)?'<button class="btn bsm" style="background:#1D4ED8;color:#fff;border-color:#1D4ED8" onclick="openEmailForTarea(\''+ t.id +'\')"  >&#128231;</button>':'')
     +'<button class="btn bsm bic" onclick="OT_open(\''+ t.id +'\')">&#9999;&#65039;</button>'
-    +'<button class="btn bsm bic" onclick="DTar(\''+ t.id +'\')" style="color:var(--rd)">&#128465;</button>'
+    +'<button class="btn bsm bic" onclick="DTar(\''+ t.id +'\')" style="color:var(--rd)">&#128465;</button>'+'<button class="btn bsm bic" onclick="calTaskDone(\''+ t.id +'\')" title="Marcar realizada" style="color:#15803D">✓</button>'+'<button class="btn bsm bic" onclick="calReprogramarTarea(\''+ t.id +'\')" title="Reprogramar" style="color:#7C3AED">📅</button>'+'<button class="btn bsm bic" onclick="calCancelarTarea(\''+ t.id +'\')" title="Cancelar" style="color:#B91C1C">✕</button>'
    +'</div></td>'
   +'</tr>';
  });
