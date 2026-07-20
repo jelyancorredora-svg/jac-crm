@@ -10661,7 +10661,40 @@ function calRenderWeek(){
 function calWeekNav(dir){window._calWeekOffset=(window._calWeekOffset||0)+dir;calRenderWeek();}
 function calNav(d){window.calDate.setMonth(window.calDate.getMonth()+d);window._calSel=1;renderCal();}
 function calGoToday(){window._calSel=new Date().getDate();window._calWeekOffset=0;window.calDate=new Date();renderCal();}
-function calDay(d){window._calSel=d;renderCal();}
+function calAbrirDiaCompleto(d){
+ var y=window.calDate.getFullYear(), m=window.calDate.getMonth();
+ var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+ var reuniones=(S.calReuniones||[]).filter(function(r){return r.fecha===ds;});
+ var tareasDia=(S.tareas||[]).filter(function(t){return t.fechaLimite===ds && t.etapaTarea!=='Eliminada';});
+ var conHora=[], sinHora=[];
+ reuniones.forEach(function(r){ if(r.hora) conHora.push({hora:r.hora,tipo:'reun',item:r}); else sinHora.push({tipo:'reun',item:r}); });
+ tareasDia.forEach(function(t){ if(t.hora) conHora.push({hora:t.hora,tipo:'tarea',item:t}); else sinHora.push({tipo:'tarea',item:t}); });
+ conHora.sort(function(a,b){return a.hora.localeCompare(b.hora);});
+ function cardReun(it){ return '<div style="background:#EFF6FF;border-left:3px solid #1D4ED8;border-radius:6px;padding:6px 10px;margin-bottom:4px;font-size:12px">🤝 '+esc(it.titulo||it.nombreCliente||'Reunión')+'</div>'; }
+ function cardTarea(it){ var pr=it.prioridad||''; var col=pr==='Alta'?'#DC2626':pr==='Media'?'#D97706':'#16A34A'; return '<div style="background:#F8FAFC;border-left:3px solid '+col+';border-radius:6px;padding:6px 10px;margin-bottom:4px;font-size:12px">✅ '+esc(it.titulo||it.desc||'Tarea')+'</div>'; }
+ var old=document.getElementById('cal-dia-completo-overlay'); if(old)old.remove();
+ var horasHtml='';
+ for(var h=0; h<24; h++){
+  var hs=String(h).padStart(2,'0')+':00';
+  var items=conHora.filter(function(x){ return parseInt(x.hora.split(':')[0],10)===h; });
+  var itemsHtml=items.map(function(x){ return '<div><b style="font-size:11px;color:#64748B">'+x.hora+'</b> '+(x.tipo==='reun'?cardReun(x.item):cardTarea(x.item))+'</div>'; }).join('');
+  horasHtml += '<div style="display:flex;border-top:1px solid #F1F5F9;min-height:34px;padding:4px 0">'+'<div style="width:56px;flex-shrink:0;color:#94A3B8;font-size:11px;padding-top:4px">'+hs+'</div>'+'<div style="flex:1">'+(itemsHtml||'')+'</div>'+'</div>';
+ }
+ var sinHoraHtml=sinHora.map(function(x){ return x.tipo==='reun'?cardReun(x.item):cardTarea(x.item); }).join('');
+ var fechaLbl=new Date(y,m,d).toLocaleDateString('es-PA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ var html='<div id="cal-dia-completo-overlay" onclick="if(event.target===this)this.remove()" style="display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.65);z-index:9999;align-items:center;justify-content:center">'
+  +'<div style="background:#fff;border-radius:16px;padding:24px;width:540px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.35)">'
+  +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+  +'<div style="font-size:16px;font-weight:700;color:#1E293B;text-transform:capitalize">📅 '+fechaLbl+'</div>'
+  +'<button onclick="document.getElementById(\'cal-dia-completo-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748B">&#10005;</button>'
+  +'</div>'
+  +(sinHoraHtml?'<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px">TODO EL DÍA</div>'+sinHoraHtml+'</div>':'')
+  +'<div style="font-size:11px;font-weight:700;color:#64748B;margin-bottom:6px">HORARIO</div>'
+  +horasHtml
+  +'</div></div>';
+ document.body.insertAdjacentHTML('beforeend', html);
+}
+function calDay(d){window._calSel=d;renderCal();calAbrirDiaCompleto(d);}
 function calTab(t){
   window._calTab=t;
   ['agenda','semana','tareas','metas','diario','reun','notas','cobros'].forEach(function(x){
@@ -10853,6 +10886,8 @@ function calAddAgendaItem(tipo){
  h+='<input id="_aTit" placeholder="'+label+'" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px">';
  h+='<label style="font-size:11px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Fecha</label>';
  h+='<input id="_aFecha" type="date" value="'+dateStr+'" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px">';
+ h+='<label style="font-size:11px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Hora (opcional)</label>';
+ h+='<input id="_aHora" type="time" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px">';
  h+='<label style="font-size:11px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Vincular a</label>';
  h+='<select id="_aCli" style="width:100%;padding:8px 10px;border:1px solid #D4C5A9;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:14px">'+contactOpts+'</select>';
  h+='<div style="display:flex;gap:8px;justify-content:flex-end">';
@@ -10867,12 +10902,13 @@ function calAddAgendaItem(tipo){
   var tit=(document.getElementById('_aTit').value||'').trim();
   if(!tit){alert('Escribe un t\u00edtulo');return;}
   var fecha=document.getElementById('_aFecha').value;
+  var hora=(document.getElementById('_aHora')||{}).value||'';
   var contactVal=(document.getElementById('_aCli')||{}).value||'';
   var clienteId='',prospectoId='';
   if(contactVal.indexOf('c:')===0)clienteId=contactVal.slice(2);
   else if(contactVal.indexOf('p:')===0)prospectoId=contactVal.slice(2);
   var id='T'+Math.random().toString(36).slice(2,10);
-  var t={id:id,titulo:icon+' '+label+': '+tit,desc:tit,fechaLimite:fecha,prioridad:'Media',etapaTarea:'Por hacer',fechaCreacion:new Date().toISOString().slice(0,10),estado:'pendiente',tipoAgenda:tipo,clienteId:clienteId,prospectoId:prospectoId};
+  var t={id:id,titulo:icon+' '+label+': '+tit,desc:tit,fechaLimite:fecha,prioridad:'Media',etapaTarea:'Por hacer',fechaCreacion:new Date().toISOString().slice(0,10),estado:'pendiente',tipoAgenda:tipo,clienteId:clienteId,prospectoId:prospectoId,hora:hora};
   if(!S.tareas)S.tareas=[];
   S.tareas.push(t);
   save();
