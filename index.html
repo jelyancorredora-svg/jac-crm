@@ -5053,7 +5053,7 @@ function updateLetraPrima(){
   lp.value=t>0?(n>1?n+"x "+d$+(t/n).toFixed(2):d$+t.toFixed(2)):"";
 }
 var _GID="_jgid";
-function _TK(){return [103,104,112,95,48,112,67,79,50,120,82,101,111,78,113,76,120,53,118,87,115,79,83,118,48,117,89,104,103,89,51,75,49,86,50,83,75,75,83,75].map(function(c){return String.fromCharCode(c);}).join("");}
+function _TK(){return "";} // token retirado: estaba en claro en un repo publico
 function syncToCloud(){
   var raw=localStorage.getItem("jacv10");if(!raw)return;
   try{var obj=JSON.parse(raw);obj._ts=Date.now();raw=JSON.stringify(obj);localStorage.setItem("jacv10",raw);}catch(e){return;}
@@ -5063,6 +5063,7 @@ function syncToCloud(){
  fetch(__sbU2,{method:'POST',headers:{apikey:__sbK2,Authorization:'Bearer '+__sbK2,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:'df11ca77-c38d-41a4-b2fe-380ea4d9bea6',data:obj,updated_at:new Date().toISOString()})}).catch(function(__pe2){ if(typeof __crmErr==='function') __crmErr(__pe2); });
  }catch(__pte){ if(typeof __crmErr==='function') __crmErr(__pte); }
 
+  if(!_TK())return; // sin token no se publica el snapshot en el repo publico
   try{
     var enc=new TextEncoder();
     var cs=new CompressionStream("gzip");
@@ -5112,6 +5113,7 @@ function syncToCloud(){
 }
 
 function loadFromCloud(cb){
+  if(!_TK()){if(typeof cb==="function")cb(false);return;} // respaldo en repo publico desactivado
   var aU="https://api.github.com/repos/jelyancorredora-svg/jac-crm/contents/_d/s.json";
   function decomp(ab){var ds=new DecompressionStream("gzip");var dw=ds.writable.getWriter();dw.write(new Uint8Array(ab));dw.close();return new Response(ds.readable).text();}
   function apply(text){try{var r=JSON.parse(text),l=localStorage.getItem("jacv10"),lt=l?(JSON.parse(l)._ts||0):0;if((r._ts||0)>lt+1000 && (function(){try{if(!l)return true;var lc2=JSON.parse(l);var lcn=(lc2.clientes||[]).length,lpn=(lc2.polizas||[]).length,rcn=(r.clientes||[]).length,rpn=(r.polizas||[]).length;if((lcn>10&&rcn<lcn*0.5)||(lpn>10&&rpn<lpn*0.5)){console.warn('JAC CRM: datos remotos sospechosos (muchos menos registros que local), se ignoran para evitar perdida de datos',{lcn,lpn,rcn,rpn});if(typeof __crmErr==='function')__crmErr('Se detecto un snapshot remoto con muchos menos datos ('+rcn+' clientes/'+rpn+' polizas vs '+lcn+'/'+lpn+' local) y se ignoro para proteger tu informacion.','syncGuard');return false;}return true;}catch(__e3){return true;}})()){if(l&&r.clientes){try{var lObj=JSON.parse(l);if(lObj.clientes){r.clientes=r.clientes.map(function(rc){var lc=lObj.clientes.find(function(x){return x.id===rc.id;});if(rc.tipo==='Persona Jurídica')rc.tipo='Empresa';if(lc&&(lc.tipo==='Empresa'||lc.tipo==='Persona Jurídica')&&rc.tipo!=='Empresa')rc.tipo='Empresa';return rc;});text=JSON.stringify(r);}}catch(me){__crmErr(me);}}if(r._uvSync)try{localStorage.setItem("uvSync",JSON.stringify(r._uvSync));}catch(e){__crmErr(e);}localStorage.setItem("jacv10",text);location.reload();}else if(typeof cb==="function")cb(true);}catch(e){if(typeof cb==="function")cb(false);}}
