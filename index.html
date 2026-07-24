@@ -10880,18 +10880,16 @@ function calWAReunion(id){
   }
   window._menMsg=msg;SH('men');
 }
-function calRenderReuniones(){
-  var el=document.getElementById('cal-reun-list');
-  if(!el)return;
-  var fecha=calGetDate();
-  var rr=(S.calReuniones||[]).filter(function(r){return r.fecha===fecha;}).sort(function(a,b){return (a.hora||'').localeCompare(b.hora||'');});
-  if(!rr.length){el.innerHTML='<div style="text-align:center;padding:32px;color:#94A3B8;font-size:13px">&#128101; No hay reuniones para este día.<br><span style="font-size:11px">Haz clic en &quot;+ Nueva Reunión&quot; para agregar una.</span></div>';return;}
-  el.innerHTML=rr.map(function(r){
+function calReunCard(r,showFecha){
+  var _fb='';
+  if(showFecha&&r.fecha){try{var _d=new Date(r.fecha+'T00:00:00');_fb='<span style="display:inline-block;background:#FEF3C7;color:#92400E;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:6px;margin-right:6px">&#128197; '+_d.toLocaleDateString('es-PA',{weekday:'short',day:'numeric',month:'short'})+'</span>';}catch(e){_fb='<span style="font-size:11px;color:#92400E">'+r.fecha+'</span>';}}
+
     var cl=(S.clientes||[]).find(function(x){return x.id===r.clienteId;});
     var cBadge=cl?'<span style="font-size:11px;color:#2563EB;background:#EEF2FF;padding:2px 8px;border-radius:20px">&#128100; '+esc(cl.nombre)+'</span>':'';
     return '<div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;border:1px solid #E8DFD0;box-shadow:0 2px 6px rgba(0,0,0,.05)">'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
       +'<div style="flex:1">'
+      +_fb
       +(r.hora?'<span style="display:inline-flex;align-items:center;background:#2563EB;color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;margin-bottom:6px;margin-right:6px">&#128336; '+r.hora+'</span>':'')
       +'<div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px">'+esc(r.titulo)+'</div>'
       +(r.tipo==='virtual'?(r.zoom?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128279; '+'<a href="'+esc(r.zoom)+'" target="_blank" style="color:#2563EB">'+esc(r.zoom)+'</a>'+'</div>':''):(r.lugar?'<div style="font-size:12px;color:#64748B;margin-bottom:2px">&#128205; '+esc(r.lugar)+'</div>':''))
@@ -10906,7 +10904,22 @@ function calRenderReuniones(){
       +'<button onclick="calOpenModal(\'reun\',\''+r.id+'\');" style="background:#F1F5F9;border:1px solid #E2E8F0;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;color:#475569">&#9998;</button>'
       +'<button onclick="calDelReunion(\''+r.id+'\');" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;color:#EF4444">&#128465;</button>'
       +'</div></div></div>';
-  }).join('');
+}
+function calRenderReuniones(){
+  var el=document.getElementById('cal-reun-list');
+  if(!el)return;
+  var fecha=calGetDate();
+  var todas=(S.calReuniones||[]);
+  var rr=todas.filter(function(r){return r.fecha===fecha;}).sort(function(a,b){return (a.hora||'').localeCompare(b.hora||'');});
+  var fut=todas.filter(function(r){return r.fecha&&r.fecha>fecha;}).sort(function(a,b){return (a.fecha+(a.hora||'')).localeCompare(b.fecha+(b.hora||''));});
+  var h='';
+  if(!rr.length)h+='<div style="text-align:center;padding:24px;color:#94A3B8;font-size:13px">&#128101; No hay reuniones para este d&iacute;a.<br><span style="font-size:11px">Haz clic en &quot;+ Nueva Reuni&oacute;n&quot; para agregar una.</span></div>';
+  else h+=rr.map(function(r){return calReunCard(r,false);}).join('');
+  if(fut.length){
+    h+='<div style="margin:18px 0 10px;padding-top:12px;border-top:1px solid #E8DFD0;font-size:11px;font-weight:700;color:#78716C;text-transform:uppercase;letter-spacing:1.5px">&#128197; Pr&oacute;ximas reuniones ('+fut.length+')</div>';
+    h+=fut.map(function(r){return calReunCard(r,true);}).join('');
+  }
+  el.innerHTML=h;
 }
 function calAddReunion(){calOpenModal('reun',null);}
 function calDelReunion(id){
