@@ -238,6 +238,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Permissions-Policy" content="geolocation=(),microphone=(),camera=()">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div id="tst"></div>
@@ -872,7 +873,7 @@ body.dark ::-webkit-scrollbar-thumb{background:#334155}
  </div>
  <p style="font-size:11px;color:var(--mu);margin-top:8px">Exporta periódicamente como respaldo de seguridad.</p>
  </div>
-</div>
+<div class="card" style="margin-top:16px;padding:14px"><h3 style="font-size:13px;margin-bottom:8px">🔗 Integraciones · Google Calendar</h3><p style="font-size:11px;color:#78716C;margin-bottom:10px">Sincroniza tus tareas y acciones de la Agenda con tu Google Calendar. Pega aquí tu "Client ID" de Google Cloud Console.</p><label style="font-size:11px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Google Client ID</label><input id="cfg-gcal-cid" type="text" placeholder="xxxxxxxx.apps.googleusercontent.com" class="fc" style="width:100%;max-width:420px;margin-bottom:10px;box-sizing:border-box" oninput="cfgSaveGcalCid()"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn bp" onclick="gcalConectar()">🔌 Conectar Google Calendar</button><button class="btn" onclick="gcalSyncAll()">🔄 Sincronizar ahora</button><button class="btn" onclick="gcalDesconectar()">Desconectar</button></div><div id="cfg-gcal-status" style="font-size:11px;color:#78716C;margin-top:8px"></div></div></div>
 
 <!-- MENSAJERO -->
 <div class="pg" id="pg-men">
@@ -11039,6 +11040,81 @@ function calRenderHistorial(){
   h+='</div>';
  });
  wrap.innerHTML=h;
+}
+
+function gcalClientId(){return (S.integraciones&&S.integraciones.googleClientId)||'';}
+function cfgSaveGcalCid(){
+ var v=(document.getElementById('cfg-gcal-cid')||{}).value||'';
+ S.integraciones=S.integraciones||{};
+ S.integraciones.googleClientId=v.trim();
+ save();
+}
+function gcalStatus(msg){
+ var el=document.getElementById('cfg-gcal-status');
+ if(el)el.textContent=msg;
+}
+window.__gcalToken=null;
+function gcalReady(){return !!(window.google&&window.google.accounts&&window.google.accounts.oauth2);}
+function gcalConectar(){
+ var cid=gcalClientId();
+ if(!cid){alert('Primero pega tu Google Client ID arriba, en Integraciones.');return;}
+ if(!gcalReady()){gcalStatus('Cargando Google... intenta de nuevo en unos segundos.');return;}
+ try{
+  var tc=google.accounts.oauth2.initTokenClient({
+   client_id:cid,
+   scope:'https://www.googleapis.com/auth/calendar.events',
+   callback:function(resp){
+    if(resp&&resp.access_token){
+     window.__gcalToken=resp.access_token;
+     S.integraciones=S.integraciones||{};S.integraciones.googleConectado=true;save();
+     gcalStatus('✅ Conectado. Sincronizando...');
+     if(typeof toast==='function')toast('✅ Google Calendar conectado');
+     gcalSyncAll();
+    } else {
+     gcalStatus('No se pudo conectar. Intenta de nuevo.');
+    }
+   }
+  });
+  tc.requestAccessToken();
+ }catch(e){gcalStatus('Error: '+e.message);}
+}
+function gcalDesconectar(){
+ window.__gcalToken=null;
+ S.integraciones=S.integraciones||{};S.integraciones.googleConectado=false;save();
+ gcalStatus('Desconectado.');
+ if(typeof toast==='function')toast('Google Calendar desconectado');
+}
+async function gcalUpsertEvent(t){
+ if(!window.__gcalToken)return;
+ var fecha=t.fecha||t.fechaLimite;
+ if(!fecha)return;
+ var body={summary:(t.texto||t.titulo||t.nm||'Tarea CRM'),description:'JAC CRM: '+(t.tipoAgenda||t.tipo||'tarea')};
+ if(t.hora){
+  var startDT=fecha+'T'+t.hora+':00';
+  var endD=new Date(fecha+'T'+t.hora+':00');
+  if(!isNaN(endD.getTime())){
+   endD.setMinutes(endD.getMinutes()+30);
+   body.start={dateTime:startDT,timeZone:'America/Panama'};
+   body.end={dateTime:endD.toISOString().slice(0,19),timeZone:'America/Panama'};
+  }
+ }
+ if(!body.start){body.start={date:fecha};body.end={date:fecha};}
+ try{
+  var method=t.gcalEventId?'PATCH':'POST';
+  var url='https://www.googleapis.com/calendar/v3/calendars/primary/events'+(t.gcalEventId?'/'+t.gcalEventId:'');
+  var r=await fetch(url,{method:method,headers:{Authorization:'Bearer '+window.__gcalToken,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var j=await r.json();
+  if(j.id){t.gcalEventId=j.id;}
+ }catch(e){}
+}
+async function gcalSyncAll(){
+ if(!window.__gcalToken){gcalStatus('Conecta primero con el botón de arriba.');return;}
+ var items=(S.tareas||[]).filter(function(t){return (t.fecha||t.fechaLimite)&&t.etapaTarea!=='Eliminada'&&t.etapaTarea!=='Cancelada';});
+ gcalStatus('Sincronizando '+items.length+' elemento(s)...');
+ for(var i=0;i<items.length;i++){await gcalUpsertEvent(items[i]);}
+ save();
+ gcalStatus('✅ Sincronizado ('+items.length+' elementos) · '+new Date().toLocaleTimeString());
+ if(typeof toast==='function')toast('🔄 Google Calendar sincronizado');
 }
 function calRenderNotas(){
   calMigrarNotasAntiguas();
